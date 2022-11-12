@@ -28,13 +28,13 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
   }
 
   for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Blob> &input = inputs.at(i);
+    const std::shared_ptr<Blob> &input_data = inputs.at(i);
     if (this->padding_ > 0) {
-      input->Padding({padding_, padding_, padding_, padding_}, 0);
+      input_data->Padding({padding_, padding_, padding_, padding_}, 0);
     }
-    const uint32_t input_h = input->rows();
-    const uint32_t input_w = input->cols();
-    const uint32_t input_c = input->channels();
+    const uint32_t input_h = input_data->rows();
+    const uint32_t input_w = input_data->cols();
+    const uint32_t input_c = input_data->channels();
     const uint32_t output_c = input_c;
 
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_ + 1));
@@ -44,10 +44,10 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
       return InferStatus::kInferFailedOutputEmpty;
     }
 
-    std::shared_ptr<Blob> output_blob = std::make_shared<Blob>(output_c, output_h, output_w);
+    std::shared_ptr<Blob> output_data = std::make_shared<Blob>(output_c, output_h, output_w);
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::mat &input_channel = input->at(ic);
-      arma::mat &output_channel = output_blob->at(ic);
+      const arma::mat &input_channel = input_data->at(ic);
+      arma::mat &output_channel = output_data->at(ic);
       for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_) {
         for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_) {
           const arma::mat &region = input_channel.submat(r, c, r + pooling_h - 1, c + pooling_w - 1);
@@ -55,7 +55,7 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
         }
       }
     }
-    outputs.push_back(output_blob);
+    outputs.push_back(output_data);
   }
   return InferStatus::kInferSuccess;
 }

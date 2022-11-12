@@ -18,6 +18,12 @@ TEST(test_blob, size) {
   ASSERT_EQ(blob.size(), channels * rows * cols);
 }
 
+TEST(test_blob, empty) {
+  using namespace kuiper_infer;
+  Blob blob;
+  ASSERT_EQ(blob.empty(), true);
+}
+
 TEST(test_blob, fill1) {
   using namespace kuiper_infer;
   const uint32_t channels = 64;

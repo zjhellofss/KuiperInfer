@@ -4,10 +4,13 @@
 
 #ifndef KUIPER_COURSE_DATA_BLOB_HPP_
 #define KUIPER_COURSE_DATA_BLOB_HPP_
-#include "armadillo"
+#include <memory>
+#include <armadillo>
 namespace kuiper_infer {
 class Blob {
  public:
+  explicit Blob() = default;
+
   explicit Blob(uint32_t channels, uint32_t rows, uint32_t cols);
 
   Blob(const Blob &) = default;
@@ -21,6 +24,10 @@ class Blob {
   uint32_t channels() const;
 
   uint32_t size() const;
+
+  bool empty() const;
+
+  double front() const;
 
   std::vector<uint32_t> shapes() const;
 
@@ -43,6 +50,8 @@ class Blob {
   void Show();
 
   void Flatten();
+
+  std::shared_ptr<Blob> Clone();
 
  private:
   arma::cube data_;

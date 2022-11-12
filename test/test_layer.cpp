@@ -2,7 +2,34 @@
 // Created by fss on 22-11-12.
 //
 #include <gtest/gtest.h>
+#include "../source/layer/flatten.hpp"
 #include "../source/layer/avgpooling.hpp"
+
+TEST(test_layer, flatten) {
+  using namespace kuiper_infer;
+  const uint32_t channels = 3;
+  const uint32_t rows = 32;
+  const uint32_t cols = 64;
+
+  std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, rows, cols);
+  input_data->Fill(2.);
+  std::vector<std::shared_ptr<Blob>> input_datas;
+  std::vector<std::shared_ptr<Blob>> output_datas;
+
+  input_datas.push_back(input_data);
+
+  FlattenLayer layer;
+  layer.Forward(input_datas, output_datas);
+  ASSERT_EQ(output_datas.size(), input_datas.size());
+
+  for (int i = 0; i < input_datas.size(); ++i) {
+    const std::shared_ptr<Blob> output_data = output_datas.at(i);
+    ASSERT_EQ(output_data->channels(), 1);
+    ASSERT_EQ(output_data->rows(), 1);
+    ASSERT_EQ(output_data->cols(), rows * cols * channels);
+    ASSERT_EQ(output_data->front(), 2.);
+  }
+}
 
 TEST(test_layer, avgpooling) {
   using namespace kuiper_infer;

@@ -5,6 +5,8 @@
 #include "blob.hpp"
 #include <glog/logging.h>
 
+#include <memory>
+
 namespace kuiper_infer {
 Blob::Blob(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::cube(rows, cols, channels);
@@ -28,6 +30,14 @@ uint32_t Blob::channels() const {
 uint32_t Blob::size() const {
   CHECK(!this->data_.empty());
   return this->data_.size();
+}
+
+bool Blob::empty() const {
+  return this->data_.empty();
+}
+
+double Blob::front() const {
+  return this->data_.front();
 }
 
 std::vector<uint32_t> Blob::shapes() const {
@@ -141,6 +151,10 @@ void Blob::Flatten() {
   }
   CHECK_EQ(index, size);
   this->data_ = linear_cube;
+}
+
+std::shared_ptr<Blob> Blob::Clone() {
+  return std::make_shared<Blob>(*this);
 }
 
 }
