@@ -4,7 +4,7 @@
 
 #ifndef KUIPER_COURSE_INCLUDE_PARSER_GRAPH_HPP_
 #define KUIPER_COURSE_INCLUDE_PARSER_GRAPH_HPP_
-#include "storezip.hpp"
+#include "store_zip.hpp"
 namespace kuiper_infer {
 class Parameter {
  public:
@@ -118,7 +118,6 @@ class Attribute {
   // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool
   int type;
   std::vector<int> shape;
-
   std::vector<char> data;
 };
 
@@ -134,13 +133,9 @@ class Operand {
   Operator *producer = nullptr;
   std::vector<Operator *> consumers;
 
-  // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool 10=cp64 11=cp128 12=cp32
-  int type = -1;
+  int type = -1;  // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool 10=cp64 11=cp128 12=cp32
   std::vector<int> shape;
-
-  // keep std::string typed member the last for cross cxxabi compatibility
-  std::string name;
-  std::map<std::string, Parameter> params;
+  std::string name;   // keep std::string typed member the last for cross cxxabi compatibility
 
  private:
   friend class Graph;
@@ -175,7 +170,7 @@ class Graph {
 
   ~Graph();
 
-  int load(const std::string &param_path, const std::string &bin_path);
+  bool Load(const std::string &param_path, const std::string &bin_path);
 
   Operator *NewOperator(const std::string &type, const std::string &name);
 

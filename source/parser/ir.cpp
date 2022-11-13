@@ -223,8 +223,8 @@ static void LoadInputKey(Operator *op, const std::string &key, const std::string
   op->input_names.resize(op->inputs.size());
 
   for (size_t i = 0; i < op->inputs.size(); i++) {
-    const Operand *oprand = op->inputs[i];
-    if (oprand->name == value) {
+    const Operand *operand = op->inputs[i];
+    if (operand->name == value) {
       op->input_names[i] = key;
       break;
     }
@@ -263,12 +263,12 @@ static void LoadShape(Operator *op, const std::string &key, const std::string &v
 
   // shape
   std::string lc = value.substr(1, value.find_last_of(')') - 1);
-  std::istringstream lcss(lc);
+  std::istringstream string_stream(lc);
 
   operand->shape.clear();
-  while (!lcss.eof()) {
+  while (!string_stream.eof()) {
     std::string elem;
-    std::getline(lcss, elem, ',');
+    std::getline(string_stream, elem, ',');
 
     if (elem == "?") {
       operand->shape.push_back(-1);
@@ -291,12 +291,12 @@ static void LoadAttribute(Operator *op, const std::string &key, const std::strin
 
   // shape
   std::string lc = value.substr(1, value.find_last_of(')') - 1);
-  std::istringstream lcss(lc);
+  std::istringstream string_stream(lc);
 
   attribute.shape.clear();
-  while (!lcss.eof()) {
+  while (!string_stream.eof()) {
     std::string elem;
-    std::getline(lcss, elem, ',');
+    std::getline(string_stream, elem, ',');
 
     int i = std::stoi(elem);
     attribute.shape.push_back(i);
@@ -330,17 +330,17 @@ static void LoadAttribute(Operator *op, const std::string &key, const std::strin
   szr.read_file(file_name, (char *) attribute.data.data());
 }
 
-int Graph::load(const std::string &param_path, const std::string &bin_path) {
+bool Graph::Load(const std::string &param_path, const std::string &bin_path) {
   std::ifstream is(param_path, std::ios::in | std::ios::binary);
   if (!is.good()) {
     LOG(ERROR) << "Open failed!";
-    return -1;
+    return false;
   }
 
   StoreZipReader szr;
   if (szr.open(bin_path) != 0) {
     LOG(ERROR) << "Open failed!";
-    return -1;
+    return false;
   }
 
   int magic = 0;
@@ -373,7 +373,6 @@ int Graph::load(const std::string &param_path, const std::string &bin_path) {
     int output_count = 0;
 
     iss >> type >> name >> input_count >> output_count;
-
     Operator *op = NewOperator(type, name);
 
     for (int j = 0; j < input_count; j++) {
@@ -422,8 +421,7 @@ int Graph::load(const std::string &param_path, const std::string &bin_path) {
       }
     }
   }
-
-  return 0;
+  return true;
 }
 
 Operator *Graph::NewOperator(const std::string &type, const std::string &name) {

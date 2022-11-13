@@ -7772,7 +7772,7 @@ Mat<eT>::save(std::ostream& os, const file_type type) const
 
 
 
-//! load a matrix from a file
+//! Load a matrix from a file
 template<typename eT>
 inline
 arma_cold
@@ -7831,7 +7831,7 @@ Mat<eT>::load(const std::string name, const file_type type)
       break;
     
     default:
-      arma_debug_warn_level(1, "Mat::load(): unsupported file type");
+      arma_debug_warn_level(1, "Mat::Load(): unsupported file type");
       load_okay = false;
     }
   
@@ -7839,11 +7839,11 @@ Mat<eT>::load(const std::string name, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Mat::load(): ", err_msg, "; file: ", name);
+      arma_debug_warn_level(3, "Mat::Load(): ", err_msg, "; file: ", name);
       }
     else
       {
-      arma_debug_warn_level(3, "Mat::load(): couldn't read; file: ", name);
+      arma_debug_warn_level(3, "Mat::Load(): couldn't read; file: ", name);
       }
     }
   
@@ -7864,7 +7864,7 @@ Mat<eT>::load(const hdf5_name& spec, const file_type type)
   
   if( (type != hdf5_binary) && (type != hdf5_binary_trans) )
     {
-    arma_stop_runtime_error("Mat::load(): unsupported file type for hdf5_name()");
+    arma_stop_runtime_error("Mat::Load(): unsupported file type for hdf5_name()");
     return false;
     }
   
@@ -7891,11 +7891,11 @@ Mat<eT>::load(const hdf5_name& spec, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Mat::load(): ", err_msg, "; file: ", spec.filename);
+      arma_debug_warn_level(3, "Mat::Load(): ", err_msg, "; file: ", spec.filename);
       }
     else
       {
-      arma_debug_warn_level(3, "Mat::load(): couldn't read; file: ", spec.filename);
+      arma_debug_warn_level(3, "Mat::Load(): couldn't read; file: ", spec.filename);
       }
     }
   
@@ -7916,7 +7916,7 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
   
   if( (type != csv_ascii) && (type != ssv_ascii) ) 
     {
-    arma_stop_runtime_error("Mat::load(): unsupported file type for csv_name()");
+    arma_stop_runtime_error("Mat::Load(): unsupported file type for csv_name()");
     return false;
     }
   
@@ -7925,7 +7925,7 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
         bool with_header    = bool(spec.opts.flags & csv_opts::flag_with_header);
   const bool  use_semicolon = bool(spec.opts.flags & csv_opts::flag_semicolon  ) || (type == ssv_ascii);
   
-  arma_extra_debug_print("Mat::load(csv_name): enabled flags:");
+  arma_extra_debug_print("Mat::Load(csv_name): enabled flags:");
   
   if(do_trans     )  { arma_extra_debug_print("trans");       }
   if(no_header    )  { arma_extra_debug_print("no_header");   }
@@ -7965,11 +7965,11 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Mat::load(): ", err_msg, "; file: ", spec.filename);
+      arma_debug_warn_level(3, "Mat::Load(): ", err_msg, "; file: ", spec.filename);
       }
     else
       {
-      arma_debug_warn_level(3, "Mat::load(): couldn't read; file: ", spec.filename);
+      arma_debug_warn_level(3, "Mat::Load(): couldn't read; file: ", spec.filename);
       }
     }
   else
@@ -7978,7 +7978,7 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
     
     if(with_header && (spec.header_rw.n_elem != load_n_cols))
       {
-      arma_debug_warn_level(3, "Mat::load(): size mistmach between header and matrix");
+      arma_debug_warn_level(3, "Mat::Load(): size mistmach between header and matrix");
       }
     }
   
@@ -7994,7 +7994,7 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
 
 
 
-//! load a matrix from a stream
+//! Load a matrix from a stream
 template<typename eT>
 inline
 arma_cold
@@ -8045,7 +8045,7 @@ Mat<eT>::load(std::istream& is, const file_type type)
       break;
     
     default:
-      arma_debug_warn_level(1, "Mat::load(): unsupported file type");
+      arma_debug_warn_level(1, "Mat::Load(): unsupported file type");
       load_okay = false;
     }
   
@@ -8053,11 +8053,11 @@ Mat<eT>::load(std::istream& is, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Mat::load(): ", err_msg);
+      arma_debug_warn_level(3, "Mat::Load(): ", err_msg);
       }
     else
       {
-      arma_debug_warn_level(3, "Mat::load(): couldn't load from stream");
+      arma_debug_warn_level(3, "Mat::load(): couldn't Load from stream");
       }
     }
   
@@ -8122,7 +8122,7 @@ Mat<eT>::quiet_save(std::ostream& os, const file_type type) const
 
 
 
-//! load a matrix from a file, without printing any error messages
+//! Load a matrix from a file, without printing any error messages
 template<typename eT>
 inline
 arma_cold
@@ -8162,7 +8162,7 @@ Mat<eT>::quiet_load(const csv_name& spec, const file_type type)
 
 
 
-//! load a matrix from a stream, without printing any error messages
+//! Load a matrix from a stream, without printing any error messages
 template<typename eT>
 inline
 arma_cold

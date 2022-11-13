@@ -2594,7 +2594,7 @@ diskio::load_hdf5_binary(Mat<eT>& x, const hdf5_name& spec, std::string& err_msg
         // If these are the same type, it is simple.
         if(arma_H5Tequal(datatype, mat_type) > 0)
           {
-          // Load directly; H5S_ALL used so that we load the entire dataset.
+          // Load directly; H5S_ALL used so that we Load the entire dataset.
           hid_t read_status = arma_H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, void_ptr(x.memptr()));
           
           if(read_status >= 0) { load_okay = true; }
@@ -2635,7 +2635,7 @@ diskio::load_hdf5_binary(Mat<eT>& x, const hdf5_name& spec, std::string& err_msg
     arma_ignore(spec);
     arma_ignore(err_msg);
     
-    arma_stop_logic_error("Mat::load(): use of HDF5 must be enabled");
+    arma_stop_logic_error("Mat::Load(): use of HDF5 must be enabled");
     
     return false;
     }
@@ -2644,7 +2644,7 @@ diskio::load_hdf5_binary(Mat<eT>& x, const hdf5_name& spec, std::string& err_msg
 
 
 
-//! Try to load a matrix by automatically determining its type
+//! Try to Load a matrix by automatically determining its type
 template<typename eT>
 inline
 bool
@@ -2673,7 +2673,7 @@ diskio::load_auto_detect(Mat<eT>& x, const std::string& name, std::string& err_m
 
 
 
-//! Try to load a matrix by automatically determining its type
+//! Try to Load a matrix by automatically determining its type
 template<typename eT>
 inline
 bool
@@ -4311,7 +4311,7 @@ diskio::load_hdf5_binary(Cube<eT>& x, const hdf5_name& spec, std::string& err_ms
         // If these are the same type, it is simple.
         if(arma_H5Tequal(datatype, mat_type) > 0)
           {
-          // Load directly; H5S_ALL used so that we load the entire dataset.
+          // Load directly; H5S_ALL used so that we Load the entire dataset.
           hid_t read_status = arma_H5Dread(dataset, datatype, H5S_ALL, H5S_ALL, H5P_DEFAULT, void_ptr(x.memptr()));
           
           if(read_status >= 0) { load_okay = true; }
@@ -4352,7 +4352,7 @@ diskio::load_hdf5_binary(Cube<eT>& x, const hdf5_name& spec, std::string& err_ms
     arma_ignore(spec);
     arma_ignore(err_msg);
     
-    arma_stop_logic_error("Cube::load(): use of HDF5 must be enabled");
+    arma_stop_logic_error("Cube::Load(): use of HDF5 must be enabled");
     
     return false;
     }
@@ -4361,7 +4361,7 @@ diskio::load_hdf5_binary(Cube<eT>& x, const hdf5_name& spec, std::string& err_ms
 
 
 
-//! Try to load a cube by automatically determining its type
+//! Try to Load a cube by automatically determining its type
 template<typename eT>
 inline
 bool
@@ -4390,7 +4390,7 @@ diskio::load_auto_detect(Cube<eT>& x, const std::string& name, std::string& err_
 
 
 
-//! Try to load a cube by automatically determining its type
+//! Try to Load a cube by automatically determining its type
 template<typename eT>
 inline
 bool
@@ -4764,7 +4764,7 @@ diskio::load_std_string(field<std::string>& x, std::istream& f, std::string& err
 
 
 
-//! Try to load a field by automatically determining its type
+//! Try to Load a field by automatically determining its type
 template<typename T1>
 inline
 bool
@@ -4788,7 +4788,7 @@ diskio::load_auto_detect(field<T1>& x, const std::string& name, std::string& err
 
 
 
-//! Try to load a field by automatically determining its type
+//! Try to Load a field by automatically determining its type
 template<typename T1>
 inline
 bool

@@ -293,7 +293,7 @@ gmm_full<eT>::load(const std::string name)
   if( (status == false) || (storage.n_elem < 2) )
     {
     reset();
-    arma_debug_warn_level(3, "gmm_full::load(): problem with loading or incompatible format");
+    arma_debug_warn_level(3, "gmm_full::Load(): problem with loading or incompatible format");
     return false;
     }
   
@@ -308,7 +308,7 @@ gmm_full<eT>::load(const std::string name)
   if( (storage.n_elem != (N_gaus + 2)) || (storage_hefts.n_rows != 1) || (storage_hefts.n_cols != N_gaus) )
     {
     reset();
-    arma_debug_warn_level(3, "gmm_full::load(): incompatible format");
+    arma_debug_warn_level(3, "gmm_full::Load(): incompatible format");
     return false;
     }
   
@@ -324,7 +324,7 @@ gmm_full<eT>::load(const std::string name)
     if( (storage_fcov.n_rows != N_dims) || (storage_fcov.n_cols != N_dims) )
       {
       reset();
-      arma_debug_warn_level(3, "gmm_full::load(): incompatible format");
+      arma_debug_warn_level(3, "gmm_full::Load(): incompatible format");
       return false;
       }
     

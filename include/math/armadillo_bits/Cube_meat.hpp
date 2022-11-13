@@ -529,7 +529,7 @@ Cube<eT>::delete_mat()
     {
     for(uword s=0; s < n_slices; ++s)
       {
-      raw_mat_ptr_type mat_ptr = raw_mat_ptr_type(mat_ptrs[s]);  // explicit cast to indicate load from std::atomic<Mat<eT>*>
+      raw_mat_ptr_type mat_ptr = raw_mat_ptr_type(mat_ptrs[s]);  // explicit cast to indicate Load from std::atomic<Mat<eT>*>
       
       if(mat_ptr != nullptr)
         {
@@ -4697,7 +4697,7 @@ Cube<eT>::save(std::ostream& os, const file_type type) const
 
 
 
-//! load a cube from a file
+//! Load a cube from a file
 template<typename eT>
 inline
 arma_cold
@@ -4744,7 +4744,7 @@ Cube<eT>::load(const std::string name, const file_type type)
       break;
     
     default:
-      arma_debug_warn_level(1, "Cube::load(): unsupported file type");
+      arma_debug_warn_level(1, "Cube::Load(): unsupported file type");
       load_okay = false;
     }
   
@@ -4754,11 +4754,11 @@ Cube<eT>::load(const std::string name, const file_type type)
     
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Cube::load(): ", err_msg, "; file: ", name);
+      arma_debug_warn_level(3, "Cube::Load(): ", err_msg, "; file: ", name);
       }
     else
       {
-      arma_debug_warn_level(3, "Cube::load(): couldn't read; file: ", name);
+      arma_debug_warn_level(3, "Cube::Load(): couldn't read; file: ", name);
       }
     }
   
@@ -4777,7 +4777,7 @@ Cube<eT>::load(const hdf5_name& spec, const file_type type)
   
   if( (type != hdf5_binary) && (type != hdf5_binary_trans) )
     {
-    arma_stop_runtime_error("Cube::load(): unsupported file type for hdf5_name()");
+    arma_stop_runtime_error("Cube::Load(): unsupported file type for hdf5_name()");
     return false;
     }
   
@@ -4806,11 +4806,11 @@ Cube<eT>::load(const hdf5_name& spec, const file_type type)
     
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Cube::load(): ", err_msg, "; file: ", spec.filename);
+      arma_debug_warn_level(3, "Cube::Load(): ", err_msg, "; file: ", spec.filename);
       }
     else
       {
-      arma_debug_warn_level(3, "Cube::load(): couldn't read; file: ", spec.filename);
+      arma_debug_warn_level(3, "Cube::Load(): couldn't read; file: ", spec.filename);
       }
     }
   
@@ -4819,7 +4819,7 @@ Cube<eT>::load(const hdf5_name& spec, const file_type type)
 
 
 
-//! load a cube from a stream
+//! Load a cube from a stream
 template<typename eT>
 inline
 arma_cold
@@ -4858,7 +4858,7 @@ Cube<eT>::load(std::istream& is, const file_type type)
       break;
     
     default:
-      arma_debug_warn_level(1, "Cube::load(): unsupported file type");
+      arma_debug_warn_level(1, "Cube::Load(): unsupported file type");
       load_okay = false;
     }
   
@@ -4868,11 +4868,11 @@ Cube<eT>::load(std::istream& is, const file_type type)
     
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "Cube::load(): ", err_msg);
+      arma_debug_warn_level(3, "Cube::Load(): ", err_msg);
       }
     else
       {
-      arma_debug_warn_level(3, "Cube::load(): couldn't load from stream");
+      arma_debug_warn_level(3, "Cube::Load(): couldn't load from stream");
       }
     }
   

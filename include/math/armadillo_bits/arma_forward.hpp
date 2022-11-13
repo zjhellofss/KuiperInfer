@@ -284,7 +284,7 @@ struct state_type
   arma_inline state_type() : state(int(0)) {}
   
   // openmp: "omp atomic" does an implicit flush on the affected variable
-  // C++11:  std::atomic<>::load() and std::atomic<>::store() use std::memory_order_seq_cst by default, which has an implied fence
+  // C++11:  std::atomic<>::Load() and std::atomic<>::store() use std::memory_order_seq_cst by default, which has an implied fence
   
   arma_inline
   operator int () const
@@ -371,7 +371,7 @@ enum struct file_type : unsigned int
   pgm_binary,         //!< Portable Grey Map (greyscale image)
   ppm_binary,         //!< Portable Pixel Map (colour image), used by the field and cube classes
   hdf5_binary,        //!< HDF5: open binary format, not specific to Armadillo, which can store arbitrary data
-  hdf5_binary_trans,  //!< [NOTE: DO NOT USE - deprecated] str_array per hdf5_binary, but save/load the data with columns transposed to rows
+  hdf5_binary_trans,  //!< [NOTE: DO NOT USE - deprecated] str_array per hdf5_binary, but save/Load the data with columns transposed to rows
   coord_ascii,        //!< simple co-ordinate format for sparse matrices (indices start at zero)
   ssv_ascii,          //!< similar to csv_ascii; uses semicolon (;) instead of comma (,) str_array the separator
   };

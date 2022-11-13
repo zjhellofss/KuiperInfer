@@ -1890,11 +1890,11 @@ field<oT>::load(const std::string name, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "field::load(): ", err_msg, "; file: ", name);
+      arma_debug_warn_level(3, "field::Load(): ", err_msg, "; file: ", name);
       }
     else
       {
-      arma_debug_warn_level(3, "field::load(): couldn't read; file: ", name);
+      arma_debug_warn_level(3, "field::Load(): couldn't read; file: ", name);
       }
     }
   
@@ -1920,11 +1920,11 @@ field<oT>::load(std::istream& is, const file_type type)
     {
     if(err_msg.length() > 0)
       {
-      arma_debug_warn_level(3, "field::load(): ", err_msg);
+      arma_debug_warn_level(3, "field::Load(): ", err_msg);
       }
     else
       {
-      arma_debug_warn_level(3, "field::load(): couldn't read from stream");
+      arma_debug_warn_level(3, "field::Load(): couldn't read from stream");
       }
     }
   

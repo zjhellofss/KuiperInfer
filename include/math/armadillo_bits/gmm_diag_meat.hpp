@@ -285,7 +285,7 @@ gmm_diag<eT>::load(const std::string name)
   if( (status == false) || (Q.n_slices != 2) )
     {
     reset();
-    arma_debug_warn_level(3, "gmm_diag::load(): problem with loading or incompatible format");
+    arma_debug_warn_level(3, "gmm_diag::Load(): problem with loading or incompatible format");
     return false;
     }
   

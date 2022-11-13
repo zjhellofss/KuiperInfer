@@ -430,7 +430,7 @@ hdf5_search_callback
         {
         hid_t match_candidate = arma_H5Dopen(loc_id, name, H5P_DEFAULT);
         
-        // arma_check(match_candidate < 0, "Mat::load(): cannot open an HDF5 dataset");
+        // arma_check(match_candidate < 0, "Mat::Load(): cannot open an HDF5 dataset");
         if(match_candidate < 0)
           {
           return -1;
