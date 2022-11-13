@@ -33,9 +33,9 @@ void ParamLayer::set_weights(const std::vector<double> &weights) {
   const uint32_t elem_size = weights.size();
 
   uint32_t weight_size = 0;
-  const uint32_t batch_size = this->bias_.size();
+  const uint32_t batch_size = this->weights_.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    weight_size += this->bias_.at(i)->size();
+    weight_size += this->weights_.at(i)->size();
   }
   CHECK_EQ(weight_size, elem_size);
 
@@ -45,7 +45,7 @@ void ParamLayer::set_weights(const std::vector<double> &weights) {
     const uint32_t end_offset = start_offset + blob_size;
     const auto &sub_values = std::vector<double>{weights.begin() + start_offset,
                                                  weights.begin() + end_offset};
-    this->bias_.at(idx)->Fill(sub_values, false);
+    this->weights_.at(idx)->Fill(sub_values, false);
   }
 }
 

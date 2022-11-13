@@ -48,6 +48,51 @@ TEST(test_layer, linear1) {
   }
 }
 
+TEST(test_layer, linear2) {
+  using namespace kuiper_infer;
+  const uint32_t channels = 3;
+  const uint32_t rows = 4;
+  const uint32_t cols = 1;
+
+  std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, cols, rows);
+  input_data->Fill(1.);
+  std::vector<std::shared_ptr<Blob>> input_datas;
+  input_datas.push_back(input_data);
+
+  std::shared_ptr<Blob> weight_data = std::make_shared<Blob>(channels, rows, cols);
+  std::shared_ptr<Blob> bias_data = std::make_shared<Blob>(channels, cols, cols);
+
+  std::vector<std::shared_ptr<Blob>> weight_datas;
+  weight_datas.push_back(weight_data);
+
+  std::vector<std::shared_ptr<Blob>> bias_datas;
+  bias_datas.push_back(bias_data);
+
+  std::vector<std::shared_ptr<Blob>> output_datas;
+
+  std::vector<double> weight_datas_(channels * rows * cols, 1.);
+  std::vector<double> bias_datas_(channels * cols * cols, 2.);
+
+
+  LinearLayer layer(weight_datas, bias_datas);
+  layer.set_weights(weight_datas_);
+  layer.set_bias(bias_datas_);
+  layer.Forward(input_datas, output_datas);
+
+  ASSERT_EQ(output_datas.size(), input_datas.size());
+  const uint32_t batch_size = output_datas.size();
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Blob> output_data = output_datas.at(i);
+    ASSERT_EQ(output_data->rows(), 1);
+    ASSERT_EQ(output_data->cols(), 1);
+    ASSERT_EQ(output_data->channels(), 3);
+    for (uint32_t c = 0; c < channels; ++c) {
+      const auto &mat = output_data->at(c);
+      ASSERT_EQ(mat.at(0, 0), 6);
+    }
+  }
+}
+
 TEST(test_layer, sigmoid) {
   using namespace kuiper_infer;
   const uint32_t channels = 3;
