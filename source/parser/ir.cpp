@@ -311,23 +311,23 @@ static void LoadAttribute(Operator *op, const std::string &key, const std::strin
     size *= i;
   }
 
-  size_t bytesize = size * TypeToElementSize(attribute.type);
-  std::string filename = op->name + "." + key;
-  size_t filesize = szr.get_file_size(filename);
+  size_t byte_size = size * TypeToElementSize(attribute.type);
+  std::string file_name = op->name + "." + key;
+  size_t file_size = szr.get_file_size(file_name);
 
-  if (filesize == 0) {
+  if (file_size == 0) {
     return;
   }
 
-  if (filesize != bytesize) {
+  if (file_size != byte_size) {
     const uint32_t error_size = 64;
     char error_buf[error_size];
-    snprintf(error_buf, error_size - 1, "file size not match expect %lu but got %lu\n", bytesize, filesize);
+    snprintf(error_buf, error_size - 1, "file size not match expect %lu but got %lu\n", byte_size, file_size);
     LOG(ERROR) << error_buf;
   }
 
-  attribute.data.resize(bytesize);
-  szr.read_file(filename, (char *) attribute.data.data());
+  attribute.data.resize(byte_size);
+  szr.read_file(file_name, (char *) attribute.data.data());
 }
 
 int Graph::load(const std::string &param_path, const std::string &bin_path) {
