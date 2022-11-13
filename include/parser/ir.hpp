@@ -93,9 +93,10 @@ class Parameter {
   int type = 0;
 
   // value
-  bool b = false;
   int i = 0;
   float f = 0.f;
+  bool b = false;
+
   std::vector<int> int_array;
   std::vector<float> float_array;
 
@@ -104,7 +105,7 @@ class Parameter {
   std::vector<std::string> str_array;
 };
 
-bool operator==(const Parameter &lhs, const Parameter &rhs);
+bool operator==(const Parameter &p1, const Parameter &p2);
 
 class Attribute {
  public:
@@ -112,7 +113,7 @@ class Attribute {
       : type(0) {
   }
 
-  Attribute(const std::initializer_list<int> &shape, const std::vector<float> &t);
+  Attribute(const std::initializer_list<int> &shape_list, const std::vector<float> &raw_data);
 
   // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool
   int type;
@@ -121,10 +122,10 @@ class Attribute {
   std::vector<char> data;
 };
 
-bool operator==(const Attribute &lhs, const Attribute &rhs);
+bool operator==(const Attribute &attr_1, const Attribute &attr_2);
 
 // concat two attributes along the first axis
-Attribute operator+(const Attribute &a, const Attribute &b);
+Attribute operator+(const Attribute &attr_1, const Attribute &attr_2);
 
 class Operator;
 class Operand {
@@ -166,24 +167,27 @@ class Operator {
 
 class Graph {
  public:
-  Graph();
+  Graph() = default;
+
+  Graph(const Graph &) = delete;
+
+  Graph &operator=(const Graph &) = delete;
+
   ~Graph();
 
-  int load(const std::string &param_path, const std::string &binpath);
+  int load(const std::string &param_path, const std::string &bin_path);
 
-  Operator *new_operator(const std::string &type, const std::string &name);
+  Operator *NewOperator(const std::string &type, const std::string &name);
 
-  Operand *new_operand(const std::string &name);
+  Operand *NewOperand(const std::string &name);
 
-  Operand *get_operand(const std::string &name);
+  Operand *GetOperand(const std::string &name);
 
-  const Operand *get_operand(const std::string &name) const;
+  const Operand *GetOperand(const std::string &name) const;
 
   std::vector<Operator *> ops;
   std::vector<Operand *> operands;
- private:
-  Graph(const Graph &rhs);
-  Graph &operator=(const Graph &rhs);
+
 };
 }
 #endif //KUIPER_COURSE_INCLUDE_PARSER_GRAPH_HPP_

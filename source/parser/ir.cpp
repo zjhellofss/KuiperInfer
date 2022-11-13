@@ -45,40 +45,40 @@ static int StringToType(const char *s) {
   return 0; // null
 }
 
-bool operator==(const Parameter &lhs, const Parameter &rhs) {
-  if (lhs.type != rhs.type)
+bool operator==(const Parameter &p1, const Parameter &p2) {
+  if (p1.type != p2.type)
     return false;
 
-  if (lhs.type == 0)
+  if (p1.type == 0)
     return true;
 
-  if (lhs.type == 1 && lhs.b == rhs.b)
+  if (p1.type == 1 && p1.b == p2.b)
     return true;
 
-  if (lhs.type == 2 && lhs.i == rhs.i)
+  if (p1.type == 2 && p1.i == p2.i)
     return true;
 
-  if (lhs.type == 3 && lhs.f == rhs.f)
+  if (p1.type == 3 && p1.f == p2.f)
     return true;
 
-  if (lhs.type == 4 && lhs.str == rhs.str)
+  if (p1.type == 4 && p1.str == p2.str)
     return true;
 
-  if (lhs.type == 5 && lhs.int_array == rhs.int_array)
+  if (p1.type == 5 && p1.int_array == p2.int_array)
     return true;
 
-  if (lhs.type == 6 && lhs.float_array == rhs.float_array)
+  if (p1.type == 6 && p1.float_array == p2.float_array)
     return true;
 
-  if (lhs.type == 7 && lhs.str_array == rhs.str_array)
+  if (p1.type == 7 && p1.str_array == p2.str_array)
     return true;
 
   return false;
 }
 
-Attribute::Attribute(const std::initializer_list<int> &_shape, const std::vector<float> &t) {
+Attribute::Attribute(const std::initializer_list<int> &shape_list, const std::vector<float> &raw_data) {
   type = 1;
-  shape = _shape;
+  shape = shape_list;
 
   if (!shape.empty()) {
     int size = shape[0];
@@ -87,54 +87,53 @@ Attribute::Attribute(const std::initializer_list<int> &_shape, const std::vector
     }
 
     data.resize(size * TypeToElementSize(type));
-    memcpy((void *) data.data(), (const void *) t.data(), data.size());
+    memcpy((void *) data.data(), (const void *) raw_data.data(), data.size());
   }
 }
 
-bool operator==(const Attribute &lhs, const Attribute &rhs) {
-  if (lhs.type != rhs.type)
+bool operator==(const Attribute &attr_1, const Attribute &attr_2) {
+  if (attr_1.type != attr_2.type)
     return false;
 
-  if (lhs.type == 0)
+  if (attr_1.type == 0)
     return true;
 
-  if (lhs.shape != rhs.shape)
+  if (attr_1.shape != attr_2.shape)
     return false;
 
-  if (lhs.data != rhs.data)
+  if (attr_1.data != attr_2.data)
     return false;
 
   return true;
 }
 
-Attribute operator+(const Attribute &a, const Attribute &b) {
+Attribute operator+(const Attribute &attr_1, const Attribute &attr_2) {
   Attribute c;
 
-  if (a.type != b.type) {
-    fprintf(stderr, "concat attribute type mismatch\n");
+  if (attr_1.type != attr_2.type) {
+    LOG(ERROR) << "Concat attribute type mismatch";
     return c;
   }
 
-  if (a.shape.size() != b.shape.size()) {
-    fprintf(stderr, "concat attribute shape rank mismatch\n");
+  if (attr_1.shape.size() != attr_2.shape.size()) {
+    LOG(ERROR) << "Concat attribute shape rank mismatch";
     return c;
   }
 
-  for (int i = 1; i < (int) a.shape.size(); i++) {
-    if (a.shape[i] != b.shape[i]) {
-      fprintf(stderr, "concat attribute shape mismatch\n");
+  for (int i = 1; i < (int) attr_1.shape.size(); i++) {
+    if (attr_1.shape[i] != attr_2.shape[i]) {
+      LOG(ERROR) << "Concat attribute shape mismatch";
       return c;
     }
   }
 
-  c.type = a.type;
-  c.shape = a.shape;
-  c.shape[0] += b.shape[0]; // concat the first dim
+  c.type = attr_1.type;
+  c.shape = attr_1.shape;
+  c.shape[0] += attr_2.shape[0]; // concat the first dim
 
-  c.data.resize(a.data.size() + b.data.size());
-  memcpy(c.data.data(), a.data.data(), a.data.size());
-  memcpy(c.data.data() + a.data.size(), b.data.data(), b.data.size());
-
+  c.data.resize(attr_1.data.size() + attr_2.data.size());
+  memcpy(c.data.data(), attr_1.data.data(), attr_1.data.size());
+  memcpy(c.data.data() + attr_1.data.size(), attr_2.data.data(), attr_2.data.size());
   return c;
 }
 
@@ -201,9 +200,6 @@ Parameter Parameter::parse_from_string(const std::string &value) {
   return p;
 }
 
-Graph::Graph() {
-}
-
 Graph::~Graph() {
   for (auto x : ops)
     delete x;
@@ -215,18 +211,11 @@ Graph::~Graph() {
   operands.clear();
 }
 
-Graph::Graph(const Graph &) {
-}
-
-Graph &Graph::operator=(const Graph &) {
-  return *this;
-}
-
-static void load_parameter(Operator *op, const std::string &key, const std::string &value) {
+static void LoadParameter(Operator *op, const std::string &key, const std::string &value) {
   op->params[key] = Parameter::parse_from_string(value);
 }
 
-static void load_input_key(Operator *op, const std::string &key, const std::string &value) {
+static void LoadInputKey(Operator *op, const std::string &key, const std::string &value) {
   op->input_names.resize(op->inputs.size());
 
   for (size_t i = 0; i < op->inputs.size(); i++) {
@@ -238,8 +227,8 @@ static void load_input_key(Operator *op, const std::string &key, const std::stri
   }
 }
 
-static void load_shape(Operator *op, const std::string &key, const std::string &value) {
-  Operand *operand = 0;
+static void LoadShape(Operator *op, const std::string &key, const std::string &value) {
+  Operand *operand = nullptr;
   for (auto r : op->inputs) {
     if (r->name == key) {
       operand = r;
@@ -257,7 +246,10 @@ static void load_shape(Operator *op, const std::string &key, const std::string &
   }
 
   if (!operand) {
-    fprintf(stderr, "no such operand %str for operator %str\n", key.c_str(), op->name.c_str());
+    const uint32_t error_size = 64;
+    char error_buf[error_size];
+    snprintf(error_buf, error_size - 1, "no such operand %str for operator %str\n", key.c_str(), op->name.c_str());
+    LOG(ERROR) << error_buf;
     return;
   }
 
@@ -283,58 +275,60 @@ static void load_shape(Operator *op, const std::string &key, const std::string &
   }
 }
 
-static void load_attribute(Operator *op, const std::string &key, const std::string &value, StoreZipReader &szr) {
-  Attribute &a = op->attrs[key];
+static void LoadAttribute(Operator *op, const std::string &key, const std::string &value, StoreZipReader &szr) {
+  Attribute &attribute = op->attrs[key];
 
   // type
-  std::string typestr = value.substr(value.find_last_of(')') + 1);
-  a.type = StringToType(typestr.c_str());
+  std::string type_str = value.substr(value.find_last_of(')') + 1);
+  attribute.type = StringToType(type_str.c_str());
 
-  if (a.type == 0)
+  if (attribute.type == 0)
     return;
 
   // shape
   std::string lc = value.substr(1, value.find_last_of(')') - 1);
   std::istringstream lcss(lc);
 
-  a.shape.clear();
+  attribute.shape.clear();
   while (!lcss.eof()) {
     std::string elem;
     std::getline(lcss, elem, ',');
 
     int i = std::stoi(elem);
-    a.shape.push_back(i);
+    attribute.shape.push_back(i);
   }
 
-  if (a.shape.empty())
+  if (attribute.shape.empty())
     return;
 
   // data
   size_t size = 1;
-  for (int i : a.shape) {
+  for (int i : attribute.shape) {
     size *= i;
   }
 
-  size_t bytesize = size * TypeToElementSize(a.type);
+  size_t bytesize = size * TypeToElementSize(attribute.type);
 
   std::string filename = op->name + "." + key;
 
   size_t filesize = szr.get_file_size(filename);
 
   if (filesize == 0) {
-    // no such file
     return;
   }
 
   if (filesize != bytesize) {
-    fprintf(stderr, "file size not match expect %lu but got %lu\n", bytesize, filesize);
+    const uint32_t error_size = 64;
+    char error_buf[error_size];
+    snprintf(error_buf, error_size - 1, "file size not match expect %lu but got %lu\n", bytesize, filesize);
+    LOG(ERROR) << error_buf;
   }
 
-  a.data.resize(bytesize);
-  szr.read_file(filename, (char *) a.data.data());
+  attribute.data.resize(bytesize);
+  szr.read_file(filename, (char *) attribute.data.data());
 }
 
-int Graph::load(const std::string &param_path, const std::string &binpath) {
+int Graph::load(const std::string &param_path, const std::string &bin_path) {
   std::ifstream is(param_path, std::ios::in | std::ios::binary);
   if (!is.good()) {
     LOG(ERROR) << "Open failed!";
@@ -342,8 +336,8 @@ int Graph::load(const std::string &param_path, const std::string &binpath) {
   }
 
   StoreZipReader szr;
-  if (szr.open(binpath) != 0) {
-    fprintf(stderr, "open failed\n");
+  if (szr.open(bin_path) != 0) {
+    LOG(ERROR) << "Open failed!";
     return -1;
   }
 
@@ -378,13 +372,13 @@ int Graph::load(const std::string &param_path, const std::string &binpath) {
 
     iss >> type >> name >> input_count >> output_count;
 
-    Operator *op = new_operator(type, name);
+    Operator *op = NewOperator(type, name);
 
     for (int j = 0; j < input_count; j++) {
       std::string operand_name;
       iss >> operand_name;
 
-      Operand *r = get_operand(operand_name);
+      Operand *r = GetOperand(operand_name);
       if (r != nullptr) {
         r->consumers.push_back(op);
         op->inputs.push_back(r);
@@ -395,7 +389,7 @@ int Graph::load(const std::string &param_path, const std::string &binpath) {
       std::string operand_name;
       iss >> operand_name;
 
-      Operand *r = new_operand(operand_name);
+      Operand *r = NewOperand(operand_name);
       r->producer = op;
       op->outputs.push_back(r);
     }
@@ -413,16 +407,16 @@ int Graph::load(const std::string &param_path, const std::string &binpath) {
 
       if (key[0] == '@') {
         // attribute
-        load_attribute(op, key.substr(1), value, szr);
+        LoadAttribute(op, key.substr(1), value, szr);
       } else if (key[0] == '$') {
         // operand input key
-        load_input_key(op, key.substr(1), value);
+        LoadInputKey(op, key.substr(1), value);
       } else if (key[0] == '#') {
         // operand shape
-        load_shape(op, key.substr(1), value);
+        LoadShape(op, key.substr(1), value);
       } else {
         // parameter
-        load_parameter(op, key, value);
+        LoadParameter(op, key, value);
       }
     }
   }
@@ -430,7 +424,7 @@ int Graph::load(const std::string &param_path, const std::string &binpath) {
   return 0;
 }
 
-Operator *Graph::new_operator(const std::string &type, const std::string &name) {
+Operator *Graph::NewOperator(const std::string &type, const std::string &name) {
   Operator *op = new Operator;
   op->type = type;
   op->name = name;
@@ -438,14 +432,14 @@ Operator *Graph::new_operator(const std::string &type, const std::string &name) 
   return op;
 }
 
-Operand *Graph::new_operand(const std::string &name) {
+Operand *Graph::NewOperand(const std::string &name) {
   Operand *r = new Operand;
   r->name = name;
   operands.push_back(r);
   return r;
 }
 
-Operand *Graph::get_operand(const std::string &name) {
+Operand *Graph::GetOperand(const std::string &name) {
   for (Operand *r : operands) {
     if (r->name == name)
       return r;
@@ -453,7 +447,7 @@ Operand *Graph::get_operand(const std::string &name) {
   return nullptr;
 }
 
-const Operand *Graph::get_operand(const std::string &name) const {
+const Operand *Graph::GetOperand(const std::string &name) const {
   for (const Operand *r : operands) {
     if (r->name == name)
       return r;
