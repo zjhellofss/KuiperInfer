@@ -137,7 +137,7 @@ Attribute operator+(const Attribute &attr1, const Attribute &attr2) {
   return c;
 }
 
-Parameter Parameter::parse_from_string(const std::string &value) {
+Parameter Parameter::ParseFromString(const std::string &value) {
   Parameter p;
   p.type = 0;
 
@@ -216,7 +216,7 @@ Graph::~Graph() {
 }
 
 static void LoadParameter(Operator *op, const std::string &key, const std::string &value) {
-  op->params[key] = Parameter::parse_from_string(value);
+  op->params[key] = Parameter::ParseFromString(value);
 }
 
 static void LoadInputKey(Operator *op, const std::string &key, const std::string &value) {
@@ -357,9 +357,9 @@ bool Graph::Load(const std::string &param_path, const std::string &bin_path) {
   {
     std::string line;
     std::getline(is, line);
-    std::istringstream iss(line);
+    std::istringstream string_stream(line);
 
-    iss >> operator_count >> operand_count;
+    string_stream >> operator_count >> operand_count;
   }
 
   for (int i = 0; i < operator_count; i++) {
@@ -402,9 +402,9 @@ bool Graph::Load(const std::string &param_path, const std::string &bin_path) {
 
       std::string key;
       std::string value;
-      std::istringstream pss(param);
-      std::getline(pss, key, '=');
-      std::getline(pss, value);
+      std::istringstream string_stream(param);
+      std::getline(string_stream, key, '=');
+      std::getline(string_stream, value);
 
       if (key[0] == '@') {
         // attribute

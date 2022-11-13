@@ -87,7 +87,7 @@ class Parameter {
       : type(7), str_array(str_array) {
   }
 
-  static Parameter parse_from_string(const std::string &value);
+  static Parameter ParseFromString(const std::string &value);
 
   // 0=null 1=b 2=i 3=f 4=str 5=int_array 6=float_array 7=str_array 8=others
   int type = 0;
@@ -134,8 +134,8 @@ class Operand {
   std::vector<Operator *> consumers;
 
   int type = -1;  // 0=null 1=f32 2=f64 3=f16 4=i32 5=i64 6=i16 7=i8 8=u8 9=bool 10=cp64 11=cp128 12=cp32
-  std::vector<int> shape;
   std::string name;   // keep std::string typed member the last for cross cxxabi compatibility
+  std::vector<int> shape;
 
  private:
   friend class Graph;
