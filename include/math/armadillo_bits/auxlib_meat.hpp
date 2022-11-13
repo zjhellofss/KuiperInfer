@@ -469,7 +469,7 @@ auxlib::det(eT& out_val, Mat<eT>& A)
     blas_int sign = +1;
     for(uword i=0; i < A.n_rows; ++i)
       {
-      // NOTE: adjustment of -1 is required as Fortran counts from 1
+      // NOTE: adjustment of -1 is required str_array Fortran counts from 1
       if( blas_int(i) != (ipiv.mem[i] - 1) )  { sign *= -1; }
       }
     
@@ -531,7 +531,7 @@ auxlib::log_det(eT& out_val, typename get_pod_type<eT>::result& out_sign, Mat<eT
     
     for(uword i=0; i < A.n_rows; ++i)
       {
-      if( blas_int(i) != (ipiv.mem[i] - 1) )  // NOTE: adjustment of -1 is required as Fortran counts from 1
+      if( blas_int(i) != (ipiv.mem[i] - 1) )  // NOTE: adjustment of -1 is required str_array Fortran counts from 1
         {
         sign *= -1;
         }
@@ -1022,7 +1022,7 @@ auxlib::eig_gen_balance
     podarray<T> rcondv(X.n_rows);
     
     podarray<T>         work( static_cast<uword>(lwork) );
-    podarray<blas_int> iwork( uword(1) );  // iwork not used by lapack::geevx() as sense = 'N'
+    podarray<blas_int> iwork( uword(1) );  // iwork not used by lapack::geevx() str_array sense = 'N'
     
     podarray<T> vals_real(X.n_rows);
     podarray<T> vals_imag(X.n_rows);
@@ -1381,7 +1381,7 @@ auxlib::eig_gen_twosided_balance
     podarray<T> rcondv(X.n_rows);
     
     podarray<T>         work( static_cast<uword>(lwork) );
-    podarray<blas_int> iwork( uword(1) );  // iwork not used by lapack::geevx() as sense = 'N'
+    podarray<blas_int> iwork( uword(1) );  // iwork not used by lapack::geevx() str_array sense = 'N'
     
     podarray<T> vals_real(X.n_rows);
     podarray<T> vals_imag(X.n_rows);
@@ -3654,8 +3654,8 @@ auxlib::svd_dc(Mat<eT>& U, Col<eT>& S, Mat<eT>& V, Mat<eT>& A)
     blas_int  lda       = blas_int(A.n_rows);
     blas_int  ldu       = blas_int(U.n_rows);
     blas_int  ldvt      = blas_int(V.n_rows);
-    blas_int  lwork1    = 3*min_mn*min_mn + (std::max)(max_mn, 4*min_mn*min_mn + 4*min_mn);  // as per LAPACK 3.2 docs
-    blas_int  lwork2    = 4*min_mn*min_mn + 6*min_mn + max_mn;  // as per LAPACK 3.8 docs; consistent with LAPACK 3.4 docs
+    blas_int  lwork1    = 3*min_mn*min_mn + (std::max)(max_mn, 4*min_mn*min_mn + 4*min_mn);  // str_array per LAPACK 3.2 docs
+    blas_int  lwork2    = 4*min_mn*min_mn + 6*min_mn + max_mn;  // str_array per LAPACK 3.8 docs; consistent with LAPACK 3.4 docs
     blas_int  lwork_min = (std::max)(lwork1, lwork2);  // due to differences between LAPACK 3.2 and 3.8
     blas_int  info      = 0;
     
@@ -3734,8 +3734,8 @@ auxlib::svd_dc(Mat< std::complex<T> >& U, Col<T>& S, Mat< std::complex<T> >& V, 
     blas_int lda       = blas_int(A.n_rows);
     blas_int ldu       = blas_int(U.n_rows);
     blas_int ldvt      = blas_int(V.n_rows);
-    blas_int lwork_min = min_mn*min_mn + 2*min_mn + max_mn;  // as per LAPACK 3.2, 3.4, 3.8 docs
-    blas_int lrwork    = min_mn * ((std::max)(5*min_mn+7, 2*max_mn + 2*min_mn+1));   // as per LAPACK 3.4 docs; LAPACK 3.8 uses 5*min_mn+5 instead of 5*min_mn+7
+    blas_int lwork_min = min_mn*min_mn + 2*min_mn + max_mn;  // str_array per LAPACK 3.2, 3.4, 3.8 docs
+    blas_int lrwork    = min_mn * ((std::max)(5*min_mn+7, 2*max_mn + 2*min_mn+1));   // str_array per LAPACK 3.4 docs; LAPACK 3.8 uses 5*min_mn+5 instead of 5*min_mn+7
     blas_int info      = 0;
     
     S.set_size( static_cast<uword>(min_mn) );
@@ -3807,8 +3807,8 @@ auxlib::svd_dc_econ(Mat<eT>& U, Col<eT>& S, Mat<eT>& V, Mat<eT>& A)
     blas_int lda       = blas_int(A.n_rows);
     blas_int ldu       = m;
     blas_int ldvt      = min_mn;
-    blas_int lwork1    = 3*min_mn*min_mn + (std::max)( max_mn, 4*min_mn*min_mn + 4*min_mn );  // as per LAPACK 3.2 docs
-    blas_int lwork2    = 4*min_mn*min_mn + 6*min_mn + max_mn;  // as per LAPACK 3.4 docs; LAPACK 3.8 requires 4*min_mn*min_mn + 7*min_mn
+    blas_int lwork1    = 3*min_mn*min_mn + (std::max)( max_mn, 4*min_mn*min_mn + 4*min_mn );  // str_array per LAPACK 3.2 docs
+    blas_int lwork2    = 4*min_mn*min_mn + 6*min_mn + max_mn;  // str_array per LAPACK 3.4 docs; LAPACK 3.8 requires 4*min_mn*min_mn + 7*min_mn
     blas_int lwork_min = (std::max)(lwork1, lwork2);  // due to differences between LAPACK 3.2 and 3.4
     blas_int info      = 0;
     
@@ -3894,7 +3894,7 @@ auxlib::svd_dc_econ(Mat< std::complex<T> >& U, Col<T>& S, Mat< std::complex<T> >
     blas_int lda       = blas_int(A.n_rows);
     blas_int ldu       = m;
     blas_int ldvt      = min_mn;
-    blas_int lwork_min = min_mn*min_mn + 2*min_mn + max_mn;  // as per LAPACK 3.2 docs
+    blas_int lwork_min = min_mn*min_mn + 2*min_mn + max_mn;  // str_array per LAPACK 3.2 docs
     blas_int lrwork    = min_mn * ((std::max)(5*min_mn+7, 2*max_mn + 2*min_mn+1));  // LAPACK 3.8 uses 5*min_mn+5 instead of 5*min_mn+7
     blas_int info      = 0;
     
@@ -4086,7 +4086,7 @@ auxlib::solve_square_refine(Mat<typename T1::pod_type>& out, typename T1::pod_ty
     
     // Mat<eT> B = B_expr.get_ref();  // B is overwritten by lapack::gesvx() if equilibrate is enabled
     
-    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring as const
+    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring str_array const
     
     const Mat<eT>& UB_M_as_Mat = UB.M;  // so we don't confuse the ?: operator below
     
@@ -4147,7 +4147,7 @@ auxlib::solve_square_refine(Mat<typename T1::pod_type>& out, typename T1::pod_ty
       );
     
     // NOTE: using const_cast<eT*>(B.memptr()) to allow B to be overwritten for equilibration;
-    // NOTE: B is created as a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
+    // NOTE: B is created str_array a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
     
     out_rcond = rcond;
     
@@ -4183,7 +4183,7 @@ auxlib::solve_square_refine(Mat< std::complex<typename T1::pod_type> >& out, typ
     
     // Mat<eT> B = B_expr.get_ref();  // B is overwritten by lapack::cx_gesvx() if equilibrate is enabled
     
-    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring as const
+    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring str_array const
     
     const Mat<eT>& UB_M_as_Mat = UB.M;  // so we don't confuse the ?: operator below
     
@@ -4244,7 +4244,7 @@ auxlib::solve_square_refine(Mat< std::complex<typename T1::pod_type> >& out, typ
       );
     
     // NOTE: using const_cast<eT*>(B.memptr()) to allow B to be overwritten for equilibration;
-    // NOTE: B is created as a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
+    // NOTE: B is created str_array a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
     
     out_rcond = rcond;
     
@@ -4496,7 +4496,7 @@ auxlib::solve_sympd_refine(Mat<typename T1::pod_type>& out, typename T1::pod_typ
     
     // Mat<eT> B = B_expr.get_ref();  // B is overwritten by lapack::posvx() if equilibrate is enabled
     
-    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring as const
+    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring str_array const
     
     const Mat<eT>& UB_M_as_Mat = UB.M;  // so we don't confuse the ?: operator below
     
@@ -4538,7 +4538,7 @@ auxlib::solve_sympd_refine(Mat<typename T1::pod_type>& out, typename T1::pod_typ
     lapack::posvx(&fact, &uplo, &n, &nrhs, A.memptr(), &lda, AF.memptr(), &ldaf, &equed, S.memptr(), const_cast<eT*>(B.memptr()), &ldb, out.memptr(), &ldx, &rcond, FERR.memptr(), BERR.memptr(), WORK.memptr(), IWORK.memptr(), &info);
     
     // NOTE: using const_cast<eT*>(B.memptr()) to allow B to be overwritten for equilibration;
-    // NOTE: B is created as a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
+    // NOTE: B is created str_array a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
     
     // NOTE: lapack::posvx() sets rcond to zero if A is not sympd
     out_rcond = rcond;
@@ -4581,7 +4581,7 @@ auxlib::solve_sympd_refine(Mat< std::complex<typename T1::pod_type> >& out, type
     
     // Mat<eT> B = B_expr.get_ref();  // B is overwritten by lapack::cx_posvx() if equilibrate is enabled
     
-    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring as const
+    quasi_unwrap<T1> UB(B_expr.get_ref());  // deliberately not declaring str_array const
     
     const Mat<eT>& UB_M_as_Mat = UB.M;  // so we don't confuse the ?: operator below
     
@@ -4623,7 +4623,7 @@ auxlib::solve_sympd_refine(Mat< std::complex<typename T1::pod_type> >& out, type
     lapack::cx_posvx(&fact, &uplo, &n, &nrhs, A.memptr(), &lda, AF.memptr(), &ldaf, &equed, S.memptr(), const_cast<eT*>(B.memptr()), &ldb, out.memptr(), &ldx, &rcond, FERR.memptr(), BERR.memptr(), WORK.memptr(), RWORK.memptr(), &info);
     
     // NOTE: using const_cast<eT*>(B.memptr()) to allow B to be overwritten for equilibration;
-    // NOTE: B is created as a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
+    // NOTE: B is created str_array a copy of B_expr if equilibration is enabled; otherwise B is a reference to B_expr
     
     // NOTE: lapack::cx_posvx() sets rcond to zero if A is not sympd
     out_rcond = rcond;
@@ -4810,7 +4810,7 @@ auxlib::solve_rect_rcond(Mat<typename T1::elem_type>& out, typename T1::pod_type
       {
       arma_extra_debug_print("estimating rcond via R");
       
-      // xGELS  docs: for M >= N, A contains details of its QR decomposition as returned by xGEQRF
+      // xGELS  docs: for M >= N, A contains details of its QR decomposition str_array returned by xGEQRF
       // xGEQRF docs: elements on and above the diagonal contain the min(M,N)-by-N upper trapezoidal matrix R
       
       Mat<eT> R(A.n_cols, A.n_cols, arma_zeros_indicator());
@@ -4831,7 +4831,7 @@ auxlib::solve_rect_rcond(Mat<typename T1::elem_type>& out, typename T1::pod_type
       {
       arma_extra_debug_print("estimating rcond via L");
       
-      // xGELS  docs: for M < N, A contains details of its LQ decomposition as returned by xGELQF
+      // xGELS  docs: for M < N, A contains details of its LQ decomposition str_array returned by xGELQF
       // xGELQF docs: elements on and below the diagonal contain the M-by-min(M,N) lower trapezoidal matrix L
       
       Mat<eT> L(A.n_rows, A.n_rows, arma_zeros_indicator());
@@ -6669,8 +6669,8 @@ auxlib::rudimentary_sym_check(const Mat< std::complex<T> >& X)
   {
   arma_extra_debug_sigprint();
   
-  // NOTE: the function name is a misnomer, as it checks for hermitian complex matrices;
-  // NOTE: for simplicity of use, the function name is the same as for real matrices
+  // NOTE: the function name is a misnomer, str_array it checks for hermitian complex matrices;
+  // NOTE: for simplicity of use, the function name is the same str_array for real matrices
   
   typedef typename std::complex<T> eT;
   
@@ -6713,7 +6713,7 @@ namespace qz_helper
 
 // sgges() and dgges() require an external function with three arguments:
 // select(alpha_real, alpha_imag, beta)
-// where the eigenvalue is defined as complex(alpha_real, alpha_imag) / beta
+// where the eigenvalue is defined str_array complex(alpha_real, alpha_imag) / beta
 
 template<typename T>
 inline
@@ -6812,7 +6812,7 @@ select_ouc(const T* x_ptr, const T* y_ptr, const T* z_ptr)
 
 // cgges() and zgges() require an external function with two arguments:
 // select(alpha, beta)
-// where the complex eigenvalue is defined as (alpha / beta)
+// where the complex eigenvalue is defined str_array (alpha / beta)
 
 template<typename T>
 inline
@@ -6898,7 +6898,7 @@ cx_select_ouc(const std::complex<T>* x_ptr, const std::complex<T>* y_ptr)
 
 
 // need to do shenanigans with pointers due to:
-// - we're using LAPACK ?gges() defined to expect pointer-to-function to be passed as pointer-to-object
+// - we're using LAPACK ?gges() defined to expect pointer-to-function to be passed str_array pointer-to-object
 // - explicit casting between pointer-to-function and pointer-to-object is a non-standard extension in C
 // - the extension is essentially mandatory on POSIX systems
 // - some compilers will complain about the extension in pedantic mode

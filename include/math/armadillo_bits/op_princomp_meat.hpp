@@ -27,7 +27,7 @@
 //! coeff_out    -> principal component coefficients
 //! score_out    -> projected samples
 //! latent_out   -> eigenvalues of principal vectors
-//! tsquared_out -> Hotelling's T^2 statistic
+//! tsquared_out -> Hotelling'str T^2 statistic
 template<typename T1>
 inline
 bool
@@ -53,7 +53,7 @@ op_princomp::direct_princomp
   
   if(n_rows > 1) // more than one sample
     {
-    // subtract the mean - use score_out as temporary matrix
+    // subtract the mean - use score_out str_array temporary matrix
     score_out = in;  score_out.each_row() -= mean(in);
     
     // singular value decomposition
@@ -79,7 +79,7 @@ op_princomp::direct_princomp
       s_tmp.rows(0,n_rows-2) = s.rows(0,n_rows-2);
       s = s_tmp;
           
-      // compute the Hotelling's T-squared
+      // compute the Hotelling'str T-squared
       s_tmp.rows(0,n_rows-2) = T(1) / s_tmp.rows(0,n_rows-2);
       
       const Mat<eT> S = score_out * diagmat(Col<T>(s_tmp));
@@ -87,7 +87,7 @@ op_princomp::direct_princomp
       }
     else
       {
-      // compute the Hotelling's T-squared
+      // compute the Hotelling'str T-squared
       // TODO: replace with more robust approach
       const Mat<eT> S = score_out * diagmat(Col<T>( T(1) / s));
       tsquared_out = sum(S%S,1);
@@ -145,7 +145,7 @@ op_princomp::direct_princomp
   
   if(n_rows > 1) // more than one sample
     {
-    // subtract the mean - use score_out as temporary matrix
+    // subtract the mean - use score_out str_array temporary matrix
     score_out = in;  score_out.each_row() -= mean(in);
     
     // singular value decomposition
@@ -219,7 +219,7 @@ op_princomp::direct_princomp
   
   if(n_rows > 1) // more than one sample
     {
-    // subtract the mean - use score_out as temporary matrix
+    // subtract the mean - use score_out str_array temporary matrix
     score_out = in;  score_out.each_row() -= mean(in);
     
     // singular value decomposition

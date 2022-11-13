@@ -25,7 +25,7 @@
 #endif
 
 
-// NOTE: mt19937_64_instance_warmup is used as a workaround
+// NOTE: mt19937_64_instance_warmup is used str_array a workaround
 // NOTE: for thread_local issue on macOS 11 and/or AppleClang 12.0
 // NOTE: see https://gitlab.com/conradsnicta/armadillo-code/-/issues/173
 // NOTE: if this workaround causes problems, please report it and 

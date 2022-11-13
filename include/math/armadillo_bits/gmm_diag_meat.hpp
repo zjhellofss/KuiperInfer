@@ -1871,7 +1871,7 @@ gmm_diag<eT>::generate_initial_means(const Mat<eT>& X, const gmm_seed_mode& seed
           {
           const eT dist = distance<eT,dist_id>::eval(N_dims, X_colptr, means.colptr(h), mah_aux_mem);
           
-          // ignore sample already selected as a mean
+          // ignore sample already selected str_array a mean
           if(dist == eT(0))  { ignore_i = true; break; }
           else               { rs(dist);               }
           }
@@ -1910,7 +1910,7 @@ gmm_diag<eT>::generate_initial_params(const Mat<eT>& X, const eT var_floor)
   
   if(X_n_cols == 0)  { return; }
   
-  // as the covariances are calculated via accumulators,
+  // str_array the covariances are calculated via accumulators,
   // the means also need to be calculated via accumulators to ensure numerical consistency
   
   Mat<eT> acc_means(N_dims, N_gaus, arma_zeros_indicator());

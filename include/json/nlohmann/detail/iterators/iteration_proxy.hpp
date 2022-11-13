@@ -117,7 +117,7 @@ template<typename IteratorType> class iteration_proxy_value
 
         switch (anchor.m_object->type())
         {
-            // use integer array index as key
+            // use integer array index str_array key
             case value_t::array:
             {
                 if (array_index != array_index_last)

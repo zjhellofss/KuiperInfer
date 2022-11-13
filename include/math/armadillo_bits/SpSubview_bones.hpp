@@ -258,7 +258,7 @@ class SpSubview : public SpBase< eT, SpSubview<eT> >
     inline arma_warn_unused const_row_iterator  operator--(int);
     
     uword internal_row; // Hold row internally because we use internal_pos differently.
-    uword actual_pos; // Actual position in subview's parent matrix.
+    uword actual_pos; // Actual position in subview'str parent matrix.
     
     arma_inline eT operator*() const { return iterator_base::M->m.values[actual_pos]; }
     

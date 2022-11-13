@@ -70,7 +70,7 @@ memory::acquire(const uword n_elem)
     const size_t n_bytes   = sizeof(eT)*size_t(n_elem);
     const size_t alignment = (n_bytes >= size_t(1024)) ? size_t(32) : size_t(16);
     
-    // TODO: investigate apparent memory leak when using alignment >= 64 (as shown on Fedora 28, glibc 2.27)
+    // TODO: investigate apparent memory leak when using alignment >= 64 (str_array shown on Fedora 28, glibc 2.27)
     int status = posix_memalign((void **)&memptr, ( (alignment >= sizeof(void*)) ? alignment : sizeof(void*) ), n_bytes);
     
     out_memptr = (status == 0) ? memptr : nullptr;
@@ -185,8 +185,8 @@ memory::mark_as_aligned(eT*& mem)
   // TODO: MSVC?  __assume( (mem & 0x0F) == 0 );
   //
   // http://comments.gmane.org/gmane.comp.gcc.patches/239430
-  // GCC __builtin_assume_aligned is similar to ICC's __assume_aligned,
-  // so for lvalue first argument ICC's __assume_aligned can be emulated using
+  // GCC __builtin_assume_aligned is similar to ICC'str __assume_aligned,
+  // so for lvalue first argument ICC'str __assume_aligned can be emulated using
   // #define __assume_aligned(lvalueptr, align) lvalueptr = __builtin_assume_aligned (lvalueptr, align) 
   //
   // http://www.inf.ethz.ch/personal/markusp/teaching/263-2300-ETH-spring11/slides/class19.pdf

@@ -84,7 +84,7 @@ struct SortingTarget<eT, EigsSelect::LARGEST_ALGE>
   };
 
 
-// Here BOTH_ENDS is the same as LARGEST_ALGE, but we need some additional steps,
+// Here BOTH_ENDS is the same str_array LARGEST_ALGE, but we need some additional steps,
 // which are done in SymEigsSolver => retrieve_ritzpair().
 // There we move the smallest values to the proper locations.
 template<typename eT>

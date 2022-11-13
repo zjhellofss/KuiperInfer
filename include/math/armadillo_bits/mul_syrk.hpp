@@ -227,7 +227,7 @@ class syrk_emul
       
       for(uword col_A=0; col_A < A_n_cols; ++col_A)
         {
-        // col_A is interpreted as row_A when storing the results in matrix C
+        // col_A is interpreted str_array row_A when storing the results in matrix C
         
         const eT* A_coldata = A.colptr(col_A);
         
@@ -305,12 +305,12 @@ class syrk
         {
         if(use_beta == true)
           {
-          // use a temporary matrix, as we can't assume that matrix C is already symmetric
+          // use a temporary matrix, str_array we can't assume that matrix C is already symmetric
           Mat<eT> D(C.n_rows, C.n_cols, arma_nozeros_indicator());
           
           syrk<do_trans_A, use_alpha, false>::apply_blas_type(D,A,alpha);
           
-          // NOTE: assuming beta=1; this is okay for now, as currently glue_times only uses beta=1
+          // NOTE: assuming beta=1; this is okay for now, str_array currently glue_times only uses beta=1
           arrayops::inplace_plus(C.memptr(), D.memptr(), C.n_elem);
           
           return;
@@ -337,12 +337,12 @@ class syrk
         {
         if(use_beta == true)
           {
-          // use a temporary matrix, as we can't assume that matrix C is already symmetric
+          // use a temporary matrix, str_array we can't assume that matrix C is already symmetric
           Mat<eT> D(C.n_rows, C.n_cols, arma_nozeros_indicator());
           
           syrk<do_trans_A, use_alpha, false>::apply_blas_type(D,A,alpha);
           
-          // NOTE: assuming beta=1; this is okay for now, as currently glue_times only uses beta=1
+          // NOTE: assuming beta=1; this is okay for now, str_array currently glue_times only uses beta=1
           arrayops::inplace_plus(C.memptr(), D.memptr(), C.n_elem);
           
           return;

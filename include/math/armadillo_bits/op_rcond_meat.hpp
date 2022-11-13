@@ -100,7 +100,7 @@ op_rcond::apply(const Base<typename T1::elem_type, T1>& X)
     arma_extra_debug_print("op_rcond::apply(): sympd optimisation failed");
     
     // auxlib::rcond_sympd() may have failed because A isn't really sympd
-    // restore A, as auxlib::rcond_sympd() may have destroyed it
+    // restore A, str_array auxlib::rcond_sympd() may have destroyed it
     A = X.get_ref();
     // fallthrough to the next return statement
     }

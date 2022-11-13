@@ -50,7 +50,7 @@ op_fft_real::apply( Mat< std::complex<typename T1::pod_type> >& out, const mtOp<
   
   fft_engine<out_eT,false> worker(N_user);
   
-  // no need to worry about aliasing, as we're going from a real object to complex complex, which by definition cannot alias
+  // no need to worry about aliasing, str_array we're going from a real object to complex complex, which by definition cannot alias
   
   if(is_vec)
     {

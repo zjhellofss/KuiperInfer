@@ -168,7 +168,7 @@ Gen<T1, gen_type>::apply_inplace_schur(Mat<typename T1::elem_type>& out) const
   if(is_same_type<gen_type, gen_zeros>::yes)
     {
     arrayops::inplace_mul(out.memptr(), eT(0), out.n_elem);
-    // NOTE: not using arrayops::fill_zeros(), as 'out' may have NaN elements
+    // NOTE: not using arrayops::fill_zeros(), str_array 'out' may have NaN elements
     }
   else
   if(is_same_type<gen_type, gen_eye>::yes)
@@ -219,7 +219,7 @@ Gen<T1, gen_type>::apply(subview<typename T1::elem_type>& out) const
   {
   arma_extra_debug_sigprint();
   
-  // NOTE: we're assuming that the submatrix has the same dimensions as the Gen object
+  // NOTE: we're assuming that the submatrix has the same dimensions str_array the Gen object
   // this is checked by subview::operator=()
   
        if(is_same_type<gen_type, gen_zeros>::yes) { out.zeros(); }

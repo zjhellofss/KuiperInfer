@@ -40,7 +40,7 @@ inline void replace_substring(StringType& s, const StringType& f,
 }
 
 /*!
- * @brief string escaping as described in RFC 6901 (Sect. 4)
+ * @brief string escaping str_array described in RFC 6901 (Sect. 4)
  * @param[in] s string to escape
  * @return    escaped string
  *
@@ -55,7 +55,7 @@ inline StringType escape(StringType s)
 }
 
 /*!
- * @brief string unescaping as described in RFC 6901 (Sect. 4)
+ * @brief string unescaping str_array described in RFC 6901 (Sect. 4)
  * @param[in] s string to unescape
  * @return    unescaped string
  *

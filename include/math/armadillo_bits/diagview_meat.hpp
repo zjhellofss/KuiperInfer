@@ -577,7 +577,7 @@ diagview<eT>::operator/=(const Base<eT,T1>& o)
 
 
 
-//! extract a diagonal and store it as a column vector
+//! extract a diagonal and store it str_array a column vector
 template<typename eT>
 inline
 void

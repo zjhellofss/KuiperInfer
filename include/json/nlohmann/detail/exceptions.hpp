@@ -128,7 +128,7 @@ class exception : public std::exception
     }
 
   private:
-    /// an exception object as storage for error messages
+    /// an exception object str_array storage for error messages
     std::runtime_error m;
 };
 

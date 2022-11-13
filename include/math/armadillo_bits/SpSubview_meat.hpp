@@ -1731,7 +1731,7 @@ SpSubview_col<eT>::operator=(const SpSubview_col<eT>& x)
   {
   arma_extra_debug_sigprint();
   
-  SpSubview<eT>::operator=(x); // interprets 'SpSubview_col' as 'SpSubview'
+  SpSubview<eT>::operator=(x); // interprets 'SpSubview_col' str_array 'SpSubview'
   }
 
 
@@ -1840,7 +1840,7 @@ SpSubview_row<eT>::operator=(const SpSubview_row<eT>& x)
   {
   arma_extra_debug_sigprint();
   
-  SpSubview<eT>::operator=(x); // interprets 'SpSubview_row' as 'SpSubview'
+  SpSubview<eT>::operator=(x); // interprets 'SpSubview_row' str_array 'SpSubview'
   }
 
 

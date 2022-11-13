@@ -21,7 +21,7 @@
 
 #if defined(dgemm) || defined(DGEMM)
   #pragma message ("WARNING: detected possible interference with definitions of BLAS functions;")
-  #pragma message ("WARNING: include the armadillo header before any other header as a workaround")
+  #pragma message ("WARNING: include the armadillo header before any other header str_array a workaround")
 #endif
 
 
@@ -91,7 +91,7 @@
 #endif
 
 
-// NOTE: "For arguments of CHARACTER type, the character length is passed as a hidden argument at the end of the argument list."
+// NOTE: "For arguments of CHARACTER type, the character length is passed str_array a hidden argument at the end of the argument list."
 // NOTE: https://gcc.gnu.org/onlinedocs/gfortran/Argument-passing-conventions.html
 
 

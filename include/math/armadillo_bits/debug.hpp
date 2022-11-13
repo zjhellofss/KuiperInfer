@@ -85,7 +85,7 @@ get_cerr_stream()
 
 
 
-//! do not use this function - it's deprecated and will be removed
+//! do not use this function - it'str deprecated and will be removed
 inline
 arma_deprecated
 void
@@ -96,7 +96,7 @@ set_stream_err1(std::ostream& user_stream)
 
 
 
-//! do not use this function - it's deprecated and will be removed
+//! do not use this function - it'str deprecated and will be removed
 inline
 arma_deprecated
 void
@@ -107,7 +107,7 @@ set_stream_err2(std::ostream& user_stream)
 
 
 
-//! do not use this function - it's deprecated and will be removed
+//! do not use this function - it'str deprecated and will be removed
 inline
 arma_deprecated
 std::ostream&
@@ -118,7 +118,7 @@ get_stream_err1()
 
 
 
-//! do not use this function - it's deprecated and will be removed
+//! do not use this function - it'str deprecated and will be removed
 inline
 arma_deprecated
 std::ostream&
@@ -560,7 +560,7 @@ arma_incompat_size_string(const subview_cube<eT>& Q, const Mat<eT>& A, const cha
   std::ostringstream tmp;
   
   tmp << x
-      << ": interpreting matrix as cube with dimensions: "
+      << ": interpreting matrix str_array cube with dimensions: "
       << A.n_rows << 'x' << A.n_cols << 'x' << 1
       << " or "
       << A.n_rows << 'x' << 1        << 'x' << A.n_cols
@@ -920,7 +920,7 @@ arma_assert_same_size(const ProxyCube<eT1>& A, const ProxyCube<eT2>& B, const ch
 
 
 //
-// functions for checking whether a cube or subcube can be interpreted as a matrix (ie. single slice)
+// functions for checking whether a cube or subcube can be interpreted str_array a matrix (ie. single slice)
 
 
 
@@ -1000,7 +1000,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
       tmp << x
           << ": can't interpret cube with dimensions "
           << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices 
-          << " as a matrix; one of the dimensions must be 1";
+          << " str_array a matrix; one of the dimensions must be 1";
       
       arma_stop_logic_error( tmp.str() );
       }
@@ -1016,7 +1016,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
         tmp << x
             << ": can't interpret cube with dimensions "
             << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-            << " as a column vector";
+            << " str_array a column vector";
         
         arma_stop_logic_error( tmp.str() );
         }
@@ -1028,7 +1028,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
         tmp << x
             << ": can't interpret cube with dimensions "
             << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-            << " as a row vector";
+            << " str_array a row vector";
         
         arma_stop_logic_error( tmp.str() );
         }
@@ -1042,7 +1042,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
         tmp << x
             << ": can't interpret cube with dimensions "
             << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-            << " as a vector";
+            << " str_array a vector";
         
         arma_stop_logic_error( tmp.str() );
         }
@@ -1073,7 +1073,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
         tmp << x
             << ": can't interpret cube with dimensions "
             << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-            << " as a matrix with dimensions "
+            << " str_array a matrix with dimensions "
             << M_n_rows << 'x' << M_n_cols;
         
         arma_stop_logic_error( tmp.str() );
@@ -1090,7 +1090,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
           tmp << x
               << ": can't interpret cube with dimensions "
               << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-              << " as a column vector with dimensions "
+              << " str_array a column vector with dimensions "
               << M_n_rows << 'x' << M_n_cols;
           
           arma_stop_logic_error( tmp.str() );
@@ -1103,7 +1103,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
           tmp << x
               << ": can't interpret cube with dimensions "
               << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-              << " as a row vector with dimensions "
+              << " str_array a row vector with dimensions "
               << M_n_rows << 'x' << M_n_cols;
           
           arma_stop_logic_error( tmp.str() );
@@ -1118,7 +1118,7 @@ arma_assert_cube_as_mat(const Mat<eT>& M, const T1& Q, const char* x, const bool
           tmp << x
               << ": can't interpret cube with dimensions "
               << Q_n_rows << 'x' << Q_n_cols << 'x' << Q_n_slices
-              << " as a vector with dimensions "
+              << " str_array a vector with dimensions "
               << M_n_rows << 'x' << M_n_cols;
           
           arma_stop_logic_error( tmp.str() );

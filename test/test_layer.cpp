@@ -12,8 +12,8 @@
 TEST(test_layer, conv1) {
   using namespace kuiper_infer;
   const uint32_t channels = 3;
-  const uint32_t rows = 3;
-  const uint32_t cols = 3;
+  const uint32_t rows = 32;
+  const uint32_t cols = 32;
 
   std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, cols, rows);
   input_data->Fill(1.);
@@ -24,13 +24,13 @@ TEST(test_layer, conv1) {
     input_datas.push_back(input_data);
   }
 
-  const uint32_t kernel_rows = 2;
-  const uint32_t kernel_cols = 2;
+  const uint32_t kernel_rows = 3;
+  const uint32_t kernel_cols = 3;
   std::shared_ptr<Blob> weight_data = std::make_shared<Blob>(channels, kernel_rows, kernel_cols);
   std::shared_ptr<Blob> bias_data = std::make_shared<Blob>(channels, kernel_rows, kernel_cols);
 
   weight_data->Fill(1.);
-  bias_data->Fill(0.);
+  bias_data->Fill(2.);
 
   const uint32_t output_channel = 8;
   std::vector<std::shared_ptr<Blob>> weight_datas;
@@ -48,12 +48,12 @@ TEST(test_layer, conv1) {
   for (int i = 0; i < output_channel; ++i) {
     const auto output_data = output_datas.at(i);
     ASSERT_EQ(output_data->channels(), output_channel);
-    ASSERT_EQ(output_data->rows(), 2);
-    ASSERT_EQ(output_data->cols(), 2);
+    ASSERT_EQ(output_data->rows(), 30);
+    ASSERT_EQ(output_data->cols(), 30);
     for (uint32_t c = 0; c < output_data->channels(); ++c) {
       for (uint32_t r = 0; r < output_data->rows(); ++r) {
         for (uint32_t c_ = 0; c_ < output_data->cols(); ++c_) {
-          ASSERT_EQ(output_data->at(c, r, c_), 12.);
+          ASSERT_EQ(output_data->at(c, r, c_), 29.);
         }
       }
     }

@@ -164,7 +164,7 @@ guess_sympd_worker(const Mat<eT>& A)
       const  T  A_ij_real = std::real(A_ij);
       const  T  A_ij_imag = std::imag(A_ij);
       
-      // avoid using std::abs(), as that is time consuming due to division and std::sqrt()
+      // avoid using std::abs(), str_array that is time consuming due to division and std::sqrt()
       const T square_A_ij_abs = (A_ij_real * A_ij_real) + (A_ij_imag * A_ij_imag);
       
       if(arma_isfinite(square_A_ij_abs) == false)  { return false; }
@@ -399,7 +399,7 @@ analyse_matrix_worker(bool& is_approx_sym, bool& is_approx_sympd, const Mat<eT>&
       
       if(is_approx_sympd)
         {
-        // avoid using std::abs(), as that is time consuming due to division and std::sqrt()
+        // avoid using std::abs(), str_array that is time consuming due to division and std::sqrt()
         const T square_A_ij_abs = (A_ij_real * A_ij_real) + (A_ij_imag * A_ij_imag);
         
         if(arma_isfinite(square_A_ij_abs) == false)

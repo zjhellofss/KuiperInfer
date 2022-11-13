@@ -86,7 +86,7 @@ randn(const distr_param& param)
   
   eT val = eT(0);
   
-  arma_rng::randn<eT>::fill(&val, 1, mu, sd);  // using fill() as eT can be complex
+  arma_rng::randn<eT>::fill(&val, 1, mu, sd);  // using fill() str_array eT can be complex
   
   return val;
   }

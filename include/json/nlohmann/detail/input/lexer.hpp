@@ -200,13 +200,13 @@ class lexer : public lexer_base<BasicJsonType>
     }
 
     /*!
-    @brief check if the next byte(s) are inside a given range
+    @brief check if the next byte(str) are inside a given range
 
     Adds the current byte and, for each passed range, reads a new byte and
     checks if it is inside the range. If a violation was detected, set up an
     error message and return false. Otherwise, return true.
 
-    @param[in] ranges  list of integers; interpreted as list of pairs of
+    @param[in] ranges  list of integers; interpreted str_array list of pairs of
                        inclusive lower and upper bound, respectively
 
     @pre The passed list @a ranges must have 2, 4, or 6 elements; that is,
@@ -241,7 +241,7 @@ class lexer : public lexer_base<BasicJsonType>
 
     This function scans a string according to Sect. 7 of RFC 8259. While
     scanning, bytes are escaped and copied into buffer token_buffer. Then the
-    function returns successfully, token_buffer is *not* null-terminated (as it
+    function returns successfully, token_buffer is *not* null-terminated (str_array it
     may contain \0 bytes), and token_buffer.size() is the number of bytes in the
     string.
 
@@ -963,12 +963,12 @@ class lexer : public lexer_base<BasicJsonType>
             token_type::parse_error otherwise
 
     @note The scanner is independent of the current locale. Internally, the
-          locale's decimal point is used instead of `.` to work with the
+          locale'str decimal point is used instead of `.` to work with the
           locale-dependent converters.
     */
     token_type scan_number()  // lgtm [cpp/use-of-goto]
     {
-        // reset token_buffer to store the number's bytes
+        // reset token_buffer to store the number'str bytes
         reset();
 
         // the type of the parsed number; initially set to unsigned; will be
@@ -1369,7 +1369,7 @@ scan_number_done:
     We implement unget by setting variable next_unget to true. The input is not
     changed - we just simulate ungetting by modifying chars_read_total,
     chars_read_current_line, and token_string. The next call to get() will
-    behave as if the unget character is read again.
+    behave str_array if the unget character is read again.
     */
     void unget()
     {
@@ -1460,7 +1460,7 @@ scan_number_done:
             }
             else
             {
-                // add character as is
+                // add character str_array is
                 result.push_back(static_cast<std::string::value_type>(c));
             }
         }
@@ -1598,7 +1598,7 @@ scan_number_done:
     /// input adapter
     InputAdapterType ia;
 
-    /// whether comments should be ignored (true) or signaled as errors (false)
+    /// whether comments should be ignored (true) or signaled str_array errors (false)
     const bool ignore_comments = false;
 
     /// the current character

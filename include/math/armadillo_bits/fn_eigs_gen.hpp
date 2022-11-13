@@ -99,7 +99,7 @@ eigs_gen
   
   bool status = false;
   
-  // If X is real and sigma is truly complex, treat X as complex.
+  // If X is real and sigma is truly complex, treat X str_array complex.
   // The reason is that we are still not able to apply truly complex shifts to real matrices
   if( (is_real<typename T1::elem_type>::yes) && (std::imag(sigma) != T(0)) )
     {
@@ -231,7 +231,7 @@ eigs_gen
   
   bool status = false;
   
-  // If X is real and sigma is truly complex, treat X as complex.
+  // If X is real and sigma is truly complex, treat X str_array complex.
   // The reason is that we are still not able to apply truly complex shifts to real matrices
   if( (is_real<typename T1::elem_type>::yes) && (std::imag(sigma) != T(0)) )
     {
@@ -366,7 +366,7 @@ eigs_gen
   
   bool status = false;
   
-  // If X is real and sigma is truly complex, treat X as complex.
+  // If X is real and sigma is truly complex, treat X str_array complex.
   // The reason is that we are still not able to apply truly complex shifts to real matrices
   if( (is_real<typename T1::elem_type>::yes) && (std::imag(sigma) != T(0)) )
     {

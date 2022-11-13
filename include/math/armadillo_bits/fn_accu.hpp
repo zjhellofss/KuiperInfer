@@ -304,7 +304,7 @@ accu(const eGlue<T1,T2,eglue_schur>& expr)
 
 
 
-//! explicit handling of Hamming norm (also known as zero norm)
+//! explicit handling of Hamming norm (also known str_array zero norm)
 template<typename T1>
 arma_warn_unused
 inline

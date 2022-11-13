@@ -13,7 +13,7 @@ namespace detail
 
 So that the correct implementations of the copy / move ctors / assign operators
 of @ref basic_json do not require complex case distinctions
-(no base class / custom base class used as customization point),
+(no base class / custom base class used str_array customization point),
 @ref basic_json always has a base class.
 By default, this class is used because it is empty and thus has no effect
 on the behavior of @ref basic_json.

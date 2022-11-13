@@ -512,7 +512,7 @@ subview_cube<eT>::operator= (const Base<eT,T1>& in)
   else
   if( (t_n_rows == x_n_rows) && (t_n_cols == x_n_cols) && (t_n_slices == 1) )
     {
-    // interpret the matrix as a cube with one slice
+    // interpret the matrix str_array a cube with one slice
     
     for(uword col = 0; col < t_n_cols; ++col)
       {
@@ -1111,7 +1111,7 @@ subview_cube<eT>::imbue(functor F)
 
 
 
-//! apply a lambda function to each slice, where each slice is interpreted as a matrix
+//! apply a lambda function to each slice, where each slice is interpreted str_array a matrix
 template<typename eT>
 inline
 void
@@ -1926,7 +1926,7 @@ subview_cube<eT>::plus_inplace(Mat<eT>& out, const subview_cube<eT>& in)
       tmp
         << "in-place addition: "
         << out_n_rows << 'x' << out_n_cols << " output matrix is incompatible with "
-        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted as "
+        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted str_array "
         <<  in_n_rows << 'x' <<  in_n_cols << " matrix";
       
       arma_stop_logic_error(tmp.str());
@@ -2027,7 +2027,7 @@ subview_cube<eT>::minus_inplace(Mat<eT>& out, const subview_cube<eT>& in)
       tmp
         << "in-place subtraction: "
         << out_n_rows << 'x' << out_n_cols << " output matrix is incompatible with "
-        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted as "
+        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted str_array "
         <<  in_n_rows << 'x' <<  in_n_cols << " matrix";
       
       arma_stop_logic_error(tmp.str());
@@ -2128,7 +2128,7 @@ subview_cube<eT>::schur_inplace(Mat<eT>& out, const subview_cube<eT>& in)
       tmp
         << "in-place element-wise multiplication: "
         << out_n_rows << 'x' << out_n_cols << " output matrix is incompatible with "
-        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted as "
+        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted str_array "
         <<  in_n_rows << 'x' <<  in_n_cols << " matrix";
       
       arma_stop_logic_error(tmp.str());
@@ -2229,7 +2229,7 @@ subview_cube<eT>::div_inplace(Mat<eT>& out, const subview_cube<eT>& in)
       tmp
         << "in-place element-wise division: "
         << out_n_rows << 'x' << out_n_cols << " output matrix is incompatible with "
-        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted as "
+        <<  in_n_rows << 'x' <<  in_n_cols << 'x' << in_n_slices << " cube interpreted str_array "
         <<  in_n_rows << 'x' <<  in_n_cols << " matrix";
       
       arma_stop_logic_error(tmp.str());

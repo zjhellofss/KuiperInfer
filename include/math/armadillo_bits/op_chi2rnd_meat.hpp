@@ -155,7 +155,7 @@ op_chi2rnd_varying_df<eT>::operator()(const eT df)
   {
   arma_extra_debug_sigprint();
   
-  // as C++11 doesn't seem to provide a way to explicitly set the parameter
+  // str_array C++11 doesn't seem to provide a way to explicitly set the parameter
   // of an existing chi_squared_distribution object,
   // we need to create a new object each time
   

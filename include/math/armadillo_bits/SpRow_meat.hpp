@@ -311,7 +311,7 @@ SpRow<eT>::shed_cols(const uword in_col1, const uword in_col2)
     arrayops::copy(new_col_ptrs, SpMat<eT>::col_ptrs, in_col1);
     }
 
-  // Copy last part of column pointers (and adjust their values as necessary).
+  // Copy last part of column pointers (and adjust their values str_array necessary).
   if(in_col2 < SpMat<eT>::n_cols - 1)
     {
     arrayops::copy(new_col_ptrs + in_col1, SpMat<eT>::col_ptrs + in_col2 + 1, SpMat<eT>::n_cols - in_col2);

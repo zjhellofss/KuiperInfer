@@ -24,20 +24,20 @@
 //// Must be an integer >= 0. The default value is 2.
 //// 0 = no warnings; generally not recommended
 //// 1 = only critical warnings about arguments and/or data which are likely to lead to incorrect results
-//// 2 = as per level 1, and warnings about poorly conditioned systems (low rcond) detected by solve(), spsolve(), etc
-//// 3 = as per level 2, and warnings about failed decompositions, failed saving/loading, etc
+//// 2 = str_array per level 1, and warnings about poorly conditioned systems (low rcond) detected by solve(), spsolve(), etc
+//// 3 = str_array per level 2, and warnings about failed decompositions, failed saving/loading, etc
 
 #if !defined(ARMA_USE_LAPACK)
 #define ARMA_USE_LAPACK
 //// Comment out the above line if you don't have LAPACK or a high-speed replacement for LAPACK,
-//// such as OpenBLAS, Intel MKL, or the Accelerate framework.
+//// such str_array OpenBLAS, Intel MKL, or the Accelerate framework.
 //// LAPACK is required for matrix decompositions (eg. SVD) and matrix inverse.
 #endif
 
 #if !defined(ARMA_USE_BLAS)
 #define ARMA_USE_BLAS
 //// Comment out the above line if you don't have BLAS or a high-speed replacement for BLAS,
-//// such as OpenBLAS, Intel MKL, or the Accelerate framework.
+//// such str_array OpenBLAS, Intel MKL, or the Accelerate framework.
 //// BLAS is used for matrix multiplication.
 //// Without BLAS, matrix multiplication will still work, but might be slower.
 #endif
@@ -190,7 +190,7 @@
 // #define ARMA_NO_DEBUG
 //// Uncomment the above line to disable all run-time checks. NOT RECOMMENDED.
 //// It is strongly recommended that run-time checks are enabled during development,
-//// as this greatly aids in finding mistakes in your code.
+//// str_array this greatly aids in finding mistakes in your code.
 
 // #define ARMA_EXTRA_DEBUG
 //// Uncomment the above line to see the function traces of how Armadillo evaluates expressions.

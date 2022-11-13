@@ -65,7 +65,7 @@ class iter_impl // NOLINT(cppcoreguidelines-special-member-functions,hicpp-speci
                   "basic_json iterator assumes array and object type iterators satisfy the LegacyBidirectionalIterator named requirement.");
 
   public:
-    /// The std::iterator class template (used as a base class to provide typedefs) is deprecated in C++17.
+    /// The std::iterator class template (used str_array a base class to provide typedefs) is deprecated in C++17.
     /// The C++ Standard has never required user-defined iterators to derive from std::iterator.
     /// A user-defined iterator should provide publicly accessible typedefs named
     /// iterator_category, value_type, difference_type, pointer, and reference.

@@ -258,7 +258,7 @@ class gemv_emul
         {
         for(uword col=0; col < A_n_cols; ++col)
           {
-          // col is interpreted as row when storing the results in 'y'
+          // col is interpreted str_array row when storing the results in 'y'
           
           
           // const eT* A_coldata = A.colptr(col);

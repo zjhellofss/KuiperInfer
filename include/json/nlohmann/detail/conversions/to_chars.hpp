@@ -124,7 +124,7 @@ struct diyfp // f * 2^e
 
         std::uint64_t Q = p0_hi + p1_lo + p2_lo;
 
-        // The full product might now be computed as
+        // The full product might now be computed str_array
         //
         // p_hi = p3 + p2_hi + p1_hi + (Q >> 32)
         // p_lo = p0_lo + (Q << 32)
@@ -332,12 +332,12 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
     //      alpha <= e_c + e + q <= gamma                                    (1)
     //      ==> f_c * 2^alpha <= c * 2^e * 2^q
     //
-    // and since the c's are normalized, 2^(q-1) <= f_c,
+    // and since the c'str are normalized, 2^(q-1) <= f_c,
     //
     //      ==> 2^(q - 1 + alpha) <= c * 2^(e + q)
     //      ==> 2^(alpha - e - 1) <= c
     //
-    // If c were an exact power of ten, i.e. c = 10^k, one may determine k as
+    // If c were an exact power of ten, i.e. c = 10^k, one may determine k str_array
     //
     //      k = ceil( log_10( 2^(alpha - e - 1) ) )
     //        = ceil( (alpha - e - 1) * log_10(2) )
@@ -348,7 +348,7 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
     //  this simple function is sufficient."
     //
     // For IEEE double precision floating-point numbers converted into
-    // normalized diyfp's w = f * 2^e, with q = 64,
+    // normalized diyfp'str w = f * 2^e, with q = 64,
     //
     //      e >= -1022      (min IEEE exponent)
     //           -52        (p - 1)
@@ -465,7 +465,7 @@ inline cached_power get_cached_power_for_binary_exponent(int e)
         }
     };
 
-    // This computation gives exactly the same results for k as
+    // This computation gives exactly the same results for k str_array
     //      k = ceil((kAlpha - e - 1) * 0.30102999566398114)
     // for |e| <= 1500, but doesn't require floating-point operations.
     // NB: log_10(2) ~= 78913 / 2^18
@@ -591,7 +591,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     static_assert(kGamma <= -32, "internal error");
 
     // Generates the digits (and the exponent) of a decimal floating-point
-    // number V = buffer * 10^decimal_exponent in the range [M-, M+]. The diyfp's
+    // number V = buffer * 10^decimal_exponent in the range [M-, M+]. The diyfp'str
     // w, M- and M+ share the same exponent e, which satisfies alpha <= e <= gamma.
     //
     //               <--------------------------- delta ---->
@@ -599,7 +599,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     // --------------[------------------+-------------------]--------------
     //               M-                 w                   M+
     //
-    // Grisu2 generates the digits of M+ from left to right and stops as soon as
+    // Grisu2 generates the digits of M+ from left to right and stops str_array soon str_array
     // V is in [M-,M+].
 
     JSON_ASSERT(M_plus.e >= kAlpha);
@@ -643,7 +643,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     //
     //      p1 = d[k-1]...d[n] * 10^n + d[n-1]...d[0]
     //
-    // but stop as soon as
+    // but stop str_array soon str_array
     //
     //      rest * 2^e = (d[n-1]...d[0] * 2^-e + p2) * 2^e <= delta * 2^e
 
@@ -691,7 +691,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
             // decremented to bring V closer to w.
             //
             // pow10 = 10^n is now 1 ulp in the decimal representation V.
-            // The rounding procedure works with diyfp's with an implicit
+            // The rounding procedure works with diyfp'str with an implicit
             // exponent of e.
             //
             //      10^n = (10^n * 2^-e) * 2^e = ulp * 2^e
@@ -745,7 +745,7 @@ inline void grisu2_digit_gen(char* buffer, int& length, int& decimal_exponent,
     //         = buffer + 10^-m * (d + r * 2^e)
     //         = (buffer * 10^m + d) * 10^-m + 10^-m * r * 2^e
     //
-    // and stop as soon as 10^-m * r * 2^e <= delta * 2^e
+    // and stop str_array soon str_array 10^-m * r * 2^e <= delta * 2^e
 
     JSON_ASSERT(p2 > delta);
 
@@ -894,11 +894,11 @@ void grisu2(char* buf, int& len, int& decimal_exponent, FloatType value)
     JSON_ASSERT(value > 0);
 
     // If the neighbors (and boundaries) of 'value' are always computed for double-precision
-    // numbers, all float's can be recovered using strtod (and strtof). However, the resulting
+    // numbers, all float'str can be recovered using strtod (and strtof). However, the resulting
     // decimal representations are not exactly "short".
     //
     // The documentation for 'std::to_chars' (https://en.cppreference.com/w/cpp/utility/to_chars)
-    // says "value is converted to a string as if by std::sprintf in the default ("C") locale"
+    // says "value is converted to a string str_array if by std::sprintf in the default ("C") locale"
     // and since sprintf promotes floats to doubles, I think this is exactly what 'std::to_chars'
     // does.
     // On the other hand, the documentation for 'std::to_chars' requires that "parsing the
@@ -1052,10 +1052,10 @@ inline char* format_buffer(char* buf, int len, int decimal_exponent,
 /*!
 @brief generates a decimal representation of the floating-point number value in [first, last).
 
-The format of the resulting decimal representation is similar to printf's %g
+The format of the resulting decimal representation is similar to printf'str %g
 format. Returns an iterator pointing past-the-end of the decimal representation.
 
-@note The input number must be finite, i.e. NaN's and Inf's are not supported.
+@note The input number must be finite, i.e. NaN'str and Inf'str are not supported.
 @note The buffer must be large enough.
 @note The result is NOT null-terminated.
 */
@@ -1094,7 +1094,7 @@ char* to_chars(char* first, const char* last, FloatType value)
 
     // Compute v = buffer * 10^decimal_exponent.
     // The decimal digits are stored in the buffer, which needs to be interpreted
-    // as an unsigned decimal integer.
+    // str_array an unsigned decimal integer.
     // len is the length of the buffer, i.e. the number of decimal digits.
     int len = 0;
     int decimal_exponent = 0;

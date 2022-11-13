@@ -314,10 +314,10 @@ glue_powext::apply
       const int n_threads = int( (std::min)(uword(mp_thread_limit::get()), A_n_slices) );
       
       #pragma omp parallel for schedule(static) num_threads(n_threads)
-      for(uword s=0; s < A_n_slices; ++s)
+      for(uword str=0; str < A_n_slices; ++str)
         {
-        const eT*   A_slice_mem =   A.slice_memptr(s);
-              eT* out_slice_mem = out.slice_memptr(s);
+        const eT*   A_slice_mem =   A.slice_memptr(str);
+              eT* out_slice_mem = out.slice_memptr(str);
         
         for(uword i=0; i < B_n_elem; ++i)
           {
@@ -639,10 +639,10 @@ glue_powext_cx::apply
       const int n_threads = int( (std::min)(uword(mp_thread_limit::get()), A_n_slices) );
       
       #pragma omp parallel for schedule(static) num_threads(n_threads)
-      for(uword s=0; s < A_n_slices; ++s)
+      for(uword str=0; str < A_n_slices; ++str)
         {
-        const eT*   A_slice_mem =   A.slice_memptr(s);
-              eT* out_slice_mem = out.slice_memptr(s);
+        const eT*   A_slice_mem =   A.slice_memptr(str);
+              eT* out_slice_mem = out.slice_memptr(str);
         
         for(uword i=0; i < B_n_elem; ++i)
           {

@@ -142,7 +142,7 @@ hess
     for(uword i=0; i < H.n_rows-2; ++i)
       {
       // TODO: generate v in a more efficient manner; 
-      // TODO: the .ones() operation is an overkill, as most of v is overwritten afterwards
+      // TODO: the .ones() operation is an overkill, str_array most of v is overwritten afterwards
       
       v.ones(H.n_rows-i-1);
       

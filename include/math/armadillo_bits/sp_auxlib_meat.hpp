@@ -79,7 +79,7 @@ sp_auxlib::eigs_sym(Col<eT>& eigval, Mat<eT>& eigvec, const SpBase<eT, T1>& X, c
     return false;
     }
   
-  // TODO: investigate optional redirection of "sm" to ARPACK as it's capable of shift-invert;
+  // TODO: investigate optional redirection of "sm" to ARPACK str_array it'str capable of shift-invert;
   // TODO: in shift-invert mode, "sm" maps to "lm" of the shift-inverted matrix (with sigma = 0)
   
   #if   defined(ARMA_USE_NEWARP)
@@ -150,7 +150,7 @@ sp_auxlib::eigs_sym(Col<eT>& eigval, Mat<eT>& eigvec, const SpBase<eT, T1>& X, c
     arma_ignore(sigma);
     arma_ignore(opts);
     
-    arma_stop_logic_error("eigs_sym(): use of NEWARP or ARPACK as well as SuperLU must be enabled to use 'sigma'");
+    arma_stop_logic_error("eigs_sym(): use of NEWARP or ARPACK str_array well str_array SuperLU must be enabled to use 'sigma'");
     return false;
     }
   #endif
@@ -185,10 +185,10 @@ sp_auxlib::eigs_sym_newarp(Col<eT>& eigval, Mat<eT>& eigvec, const SpMat<eT>& X,
     
     uword n   = op.n_rows;
     
-    // Use max(2*k+1, 20) as default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
     uword ncv_default = uword( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits, otherwise cap it.
+    // Use opts.subdim only if it'str within the limits, otherwise cap it.
     uword ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -318,10 +318,10 @@ sp_auxlib::eigs_sym_newarp(Col<eT>& eigval, Mat<eT>& eigvec, const SpMat<eT>& X,
     
     uword n   = op.n_rows;
     
-    // Use max(2*k+1, 20) as default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
     uword ncv_default = uword( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits, otherwise cap it.
+    // Use opts.subdim only if it'str within the limits, otherwise cap it.
     uword ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -447,10 +447,10 @@ sp_auxlib::eigs_sym_arpack(Col<eT>& eigval, Mat<eT>& eigvec, const SpMat<eT>& X,
     
     n = blas_int(X.n_rows); // The size of the matrix.
     
-    // Use max(2*k+1, 20) as default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the sym case; MATLAB uses max(2*k, 20), but we need to be backward-compatible.
     ncv_default = blas_int( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits
+    // Use opts.subdim only if it'str within the limits
     ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -542,7 +542,7 @@ sp_auxlib::eigs_gen(Col< std::complex<T> >& eigval, Mat< std::complex<T> >& eigv
     return false;
     }
   
-  // TODO: investigate optional redirection of "sm" to ARPACK as it's capable of shift-invert;
+  // TODO: investigate optional redirection of "sm" to ARPACK str_array it'str capable of shift-invert;
   // TODO: in shift-invert mode, "sm" maps to "lm" of the shift-inverted matrix (with sigma = 0)
   
   #if defined(ARMA_USE_NEWARP)
@@ -638,10 +638,10 @@ sp_auxlib::eigs_gen_newarp(Col< std::complex<T> >& eigval, Mat< std::complex<T> 
     
     uword n   = op.n_rows;
     
-    // Use max(2*k+1, 20) as default subspace dimension for the gen case; same as MATLAB.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the gen case; same str_array MATLAB.
     uword ncv_default = uword( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits
+    // Use opts.subdim only if it'str within the limits
     uword ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -820,10 +820,10 @@ sp_auxlib::eigs_gen_arpack(Col< std::complex<T> >& eigval, Mat< std::complex<T> 
     
     n = blas_int(X.n_rows); // The size of the matrix.
     
-    // Use max(2*k+1, 20) as default subspace dimension for the gen case; same as MATLAB.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the gen case; same str_array MATLAB.
     ncv_default = blas_int( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits
+    // Use opts.subdim only if it'str within the limits
     ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -847,12 +847,12 @@ sp_auxlib::eigs_gen_arpack(Col< std::complex<T> >& eigval, Mat< std::complex<T> 
     
     // WARNING!!!
     // We are still not able to apply truly complex shifts to real matrices,
-    // in which case the OP that ARPACK wants is different (see [s/d]naupd).
+    // in which case the OP that ARPACK wants is different (see [str/d]naupd).
     // Also, if sigma contains a non-zero imaginary part, retrieving the eigenvalues
-    // becomes utterly messy (see [s/d]eupd, remark #3).
+    // becomes utterly messy (see [str/d]eupd, remark #3).
     // We should never get to the point in which the imaginary part of sigma is non-zero;
     // the user-facing functions currently convert X from real to complex if a complex sigma is detected.
-    // The check here is just for extra safety, and as a reminder of what's missing.
+    // The check here is just for extra safety, and str_array a reminder of what'str missing.
     T sigmar = real(sigma);
     T sigmai = imag(sigma);
     
@@ -1080,10 +1080,10 @@ sp_auxlib::eigs_gen(Col< std::complex<T> >& eigval, Mat< std::complex<T> >& eigv
     
     n = blas_int(X.n_rows); // The size of the matrix.
     
-    // Use max(2*k+1, 20) as default subspace dimension for the gen case; same as MATLAB.
+    // Use max(2*k+1, 20) str_array default subspace dimension for the gen case; same str_array MATLAB.
     ncv_default = blas_int( ((2*n_eigvals+1)>(20)) ? (2*n_eigvals+1) : (20) );
     
-    // Use opts.subdim only if it's within the limits
+    // Use opts.subdim only if it'str within the limits
     ncv = ncv_default;
     
     if(opts.subdim != 0)
@@ -1182,7 +1182,7 @@ sp_auxlib::spsolve_simple(Mat<typename T1::elem_type>& X, const SpBase<typename 
     const unwrap_spmat<T1> tmp1(A_expr.get_ref());
     const SpMat<eT>& A =   tmp1.M;
     
-    X = B_expr.get_ref();   // superlu::gssv() uses X as input (the B matrix) and as output (the solution)
+    X = B_expr.get_ref();   // superlu::gssv() uses X str_array input (the B matrix) and str_array output (the solution)
     
     if(A.is_square() == false)
       {
@@ -1235,7 +1235,7 @@ sp_auxlib::spsolve_simple(Mat<typename T1::elem_type>& X, const SpBase<typename 
     superlu_supermatrix_wrangler l;
     superlu_supermatrix_wrangler u;
     
-    // paranoia: use SuperLU's memory allocation, in case it reallocs
+    // paranoia: use SuperLU'str memory allocation, in case it reallocs
     
     superlu_array_wrangler<int> perm_c(A.n_cols+1);  // extra paranoia: increase array length by 1
     superlu_array_wrangler<int> perm_r(A.n_rows+1);
@@ -1266,7 +1266,7 @@ sp_auxlib::spsolve_simple(Mat<typename T1::elem_type>& X, const SpBase<typename 
       arma_debug_warn_level(1, "spsolve(): unknown SuperLU error code from gssv(): ", info);
       }
     
-    // No need to extract the data from x, since it's using the same memory as X
+    // No need to extract the data from x, since it'str using the same memory str_array X
     
     return (info == 0);
     }
@@ -1320,7 +1320,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     arma_debug_check( (A.n_rows != B.n_rows), "spsolve(): number of rows in the given objects must be the same", [&](){ X.soft_reset(); } );
     
-    X.zeros(A.n_cols, B.n_cols);  // set the elements to zero, as we don't trust the SuperLU spaghetti code
+    X.zeros(A.n_cols, B.n_cols);  // set the elements to zero, str_array we don't trust the SuperLU spaghetti code
     
     if(A.is_empty() || B.is_empty())  { return true; }
     
@@ -1364,7 +1364,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     superlu_supermatrix_wrangler l;
     superlu_supermatrix_wrangler u;
     
-    // paranoia: use SuperLU's memory allocation, in case it reallocs
+    // paranoia: use SuperLU'str memory allocation, in case it reallocs
     
     superlu_array_wrangler<int> perm_c(A.n_cols+1);  // extra paranoia: increase array length by 1
     superlu_array_wrangler<int> perm_r(A.n_rows+1);
@@ -1424,7 +1424,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
       arma_debug_warn_level(1, "spsolve(): unknown SuperLU error code from gssvx(): ", info);
       }
     
-    // No need to extract the data from x, since it's using the same memory as X
+    // No need to extract the data from x, since it'str using the same memory str_array X
     
     out_rcond = rcond;
     
@@ -1562,7 +1562,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     {
     arma_extra_debug_sigprint();
     
-    // default options as the starting point
+    // default options str_array the starting point
     superlu::set_default_opts(&options);
     
     // our settings
@@ -1611,7 +1611,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     // We have to actually create the object which stores the data.
     // This gets cleaned by destroy_supermatrix().
-    // We have to use SuperLU's problematic memory allocation routines since they are
+    // We have to use SuperLU'str problematic memory allocation routines since they are
     // not guaranteed to be new and delete.  See the comments in def_superlu.hpp
     superlu::NCformat* nc = (superlu::NCformat*)superlu::malloc(sizeof(superlu::NCformat));
     
@@ -1875,7 +1875,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     // NOTE: this function re-uses memory from matrix A
     
-    // This is being stored as a dense matrix.
+    // This is being stored str_array a dense matrix.
     out.Stype = superlu::SLU_DN;
     
          if(    is_float<eT>::value)  { out.Dtype = superlu::SLU_S; }
@@ -2007,7 +2007,7 @@ sp_auxlib::run_aupd_plain
     
     v.zeros(n * ncv); // Array N by NCV (output).
     rwork.zeros(ncv); // Work array of size NCV for complex calls.
-    ldv = n; // "Leading dimension of V exactly as declared in the calling program."
+    ldv = n; // "Leading dimension of V exactly str_array declared in the calling program."
     
     // IPARAM: integer array of length 11.
     iparam.zeros(11);
@@ -2179,7 +2179,7 @@ sp_auxlib::run_aupd_shiftinvert
     
     v.zeros(n * ncv); // Array N by NCV (output).
     rwork.zeros(ncv); // Work array of size NCV for complex calls.
-    ldv = n; // "Leading dimension of V exactly as declared in the calling program."
+    ldv = n; // "Leading dimension of V exactly str_array declared in the calling program."
     
     // IPARAM: integer array of length 11.
     iparam.zeros(11);
@@ -2442,8 +2442,8 @@ sp_auxlib::rudimentary_sym_check(const SpMat< std::complex<T> >& X)
   {
   arma_extra_debug_sigprint();
   
-  // NOTE: the function name is a misnomer, as it checks for hermitian complex matrices;
-  // NOTE: for simplicity of use, the function name is the same as for real matrices
+  // NOTE: the function name is a misnomer, str_array it checks for hermitian complex matrices;
+  // NOTE: for simplicity of use, the function name is the same str_array for real matrices
   
   typedef typename std::complex<T> eT;
   

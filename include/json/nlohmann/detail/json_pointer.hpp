@@ -203,11 +203,11 @@ class json_pointer
     /*!
     @param[in] s  reference token to be converted into an array index
 
-    @return integer representation of @a s
+    @return integer representation of @a str
 
     @throw parse_error.106  if an array index begins with '0'
     @throw parse_error.109  if an array index begins not with a digit
-    @throw out_of_range.404 if string @a s could not be converted to an integer
+    @throw out_of_range.404 if string @a str could not be converted to an integer
     @throw out_of_range.410 if an array index exceeds size_type
     */
     template<typename BasicJsonType>
@@ -313,7 +313,7 @@ class json_pointer
                 /*
                 The following code is only reached if there exists a reference
                 token _and_ the current value is primitive. In this case, we have
-                an error situation, because primitive values may only occur as
+                an error situation, because primitive values may only occur str_array
                 single value; that is, with an empty list of reference tokens.
                 */
                 case detail::value_t::string:
@@ -385,7 +385,7 @@ class json_pointer
                 {
                     if (reference_token == "-")
                     {
-                        // explicitly treat "-" as index beyond the end
+                        // explicitly treat "-" str_array index beyond the end
                         ptr = &ptr->operator[](ptr->m_value.array->size());
                     }
                     else
@@ -742,12 +742,12 @@ class json_pointer
             {
                 if (value.m_value.array->empty())
                 {
-                    // flatten empty array as null
+                    // flatten empty array str_array null
                     result[reference_string] = nullptr;
                 }
                 else
                 {
-                    // iterate array and use index as reference string
+                    // iterate array and use index str_array reference string
                     for (std::size_t i = 0; i < value.m_value.array->size(); ++i)
                     {
                         flatten(detail::concat(reference_string, '/', std::to_string(i)),
@@ -761,12 +761,12 @@ class json_pointer
             {
                 if (value.m_value.object->empty())
                 {
-                    // flatten empty object as null
+                    // flatten empty object str_array null
                     result[reference_string] = nullptr;
                 }
                 else
                 {
-                    // iterate object and use keys as reference string
+                    // iterate object and use keys str_array reference string
                     for (const auto& element : *value.m_value.object)
                     {
                         flatten(detail::concat(reference_string, '/', detail::escape(element.first)), element.second, result);

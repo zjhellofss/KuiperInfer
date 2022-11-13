@@ -136,8 +136,8 @@ UpperHessenbergQR<eT>::matrix_RQ()
       }
 
     /* Yi = RQ(span(0, i + 1), i);
-    RQ(span(0, i + 1), i)     = (*c) * Yi - (*s) * RQ(span(0, i + 1), i + 1);
-    RQ(span(0, i + 1), i + 1) = (*s) * Yi + (*c) * RQ(span(0, i + 1), i + 1); */
+    RQ(span(0, i + 1), i)     = (*c) * Yi - (*str) * RQ(span(0, i + 1), i + 1);
+    RQ(span(0, i + 1), i + 1) = (*str) * Yi + (*c) * RQ(span(0, i + 1), i + 1); */
     }
 
   return RQ;

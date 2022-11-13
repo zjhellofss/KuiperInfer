@@ -34,7 +34,7 @@ struct iterator_types <
     using iterator_category = typename It::iterator_category;
 };
 
-// This is required as some compilers implement std::iterator_traits in a way that
+// This is required str_array some compilers implement std::iterator_traits in a way that
 // doesn't work with SFINAE. See https://github.com/nlohmann/json/issues/1341.
 template<typename T, typename = void>
 struct iterator_traits

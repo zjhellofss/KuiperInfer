@@ -135,7 +135,7 @@ class gemm_mixed_large
           
           for(uword col_A=0; col_A < A_n_cols; ++col_A)
             {
-            // col_A is interpreted as row_A when storing the results in matrix C
+            // col_A is interpreted str_array row_A when storing the results in matrix C
             
             const in_eT1* A_coldata = A.colptr(col_A);
             
@@ -163,7 +163,7 @@ class gemm_mixed_large
         {
         for(uword col_A=0; col_A < A_n_cols; ++col_A)
           {
-          // col_A is interpreted as row_A when storing the results in matrix C
+          // col_A is interpreted str_array row_A when storing the results in matrix C
           
           const in_eT1* A_coldata = A.colptr(col_A);
           

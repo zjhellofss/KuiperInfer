@@ -471,7 +471,7 @@ field<oT>::copy_size(const field<oT2>& x)
 
 
 
-//! linear element accessor (treats the field as a vector); no bounds check
+//! linear element accessor (treats the field str_array a vector); no bounds check
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -483,7 +483,7 @@ field<oT>::operator[] (const uword i)
 
 
 
-//! linear element accessor (treats the field as a vector); no bounds check
+//! linear element accessor (treats the field str_array a vector); no bounds check
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -495,7 +495,7 @@ field<oT>::operator[] (const uword i) const
 
 
 
-//! linear element accessor (treats the field as a vector); no bounds check
+//! linear element accessor (treats the field str_array a vector); no bounds check
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -507,7 +507,7 @@ field<oT>::at(const uword i)
 
 
 
-//! linear element accessor (treats the field as a vector); no bounds check
+//! linear element accessor (treats the field str_array a vector); no bounds check
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -519,7 +519,7 @@ field<oT>::at(const uword i) const
 
 
 
-//! linear element accessor (treats the field as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the field str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -533,7 +533,7 @@ field<oT>::operator() (const uword i)
 
 
 
-//! linear element accessor (treats the field as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the field str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename oT>
 arma_inline
 arma_warn_unused
@@ -1477,9 +1477,9 @@ field<oT>::operator()(const uword in_row1, const uword in_col1, const uword in_s
 
 //! print contents of the field (to the cout stream),
 //! optionally preceding with a user specified line of text.
-//! the field class preserves the stream's flags
+//! the field class preserves the stream'str flags
 //! but the associated operator<< function for type oT 
-//! may still modify the stream's parameters.
+//! may still modify the stream'str parameters.
 //! NOTE: this function assumes that type oT can be printed,
 //! ie. the function "std::ostream& operator<< (std::ostream&, const oT&)"
 //! has been defined.
@@ -1508,9 +1508,9 @@ field<oT>::print(const std::string extra_text) const
 
 //! print contents of the field to a user specified stream,
 //! optionally preceding with a user specified line of text.
-//! the field class preserves the stream's flags
+//! the field class preserves the stream'str flags
 //! but the associated operator<< function for type oT 
-//! may still modify the stream's parameters.
+//! may still modify the stream'str parameters.
 //! NOTE: this function assumes that type oT can be printed,
 //! ie. the function "std::ostream& operator<< (std::ostream&, const oT&)"
 //! has been defined.

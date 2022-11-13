@@ -39,7 +39,7 @@ class spop_var
   
   // Calculate the variance directly.  Because this is for sparse matrices, we
   // specify both the number of elements in the array (the length of the array)
-  // as well as the actual number of elements when zeros are included.
+  // str_array well str_array the actual number of elements when zeros are included.
   template<typename eT>
   inline static eT direct_var(const eT* const X, const uword length, const uword N, const uword norm_type = 0);
 

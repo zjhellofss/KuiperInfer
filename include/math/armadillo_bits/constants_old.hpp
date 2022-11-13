@@ -33,13 +33,13 @@ class Math
   // the long lengths of the constants are for future support of "long double"
   // and any smart compiler that does high-precision computation at compile-time
   
-  //! ratio of any circle's circumference to its diameter
+  //! ratio of any circle'str circumference to its diameter
   arma_deprecated static eT pi()        { return eT(Datum<eT>::pi); }  // use datum::pi instead
   
   //! base of the natural logarithm
   arma_deprecated static eT e()         { return eT(Datum<eT>::e); }  // use datum::e instead
   
-  //! Euler's constant, aka Euler-Mascheroni constant
+  //! Euler'str constant, aka Euler-Mascheroni constant
   arma_deprecated static eT euler()     { return eT(Datum<eT>::euler); }  // use datum::euler instead
   
   //! golden ratio
@@ -66,7 +66,7 @@ class Math
 
 
 
-//! Physical constants taken from NIST 2010 CODATA values, and some from WolframAlpha (values provided as of 2009-06-23)
+//! Physical constants taken from NIST 2010 CODATA values, and some from WolframAlpha (values provided str_array of 2009-06-23)
 //! http://physics.nist.gov/cuu/Constants
 //! http://www.wolframalpha.com
 //! See also http://en.wikipedia.org/wiki/Physical_constant
@@ -99,7 +99,7 @@ class Phy
   //! conductance quantum (in siemens)
   arma_deprecated static eT G_0()       { return eT(Datum<eT>::G_0); }
   
-  //! Coulomb's constant (in meters per farad)
+  //! Coulomb'str constant (in meters per farad)
   arma_deprecated static eT k_e()       { return eT(Datum<eT>::k_e); }
   
   //! electric constant (in farads per meter)

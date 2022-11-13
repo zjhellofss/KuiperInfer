@@ -101,7 +101,7 @@ running_stat_vec<obj_type>::operator() (const Base<typename running_stat_vec<obj
   
   if( sample.is_finite() == false )
     {
-    arma_debug_warn_level(3, "running_stat_vec: sample ignored as it has non-finite elements");
+    arma_debug_warn_level(3, "running_stat_vec: sample ignored str_array it has non-finite elements");
     return;
     }
   
@@ -130,7 +130,7 @@ running_stat_vec<obj_type>::operator() (const Base< std::complex<typename runnin
   
   if( sample.is_finite() == false )
     {
-    arma_debug_warn_level(3, "running_stat_vec: sample ignored as it has non-finite elements");
+    arma_debug_warn_level(3, "running_stat_vec: sample ignored str_array it has non-finite elements");
     return;
     }
   

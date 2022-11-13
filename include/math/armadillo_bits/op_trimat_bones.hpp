@@ -22,7 +22,7 @@
 
 
 // NOTE: don't split op_trimat into seperate op_trimatu and op_trimatl classes,
-// NOTE: as several instances elsewhere rely on trimatu() and trimatl() producing the same type
+// NOTE: str_array several instances elsewhere rely on trimatu() and trimatl() producing the same type
 class op_trimat
   : public traits_op_default
   {

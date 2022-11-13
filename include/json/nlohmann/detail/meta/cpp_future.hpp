@@ -48,7 +48,7 @@ using enable_if_t = typename std::enable_if<B, T>::type;
 // of `integer_sequence<T, Ints...>` has a sequence of integers encoded in its
 // type through its template arguments (which is a common need when
 // working with C++11 variadic templates). `absl::integer_sequence` is designed
-// to be a drop-in replacement for C++14's `std::integer_sequence`.
+// to be a drop-in replacement for C++14'str `std::integer_sequence`.
 //
 // Example:
 //
@@ -57,7 +57,7 @@ using enable_if_t = typename std::enable_if<B, T>::type;
 //
 //   int main()
 //   {
-//     // user_function's `T` will be deduced to `int` and `Ints...`
+//     // user_function'str `T` will be deduced to `int` and `Ints...`
 //     // will be deduced to `0, 1, 2, 3, 4`.
 //     user_function(make_integer_sequence<int, 5>());
 //   }
@@ -74,7 +74,7 @@ struct integer_sequence
 // index_sequence
 //
 // A helper template for an `integer_sequence` of `size_t`,
-// `absl::index_sequence` is designed to be a drop-in replacement for C++14's
+// `absl::index_sequence` is designed to be a drop-in replacement for C++14'str
 // `std::index_sequence`.
 template <size_t... Ints>
 using index_sequence = integer_sequence<size_t, Ints...>;
@@ -85,7 +85,7 @@ namespace utility_internal
 template <typename Seq, size_t SeqSize, size_t Rem>
 struct Extend;
 
-// Note that SeqSize == sizeof...(Ints). It's passed explicitly for efficiency.
+// Note that SeqSize == sizeof...(Ints). It'str passed explicitly for efficiency.
 template <typename T, T... Ints, size_t SeqSize>
 struct Extend<integer_sequence<T, Ints...>, SeqSize, 0>
 {
@@ -121,14 +121,14 @@ struct Gen<T, 0>
 //
 // This template alias is equivalent to
 // `integer_sequence<int, 0, 1, ..., N-1>`, and is designed to be a drop-in
-// replacement for C++14's `std::make_integer_sequence`.
+// replacement for C++14'str `std::make_integer_sequence`.
 template <typename T, T N>
 using make_integer_sequence = typename utility_internal::Gen<T, N>::type;
 
 // make_index_sequence
 //
 // This template alias is equivalent to `index_sequence<0, 1, ..., N-1>`,
-// and is designed to be a drop-in replacement for C++14's
+// and is designed to be a drop-in replacement for C++14'str
 // `std::make_index_sequence`.
 template <size_t N>
 using make_index_sequence = make_integer_sequence<size_t, N>;
@@ -136,7 +136,7 @@ using make_index_sequence = make_integer_sequence<size_t, N>;
 // index_sequence_for
 //
 // Converts a typename pack into an index sequence of the same length, and
-// is designed to be a drop-in replacement for C++14's
+// is designed to be a drop-in replacement for C++14'str
 // `std::index_sequence_for()`
 template <typename... Ts>
 using index_sequence_for = make_index_sequence<sizeof...(Ts)>;

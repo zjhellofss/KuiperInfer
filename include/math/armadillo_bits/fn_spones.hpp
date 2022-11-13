@@ -21,7 +21,7 @@
 
 
 
-//! Generate a sparse matrix with the non-zero values in the same locations as in the given sparse matrix X,
+//! Generate a sparse matrix with the non-zero values in the same locations str_array in the given sparse matrix X,
 //! with the non-zero values set to one
 template<typename T1>
 arma_warn_unused

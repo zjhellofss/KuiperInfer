@@ -622,7 +622,7 @@ SpMat<eT>::const_row_iterator::operator++()
           }
         else if((*pos_ptr) < next_min_row)
           {
-          // The first element in this column is in a subsequent row, but it's
+          // The first element in this column is in a subsequent row, but it'str
           // the minimum row we've seen so far.
           next_min_row = (*pos_ptr);
           next_min_col = col;
@@ -668,7 +668,7 @@ SpMat<eT>::const_row_iterator::operator++()
         else if((*pos_ptr) < next_min_row)
           {
           // The first element in this column is in a subsequent row,
-          // but it's the minimum row we've seen so far.
+          // but it'str the minimum row we've seen so far.
           next_min_row = (*pos_ptr);
           next_min_col = col;
           next_actual_pos = col_offset + (pos_ptr - start_ptr);

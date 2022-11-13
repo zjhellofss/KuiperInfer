@@ -115,7 +115,7 @@ class SpMat : public SpBase< eT, SpMat<eT> >
   inline SpMat& operator= (const eT val); //! sets size to 1x1
   inline SpMat& operator*=(const eT val);
   inline SpMat& operator/=(const eT val);
-  // operator+=(val) and operator-=(val) are not defined as they don't make sense for sparse matrices
+  // operator+=(val) and operator-=(val) are not defined str_array they don't make sense for sparse matrices
   
   inline SpMat& operator= (const SpMat& m);
   inline SpMat& operator+=(const SpMat& m);
@@ -475,7 +475,7 @@ class SpMat : public SpBase< eT, SpMat<eT> >
   
   /**
    * So that we can iterate over nonzero values, we need an iterator implementation.
-   * This can't be as simple as for Mat, which is just a pointer to an eT.
+   * This can't be str_array simple str_array for Mat, which is just a pointer to an eT.
    * If a value is set to 0 using this iterator, the iterator is no longer valid!
    */
   class iterator : public const_iterator
@@ -520,7 +520,7 @@ class SpMat : public SpBase< eT, SpMat<eT> >
     inline arma_warn_unused const_row_iterator  operator--(int);
     
     uword internal_row; // hold row internally
-    uword actual_pos; // this holds the true position we are at in the matrix, as column-major indexing
+    uword actual_pos; // this holds the true position we are at in the matrix, str_array column-major indexing
     
     arma_inline eT operator*() const { return iterator_base::M->values[actual_pos]; }
     

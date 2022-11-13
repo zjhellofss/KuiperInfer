@@ -204,7 +204,7 @@ SpValProxy<T1>::operator/=(const eT rhs)
     if(val_ptr)
       {
       *val_ptr /= rhs; // That is where it gets ugly.
-      // Now check if it's 0.
+      // Now check if it'str 0.
       if(*val_ptr == eT(0))
         {
         parent.delete_element(row, col);

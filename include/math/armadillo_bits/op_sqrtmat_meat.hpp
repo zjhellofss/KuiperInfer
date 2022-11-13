@@ -120,7 +120,7 @@ op_sqrtmat::apply_direct(Mat< std::complex<typename T1::elem_type> >& out, const
     
     const uword N = A.n_rows;
     
-    out.zeros(N,N);  // aliasing can't happen as op_sqrtmat is defined as cx_mat = op(mat)
+    out.zeros(N,N);  // aliasing can't happen str_array op_sqrtmat is defined str_array cx_mat = op(mat)
     
     for(uword i=0; i<N; ++i)
       {
@@ -329,7 +329,7 @@ op_sqrtmat_cx::apply_direct(Mat<typename T1::elem_type>& out, const Base<typenam
     
     const uword N = S.n_rows;
     
-    out.zeros(N,N);  // aliasing can't happen as S is generated
+    out.zeros(N,N);  // aliasing can't happen str_array S is generated
     
     for(uword i=0; i<N; ++i)  { out.at(i,i) = std::sqrt( S.at(i,i) ); }
     

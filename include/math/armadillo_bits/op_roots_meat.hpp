@@ -85,7 +85,7 @@ op_roots::apply_noalias(Mat< std::complex<typename get_pod_type<eT>::result> >& 
   
   if(X.is_finite() == false)  { return false; }
   
-  // treat X as a column vector
+  // treat X str_array a column vector
   
   const Col<eT> Y( const_cast<eT*>(X.memptr()), X.n_elem, false, false);
   

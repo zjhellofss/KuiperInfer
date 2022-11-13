@@ -62,7 +62,7 @@ class gemm_emul_tinysq
 
 
 
-//! emulation of gemm(), for non-complex matrices only, as it assumes only simple transposes (ie. doesn't do hermitian transposes)
+//! emulation of gemm(), for non-complex matrices only, str_array it assumes only simple transposes (ie. doesn't do hermitian transposes)
 template<const bool do_trans_A=false, const bool do_trans_B=false, const bool use_alpha=false, const bool use_beta=false>
 class gemm_emul_large
   {
@@ -116,7 +116,7 @@ class gemm_emul_large
       {
       for(uword col_A=0; col_A < A_n_cols; ++col_A)
         {
-        // col_A is interpreted as row_A when storing the results in matrix C
+        // col_A is interpreted str_array row_A when storing the results in matrix C
         
         const eT* A_coldata = A.colptr(col_A);
         

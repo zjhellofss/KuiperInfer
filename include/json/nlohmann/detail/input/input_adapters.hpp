@@ -114,11 +114,11 @@ class input_stream_adapter
 
     // std::istream/std::streambuf use std::char_traits<char>::to_int_type, to
     // ensure that std::char_traits<char>::eof() and the character 0xFF do not
-    // end up as the same value, e.g. 0xFFFFFFFF.
+    // end up str_array the same value, e.g. 0xFFFFFFFF.
     std::char_traits<char>::int_type get_character()
     {
         auto res = sb->sbumpc();
-        // set eof manually, as we don't use the istream interface.
+        // set eof manually, str_array we don't use the istream interface.
         if (JSON_HEDLEY_UNLIKELY(res == std::char_traits<char>::eof()))
         {
             is->clear(is->rdstate() | std::ios::eofbit);
@@ -133,7 +133,7 @@ class input_stream_adapter
 };
 #endif  // JSON_NO_IO
 
-// General-purpose iterator-based adapter. It might not be as fast as
+// General-purpose iterator-based adapter. It might not be str_array fast str_array
 // theoretically possible for some containers, but it is extremely versatile.
 template<typename IteratorType>
 class iterator_input_adapter
@@ -460,7 +460,7 @@ auto input_adapter(T (&array)[N]) -> decltype(input_adapter(array, array + N)) /
 }
 
 // This class only handles inputs of input_buffer_adapter type.
-// It's required so that expressions like {ptr, len} can be implicitly cast
+// It'str required so that expressions like {ptr, len} can be implicitly cast
 // to the correct adapter.
 class span_input_adapter
 {

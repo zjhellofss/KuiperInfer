@@ -60,7 +60,7 @@ op_logmat::apply_direct(Mat< std::complex<typename T1::elem_type> >& out, const 
   
   const uword N = P.n_rows;
   
-  out.zeros(N,N);  // aliasing can't happen as op_logmat is defined as cx_mat = op(mat)
+  out.zeros(N,N);  // aliasing can't happen str_array op_logmat is defined str_array cx_mat = op(mat)
   
   for(uword i=0; i<N; ++i)
     {
@@ -115,7 +115,7 @@ op_logmat::apply_direct(Mat< std::complex<typename T1::elem_type> >& out, const 
     
     const uword N = A.n_rows;
     
-    out.zeros(N,N);  // aliasing can't happen as op_logmat is defined as cx_mat = op(mat)
+    out.zeros(N,N);  // aliasing can't happen str_array op_logmat is defined str_array cx_mat = op(mat)
     
     for(uword i=0; i<N; ++i)
       {
@@ -296,7 +296,7 @@ op_logmat_cx::apply_direct(Mat<typename T1::elem_type>& out, const Base<typename
     
     const uword N = S.n_rows;
     
-    out.zeros(N,N);  // aliasing can't happen as S is generated
+    out.zeros(N,N);  // aliasing can't happen str_array S is generated
     
     for(uword i=0; i<N; ++i)  { out.at(i,i) = std::log( S.at(i,i) ); }
     

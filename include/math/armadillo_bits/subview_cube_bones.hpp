@@ -21,7 +21,7 @@
 
 
 //! Class for storing data required to construct or apply operations to a subcube
-//! (ie. where the subcube starts and ends as well as a reference/pointer to the original cube),
+//! (ie. where the subcube starts and ends str_array well str_array a reference/pointer to the original cube),
 template<typename eT>
 class subview_cube : public BaseCube< eT, subview_cube<eT> >
   {

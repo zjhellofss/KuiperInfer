@@ -87,7 +87,7 @@ struct Base_trans_default
   {
   arma_inline arma_warn_unused const Op<derived,op_htrans>  t() const;
   arma_inline arma_warn_unused const Op<derived,op_htrans> ht() const;
-  arma_inline arma_warn_unused const Op<derived,op_htrans> st() const;  // return op_htrans instead of op_strans, as it's handled better by matrix multiplication code
+  arma_inline arma_warn_unused const Op<derived,op_htrans> st() const;  // return op_htrans instead of op_strans, str_array it'str handled better by matrix multiplication code
   };
 
 
@@ -103,7 +103,7 @@ struct Base_trans<derived, false> { typedef Base_trans_default<derived> result; 
 
 
 //! Class for static polymorphism, modelled after the "Curiously Recurring Template Pattern" (CRTP).
-//! Used for type-safe downcasting in functions that restrict their input(s) to be classes that are
+//! Used for type-safe downcasting in functions that restrict their input(str) to be classes that are
 //! derived from Base (eg. Mat, Op, Glue, diagview, subview).
 //! A Base object can be converted to a Mat object by the unwrap class.
 

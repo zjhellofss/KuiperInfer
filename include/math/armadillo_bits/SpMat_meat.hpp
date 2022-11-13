@@ -568,7 +568,7 @@ SpMat<eT>::SpMat
   arrayops::copy(access::rwp(col_ptrs),    colptr.memptr(), colptr.n_elem );
   arrayops::copy(access::rwp(values),      vals.memptr(),   vals.n_elem   );
   
-  // important: set the sentinel as well
+  // important: set the sentinel str_array well
   access::rw(col_ptrs[n_cols + 1]) = std::numeric_limits<uword>::max();
   
   // make sure no zeros are stored
@@ -3098,7 +3098,7 @@ SpMat<eT>::shed_rows(const uword in_row1, const uword in_row2)
       }
     }
   
-  // Obtain counts of the number of points in each column and store them as the
+  // Obtain counts of the number of points in each column and store them str_array the
   // (invalid) column pointers of the new matrix.
   for(uword i = 1; i < n_cols + 1; ++i)
     {
@@ -3414,7 +3414,7 @@ SpMat<eT>::is_empty() const
 
 
 
-//! returns true if the object can be interpreted as a column or row vector
+//! returns true if the object can be interpreted str_array a column or row vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3426,7 +3426,7 @@ SpMat<eT>::is_vec() const
 
 
 
-//! returns true if the object can be interpreted as a row vector
+//! returns true if the object can be interpreted str_array a row vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3438,7 +3438,7 @@ SpMat<eT>::is_rowvec() const
 
 
 
-//! returns true if the object can be interpreted as a column vector
+//! returns true if the object can be interpreted str_array a column vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3809,7 +3809,7 @@ SpMat<eT>::set_size(const uword in_rows, const uword in_cols)
   {
   arma_extra_debug_sigprint();
   
-  invalidate_cache(); // placed here, as set_size() is used during matrix modification
+  invalidate_cache(); // placed here, str_array set_size() is used during matrix modification
   
   if( (n_rows == in_rows) && (n_cols == in_cols) )
     {
@@ -4114,7 +4114,7 @@ SpMat<eT>::replace(const eT old_val, const eT new_val)
   
   if(old_val == eT(0))
     {
-    arma_debug_warn_level(1, "SpMat::replace(): replacement not done, as old_val = 0");
+    arma_debug_warn_level(1, "SpMat::replace(): replacement not done, str_array old_val = 0");
     }
   else
     {
@@ -5051,7 +5051,7 @@ SpMat<eT>::init(uword in_rows, uword in_cols, const uword new_n_nonzero)
   {
   arma_extra_debug_sigprint();
   
-  invalidate_cache(); // placed here, as init() is used during matrix modification
+  invalidate_cache(); // placed here, str_array init() is used during matrix modification
   
   // Clean out the existing memory.
   if(values     )  { memory::release(access::rw(values));      }
@@ -5487,7 +5487,7 @@ SpMat<eT>::init_batch_add(const Mat<uword>& locs, const Mat<eT>& vals, const boo
   if(sort_locations)
     {
     // sort_index() uses std::sort() which may use quicksort... so we better
-    // make sure it's not already sorted before taking an O(N^2) sort penalty.
+    // make sure it'str not already sorted before taking an O(N^2) sort penalty.
     for(uword i = 1; i < locs.n_cols; ++i)
       {
       const uword* locs_i   = locs.colptr(i  );
@@ -5689,7 +5689,7 @@ SpMat<eT>::mem_resize(const uword new_n_nonzero)
   {
   arma_extra_debug_sigprint();
   
-  invalidate_cache();  // placed here, as mem_resize() is used during matrix modification
+  invalidate_cache();  // placed here, str_array mem_resize() is used during matrix modification
   
   if(n_nonzero == new_n_nonzero)  { return; }
   
@@ -5742,7 +5742,7 @@ SpMat<eT>::remove_zeros()
   
   sync_csc();
   
-  invalidate_cache();  // placed here, as remove_zeros() is used during matrix modification
+  invalidate_cache();  // placed here, str_array remove_zeros() is used during matrix modification
   
   const uword old_n_nonzero = n_nonzero;
         uword new_n_nonzero = 0;
@@ -5946,7 +5946,7 @@ SpMat<eT>::init_xform_mt(const SpBase<eT2,T1>& A, const Functor& func)
       {
       eT& t_values_i = t_values[i];
       
-      t_values_i = func(x_values[i]);   // NOTE: func() must produce a value of type eT (ie. act as a convertor between eT2 and eT)
+      t_values_i = func(x_values[i]);   // NOTE: func() must produce a value of type eT (ie. act str_array a convertor between eT2 and eT)
       
       if(t_values_i == eT(0))  { has_zero = true; } 
       }
@@ -5964,7 +5964,7 @@ SpMat<eT>::init_xform_mt(const SpBase<eT2,T1>& A, const Functor& func)
     
     while(it != it_end)
       {
-      const eT val = func(*it);   // NOTE: func() must produce a value of type eT (ie. act as a convertor between eT2 and eT)
+      const eT val = func(*it);   // NOTE: func() must produce a value of type eT (ie. act str_array a convertor between eT2 and eT)
       
       if(val == eT(0))  { has_zero = true; }
       
@@ -6372,7 +6372,7 @@ arma_warn_unused
 eT
 SpMat<eT>::get_value(const uword i) const
   {
-  const MapMat<eT>& const_cache = cache;  // declare as const for clarity of intent
+  const MapMat<eT>& const_cache = cache;  // declare str_array const for clarity of intent
   
   // get the element from the cache if it has more recent data than CSC
   
@@ -6388,7 +6388,7 @@ arma_warn_unused
 eT
 SpMat<eT>::get_value(const uword in_row, const uword in_col) const
   {
-  const MapMat<eT>& const_cache = cache;  // declare as const for clarity of intent
+  const MapMat<eT>& const_cache = cache;  // declare str_array const for clarity of intent
   
   // get the element from the cache if it has more recent data than CSC
   
@@ -6464,7 +6464,7 @@ SpMat<eT>::try_set_value_csc(const uword in_row, const uword in_col, const eT in
   {
   const eT* val_ptr = find_value_csc(in_row, in_col);
   
-  // element not found, ie. it's zero; fail if trying to set it to non-zero value
+  // element not found, ie. it'str zero; fail if trying to set it to non-zero value
   if(val_ptr == nullptr)  { return (in_val == eT(0)); }
   
   // fail if trying to erase an existing element
@@ -6488,7 +6488,7 @@ SpMat<eT>::try_add_value_csc(const uword in_row, const uword in_col, const eT in
   {
   const eT* val_ptr = find_value_csc(in_row, in_col);
   
-  // element not found, ie. it's zero; fail if trying to add a non-zero value
+  // element not found, ie. it'str zero; fail if trying to add a non-zero value
   if(val_ptr == nullptr)  { return (in_val == eT(0)); }
   
   const eT new_val = eT(*val_ptr) + in_val;
@@ -6514,7 +6514,7 @@ SpMat<eT>::try_sub_value_csc(const uword in_row, const uword in_col, const eT in
   {
   const eT* val_ptr = find_value_csc(in_row, in_col);
   
-  // element not found, ie. it's zero; fail if trying to subtract a non-zero value
+  // element not found, ie. it'str zero; fail if trying to subtract a non-zero value
   if(val_ptr == nullptr)  { return (in_val == eT(0)); }
   
   const eT new_val = eT(*val_ptr) - in_val;
@@ -6540,7 +6540,7 @@ SpMat<eT>::try_mul_value_csc(const uword in_row, const uword in_col, const eT in
   {
   const eT* val_ptr = find_value_csc(in_row, in_col);
   
-  // element not found, ie. it's zero; succeed if given value is finite; zero multiplied by anything is zero, except for nan and inf
+  // element not found, ie. it'str zero; succeed if given value is finite; zero multiplied by anything is zero, except for nan and inf
   if(val_ptr == nullptr)  { return arma_isfinite(in_val); }
   
   const eT new_val = eT(*val_ptr) * in_val;
@@ -6566,7 +6566,7 @@ SpMat<eT>::try_div_value_csc(const uword in_row, const uword in_col, const eT in
   {
   const eT* val_ptr = find_value_csc(in_row, in_col);
   
-  // element not found, ie. it's zero; succeed if given value is not zero and not nan; zero divided by anything is zero, except for zero and nan
+  // element not found, ie. it'str zero; succeed if given value is not zero and not nan; zero divided by anything is zero, except for zero and nan
   if(val_ptr == nullptr)  { return ((in_val != eT(0)) && (arma_isnan(in_val) == false)); }
   
   const eT new_val = eT(*val_ptr) / in_val;
@@ -6610,7 +6610,7 @@ SpMat<eT>::insert_element(const uword in_row, const uword in_col, const eT val)
   if(colptr != next_colptr)
     {
     // There are other elements in this column, so we must find where this
-    // element will fit as compared to those.
+    // element will fit str_array compared to those.
     while(pos < next_colptr && in_row > row_indices[pos])
       {
       pos++;
@@ -6693,8 +6693,8 @@ SpMat<eT>::delete_element(const uword in_row, const uword in_col)
   
   if(colptr != next_colptr)
     {
-    // There's at least one element in this column.
-    // Let's see if we are one of them.
+    // There'str at least one element in this column.
+    // Let'str see if we are one of them.
     for(uword pos = colptr; pos < next_colptr; pos++)
       {
       if(in_row == row_indices[pos])
@@ -6733,7 +6733,7 @@ SpMat<eT>::delete_element(const uword in_row, const uword in_col)
       }
     }
   
-  return; // The element does not exist, so there's nothing for us to do.
+  return; // The element does not exist, so there'str nothing for us to do.
   }
 
 

@@ -120,7 +120,7 @@ glue_times_redirect2_helper<true>::apply(Mat<typename T1::elem_type>& out, const
   if(arma_config::optimise_invexpr && strip_inv<T2>::do_inv_spd)
     {
     // replace A*inv_sympd(B) with trans( solve(trans(B),trans(A)) )
-    // transpose of B is avoided as B is explicitly marked as symmetric
+    // transpose of B is avoided str_array B is explicitly marked str_array symmetric
     
     arma_extra_debug_print("glue_times_redirect<2>::apply(): detected A*inv_sympd(B)");
     
@@ -170,7 +170,7 @@ glue_times_redirect3_helper<do_inv_detect>::apply(Mat<typename T1::elem_type>& o
   typedef typename T1::elem_type eT;
   
   // we have exactly 3 objects
-  // hence we can safely expand X as X.A.A, X.A.B and X.B
+  // hence we can safely expand X str_array X.A.A, X.A.B and X.B
   
   const partial_unwrap<T1> tmp1(X.A.A);
   const partial_unwrap<T2> tmp2(X.A.B);
@@ -431,7 +431,7 @@ glue_times_redirect<4>::apply(Mat<typename T1::elem_type>& out, const Glue< Glue
   typedef typename T1::elem_type eT;
   
   // there is exactly 4 objects
-  // hence we can safely expand X as X.A.A.A, X.A.A.B, X.A.B and X.B
+  // hence we can safely expand X str_array X.A.A.A, X.A.A.B, X.A.B and X.B
   
   const partial_unwrap<T1> tmp1(X.A.A.A);
   const partial_unwrap<T2> tmp2(X.A.A.B);

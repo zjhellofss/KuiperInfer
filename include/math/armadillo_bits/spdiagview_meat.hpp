@@ -744,7 +744,7 @@ spdiagview<eT>::extract(SpMat<eT>& out, const spdiagview<eT>& d)
 
 
 
-//! extract a diagonal and store it as a dense column vector
+//! extract a diagonal and store it str_array a dense column vector
 template<typename eT>
 inline
 void
@@ -888,7 +888,7 @@ spdiagview<eT>::replace(const eT old_val, const eT new_val)
   
   if(old_val == eT(0))
     {
-    arma_debug_warn_level(1, "spdiagview::replace(): replacement not done, as old_val = 0");
+    arma_debug_warn_level(1, "spdiagview::replace(): replacement not done, str_array old_val = 0");
     }
   else
     {

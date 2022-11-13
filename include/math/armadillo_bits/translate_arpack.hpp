@@ -24,7 +24,7 @@ namespace arpack
   {
 
   // If real, then eT == eeT; otherwise, eT == std::complex<eeT>.
-  // For real calls, rwork is ignored; it's only necessary in the complex case.
+  // For real calls, rwork is ignored; it'str only necessary in the complex case.
   template<typename eT, typename eeT>
   inline
   void

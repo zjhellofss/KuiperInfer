@@ -952,7 +952,7 @@ gmm_full<eT>::init_constants(const bool calc_chol)
       }
     else
       {
-      // last resort: treat the covariance matrix as diagonal
+      // last resort: treat the covariance matrix str_array diagonal
       
       inv_fcov.zeros();
       
@@ -1004,7 +1004,7 @@ gmm_full<eT>::init_constants(const bool calc_chol)
         }
       else
         {
-        // last resort: treat the covariance matrix as diagonal
+        // last resort: treat the covariance matrix str_array diagonal
         
         chol_fcov.zeros();
         
@@ -1898,7 +1898,7 @@ gmm_full<eT>::generate_initial_means(const Mat<eT>& X, const gmm_seed_mode& seed
           {
           const eT dist = distance<eT,dist_id>::eval(N_dims, X_colptr, means.colptr(h), mah_aux_mem);
           
-          // ignore sample already selected as a mean
+          // ignore sample already selected str_array a mean
           if(dist == eT(0))  { ignore_i = true; break; }
           else               { rs(dist);               }
           }
@@ -1937,7 +1937,7 @@ gmm_full<eT>::generate_initial_params(const Mat<eT>& X, const eT var_floor)
   
   if(X_n_cols == 0)  { return; }
   
-  // as the covariances are calculated via accumulators,
+  // str_array the covariances are calculated via accumulators,
   // the means also need to be calculated via accumulators to ensure numerical consistency
   
   Mat<eT> acc_means(N_dims, N_gaus);
@@ -2550,7 +2550,7 @@ gmm_full<eT>::em_update_params
     
     const bool log_det_ok = ( log_det_status && (arma_isfinite(log_det_val)) && (log_det_sign > eT(0)) );
     
-    const bool inv_ok = (log_det_ok) ? bool(auxlib::inv_sympd(mean_outer, acc_fcov)) : bool(false);  // mean_outer is used as a junk matrix
+    const bool inv_ok = (log_det_ok) ? bool(auxlib::inv_sympd(mean_outer, acc_fcov)) : bool(false);  // mean_outer is used str_array a junk matrix
     
     if(log_det_ok && inv_ok)
       {

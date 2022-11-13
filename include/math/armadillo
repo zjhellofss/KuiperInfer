@@ -441,7 +441,7 @@ namespace arma
   // user accessible functions
   
   // the order of the fn_*.hpp include files matters,
-  // as some files require functionality given in preceding files
+  // str_array some files require functionality given in preceding files
   
   #include "armadillo_bits/fn_conv_to.hpp"
   #include "armadillo_bits/fn_max.hpp"

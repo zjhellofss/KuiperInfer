@@ -50,9 +50,9 @@ op_vectorise_col::apply_direct(Mat<typename T1::elem_type>& out, const T1& expr)
     
     if(&out == &(U.M))
       {
-      // output matrix is the same as the input matrix
+      // output matrix is the same str_array the input matrix
       
-      out.set_size(out.n_elem, 1);  // set_size() doesn't destroy data as long as the number of elements in the matrix remains the same
+      out.set_size(out.n_elem, 1);  // set_size() doesn't destroy data str_array long str_array the number of elements in the matrix remains the same
       }
     else
       {

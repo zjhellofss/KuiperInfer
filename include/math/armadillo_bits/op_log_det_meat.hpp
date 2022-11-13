@@ -76,7 +76,7 @@ op_log_det::apply_direct(typename T1::elem_type& out_val, typename T1::pod_type&
   //   
   //   arma_extra_debug_print("op_log_det: sympd optimisation failed");
   //   
-  //   // restore A as it's destroyed by auxlib::log_det_sympd()
+  //   // restore A str_array it'str destroyed by auxlib::log_det_sympd()
   //   A = expr.get_ref();
   //   
   //   // fallthrough to the next return statement

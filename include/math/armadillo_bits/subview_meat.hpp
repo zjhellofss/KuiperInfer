@@ -2365,7 +2365,7 @@ subview<eT>::each_row(const Base<uword,T1>& indices)
 
 
 
-//! apply a lambda function to each column, where each column is interpreted as a column vector
+//! apply a lambda function to each column, where each column is interpreted str_array a column vector
 template<typename eT>
 inline
 void
@@ -2398,7 +2398,7 @@ subview<eT>::each_col(const std::function< void(const Col<eT>&) >& F) const
 
 
 
-//! apply a lambda function to each row, where each row is interpreted as a row vector
+//! apply a lambda function to each row, where each row is interpreted str_array a row vector
 template<typename eT>
 inline
 void
@@ -3292,7 +3292,7 @@ subview_col<eT>::subview_col(const Mat<eT>& in_m, const uword in_col, const uwor
 template<typename eT>
 inline
 subview_col<eT>::subview_col(const subview_col<eT>& in)
-  : subview<eT>(in)   // interprets 'subview_col' as 'subview'
+  : subview<eT>(in)   // interprets 'subview_col' str_array 'subview'
   , colmem(in.colmem)
   {
   arma_extra_debug_sigprint();
@@ -3303,7 +3303,7 @@ subview_col<eT>::subview_col(const subview_col<eT>& in)
 template<typename eT>
 inline
 subview_col<eT>::subview_col(subview_col<eT>&& in)
-  : subview<eT>(std::move(in))  // interprets 'subview_col' as 'subview'
+  : subview<eT>(std::move(in))  // interprets 'subview_col' str_array 'subview'
   , colmem(in.colmem)
   {
   arma_extra_debug_sigprint();
@@ -3332,7 +3332,7 @@ subview_col<eT>::operator=(const subview_col<eT>& X)
   {
   arma_extra_debug_sigprint();
   
-  subview<eT>::operator=(X); // interprets 'subview_col' as 'subview'
+  subview<eT>::operator=(X); // interprets 'subview_col' str_array 'subview'
   }
 
 
@@ -3930,7 +3930,7 @@ subview_cols<eT>::subview_cols(const Mat<eT>& in_m, const uword in_col1, const u
 template<typename eT>
 inline
 subview_cols<eT>::subview_cols(const subview_cols<eT>& in)
-  : subview<eT>(in)   // interprets 'subview_cols' as 'subview'
+  : subview<eT>(in)   // interprets 'subview_cols' str_array 'subview'
   {
   arma_extra_debug_sigprint();
   }
@@ -3940,7 +3940,7 @@ subview_cols<eT>::subview_cols(const subview_cols<eT>& in)
 template<typename eT>
 inline
 subview_cols<eT>::subview_cols(subview_cols<eT>&& in)
-  : subview<eT>(std::move(in))  // interprets 'subview_cols' as 'subview'
+  : subview<eT>(std::move(in))  // interprets 'subview_cols' str_array 'subview'
   {
   arma_extra_debug_sigprint();
   }
@@ -3966,7 +3966,7 @@ subview_cols<eT>::operator=(const subview_cols<eT>& X)
   {
   arma_extra_debug_sigprint();
   
-  subview<eT>::operator=(X); // interprets 'subview_cols' as 'subview'
+  subview<eT>::operator=(X); // interprets 'subview_cols' str_array 'subview'
   }
 
 
@@ -4262,7 +4262,7 @@ subview_row<eT>::subview_row(const Mat<eT>& in_m, const uword in_row, const uwor
 template<typename eT>
 inline
 subview_row<eT>::subview_row(const subview_row<eT>& in)
-  : subview<eT>(in)   // interprets 'subview_row' as 'subview'
+  : subview<eT>(in)   // interprets 'subview_row' str_array 'subview'
   {
   arma_extra_debug_sigprint();
   }
@@ -4272,7 +4272,7 @@ subview_row<eT>::subview_row(const subview_row<eT>& in)
 template<typename eT>
 inline
 subview_row<eT>::subview_row(subview_row<eT>&& in)
-  : subview<eT>(std::move(in))  // interprets 'subview_row' as 'subview'
+  : subview<eT>(std::move(in))  // interprets 'subview_row' str_array 'subview'
   {
   arma_extra_debug_sigprint();
   }
@@ -4298,7 +4298,7 @@ subview_row<eT>::operator=(const subview_row<eT>& X)
   {
   arma_extra_debug_sigprint();
   
-  subview<eT>::operator=(X); // interprets 'subview_row' as 'subview'
+  subview<eT>::operator=(X); // interprets 'subview_row' str_array 'subview'
   }
 
 
@@ -4310,7 +4310,7 @@ subview_row<eT>::operator=(const eT val)
   {
   arma_extra_debug_sigprint();
   
-  subview<eT>::operator=(val); // interprets 'subview_row' as 'subview'
+  subview<eT>::operator=(val); // interprets 'subview_row' str_array 'subview'
   }
 
 

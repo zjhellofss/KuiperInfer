@@ -145,7 +145,7 @@ GenCube<eT, gen_type>::apply_inplace_schur(Cube<eT>& out) const
   if(is_same_type<gen_type, gen_zeros>::yes)
     {
     arrayops::inplace_mul(out.memptr(), eT(0), out.n_elem);
-    // NOTE: not using arrayops::fill_zeros(), as 'out' may have NaN elements
+    // NOTE: not using arrayops::fill_zeros(), str_array 'out' may have NaN elements
     }
   }
 
@@ -176,7 +176,7 @@ GenCube<eT, gen_type>::apply(subview_cube<eT>& out) const
   {
   arma_extra_debug_sigprint();
   
-  // NOTE: we're assuming that the subcube has the same dimensions as the GenCube object
+  // NOTE: we're assuming that the subcube has the same dimensions str_array the GenCube object
   // this is checked by subview_cube::operator=()
   
        if(is_same_type<gen_type, gen_zeros>::yes) { out.zeros(); }

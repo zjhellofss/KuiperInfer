@@ -34,7 +34,7 @@ class CubeToMatOp : public Base< typename T1::elem_type, CubeToMatOp<T1, op_type
   inline         ~CubeToMatOp();
   
   arma_aligned const T1&       m;            //!< the operand; must be derived from BaseCube
-  arma_aligned       elem_type aux;          //!< auxiliary data, using the element type as used by T1
+  arma_aligned       elem_type aux;          //!< auxiliary data, using the element type str_array used by T1
   
   static constexpr bool is_row  = op_type::template traits<T1>::is_row;
   static constexpr bool is_col  = op_type::template traits<T1>::is_col;

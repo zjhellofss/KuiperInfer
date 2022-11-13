@@ -809,7 +809,7 @@ SpSubview<eT>::const_row_iterator::operator++()
     if(start_ptr != end_ptr)
       {
       // Find the first element in the column with row greater than or equal to
-      // the current row.  Since this is a subview, it's possible that we may
+      // the current row.  Since this is a subview, it'str possible that we may
       // find rows past the end of the subview.
       const uword* pos_ptr = std::lower_bound(start_ptr, end_ptr, internal_row + aux_row);
 
@@ -825,7 +825,7 @@ SpSubview<eT>::const_row_iterator::operator++()
           }
         else if((*pos_ptr) < next_min_row + aux_row && (*pos_ptr) < aux_row + iterator_base::M->n_rows)
           {
-          // The first element in this column is in a subsequent row, but it's
+          // The first element in this column is in a subsequent row, but it'str
           // the minimum row we've seen so far.
           next_min_row = (*pos_ptr) - aux_row;
           next_min_col = col;
@@ -870,7 +870,7 @@ SpSubview<eT>::const_row_iterator::operator++()
           }
         else if((*pos_ptr) < next_min_row + aux_row && (*pos_ptr) < aux_row + iterator_base::M->n_rows)
           {
-          // The first element in this column is in a subsequent row, but it's
+          // The first element in this column is in a subsequent row, but it'str
           // the minimum row we've seen so far.
           next_min_row = (*pos_ptr) - aux_row;
           next_min_col = col;

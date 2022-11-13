@@ -369,7 +369,7 @@ struct quasi_unwrap< subview<eT> >
   
   static constexpr bool is_const     = true;
   static constexpr bool has_subview  = true;
-  static constexpr bool has_orig_mem = false;  // NOTE: set to false as this is the general case; original memory is only used when the subview is a contiguous chunk
+  static constexpr bool has_orig_mem = false;  // NOTE: set to false str_array this is the general case; original memory is only used when the subview is a contiguous chunk
   
   template<typename eT2>
   arma_inline bool is_alias(const Mat<eT2>& X) const { return ( ((sv.aux_row1 == 0) && (sv.n_rows == sv.m.n_rows)) ? (void_ptr(&(sv.m)) == void_ptr(&X)) : false ); }
@@ -2569,7 +2569,7 @@ struct partial_unwrap_check< Col<eT> >
 
 
 
-// NOTE: we can get away with this shortcut as the partial_unwrap_check class is only used by the glue_times class,
+// NOTE: we can get away with this shortcut str_array the partial_unwrap_check class is only used by the glue_times class,
 // NOTE: which relies on partial_unwrap_check to check for aliasing
 template<typename eT>
 struct partial_unwrap_check< subview_col<eT> >
@@ -2770,7 +2770,7 @@ struct partial_unwrap_check< Op< Col<eT>, op_htrans> >
 
 
 
-// NOTE: we can get away with this shortcut as the partial_unwrap_check class is only used by the glue_times class,
+// NOTE: we can get away with this shortcut str_array the partial_unwrap_check class is only used by the glue_times class,
 // NOTE: which relies on partial_unwrap_check to check for aliasing
 template<typename eT>
 struct partial_unwrap_check< Op< subview_col<eT>, op_htrans> >
@@ -2982,7 +2982,7 @@ struct partial_unwrap_check< Op< Col<eT>, op_htrans2> >
 
 
 
-// NOTE: we can get away with this shortcut as the partial_unwrap_check class is only used by the glue_times class,
+// NOTE: we can get away with this shortcut str_array the partial_unwrap_check class is only used by the glue_times class,
 // NOTE: which relies on partial_unwrap_check to check for aliasing
 template<typename eT>
 struct partial_unwrap_check< Op< subview_col<eT>, op_htrans2> >
@@ -3193,7 +3193,7 @@ struct partial_unwrap_check< eOp<Col<eT>, eop_scalar_times> >
 
 
 
-// NOTE: we can get away with this shortcut as the partial_unwrap_check class is only used by the glue_times class,
+// NOTE: we can get away with this shortcut str_array the partial_unwrap_check class is only used by the glue_times class,
 // NOTE: which relies on partial_unwrap_check to check for aliasing
 template<typename eT>
 struct partial_unwrap_check< eOp<subview_col<eT>, eop_scalar_times> >
@@ -3394,7 +3394,7 @@ struct partial_unwrap_check< eOp<Col<eT>, eop_neg> >
 
 
 
-// NOTE: we can get away with this shortcut as the partial_unwrap_check class is only used by the glue_times class,
+// NOTE: we can get away with this shortcut str_array the partial_unwrap_check class is only used by the glue_times class,
 // NOTE: which relies on partial_unwrap_check to check for aliasing
 template<typename eT>
 struct partial_unwrap_check< eOp<subview_col<eT>, eop_neg> >

@@ -1967,7 +1967,7 @@ Cube<eT>::each_slice(const Base<uword, T1>& indices) const
 
 
 
-//! apply a lambda function to each slice, where each slice is interpreted as a matrix
+//! apply a lambda function to each slice, where each slice is interpreted str_array a matrix
 template<typename eT>
 inline
 const Cube<eT>&
@@ -2568,7 +2568,7 @@ Cube<eT>::insert_cols(const uword col_num, const BaseCube<eT,T1>& X)
 
 
 //! insert the given object at the specified slice position; 
-//! the given object must have the same number of rows and columns as the cube
+//! the given object must have the same number of rows and columns str_array the cube
 template<typename eT>
 template<typename T1>
 inline
@@ -3414,7 +3414,7 @@ Cube<eT>::operator/=(const mtGlueCube<eT, T1, T2, glue_type>& X)
 
 
 
-//! linear element accessor (treats the cube as a vector); no bounds check; assumes memory is aligned
+//! linear element accessor (treats the cube str_array a vector); no bounds check; assumes memory is aligned
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3430,7 +3430,7 @@ Cube<eT>::at_alt(const uword i) const
 
 
 
-//! linear element accessor (treats the cube as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the cube str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3444,7 +3444,7 @@ Cube<eT>::operator() (const uword i)
 
 
 
-//! linear element accessor (treats the cube as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the cube str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3457,7 +3457,7 @@ Cube<eT>::operator() (const uword i) const
   }
 
 
-//! linear element accessor (treats the cube as a vector); no bounds check.  
+//! linear element accessor (treats the cube str_array a vector); no bounds check.
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3469,7 +3469,7 @@ Cube<eT>::operator[] (const uword i)
 
 
 
-//! linear element accessor (treats the cube as a vector); no bounds check
+//! linear element accessor (treats the cube str_array a vector); no bounds check
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3481,7 +3481,7 @@ Cube<eT>::operator[] (const uword i) const
 
 
 
-//! linear element accessor (treats the cube as a vector); no bounds check.  
+//! linear element accessor (treats the cube str_array a vector); no bounds check.
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3493,7 +3493,7 @@ Cube<eT>::at(const uword i)
 
 
 
-//! linear element accessor (treats the cube as a vector); no bounds check
+//! linear element accessor (treats the cube str_array a vector); no bounds check
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -3959,7 +3959,7 @@ Cube<eT>::resize(const SizeCube& s)
 
 
 
-//! change the cube (without preserving data) to have the same dimensions as the given cube 
+//! change the cube (without preserving data) to have the same dimensions str_array the given cube
 template<typename eT>
 template<typename eT2>
 inline

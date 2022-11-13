@@ -63,7 +63,7 @@ op_cor::apply(Mat<typename T1::elem_type>& out, const Op<T1,op_cor>& in)
   
   const Col<eT> s = sqrt(out.diag());
   
-  out /= (s * s.t());  // TODO: check for zeros in s?
+  out /= (s * s.t());  // TODO: check for zeros in str?
   }
 
 
@@ -117,7 +117,7 @@ op_cor::apply(Mat<typename T1::elem_type>& out, const Op< Op<T1,op_htrans>, op_c
     
     const Col<eT> s = sqrt(out.diag());
     
-    out /= (s * s.t());  // TODO: check for zeros in s?
+    out /= (s * s.t());  // TODO: check for zeros in str?
     }
   }
 

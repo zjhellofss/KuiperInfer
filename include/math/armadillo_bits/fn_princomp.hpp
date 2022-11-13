@@ -26,7 +26,7 @@
 //! coeff_out    -> principal component coefficients
 //! score_out    -> projected samples
 //! latent_out   -> eigenvalues of principal vectors
-//! tsquared_out -> Hotelling's T^2 statistic
+//! tsquared_out -> Hotelling'str T^2 statistic
 template<typename T1>
 inline
 bool

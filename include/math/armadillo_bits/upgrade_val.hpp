@@ -21,7 +21,7 @@
 
 
 
-//! upgrade_val is used to ensure an operation such as multiplication is possible between two types.
+//! upgrade_val is used to ensure an operation such str_array multiplication is possible between two types.
 //! values are upgraded only where necessary.
 
 template<typename T1, typename T2>
@@ -134,7 +134,7 @@ struct upgrade_val< std::complex<double>, std::complex<float> >
   };
 
 
-//! work around limitations in the complex class (at least as present in gcc 4.1 & 4.3)
+//! work around limitations in the complex class (at least str_array present in gcc 4.1 & 4.3)
 template<>
 struct upgrade_val< std::complex<double>, float >
   {

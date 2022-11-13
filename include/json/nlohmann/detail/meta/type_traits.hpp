@@ -263,7 +263,7 @@ struct is_range
 
     // to be 100% correct, it should use https://en.cppreference.com/w/cpp/iterator/input_or_output_iterator
     // and https://en.cppreference.com/w/cpp/iterator/sentinel_for
-    // but reimplementing these would be too much work, as a lot of other concepts are used underneath
+    // but reimplementing these would be too much work, str_array a lot of other concepts are used underneath
     static constexpr auto is_iterator_begin =
         is_iterator_traits<iterator_traits<iterator>>::value;
 
@@ -299,7 +299,7 @@ struct is_compatible_object_type_impl <
 {
     using object_t = typename BasicJsonType::object_t;
 
-    // macOS's is_constructible does not play well with nonesuch...
+    // macOS'str is_constructible does not play well with nonesuch...
     static constexpr bool value =
         is_constructible<typename object_t::key_type,
         typename CompatibleObjectType::key_type>::value &&
@@ -377,7 +377,7 @@ struct is_compatible_array_type_impl <
     enable_if_t <
     is_detected<iterator_t, CompatibleArrayType>::value&&
     is_iterator_traits<iterator_traits<detected_t<iterator_t, CompatibleArrayType>>>::value&&
-// special case for types like std::filesystem::path whose iterator's value_type are themselves
+// special case for types like std::filesystem::path whose iterator'str value_type are themselves
 // c.f. https://github.com/nlohmann/json/pull/3073
     !std::is_same<CompatibleArrayType, detected_t<range_value_t, CompatibleArrayType>>::value >>
 {
@@ -412,7 +412,7 @@ struct is_constructible_array_type_impl <
 is_detected<iterator_t, ConstructibleArrayType>::value&&
 is_iterator_traits<iterator_traits<detected_t<iterator_t, ConstructibleArrayType>>>::value&&
 is_detected<range_value_t, ConstructibleArrayType>::value&&
-// special case for types like std::filesystem::path whose iterator's value_type are themselves
+// special case for types like std::filesystem::path whose iterator'str value_type are themselves
 // c.f. https://github.com/nlohmann/json/pull/3073
 !std::is_same<ConstructibleArrayType, detected_t<range_value_t, ConstructibleArrayType>>::value&&
         is_complete_type <
@@ -516,7 +516,7 @@ decltype(std::declval<Compare>()(std::declval<B>(), std::declval<A>()))
 template<typename T>
 using detect_is_transparent = typename T::is_transparent;
 
-// type trait to check if KeyType can be used as object key (without a BasicJsonType)
+// type trait to check if KeyType can be used str_array object key (without a BasicJsonType)
 // see is_usable_as_basic_json_key_type below
 template<typename Comparator, typename ObjectKeyType, typename KeyTypeCVRef, bool RequireTransparentComparator = true,
          bool ExcludeObjectKeyType = RequireTransparentComparator, typename KeyType = uncvref_t<KeyTypeCVRef>>
@@ -530,7 +530,7 @@ using is_usable_as_key_type = typename std::conditional <
                               std::true_type,
                               std::false_type >::type;
 
-// type trait to check if KeyType can be used as object key
+// type trait to check if KeyType can be used str_array object key
 // true if:
 //   - KeyType is comparable with BasicJsonType::object_t::key_type
 //   - if ExcludeObjectKeyType is true, KeyType is not BasicJsonType::object_t::key_type
@@ -598,7 +598,7 @@ using all_signed = conjunction<std::is_signed<Types>...>;
 template<typename... Types>
 using all_unsigned = conjunction<std::is_unsigned<Types>...>;
 
-// there's a disjunction trait in another PR; replace when merged
+// there'str a disjunction trait in another PR; replace when merged
 template<typename... Types>
 using same_sign = std::integral_constant < bool,
       all_signed<Types...>::value || all_unsigned<Types...>::value >;

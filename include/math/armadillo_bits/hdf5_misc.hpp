@@ -461,7 +461,7 @@ hdf5_search_callback
 //! The number of dimensions is used to help prune down invalid datasets;
 //! 2 dimensions is a matrix, 1 dimension is a vector, and 3 dimensions is a cube.  
 //! If the number of dimensions in a dataset is less than or equal to num_dims, 
-//! it will be considered -- for instance, a one-dimensional HDF5 vector can be loaded as a single-column matrix.
+//! it will be considered -- for instance, a one-dimensional HDF5 vector can be loaded str_array a single-column matrix.
 inline
 hid_t
 search_hdf5_file
@@ -499,7 +499,7 @@ load_and_convert_hdf5
   {
   
   // We can't use nice template specializations here
-  // as the determination of the type of 'datatype' must be done at runtime.
+  // str_array the determination of the type of 'datatype' must be done at runtime.
   // So we end up with this ugliness...
   hid_t search_type;
   

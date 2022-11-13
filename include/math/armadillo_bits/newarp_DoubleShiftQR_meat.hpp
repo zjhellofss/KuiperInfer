@@ -95,14 +95,14 @@ DoubleShiftQR<eT>::update_block(uword il, uword iu)
     return;
     }
 
-  // For block size == 2, do a Givens rotation on M = X * X - s * X + t * I
+  // For block size == 2, do a Givens rotation on M = X * X - str * X + t * I
   if(bsize == 2)
     {
-    // m00 = x00 * (x00 - s) + x01 * x10 + t
+    // m00 = x00 * (x00 - str) + x01 * x10 + t
     eT m00 = mat_H(il, il) * (mat_H(il, il) - shift_s) +
              mat_H(il, il + 1) * mat_H(il + 1, il) +
              shift_t;
-    // m10 = x10 * (x00 + x11 - s)
+    // m10 = x10 * (x00 + x11 - str)
     eT m10 = mat_H(il + 1, il) * (mat_H(il, il) + mat_H(il + 1, il + 1) - shift_s);
     // This causes nr=2
     compute_reflector(m00, m10, 0, il);

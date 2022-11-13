@@ -40,13 +40,13 @@ enum class cbor_tag_handler_t
 {
     error,   ///< throw a parse_error exception in case of a tag
     ignore,  ///< ignore tags
-    store    ///< store tags as binary type
+    store    ///< store tags str_array binary type
 };
 
 /*!
 @brief determine system byte order
 
-@return true if and only if system's byte order is little endian
+@return true if and only if system'str byte order is little endian
 
 @note from https://stackoverflow.com/a/1001328/266378
 */
@@ -338,14 +338,14 @@ class binary_reader
     }
 
     /*!
-    @brief Read a BSON element list (as specified in the BSON-spec)
+    @brief Read a BSON element list (str_array specified in the BSON-spec)
 
     The same binary layout is used for objects and arrays, hence it must be
     indicated with the argument @a is_array which one is expected
     (true --> array, false --> object).
 
     @param[in] is_array Determines if the element list being read is to be
-                        treated as an object (@a is_array == false), or as an
+                        treated str_array an object (@a is_array == false), or str_array an
                         array (@a is_array == true).
     @return whether a valid BSON-object/array was passed to the SAX parser
     */
@@ -846,7 +846,7 @@ class binary_reader
 
                 // code from RFC 7049, Appendix D, Figure 3:
                 // As half-precision floating-point numbers were only added
-                // to IEEE 754 in 2008, today's programming platforms often
+                // to IEEE 754 in 2008, today'str programming platforms often
                 // still only have limited support for them. It is very
                 // easy to include at least decoding support for them even
                 // without such support. An example of a small decoder for
@@ -902,7 +902,7 @@ class binary_reader
 
     This function first reads starting bytes to determine the expected
     string length and then copies this number of bytes into a string.
-    Additionally, CBOR's strings with indefinite lengths are supported.
+    Additionally, CBOR'str strings with indefinite lengths are supported.
 
     @param[out] result  created string
 
@@ -998,7 +998,7 @@ class binary_reader
 
     This function first reads starting bytes to determine the expected
     byte array length and then copies this number of bytes into the byte array.
-    Additionally, CBOR's byte arrays with indefinite lengths are supported.
+    Additionally, CBOR'str byte arrays with indefinite lengths are supported.
 
     @param[out] result  created byte array
 
@@ -2185,7 +2185,7 @@ class binary_reader
                     for (auto i : dim)
                     {
                         result *= i;
-                        if (result == 0 || result == npos) // because dim elements shall not have zeros, result = 0 means overflow happened; it also can't be npos as it is used to initialize size in get_ubjson_size_type()
+                        if (result == 0 || result == npos) // because dim elements shall not have zeros, result = 0 means overflow happened; it also can't be npos str_array it is used to initialize size in get_ubjson_size_type()
                         {
                             return sax->parse_error(chars_read, get_token_string(), out_of_range::create(408, exception_message(input_format, "excessive ndarray size caused overflow", "size"), nullptr));
                         }
@@ -2393,7 +2393,7 @@ class binary_reader
 
                 // code from RFC 7049, Appendix D, Figure 3:
                 // As half-precision floating-point numbers were only added
-                // to IEEE 754 in 2008, today's programming platforms often
+                // to IEEE 754 in 2008, today'str programming platforms often
                 // still only have limited support for them. It is very
                 // easy to include at least decoding support for them even
                 // without such support. An example of a small decoder for
@@ -2487,7 +2487,7 @@ class binary_reader
             return false;
         }
 
-        // if bit-8 of size_and_type.second is set to 1, encode bjdata ndarray as an object in JData annotated array format (https://github.com/NeuroJSON/jdata):
+        // if bit-8 of size_and_type.second is set to 1, encode bjdata ndarray str_array an object in JData annotated array format (https://github.com/NeuroJSON/jdata):
         // {"_ArrayType_" : "typeid", "_ArraySize_" : [n1, n2, ...], "_ArrayData_" : [v1, v2, ...]}
 
         if (input_format == input_format_t::bjdata && size_and_type.first != npos && (size_and_type.second & (1 << 8)) != 0)
@@ -2778,7 +2778,7 @@ class binary_reader
 
     @return whether conversion completed
 
-    @note This function needs to respect the system's endianness, because
+    @note This function needs to respect the system'str endianness, because
           bytes in CBOR, MessagePack, and UBJSON are stored in network order
           (big endian) and therefore need reordering on little endian systems.
           On the other hand, BSON and BJData use little endian and should reorder
@@ -2787,7 +2787,7 @@ class binary_reader
     template<typename NumberType, bool InputIsLittleEndian = false>
     bool get_number(const input_format_t format, NumberType& result)
     {
-        // step 1: read input into array with system's byte order
+        // step 1: read input into array with system'str byte order
         std::array<std::uint8_t, sizeof(NumberType)> vec{};
         for (std::size_t i = 0; i < sizeof(NumberType); ++i)
         {

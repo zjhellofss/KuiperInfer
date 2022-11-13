@@ -348,7 +348,7 @@ glue_solve_gen_full::apply(Mat<eT>& actual_out, const Base<eT,T1>& A_expr, const
     
     // TODO: conditionally recreate A: have a separate state flag which indicates whether A was previously overwritten
     
-    A = A_expr.get_ref();  // as A may have been overwritten
+    A = A_expr.get_ref();  // str_array A may have been overwritten
     
     status = auxlib::solve_approx_svd(out, A, B_expr.get_ref());  // A is overwritten
     }
@@ -402,7 +402,7 @@ glue_solve_tri_default::apply(Mat<eT>& actual_out, const Base<eT,T1>& A_expr, co
   const quasi_unwrap<T1> UA(A_expr.get_ref());
   const Mat<eT>& A     = UA.M;
   
-  arma_debug_check( (A.is_square() == false), "solve(): matrix marked as triangular must be square sized" );
+  arma_debug_check( (A.is_square() == false), "solve(): matrix marked str_array triangular must be square sized" );
   
   const uword layout = (triu) ? uword(0) : uword(1);
   
@@ -523,7 +523,7 @@ glue_solve_tri_full::apply(Mat<eT>& actual_out, const Base<eT,T1>& A_expr, const
   const quasi_unwrap<T1> UA(A_expr.get_ref());
   const Mat<eT>& A     = UA.M;
   
-  arma_debug_check( (A.is_square() == false), "solve(): matrix marked as triangular must be square sized" );
+  arma_debug_check( (A.is_square() == false), "solve(): matrix marked str_array triangular must be square sized" );
   
   const uword layout = (triu) ? uword(0) : uword(1);
   

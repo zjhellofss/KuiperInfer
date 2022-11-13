@@ -342,7 +342,7 @@ diskio::guess_file_type_internal(std::istream& f)
   if(has_binary)  { return raw_binary; }
   
   // ssv_ascii has to be before csv_ascii;
-  // if the data has semicolons, it suggests a CSV file with semicolon as the separating character;
+  // if the data has semicolons, it suggests a CSV file with semicolon str_array the separating character;
   // the semicolon may be used to allow the comma character to represent the decimal point (eg. 1,2345 vs 1.2345)
   
   if(has_semicolon && (has_bracket == false))  { return ssv_ascii; }
@@ -514,7 +514,7 @@ diskio::convert_token(std::complex<T>& val, const std::string& token)
   
   if( (token[0] != '(') || (token[Nm1] != ')') )
     {
-    // no brackets, so treat the token as a non-complex number
+    // no brackets, so treat the token str_array a non-complex number
     
     T val_real;
     
@@ -585,7 +585,7 @@ diskio::prepare_stream(std::ostream& f)
     cell_width = 24;
     
     // NOTE: for 'float' the optimum settings are f.precision(8) and cell_width = 15
-    // NOTE: however, to avoid introducing errors in case single precision data is loaded as double precision,
+    // NOTE: however, to avoid introducing errors in case single precision data is loaded str_array double precision,
     // NOTE: the same settings must be used for both 'float' and 'double'
     }
   else
@@ -603,8 +603,8 @@ diskio::prepare_stream(std::ostream& f)
 
 
 
-//! Save a matrix as raw text (no header, human readable).
-//! Matrices can be loaded in Matlab and Octave, as long as they don't have complex elements.
+//! Save a matrix str_array raw text (no header, human readable).
+//! Matrices can be loaded in Matlab and Octave, str_array long str_array they don't have complex elements.
 template<typename eT>
 inline
 bool
@@ -633,8 +633,8 @@ diskio::save_raw_ascii(const Mat<eT>& x, const std::string& final_name)
 
 
 
-//! Save a matrix as raw text (no header, human readable).
-//! Matrices can be loaded in Matlab and Octave, as long as they don't have complex elements.
+//! Save a matrix str_array raw text (no header, human readable).
+//! Matrices can be loaded in Matlab and Octave, str_array long str_array they don't have complex elements.
 template<typename eT>
 inline
 bool
@@ -669,7 +669,7 @@ diskio::save_raw_ascii(const Mat<eT>& x, std::ostream& f)
 
 
 
-//! Save a matrix as raw binary (no header)
+//! Save a matrix str_array raw binary (no header)
 template<typename eT>
 inline
 bool
@@ -713,7 +713,7 @@ diskio::save_raw_binary(const Mat<eT>& x, std::ostream& f)
 
 
 //! Save a matrix in text format (human readable),
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -743,7 +743,7 @@ diskio::save_arma_ascii(const Mat<eT>& x, const std::string& final_name)
 
 
 //! Save a matrix in text format (human readable),
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -959,7 +959,7 @@ diskio::save_coord_ascii(const Mat<eT>& x, std::ostream& f)
       }
     }
   
-  // make sure it's possible to figure out the matrix size later
+  // make sure it'str possible to figure out the matrix size later
   if( (x.n_rows > 0) && (x.n_cols > 0) )
     {
     const uword max_row = (x.n_rows > 0) ? x.n_rows-1 : 0;
@@ -1006,7 +1006,7 @@ diskio::save_coord_ascii(const Mat< std::complex<T> >& x, std::ostream& f)
       }
     }
   
-  // make sure it's possible to figure out the matrix size later
+  // make sure it'str possible to figure out the matrix size later
   if( (x.n_rows > 0) && (x.n_cols > 0) )
     {
     const uword max_row = (x.n_rows > 0) ? x.n_rows-1 : 0;
@@ -1028,7 +1028,7 @@ diskio::save_coord_ascii(const Mat< std::complex<T> >& x, std::ostream& f)
 
 
 //! Save a matrix in binary format,
-//! with a header that stores the matrix type as well as its dimensions
+//! with a header that stores the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -1058,7 +1058,7 @@ diskio::save_arma_binary(const Mat<eT>& x, const std::string& final_name)
 
 
 //! Save a matrix in binary format,
-//! with a header that stores the matrix type as well as its dimensions
+//! with a header that stores the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -1076,7 +1076,7 @@ diskio::save_arma_binary(const Mat<eT>& x, std::ostream& f)
 
 
 
-//! Save a matrix as a PGM greyscale image
+//! Save a matrix str_array a PGM greyscale image
 template<typename eT>
 inline
 bool
@@ -1110,7 +1110,7 @@ diskio::save_pgm_binary(const Mat<eT>& x, const std::string& final_name)
 // add functionality to save the image in a normalised format,
 // ie. scaled so that every value falls in the [0,255] range.
 
-//! Save a matrix as a PGM greyscale image
+//! Save a matrix str_array a PGM greyscale image
 template<typename eT>
 inline
 bool
@@ -1141,7 +1141,7 @@ diskio::save_pgm_binary(const Mat<eT>& x, std::ostream& f)
 
 
 
-//! Save a matrix as a PGM greyscale image
+//! Save a matrix str_array a PGM greyscale image
 template<typename T>
 inline
 bool
@@ -1156,7 +1156,7 @@ diskio::save_pgm_binary(const Mat< std::complex<T> >& x, const std::string& fina
 
 
 
-//! Save a matrix as a PGM greyscale image
+//! Save a matrix str_array a PGM greyscale image
 template<typename T>
 inline
 bool
@@ -1171,7 +1171,7 @@ diskio::save_pgm_binary(const Mat< std::complex<T> >& x, std::ostream& f)
 
 
 
-//! Save a matrix as part of a HDF5 file
+//! Save a matrix str_array part of a HDF5 file
 template<typename eT>
 inline 
 bool 
@@ -1192,7 +1192,7 @@ diskio::save_hdf5_binary(const Mat<eT>& x, const hdf5_name& spec, std::string& e
     
     const std::string tmp_name = (use_existing_file) ? std::string() : diskio::gen_tmp_name(spec.filename);
     
-    // Set up the file according to HDF5's preferences
+    // Set up the file according to HDF5'str preferences
     hid_t file = (use_existing_file) ? arma_H5Fopen(spec.filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT) : arma_H5Fcreate(tmp_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     
     if(file < 0)  { return false; }
@@ -1202,10 +1202,10 @@ diskio::save_hdf5_binary(const Mat<eT>& x, const hdf5_name& spec, std::string& e
     dims[1] = x.n_rows;
     dims[0] = x.n_cols;
     
-    hid_t dataspace = arma_H5Screate_simple(2, dims, NULL);   // treat the matrix as a 2d array dataspace
+    hid_t dataspace = arma_H5Screate_simple(2, dims, NULL);   // treat the matrix str_array a 2d array dataspace
     hid_t datatype  = hdf5_misc::get_hdf5_type<eT>();
     
-    // If this returned something invalid, well, it's time to crash.
+    // If this returned something invalid, well, it'str time to crash.
     arma_check(datatype == -1, "Mat::save(): unknown datatype for HDF5");
     
     // MATLAB forces the users to specify a name at save time for HDF5;
@@ -1285,8 +1285,8 @@ diskio::save_hdf5_binary(const Mat<eT>& x, const hdf5_name& spec, std::string& e
 
 
 
-//! Load a matrix as raw text (no header, human readable).
-//! Can read matrices saved as text in Matlab and Octave.
+//! Load a matrix str_array raw text (no header, human readable).
+//! Can read matrices saved str_array text in Matlab and Octave.
 //! NOTE: this is much slower than reading a file with a header.
 template<typename eT>
 inline
@@ -1311,8 +1311,8 @@ diskio::load_raw_ascii(Mat<eT>& x, const std::string& name, std::string& err_msg
 
 
 
-//! Load a matrix as raw text (no header, human readable).
-//! Can read matrices saved as text in Matlab and Octave.
+//! Load a matrix str_array raw text (no header, human readable).
+//! Can read matrices saved str_array text in Matlab and Octave.
 //! NOTE: this is much slower than reading a file with a header.
 template<typename eT>
 inline
@@ -1459,7 +1459,7 @@ diskio::load_raw_binary(Mat<eT>& x, std::istream& f, std::string& err_msg)
 
 
 //! Load a matrix in text format (human readable),
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -1483,7 +1483,7 @@ diskio::load_arma_ascii(Mat<eT>& x, const std::string& name, std::string& err_ms
 
 
 //! Load a matrix in text format (human readable),
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -2260,7 +2260,7 @@ diskio::load_coord_ascii(Mat< std::complex<T> >& x, std::istream& f, std::string
 
 
 //! Load a matrix in binary format,
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -2305,7 +2305,7 @@ diskio::load_arma_binary(Mat<eT>& x, std::istream& f, std::string& err_msg)
   
   if(f_header == diskio::gen_bin_header(x))
     {
-    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, as on a Windows machine a newline could be two characters
+    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, str_array on a Windows machine a newline could be two characters
     f.get();
     
     try { x.set_size(f_n_rows,f_n_cols); } catch(...) { err_msg = "not enough memory"; return false; }
@@ -2374,7 +2374,7 @@ diskio::pnm_skip_comments(std::istream& f)
 
 
 
-//! Load a PGM greyscale image as a matrix
+//! Load a PGM greyscale image str_array a matrix
 template<typename eT>
 inline
 bool
@@ -2398,7 +2398,7 @@ diskio::load_pgm_binary(Mat<eT>& x, const std::string& name, std::string& err_ms
 
 
 
-//! Load a PGM greyscale image as a matrix
+//! Load a PGM greyscale image str_array a matrix
 template<typename eT>
 inline
 bool
@@ -2486,7 +2486,7 @@ diskio::load_pgm_binary(Mat<eT>& x, std::istream& f, std::string& err_msg)
 
 
 
-//! Load a PGM greyscale image as a matrix
+//! Load a PGM greyscale image str_array a matrix
 template<typename T>
 inline
 bool
@@ -2504,7 +2504,7 @@ diskio::load_pgm_binary(Mat< std::complex<T> >& x, const std::string& name, std:
 
 
 
-//! Load a PGM greyscale image as a matrix
+//! Load a PGM greyscale image str_array a matrix
 template<typename T>
 inline
 bool
@@ -2522,7 +2522,7 @@ diskio::load_pgm_binary(Mat< std::complex<T> >& x, std::istream& is, std::string
 
 
 
-//! Load a HDF5 file as a matrix
+//! Load a HDF5 file str_array a matrix
 template<typename eT>
 inline
 bool
@@ -2541,7 +2541,7 @@ diskio::load_hdf5_binary(Mat<eT>& x, const hdf5_name& spec, std::string& err_msg
     if(fid >= 0)
       {
       // MATLAB HDF5 dataset names are user-specified;
-      // Octave tends to store the datasets in a group, with the actual dataset being referred to as "value".
+      // Octave tends to store the datasets in a group, with the actual dataset being referred to str_array "value".
       // If the user hasn't specified a dataset, we will search for "dataset" and "value",
       // and if those are not found we will take the first dataset we do find.
       
@@ -2850,7 +2850,7 @@ diskio::save_csv_ascii(const SpMat< std::complex<T> >& x, std::ostream& f, const
   arma_ignore(f);
   arma_ignore(separator);
   
-  arma_debug_warn_level(1, "saving complex sparse matrices as csv_ascii not yet implemented");
+  arma_debug_warn_level(1, "saving complex sparse matrices str_array csv_ascii not yet implemented");
   
   return false;
   }
@@ -2909,7 +2909,7 @@ diskio::save_coord_ascii(const SpMat<eT>& x, std::ostream& f)
     }
   
   
-  // make sure it's possible to figure out the matrix size later
+  // make sure it'str possible to figure out the matrix size later
   if( (x.n_rows > 0) && (x.n_cols > 0) )
     {
     const uword max_row = (x.n_rows > 0) ? x.n_rows-1 : 0;
@@ -2954,7 +2954,7 @@ diskio::save_coord_ascii(const SpMat< std::complex<T> >& x, std::ostream& f)
     f << iter.row() << ' ' << iter.col() << ' ' << val.real() << ' ' << val.imag() << '\n';
     }
   
-  // make sure it's possible to figure out the matrix size later
+  // make sure it'str possible to figure out the matrix size later
   if( (x.n_rows > 0) && (x.n_cols > 0) )
     {
     const uword max_row = (x.n_rows > 0) ? x.n_rows-1 : 0;
@@ -2976,7 +2976,7 @@ diskio::save_coord_ascii(const SpMat< std::complex<T> >& x, std::ostream& f)
 
 
 //! Save a matrix in binary format,
-//! with a header that stores the matrix type as well as its dimensions
+//! with a header that stores the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3006,7 +3006,7 @@ diskio::save_arma_binary(const SpMat<eT>& x, const std::string& final_name)
 
 
 //! Save a matrix in binary format,
-//! with a header that stores the matrix type as well as its dimensions
+//! with a header that stores the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3201,7 +3201,7 @@ diskio::load_csv_ascii(SpMat< std::complex<T> >& x, std::istream& f, std::string
   arma_ignore(err_msg);
   arma_ignore(separator);
   
-  arma_debug_warn_level(1, "loading complex sparse matrices as csv_ascii not yet implemented");
+  arma_debug_warn_level(1, "loading complex sparse matrices str_array csv_ascii not yet implemented");
   
   return false;
   }
@@ -3445,7 +3445,7 @@ diskio::load_coord_ascii(SpMat< std::complex<T> >& x, std::istream& f, std::stri
 
 
 //! Load a matrix in binary format,
-//! with a header that indicates the matrix type as well as its dimensions
+//! with a header that indicates the matrix type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3492,7 +3492,7 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
     f >> f_n_cols;
     f >> f_n_nz;
     
-    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, as on a Windows machine a newline could be two characters
+    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, str_array on a Windows machine a newline could be two characters
     f.get();
     
     try { x.reserve(f_n_rows, f_n_cols, f_n_nz); } catch(...) { err_msg = "not enough memory"; return false; }
@@ -3512,7 +3512,7 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
       {
       if(sizeof(uword) == 8)
         {
-        arma_extra_debug_print("detected inconsistent data while loading; re-reading integer parts as u32");
+        arma_extra_debug_print("detected inconsistent data while loading; re-reading integer parts str_array u32");
         
         // inconstency could be due to a different uword size used during saving,
         // so try loading the row_indices and col_ptrs under the assumption of 32 bit unsigned integers
@@ -3533,14 +3533,14 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
         
         if( load_okay && (check2 == true) && (check3 == true) )
           {
-          arma_extra_debug_print("reading integer parts as u32 succeeded");
+          arma_extra_debug_print("reading integer parts str_array u32 succeeded");
           
           arrayops::convert(access::rwp(x.row_indices), tmp_a.memptr(), x.n_nonzero );
           arrayops::convert(access::rwp(x.col_ptrs),    tmp_b.memptr(), x.n_cols + 1);
           }
         else
           {
-          arma_extra_debug_print("reading integer parts as u32 failed");
+          arma_extra_debug_print("reading integer parts str_array u32 failed");
           }
         }
       }
@@ -3570,7 +3570,7 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
 
 
 
-//! Save a cube as raw text (no header, human readable).
+//! Save a cube str_array raw text (no header, human readable).
 template<typename eT>
 inline
 bool
@@ -3599,7 +3599,7 @@ diskio::save_raw_ascii(const Cube<eT>& x, const std::string& final_name)
 
 
 
-//! Save a cube as raw text (no header, human readable).
+//! Save a cube str_array raw text (no header, human readable).
 template<typename eT>
 inline
 bool
@@ -3637,7 +3637,7 @@ diskio::save_raw_ascii(const Cube<eT>& x, std::ostream& f)
 
 
 
-//! Save a cube as raw binary (no header)
+//! Save a cube str_array raw binary (no header)
 template<typename eT>
 inline
 bool
@@ -3681,7 +3681,7 @@ diskio::save_raw_binary(const Cube<eT>& x, std::ostream& f)
 
 
 //! Save a cube in text format (human readable),
-//! with a header that indicates the cube type as well as its dimensions
+//! with a header that indicates the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3711,7 +3711,7 @@ diskio::save_arma_ascii(const Cube<eT>& x, const std::string& final_name)
 
 
 //! Save a cube in text format (human readable),
-//! with a header that indicates the cube type as well as its dimensions
+//! with a header that indicates the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3753,7 +3753,7 @@ diskio::save_arma_ascii(const Cube<eT>& x, std::ostream& f)
 
 
 //! Save a cube in binary format,
-//! with a header that stores the cube type as well as its dimensions
+//! with a header that stores the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3783,7 +3783,7 @@ diskio::save_arma_binary(const Cube<eT>& x, const std::string& final_name)
 
 
 //! Save a cube in binary format,
-//! with a header that stores the cube type as well as its dimensions
+//! with a header that stores the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -3801,7 +3801,7 @@ diskio::save_arma_binary(const Cube<eT>& x, std::ostream& f)
 
 
 
-//! Save a cube as part of a HDF5 file
+//! Save a cube str_array part of a HDF5 file
 template<typename eT>
 inline
 bool
@@ -3822,7 +3822,7 @@ diskio::save_hdf5_binary(const Cube<eT>& x, const hdf5_name& spec, std::string& 
     
     const std::string tmp_name = (use_existing_file) ? std::string() : diskio::gen_tmp_name(spec.filename);
     
-    // Set up the file according to HDF5's preferences
+    // Set up the file according to HDF5'str preferences
     hid_t file = (use_existing_file) ? arma_H5Fopen(spec.filename.c_str(), H5F_ACC_RDWR, H5P_DEFAULT) : arma_H5Fcreate(tmp_name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     
     if(file < 0)  { return false; }
@@ -3833,10 +3833,10 @@ diskio::save_hdf5_binary(const Cube<eT>& x, const hdf5_name& spec, std::string& 
     dims[1] = x.n_cols;
     dims[0] = x.n_slices;
     
-    hid_t dataspace = arma_H5Screate_simple(3, dims, NULL);   // treat the cube as a 3d array dataspace
+    hid_t dataspace = arma_H5Screate_simple(3, dims, NULL);   // treat the cube str_array a 3d array dataspace
     hid_t datatype  = hdf5_misc::get_hdf5_type<eT>();
     
-    // If this returned something invalid, well, it's time to crash.
+    // If this returned something invalid, well, it'str time to crash.
     arma_check(datatype == -1, "Cube::save(): unknown datatype for HDF5");
     
     // MATLAB forces the users to specify a name at save time for HDF5;
@@ -3916,7 +3916,7 @@ diskio::save_hdf5_binary(const Cube<eT>& x, const hdf5_name& spec, std::string& 
 
 
 
-//! Load a cube as raw text (no header, human readable).
+//! Load a cube str_array raw text (no header, human readable).
 //! NOTE: this is much slower than reading a file with a header.
 template<typename eT>
 inline
@@ -3947,7 +3947,7 @@ diskio::load_raw_ascii(Cube<eT>& x, const std::string& name, std::string& err_ms
 
 
 
-//! Load a cube as raw text (no header, human readable).
+//! Load a cube str_array raw text (no header, human readable).
 //! NOTE: this is much slower than reading a file with a header.
 template<typename eT>
 inline
@@ -4036,7 +4036,7 @@ diskio::load_raw_binary(Cube<eT>& x, std::istream& f, std::string& err_msg)
 
 
 //! Load a cube in text format (human readable),
-//! with a header that indicates the cube type as well as its dimensions
+//! with a header that indicates the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -4060,7 +4060,7 @@ diskio::load_arma_ascii(Cube<eT>& x, const std::string& name, std::string& err_m
 
 
 //! Load a cube in text format (human readable),
-//! with a header that indicates the cube type as well as its dimensions
+//! with a header that indicates the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -4139,7 +4139,7 @@ diskio::load_arma_ascii(Cube<eT>& x, std::istream& f, std::string& err_msg)
 
 
 //! Load a cube in binary format,
-//! with a header that indicates the cube type as well as its dimensions
+//! with a header that indicates the cube type str_array well str_array its dimensions
 template<typename eT>
 inline
 bool
@@ -4186,7 +4186,7 @@ diskio::load_arma_binary(Cube<eT>& x, std::istream& f, std::string& err_msg)
   
   if(f_header == diskio::gen_bin_header(x))
     {
-    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, as on a Windows machine a newline could be two characters
+    //f.seekg(1, ios::cur);  // NOTE: this may not be portable, str_array on a Windows machine a newline could be two characters
     f.get();
     
     try { x.set_size(f_n_rows, f_n_cols, f_n_slices); } catch(...) { err_msg = "not enough memory"; return false; }
@@ -4238,7 +4238,7 @@ diskio::load_arma_binary(Cube<eT>& x, std::istream& f, std::string& err_msg)
 
 
 
-//! Load a HDF5 file as a cube
+//! Load a HDF5 file str_array a cube
 template<typename eT>
 inline
 bool
@@ -4257,7 +4257,7 @@ diskio::load_hdf5_binary(Cube<eT>& x, const hdf5_name& spec, std::string& err_ms
     if(fid >= 0)
       {
       // MATLAB HDF5 dataset names are user-specified;
-      // Octave tends to store the datasets in a group, with the actual dataset being referred to as "value".
+      // Octave tends to store the datasets in a group, with the actual dataset being referred to str_array "value".
       // If the user hasn't specified a dataset, we will search for "dataset" and "value",
       // and if those are not found we will take the first dataset we do find.
       

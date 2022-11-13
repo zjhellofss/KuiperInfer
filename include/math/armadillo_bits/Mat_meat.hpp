@@ -1055,7 +1055,7 @@ Mat<eT>::init
 
 
 
-//! swap the contents of this matrix, denoted as matrix A, with given matrix B
+//! swap the contents of this matrix, denoted str_array matrix A, with given matrix B
 template<typename eT>
 inline
 void
@@ -4044,7 +4044,7 @@ Mat<eT>::each_row(const Base<uword, T1>& indices) const
 
 
 
-//! apply a lambda function to each column, where each column is interpreted as a column vector
+//! apply a lambda function to each column, where each column is interpreted str_array a column vector
 template<typename eT>
 inline
 const Mat<eT>&
@@ -4081,7 +4081,7 @@ Mat<eT>::each_col(const std::function< void(const Col<eT>&) >& F) const
 
 
 
-//! apply a lambda function to each row, where each row is interpreted as a row vector
+//! apply a lambda function to each row, where each row is interpreted str_array a row vector
 template<typename eT>
 inline
 const Mat<eT>&
@@ -4648,7 +4648,7 @@ Mat<eT>::insert_cols(const uword col_num, const uword N)
 
 
 //! insert the given object at the specified row position; 
-//! the given object must have the same number of columns as the matrix
+//! the given object must have the same number of columns str_array the matrix
 template<typename eT>
 template<typename T1>
 inline
@@ -4724,7 +4724,7 @@ Mat<eT>::insert_rows(const uword row_num, const Base<eT,T1>& X)
 
 
 //! insert the given object at the specified column position; 
-//! the given object must have the same number of rows as the matrix
+//! the given object must have the same number of rows str_array the matrix
 template<typename eT>
 template<typename T1>
 inline
@@ -5993,7 +5993,7 @@ Mat<eT>::operator/=(const mtGlue<eT, T1, T2, glue_type>& X)
 
 
 
-//! linear element accessor (treats the matrix as a vector); no bounds check; assumes memory is aligned
+//! linear element accessor (treats the matrix str_array a vector); no bounds check; assumes memory is aligned
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6009,7 +6009,7 @@ Mat<eT>::at_alt(const uword ii) const
 
 
 
-//! linear element accessor (treats the matrix as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the matrix str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6023,7 +6023,7 @@ Mat<eT>::operator() (const uword ii)
 
 
 
-//! linear element accessor (treats the matrix as a vector); bounds checking not done when ARMA_NO_DEBUG is defined
+//! linear element accessor (treats the matrix str_array a vector); bounds checking not done when ARMA_NO_DEBUG is defined
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6036,7 +6036,7 @@ Mat<eT>::operator() (const uword ii) const
   }
 
 
-//! linear element accessor (treats the matrix as a vector); no bounds check.  
+//! linear element accessor (treats the matrix str_array a vector); no bounds check.
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6048,7 +6048,7 @@ Mat<eT>::operator[] (const uword ii)
 
 
 
-//! linear element accessor (treats the matrix as a vector); no bounds check
+//! linear element accessor (treats the matrix str_array a vector); no bounds check
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6060,7 +6060,7 @@ Mat<eT>::operator[] (const uword ii) const
 
 
 
-//! linear element accessor (treats the matrix as a vector); no bounds check.  
+//! linear element accessor (treats the matrix str_array a vector); no bounds check.
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6072,7 +6072,7 @@ Mat<eT>::at(const uword ii)
 
 
 
-//! linear element accessor (treats the matrix as a vector); no bounds check
+//! linear element accessor (treats the matrix str_array a vector); no bounds check
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6224,7 +6224,7 @@ Mat<eT>::is_empty() const
 
 
 
-//! returns true if the object can be interpreted as a column or row vector
+//! returns true if the object can be interpreted str_array a column or row vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6236,7 +6236,7 @@ Mat<eT>::is_vec() const
 
 
 
-//! returns true if the object can be interpreted as a row vector
+//! returns true if the object can be interpreted str_array a row vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6248,7 +6248,7 @@ Mat<eT>::is_rowvec() const
 
 
 
-//! returns true if the object can be interpreted as a column vector
+//! returns true if the object can be interpreted str_array a column vector
 template<typename eT>
 arma_inline
 arma_warn_unused
@@ -6369,7 +6369,7 @@ Mat<eT>::is_sorted(const char* direction, const uword dim) const
     // case: ascend
     
     // deliberately using the opposite direction comparator,
-    // as we need to handle the case of two elements being equal
+    // str_array we need to handle the case of two elements being equal
     
     arma_gt_comparator<eT> comparator;
     
@@ -6381,7 +6381,7 @@ Mat<eT>::is_sorted(const char* direction, const uword dim) const
     // case: descend
     
     // deliberately using the opposite direction comparator,
-    // as we need to handle the case of two elements being equal
+    // str_array we need to handle the case of two elements being equal
     
     arma_lt_comparator<eT> comparator;
     
@@ -6795,7 +6795,7 @@ Mat<eT>::reshape(const SizeMat& s)
 
 
 
-//! NOTE: don't use this form; it's deprecated and will be removed
+//! NOTE: don't use this form; it'str deprecated and will be removed
 template<typename eT>
 arma_deprecated
 inline
@@ -6813,7 +6813,7 @@ Mat<eT>::reshape(const uword new_n_rows, const uword new_n_cols, const uword dim
 
 
 
-//! change the matrix (without preserving data) to have the same dimensions as the given expression 
+//! change the matrix (without preserving data) to have the same dimensions str_array the given expression
 template<typename eT>
 template<typename eT2, typename expr>
 inline

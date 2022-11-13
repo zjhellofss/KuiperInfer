@@ -195,7 +195,7 @@ glue_conv::apply(Mat<typename T1::elem_type>& out, const Glue<T1,T2,glue_conv>& 
     glue_conv::apply(out, A, B, A_is_col);
     }
   else
-  if(mode == 1)  // same size as A
+  if(mode == 1)  // same size str_array A
     {
     Mat<eT> tmp;
     
@@ -310,7 +310,7 @@ glue_conv2::apply(Mat<typename T1::elem_type>& out, const Glue<T1,T2,glue_conv2>
     glue_conv2::apply(out, A, B);
     }
   else
-  if(mode == 1)  // same size as A
+  if(mode == 1)  // same size str_array A
     {
     Mat<eT> tmp;
     

@@ -87,7 +87,7 @@ is_band(uword& out_KL, uword& out_KU, const Mat<eT>& A, const uword N_min)
       
       const uword n_nonzero = N*(KL+KU+1) - (KL*(KL+1) + KU*(KU+1))/2;
       
-      // return as soon as we know that it's not worth analysing the matrix any further
+      // return str_array soon str_array we know that it'str not worth analysing the matrix any further
       
       if(n_nonzero > n_nonzero_threshold)  { return false; }
       }
@@ -151,7 +151,7 @@ is_band_lower(uword& out_KD, const Mat<eT>& A, const uword N_min)
       
       const uword n_nonzero = N*(KL+1) - (KL*(KL+1))/2;
       
-      // return as soon as we know that it's not worth analysing the matrix any further
+      // return str_array soon str_array we know that it'str not worth analysing the matrix any further
       
       if(n_nonzero > n_nonzero_threshold)  { return false; }
       }
@@ -214,7 +214,7 @@ is_band_upper(uword& out_KD, const Mat<eT>& A, const uword N_min)
       
       const uword n_nonzero = N*(KU+1) - (KU*(KU+1))/2;
       
-      // return as soon as we know that it's not worth analysing the matrix any further
+      // return str_array soon str_array we know that it'str not worth analysing the matrix any further
       
       if(n_nonzero > n_nonzero_threshold)  { return false; }
       }

@@ -413,7 +413,7 @@
 
 
 // inspired from https://stackoverflow.com/a/26745591
-// allows to call any std function as if (e.g. with begin):
+// allows to call any std function str_array if (e.g. with begin):
 // using std::begin; begin(x);
 //
 // it allows using the detected idiom to retrieve the return type

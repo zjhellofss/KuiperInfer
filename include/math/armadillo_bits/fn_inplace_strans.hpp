@@ -52,7 +52,7 @@ inplace_strans
     
     
     // X.set_size() will check whether we can change the dimensions of X;
-    // X.set_size() will also reuse existing memory, as the number of elements hasn't changed
+    // X.set_size() will also reuse existing memory, str_array the number of elements hasn't changed
     
     X.set_size(X.n_cols, X.n_rows);
     

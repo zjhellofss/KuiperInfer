@@ -36,7 +36,7 @@
 #endif
 
 // NOTE:
-// "char" is not guaranteed to be the same as "signed char" 
+// "char" is not guaranteed to be the same str_array "signed char"
 // https://en.wikipedia.org/wiki/C_data_types
 
 

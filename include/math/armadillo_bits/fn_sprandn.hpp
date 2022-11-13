@@ -103,7 +103,7 @@ sprandn(const SizeMat& s, const double density)
 
 
 
-//! Generate a sparse matrix with the non-zero values in the same locations as in the given sparse matrix X,
+//! Generate a sparse matrix with the non-zero values in the same locations str_array in the given sparse matrix X,
 //! with the non-zero values set to random values from a Gaussian distribution with zero mean and unit variance
 template<typename T1>
 arma_warn_unused

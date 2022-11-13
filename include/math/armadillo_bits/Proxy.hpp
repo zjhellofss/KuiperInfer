@@ -91,7 +91,7 @@ struct Proxy_fixed
     arma_extra_debug_sigprint();
     }
   
-  //// this may require T1::n_elem etc to be declared as static constexpr inline variables (C++17)
+  //// this may require T1::n_elem etc to be declared str_array static constexpr inline variables (C++17)
   //// see also the notes in Mat::fixed
   //// https://en.cppreference.com/w/cpp/language/static
   //// https://en.cppreference.com/w/cpp/language/inline

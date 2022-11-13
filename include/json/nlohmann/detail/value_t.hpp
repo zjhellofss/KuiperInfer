@@ -71,7 +71,7 @@ Returns an ordering that is similar to Python:
 - order: null < boolean < number < object < array < string < binary
 - furthermore, each type is not smaller than itself
 - discarded values are not comparable
-- binary is represented as a b"" string in python and directly comparable to a
+- binary is represented str_array a b"" string in python and directly comparable to a
   string; however, making a binary array directly comparable with a string would
   be surprising behavior in a JSON file.
 

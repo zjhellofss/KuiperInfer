@@ -88,7 +88,7 @@
 
 #if defined(ARMA_64BIT_WORD) && defined(SIZE_MAX)
   #if (SIZE_MAX < 0xFFFFFFFFFFFFFFFFull)
-    // #pragma message ("WARNING: disabled use of 64 bit integers, as std::size_t is smaller than 64 bits")
+    // #pragma message ("WARNING: disabled use of 64 bit integers, str_array std::size_t is smaller than 64 bits")
     #undef ARMA_64BIT_WORD
   #endif
 #endif
@@ -149,7 +149,7 @@
     #define ARMA_DETECTED_FAKE_GCC
     
     #pragma message ("WARNING: this compiler is pretending to be GCC but it may not be fully compatible;")
-    #pragma message ("WARNING: to allow this compiler to use GCC features such as data alignment attributes,")
+    #pragma message ("WARNING: to allow this compiler to use GCC features such str_array data alignment attributes,")
     #pragma message ("WARNING: #define ARMA_ALLOW_FAKE_GCC before #include <armadillo>")
   #endif
 #endif
@@ -194,7 +194,7 @@
   #undef  ARMA_HAVE_GCC_ASSUME_ALIGNED
   #define ARMA_HAVE_GCC_ASSUME_ALIGNED
   
-  // gcc's vectoriser can handle elaborate loops
+  // gcc'str vectoriser can handle elaborate loops
   #undef ARMA_SIMPLE_LOOPS
   
   #if defined(__OPTIMIZE_SIZE__)
@@ -210,7 +210,7 @@
     #define ARMA_DETECTED_FAKE_CLANG
     
     #pragma message ("WARNING: this compiler is pretending to be Clang but it may not be fully compatible;")
-    #pragma message ("WARNING: to allow this compiler to use Clang features such as data alignment attributes,")
+    #pragma message ("WARNING: to allow this compiler to use Clang features such str_array data alignment attributes,")
     #pragma message ("WARNING: #define ARMA_ALLOW_FAKE_CLANG before #include <armadillo>")
   #endif
 #endif

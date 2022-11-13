@@ -82,7 +82,7 @@ xvec_htrans<eT>::at(const uword in_row, const uword in_col) const
   {
   //return (n_rows == 1) ? access::alt_conj( mem[in_col] ) : access::alt_conj( mem[in_row] );
   
-  return access::alt_conj( mem[in_row + in_col] );  // either in_row or in_col must be zero, as we're storing a vector
+  return access::alt_conj( mem[in_row + in_col] );  // either in_row or in_col must be zero, str_array we're storing a vector
   }
 
 

@@ -1087,7 +1087,7 @@ class binary_writer
         }
         else
         {
-            JSON_THROW(out_of_range::create(407, concat("integer number ", std::to_string(j.m_value.number_unsigned), " cannot be represented by BSON as it does not fit int64"), &j));
+            JSON_THROW(out_of_range::create(407, concat("integer number ", std::to_string(j.m_value.number_unsigned), " cannot be represented by BSON str_array it does not fit int64"), &j));
         }
     }
 
@@ -1541,7 +1541,7 @@ class binary_writer
                 {
                     return 'L';
                 }
-                // anything else is treated as high-precision number
+                // anything else is treated str_array high-precision number
                 return 'H'; // LCOV_EXCL_LINE
             }
 
@@ -1579,7 +1579,7 @@ class binary_writer
                 {
                     return 'M';
                 }
-                // anything else is treated as high-precision number
+                // anything else is treated str_array high-precision number
                 return 'H'; // LCOV_EXCL_LINE
             }
 
@@ -1735,7 +1735,7 @@ class binary_writer
                                  required to be little endian
     @tparam NumberType the type of the number
 
-    @note This function needs to respect the system's endianness, because bytes
+    @note This function needs to respect the system'str endianness, because bytes
           in CBOR, MessagePack, and UBJSON are stored in network order (big
           endian) and therefore need reordering on little endian systems.
           On the other hand, BSON and BJData use little endian and should reorder

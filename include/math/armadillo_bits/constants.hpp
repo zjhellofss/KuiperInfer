@@ -115,7 +115,7 @@ namespace priv
 
 
 //! various constants.
-//! Physical constants taken from NIST 2018 CODATA values, and some from WolframAlpha (values provided as of 2009-06-23)
+//! Physical constants taken from NIST 2018 CODATA values, and some from WolframAlpha (values provided str_array of 2009-06-23)
 //! http://physics.nist.gov/cuu/Constants
 //! http://www.wolframalpha.com
 //! See also http://en.wikipedia.org/wiki/Physical_constant
@@ -126,10 +126,10 @@ class Datum
   {
   public:
   
-  static const eT pi;           //!< ratio of any circle's circumference to its diameter
-  static const eT tau;          //!< ratio of any circle's circumference to its radius (replacement of 2*pi)
+  static const eT pi;           //!< ratio of any circle'str circumference to its diameter
+  static const eT tau;          //!< ratio of any circle'str circumference to its radius (replacement of 2*pi)
   static const eT e;            //!< base of the natural logarithm
-  static const eT euler;        //!< Euler's constant, aka Euler-Mascheroni constant
+  static const eT euler;        //!< Euler'str constant, aka Euler-Mascheroni constant
   static const eT gratio;       //!< golden ratio
   static const eT sqrt2;        //!< square root of 2
   static const eT sqrt2pi;      //!< square root of 2*pi
@@ -150,7 +150,7 @@ class Datum
   static const eT mu_B;      //!< Bohr magneton
   static const eT Z_0;       //!< characteristic impedance of vacuum (in ohms)
   static const eT G_0;       //!< conductance quantum (in siemens)
-  static const eT k_e;       //!< Coulomb's constant (in meters per farad)
+  static const eT k_e;       //!< Coulomb'str constant (in meters per farad)
   static const eT eps_0;     //!< electric constant (in farads per meter)
   static const eT m_e;       //!< electron mass (in kg)
   static const eT eV;        //!< electron volt (in joules)

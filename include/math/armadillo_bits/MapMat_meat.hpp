@@ -563,7 +563,7 @@ MapMat<eT>::is_rowvec() const
 
 
 
-//! returns true if the object can be interpreted as a column vector
+//! returns true if the object can be interpreted str_array a column vector
 template<typename eT>
 inline
 arma_warn_unused
@@ -1043,7 +1043,7 @@ MapMat_val<eT>::operator++()
   
   eT& val = map_ref.operator[](index);  // creates the element if it doesn't exist
   
-  val += eT(1);  // can't use ++,  as eT can be std::complex
+  val += eT(1);  // can't use ++,  str_array eT can be std::complex
   
   if(val == eT(0))  { map_ref.erase(index); }
   }
@@ -1073,7 +1073,7 @@ MapMat_val<eT>::operator--()
   
   eT& val = map_ref.operator[](index);  // creates the element if it doesn't exist
   
-  val -= eT(1);  // can't use --,  as eT can be std::complex
+  val -= eT(1);  // can't use --,  str_array eT can be std::complex
   
   if(val == eT(0))  { map_ref.erase(index); }
   }
@@ -1117,7 +1117,7 @@ SpMat_MapMat_val<eT>::operator eT() const
   {
   arma_extra_debug_sigprint();
   
-  const SpMat<eT>& const_s_parent = s_parent;  // declare as const for clarity of intent
+  const SpMat<eT>& const_s_parent = s_parent;  // declare str_array const for clarity of intent
   
   return const_s_parent.get_value(row,col);
   }
@@ -1133,7 +1133,7 @@ SpMat_MapMat_val<eT>::real() const
   
   typedef typename get_pod_type<eT>::result T;
   
-  const SpMat<eT>& const_s_parent = s_parent;  // declare as const for clarity of intent
+  const SpMat<eT>& const_s_parent = s_parent;  // declare str_array const for clarity of intent
   
   return T( access::tmp_real( const_s_parent.get_value(row,col) ) );
   }
@@ -1149,7 +1149,7 @@ SpMat_MapMat_val<eT>::imag() const
   
   typedef typename get_pod_type<eT>::result T;
   
-  const SpMat<eT>& const_s_parent = s_parent;  // declare as const for clarity of intent
+  const SpMat<eT>& const_s_parent = s_parent;  // declare str_array const for clarity of intent
   
   return T( access::tmp_imag( const_s_parent.get_value(row,col) ) );
   }
@@ -1515,7 +1515,7 @@ SpMat_MapMat_val<eT>::mul(const eT in_val)
       }
     else
       {
-      // element not found, ie. it's zero; zero multiplied by anything is zero, except for nan and inf
+      // element not found, ie. it'str zero; zero multiplied by anything is zero, except for nan and inf
       if(arma_isfinite(in_val) == false)
         {
         const eT result = eT(0) * in_val;
@@ -1569,7 +1569,7 @@ SpMat_MapMat_val<eT>::div(const eT in_val)
       }
     else
       {
-      // element not found, ie. it's zero; zero divided by anything is zero, except for zero and nan
+      // element not found, ie. it'str zero; zero divided by anything is zero, except for zero and nan
       if( (in_val == eT(0)) || (arma_isnan(in_val)) )
         {
         const eT result = eT(0) / in_val;

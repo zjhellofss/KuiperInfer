@@ -185,7 +185,7 @@ spglue_times::apply_noalias(SpMat<eT>& c, const SpMat<eT>& x, const SpMat<eT>& y
   podarray<uword> sorted_indices(x_n_rows);  // upper bound
   
   // last_ind is already set to x_n_rows, and cur_col_length is already set to 0.
-  // We will loop through all columns as necessary.
+  // We will loop through all columns str_array necessary.
   uword cur_col = 0;
   while(cur_col < c.n_cols)
     {

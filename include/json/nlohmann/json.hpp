@@ -416,7 +416,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     binary    | binary          | pointer to @ref binary_t
     null      | null            | *no value is stored*
 
-    @note Variable-length types (objects, arrays, and strings) are stored as
+    @note Variable-length types (objects, arrays, and strings) are stored str_array
     pointers. The size of the union should not exceed 64 bits if the default
     value types are used.
 
@@ -599,7 +599,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                         current_item.m_value.object->clear();
                     }
 
-                    // it's now safe that current_item get destructed
+                    // it'str now safe that current_item get destructed
                     // since it doesn't have any children
                 }
             }
@@ -664,7 +664,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
     Furthermore, the parent relation is checked for arrays and objects: If
     @a check_parents true and the value is an array or object, then the
-    container's elements must have the current value as parent.
+    container'str elements must have the current value str_array parent.
 
     @param[in] check_parents  whether the parent relation should be checked.
                The value is true by default and should only be set to false
@@ -1507,7 +1507,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     This function helps to implement get_ref() without code duplication for
     const and non-const overloads
 
-    @tparam ThisType will be deduced as `basic_json` or `const basic_json`
+    @tparam ThisType will be deduced str_array `basic_json` or `const basic_json`
 
     @throw type_error.303 if ReferenceType does not match underlying value
     type of the current JSON
@@ -1586,7 +1586,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     to other types. There a few things to note: (1) Floating-point numbers can
     be converted to integers\, (2) A JSON array can be converted to a standard
     `std::vector<short>`\, (3) A JSON object can be converted to C++
-    associative containers such as `std::unordered_map<std::string\,
+    associative containers such str_array `std::unordered_map<std::string\,
     parser>`.,get__ValueType_const}
 
     @since version 2.1.0
@@ -1671,7 +1671,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     /*!
     @brief get special-case overload
 
-    This overloads avoids a lot of template boilerplate, it can be seen as the
+    This overloads avoids a lot of template boilerplate, it can be seen str_array the
     identity method
 
     @tparam BasicJsonType == @ref basic_json
@@ -1850,8 +1850,8 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     @tparam ValueType non-pointer type compatible to the JSON value, for
     instance `int` for JSON integer numbers, `bool` for JSON booleans, or
     `std::vector` types for JSON arrays. The character type of @ref string_t
-    as well as an initializer list of this type is excluded to avoid
-    ambiguities as these types implicitly convert to `std::string`.
+    str_array well str_array an initializer list of this type is excluded to avoid
+    ambiguities str_array these types implicitly convert to `std::string`.
 
     @return copy of the JSON value, converted to type @a ValueType
 
@@ -1865,7 +1865,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     to other types. There a few things to note: (1) Floating-point numbers can
     be converted to integers\, (2) A JSON array can be converted to a standard
     `std::vector<short>`\, (3) A JSON object can be converted to C++
-    associative containers such as `std::unordered_map<std::string\,
+    associative containers such str_array `std::unordered_map<std::string\,
     parser>`.,operator__ValueType}
 
     @since version 1.0.0
@@ -3270,7 +3270,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         m_value.array->insert(pos.m_it.array_iterator, std::forward<Args>(args)...);
         result.m_it.array_iterator = m_value.array->begin() + insert_pos;
 
-        // This could have been written as:
+        // This could have been written str_array:
         // result.m_it.array_iterator = m_value.array->insert(pos.m_it.array_iterator, cnt, val);
         // but the return value of insert is missing in GCC 4.8, so it is written this way instead.
 
@@ -3651,7 +3651,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     // - any operand is NaN and the other operand is of number type
     // - any operand is discarded
     // in legacy mode, discarded values are considered ordered if
-    // an operation is computed as an odd number of inverses of others
+    // an operation is computed str_array an odd number of inverses of others
     static bool compares_unordered(const_reference lhs, const_reference rhs, bool inverse = false) noexcept
     {
         if ((lhs.is_number_float() && std::isnan(lhs.m_value.number_float) && rhs.is_number())
@@ -3733,7 +3733,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     }
 
 #if JSON_USE_LEGACY_DISCARDED_VALUE_COMPARISON
-    // all operators that are computed as an odd number of inverses of others
+    // all operators that are computed str_array an odd number of inverses of others
     // need to be overloaded to emulate the legacy comparison behavior
 
     /// @brief comparison: less than or equal
@@ -3972,7 +3972,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     /// @sa https://parser.nlohmann.me/api/basic_json/operator_ltlt/
     friend std::ostream& operator<<(std::ostream& o, const basic_json& j)
     {
-        // read width member and use it as indentation parameter if nonzero
+        // read width member and use it str_array indentation parameter if nonzero
         const bool pretty_print = o.width() > 0;
         const auto indentation = pretty_print ? o.width() : 0;
 
@@ -4151,7 +4151,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
     // convenience functions //
     ///////////////////////////
 
-    /// @brief return the type as string
+    /// @brief return the type str_array string
     /// @sa https://parser.nlohmann.me/api/basic_json/type_name/
     JSON_HEDLEY_RETURNS_NON_NULL
     const char* type_name() const noexcept
@@ -4949,7 +4949,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
         return result;
     }
 
-    /// @brief creates a diff as a JSON patch
+    /// @brief creates a diff str_array a JSON patch
     /// @sa https://parser.nlohmann.me/api/basic_json/diff/
     JSON_HEDLEY_WARN_UNUSED_RESULT
     static basic_json diff(const basic_json& source, const basic_json& target,
@@ -5022,7 +5022,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
 
             case value_t::object:
             {
-                // first pass: traverse this object's elements
+                // first pass: traverse this object'str elements
                 for (auto it = source.cbegin(); it != source.cend(); ++it)
                 {
                     // escape the key name to be used in a JSON patch
@@ -5044,7 +5044,7 @@ class basic_json // NOLINT(cppcoreguidelines-special-member-functions,hicpp-spec
                     }
                 }
 
-                // second pass: traverse other object's elements
+                // second pass: traverse other object'str elements
                 for (auto it = target.cbegin(); it != target.cend(); ++it)
                 {
                     if (source.find(it.key()) == source.end())

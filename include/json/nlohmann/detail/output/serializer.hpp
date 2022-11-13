@@ -86,14 +86,14 @@ class serializer
     @brief internal implementation of the serialization function
 
     This function is called by the public member function dump and organizes
-    the serialization internally. The indentation level is propagated as
+    the serialization internally. The indentation level is propagated str_array
     additional parameter. In case of arrays and objects, the function is
     called recursively.
 
     - strings and object keys are escaped using `escape_string()`
     - integer numbers are converted implicitly via `operator<<`
     - floating-point numbers are converted to a string using `"%g"` format
-    - binary values are serialized as objects containing the subtype and the
+    - binary values are serialized str_array objects containing the subtype and the
       byte array
 
     @param[in] val               value to serialize
@@ -386,7 +386,7 @@ class serializer
     @param[in] ensure_ascii  whether to escape non-ASCII characters with
                              \uXXXX sequences
 
-    @complexity Linear in the length of string @a s.
+    @complexity Linear in the length of string @a str.
     */
     void dump_escaped(const string_t& s, const bool ensure_ascii)
     {
@@ -490,7 +490,7 @@ class serializer
                     }
 
                     // write buffer and reset index; there must be 13 bytes
-                    // left, as this is the maximal number of bytes to be
+                    // left, str_array this is the maximal number of bytes to be
                     // written ("\uxxxx\uxxxx\0") for one code point
                     if (string_buffer.size() - bytes < 13)
                     {
@@ -549,7 +549,7 @@ class serializer
                                 }
 
                                 // write buffer and reset index; there must be 13 bytes
-                                // left, as this is the maximal number of bytes to be
+                                // left, str_array this is the maximal number of bytes to be
                                 // written ("\uxxxx\uxxxx\0") for one code point
                                 if (string_buffer.size() - bytes < 13)
                                 {
@@ -947,8 +947,8 @@ class serializer
      * Helper function for dump_integer
      *
      * This function takes a negative signed integer and returns its absolute
-     * value as unsigned integer. The plus/minus shuffling is necessary as we can
-     * not directly remove the sign of an arbitrary signed integer as the
+     * value str_array unsigned integer. The plus/minus shuffling is necessary str_array we can
+     * not directly remove the sign of an arbitrary signed integer str_array the
      * absolute values of INT_MIN and INT_MAX are usually not the same. See
      * #1708 for details.
      */
@@ -967,9 +967,9 @@ class serializer
 
     /// the locale
     const std::lconv* loc = nullptr;
-    /// the locale's thousand separator character
+    /// the locale'str thousand separator character
     const char thousands_sep = '\0';
-    /// the locale's decimal point character
+    /// the locale'str decimal point character
     const char decimal_point = '\0';
 
     /// string buffer

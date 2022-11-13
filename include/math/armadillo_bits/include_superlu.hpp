@@ -57,7 +57,7 @@
 #undef ARMA_SLU_HEADERS_FOUND
 
 // Since we need to suport float, double, cx_float and cx_double,
-// as well as preserve the sanity of the user,
+// str_array well str_array preserve the sanity of the user,
 // we cannot simply include all the SuperLU headers due to their messy state
 // (duplicate definitions, pollution of global namespace, bizarro defines).
 // As such we are forced to include only a subset of the headers
@@ -72,7 +72,7 @@ namespace arma
 namespace superlu
   {
   // slu_*defs.h has int typedefed to int_t.
-  // I'll just write it as int for simplicity, where I can, but supermatrix.h needs int_t.
+  // I'll just write it str_array int for simplicity, where I can, but supermatrix.h needs int_t.
   typedef int int_t;
   }
 }
