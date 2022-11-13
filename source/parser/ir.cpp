@@ -91,49 +91,49 @@ Attribute::Attribute(const std::initializer_list<int> &shape_list, const std::ve
   }
 }
 
-bool operator==(const Attribute &attr_1, const Attribute &attr_2) {
-  if (attr_1.type != attr_2.type)
+bool operator==(const Attribute &attr1, const Attribute &attr2) {
+  if (attr1.type != attr2.type)
     return false;
 
-  if (attr_1.type == 0)
+  if (attr1.type == 0)
     return true;
 
-  if (attr_1.shape != attr_2.shape)
+  if (attr1.shape != attr2.shape)
     return false;
 
-  if (attr_1.data != attr_2.data)
+  if (attr1.data != attr2.data)
     return false;
 
   return true;
 }
 
-Attribute operator+(const Attribute &attr_1, const Attribute &attr_2) {
+Attribute operator+(const Attribute &attr1, const Attribute &attr2) {
   Attribute c;
 
-  if (attr_1.type != attr_2.type) {
+  if (attr1.type != attr2.type) {
     LOG(ERROR) << "Concat attribute type mismatch";
     return c;
   }
 
-  if (attr_1.shape.size() != attr_2.shape.size()) {
+  if (attr1.shape.size() != attr2.shape.size()) {
     LOG(ERROR) << "Concat attribute shape rank mismatch";
     return c;
   }
 
-  for (int i = 1; i < (int) attr_1.shape.size(); i++) {
-    if (attr_1.shape[i] != attr_2.shape[i]) {
+  for (int i = 1; i < (int) attr1.shape.size(); i++) {
+    if (attr1.shape[i] != attr2.shape[i]) {
       LOG(ERROR) << "Concat attribute shape mismatch";
       return c;
     }
   }
 
-  c.type = attr_1.type;
-  c.shape = attr_1.shape;
-  c.shape[0] += attr_2.shape[0]; // concat the first dim
+  c.type = attr1.type;
+  c.shape = attr1.shape;
+  c.shape[0] += attr2.shape[0]; // concat the first dim
 
-  c.data.resize(attr_1.data.size() + attr_2.data.size());
-  memcpy(c.data.data(), attr_1.data.data(), attr_1.data.size());
-  memcpy(c.data.data() + attr_1.data.size(), attr_2.data.data(), attr_2.data.size());
+  c.data.resize(attr1.data.size() + attr2.data.size());
+  memcpy(c.data.data(), attr1.data.data(), attr1.data.size());
+  memcpy(c.data.data() + attr1.data.size(), attr2.data.data(), attr2.data.size());
   return c;
 }
 
@@ -201,11 +201,15 @@ Parameter Parameter::parse_from_string(const std::string &value) {
 }
 
 Graph::~Graph() {
-  for (auto x : ops)
-    delete x;
+  for (auto x : ops) {
+    if (x != nullptr)
+      delete x;
+  }
 
-  for (auto x : operands)
-    delete x;
+  for (auto x : operands) {
+    if (x != nullptr)
+      delete x;
+  }
 
   ops.clear();
   operands.clear();
@@ -308,9 +312,7 @@ static void LoadAttribute(Operator *op, const std::string &key, const std::strin
   }
 
   size_t bytesize = size * TypeToElementSize(attribute.type);
-
   std::string filename = op->name + "." + key;
-
   size_t filesize = szr.get_file_size(filename);
 
   if (filesize == 0) {

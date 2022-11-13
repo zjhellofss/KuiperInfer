@@ -122,10 +122,10 @@ class Attribute {
   std::vector<char> data;
 };
 
-bool operator==(const Attribute &attr_1, const Attribute &attr_2);
+bool operator==(const Attribute &attr1, const Attribute &attr2);
 
 // concat two attributes along the first axis
-Attribute operator+(const Attribute &attr_1, const Attribute &attr_2);
+Attribute operator+(const Attribute &attr1, const Attribute &attr2);
 
 class Operator;
 class Operand {
