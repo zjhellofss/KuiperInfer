@@ -7,6 +7,58 @@
 #include "../source/layer/sigmoid.hpp"
 #include "../source/layer/linear.hpp"
 #include "../source/layer/softmax.hpp"
+#include "../source/layer/convolution.hpp"
+
+TEST(test_layer, conv1) {
+  using namespace kuiper_infer;
+  const uint32_t channels = 3;
+  const uint32_t rows = 3;
+  const uint32_t cols = 3;
+
+  std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, cols, rows);
+  input_data->Fill(1.);
+
+  const uint32_t batch = 16;
+  std::vector<std::shared_ptr<Blob>> input_datas;
+  for (uint32_t b = 0; b < batch; ++b) {
+    input_datas.push_back(input_data);
+  }
+
+  const uint32_t kernel_rows = 2;
+  const uint32_t kernel_cols = 2;
+  std::shared_ptr<Blob> weight_data = std::make_shared<Blob>(channels, kernel_rows, kernel_cols);
+  std::shared_ptr<Blob> bias_data = std::make_shared<Blob>(channels, kernel_rows, kernel_cols);
+
+  weight_data->Fill(1.);
+  bias_data->Fill(0.);
+
+  const uint32_t output_channel = 8;
+  std::vector<std::shared_ptr<Blob>> weight_datas;
+  std::vector<std::shared_ptr<Blob>> bias_datas;
+  for (uint32_t b = 0; b < output_channel; ++b) {
+    weight_datas.push_back(weight_data);
+    bias_datas.push_back(bias_data);
+  }
+
+  std::vector<std::shared_ptr<Blob>> output_datas;
+  ConvolutionLayer layer(weight_datas, bias_datas, 0, 1);
+  layer.Forward(input_datas, output_datas);
+
+  ASSERT_EQ(output_datas.size(), batch);
+  for (int i = 0; i < output_channel; ++i) {
+    const auto output_data = output_datas.at(i);
+    ASSERT_EQ(output_data->channels(), output_channel);
+    ASSERT_EQ(output_data->rows(), 2);
+    ASSERT_EQ(output_data->cols(), 2);
+    for (uint32_t c = 0; c < output_data->channels(); ++c) {
+      for (uint32_t r = 0; r < output_data->rows(); ++r) {
+        for (uint32_t c_ = 0; c_ < output_data->cols(); ++c_) {
+          ASSERT_EQ(output_data->at(c, r, c_), 12.);
+        }
+      }
+    }
+  }
+}
 
 TEST(test_layer, softmax) {
   using namespace kuiper_infer;

@@ -39,7 +39,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     const std::shared_ptr<Blob> &input = inputs.at(i);
     std::shared_ptr<Blob> bias;
 
-    if (!this->bias_.empty() && this->bias_.size() == batch_size) {
+    if (!this->bias_.empty() && i < this->bias_.size()) {
       bias = this->bias_.at(i);
     }
     std::shared_ptr<Blob> output = std::make_shared<Blob>(input->channels(), input->rows(), weight->cols());
@@ -55,12 +55,12 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
         arma::mat &output_data = output->at(c);
         output_data = input_data * weight_data;
         if (bias != nullptr) {
-          if (bias->channels() != input_channel ||
-              bias->cols() != output_data.n_cols || bias->rows() != output_data.n_rows) {
+          if (c < bias->channels() && bias->cols() == output_data.n_cols &&
+              bias->rows() == output_data.n_rows) {
+            output_data += bias->at(c);
+          } else {
             LOG(ERROR) << "The size of the bias and input is not adapting";
             return InferStatus::kInferFailedWeightBiasNoAdapting;
-          } else {
-            output_data += bias->at(c);
           }
         }
       }
