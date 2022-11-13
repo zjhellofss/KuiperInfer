@@ -6,6 +6,37 @@
 #include "../source/layer/avgpooling.hpp"
 #include "../source/layer/sigmoid.hpp"
 #include "../source/layer/linear.hpp"
+#include "../source/layer/softmax.hpp"
+
+TEST(test_layer, softmax) {
+  using namespace kuiper_infer;
+  const uint32_t channels = 3;
+  const uint32_t rows = 4;
+  const uint32_t cols = 4;
+
+  std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, cols, rows);
+  input_data->Fill(1.);
+
+  std::vector<std::shared_ptr<Blob>> input_datas;
+  input_datas.push_back(input_data);
+  input_datas.push_back(input_data);
+
+  SoftmaxLayer softmax_layer;
+  std::vector<std::shared_ptr<Blob>> output_datas;
+  softmax_layer.Forward(input_datas, output_datas);
+
+  ASSERT_EQ(input_datas.size(), output_datas.size());
+  for (uint32_t i = 0; i < input_datas.size(); ++i) {
+    std::shared_ptr<Blob> output_data = output_datas.at(i);
+    for (uint32_t c = 0; c < output_data->channels(); ++c) {
+      for (uint32_t r = 0; r < output_data->rows(); ++r) {
+        for (uint32_t c_ = 0; c_ < output_data->cols(); ++c_) {
+          ASSERT_EQ(output_data->at(c, r, c_), output_data->at(0, 0, 0));
+        }
+      }
+    }
+  }
+}
 
 TEST(test_layer, linear1) {
   using namespace kuiper_infer;
@@ -50,6 +81,7 @@ TEST(test_layer, linear1) {
 
 TEST(test_layer, linear2) {
   using namespace kuiper_infer;
+  const uint32_t batch = 4;
   const uint32_t channels = 3;
   const uint32_t rows = 4;
   const uint32_t cols = 1;
@@ -57,22 +89,28 @@ TEST(test_layer, linear2) {
   std::shared_ptr<Blob> input_data = std::make_shared<Blob>(channels, cols, rows);
   input_data->Fill(1.);
   std::vector<std::shared_ptr<Blob>> input_datas;
-  input_datas.push_back(input_data);
+
+  for (int i = 0; i < batch; ++i) {
+    input_datas.push_back(input_data);
+  }
 
   std::shared_ptr<Blob> weight_data = std::make_shared<Blob>(channels, rows, cols);
   std::shared_ptr<Blob> bias_data = std::make_shared<Blob>(channels, cols, cols);
 
   std::vector<std::shared_ptr<Blob>> weight_datas;
-  weight_datas.push_back(weight_data);
+  for (int i = 0; i < batch; ++i) {
+    weight_datas.push_back(weight_data);
+  }
 
   std::vector<std::shared_ptr<Blob>> bias_datas;
-  bias_datas.push_back(bias_data);
+  for (int i = 0; i < batch; ++i) {
+    bias_datas.push_back(bias_data);
+  }
 
   std::vector<std::shared_ptr<Blob>> output_datas;
 
-  std::vector<double> weight_datas_(channels * rows * cols, 1.);
-  std::vector<double> bias_datas_(channels * cols * cols, 2.);
-
+  std::vector<double> weight_datas_(batch * channels * rows * cols, 1.);
+  std::vector<double> bias_datas_(batch * channels * cols * cols, 2.);
 
   LinearLayer layer(weight_datas, bias_datas);
   layer.set_weights(weight_datas_);

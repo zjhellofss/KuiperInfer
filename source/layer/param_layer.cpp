@@ -57,8 +57,8 @@ void ParamLayer::set_bias(const std::vector<double> &bias) {
   for (uint32_t i = 0; i < batch_size; ++i) {
     bias_size += this->bias_.at(i)->size();
   }
-  CHECK_EQ(bias_size, elem_size);
 
+  CHECK_EQ(bias_size, elem_size);
   const uint32_t blob_size = elem_size / batch_size;
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
     const uint32_t start_offset = idx * blob_size;
