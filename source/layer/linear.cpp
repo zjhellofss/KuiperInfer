@@ -37,13 +37,14 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     LOG(ERROR) << "Weight parameters is empty";
     return InferStatus::kInferFailedWeightsOrBiasEmpty;
   } else {
-    if (!this->bias_.empty() && this->weights_.size() != this->bias_.size()) {
+    if (!this->bias_.empty() && this->use_bias_ && this->weights_.size() != this->bias_.size()) {
       LOG(ERROR) << "The size of the weight and bias is not adapting";
       return InferStatus::kInferFailedWeightsOrBiasEmpty;
     }
   }
 
   if (this->weights_.size() != inputs.size()) {
+    LOG(ERROR) << "The size of the weight and input is not adapting";
     return InferStatus::kInferFailedWeightBiasNoAdapting;
   }
 
@@ -54,10 +55,6 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     std::shared_ptr<Blob> bias;
 
     if (!this->bias_.empty() && this->use_bias_) {
-      if (this->weights_.size() != this->bias_.size()) {
-        LOG(ERROR) << "The size of the weight and bias is not adapting";
-        return InferStatus::kInferFailedWeightBiasNoAdapting;
-      }
       bias = this->bias_.at(i);
     }
 
