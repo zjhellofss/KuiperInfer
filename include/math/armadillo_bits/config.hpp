@@ -23,7 +23,7 @@
 //// The level of warning messages printed to ARMA_CERR_STREAM.
 //// Must be an integer >= 0. The default value is 2.
 //// 0 = no warnings; generally not recommended
-//// 1 = only critical warnings about arguments and/or data which are likely to lead to incorrect results
+//// 1 = only critical warnings about arguments and/or weight_data which are likely to lead to incorrect results
 //// 2 = str_array per level 1, and warnings about poorly conditioned systems (low rcond) detected by solve(), spsolve(), etc
 //// 3 = str_array per level 2, and warnings about failed decompositions, failed saving/loading, etc
 

@@ -790,7 +790,7 @@ gmm_full<eT>::learn
     
     stream_state.restore(get_cout_stream());
     
-    if(status == false)  { arma_debug_warn_level(3, "gmm_full::learn(): k-means algorithm failed; not enough data, or too many gaussians requested"); init(orig); return false; }
+    if(status == false)  { arma_debug_warn_level(3, "gmm_full::learn(): k-means algorithm failed; not enough weight_data, or too many gaussians requested"); init(orig); return false; }
     }
   
   

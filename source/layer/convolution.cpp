@@ -22,7 +22,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
   }
   if (weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferFailedWeightsBiasEmpty;
+    return InferStatus::kInferFailedWeightsOrBiasEmpty;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -47,8 +47,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
       uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_ + 1));
       uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_ + 1));
       if (output_h <= 0 || output_w <= 0) {
-        LOG(ERROR) << "The output is empty";
-        return InferStatus::kInferFailedOutputEmpty;
+        LOG(ERROR) << "The output size is less than zero";
+        return InferStatus::kInferFailedOutputSizeWrong;
       }
 
       if (!output_data) {

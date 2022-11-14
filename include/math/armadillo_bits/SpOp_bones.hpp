@@ -41,9 +41,9 @@ class SpOp : public SpBase< typename T1::elem_type, SpOp<T1, op_type> >
   arma_inline bool is_alias(const SpMat<elem_type>& X) const;
   
   arma_aligned const T1&       m;            //!< the operand; must be derived from SpBase
-  arma_aligned       elem_type aux;          //!< auxiliary data, using the element type str_array used by T1
-  arma_aligned       uword     aux_uword_a;  //!< auxiliary data, uword format
-  arma_aligned       uword     aux_uword_b;  //!< auxiliary data, uword format
+  arma_aligned       elem_type aux;          //!< auxiliary weight_data, using the element type str_array used by T1
+  arma_aligned       uword     aux_uword_a;  //!< auxiliary weight_data, uword format
+  arma_aligned       uword     aux_uword_b;  //!< auxiliary weight_data, uword format
   };
 
 

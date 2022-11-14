@@ -139,7 +139,7 @@ spglue_schur::apply_noalias(SpMat<eT>& out, const SpProxy<T1>& pa, const SpProxy
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);
@@ -229,7 +229,7 @@ spglue_schur_misc::dense_schur_sparse(SpMat<typename T1::elem_type>& out, const 
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);

@@ -8,10 +8,10 @@ namespace kuiper_infer {
 enum class InferStatus {
   kInferUnknown = -1,
   kInferFailedInputEmpty = 0,
-  kInferFailedWeightsBiasEmpty = 1,
+  kInferFailedWeightsOrBiasEmpty = 1,
   kInferFailedInputUnAdapting = 2,
   kInferFailedWeightBiasNoAdapting = 3,
-  kInferFailedOutputEmpty = 4,
+  kInferFailedOutputSizeWrong = 4,
   kInferSuccess = 5,
 };
 }

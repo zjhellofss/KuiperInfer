@@ -3884,7 +3884,7 @@ Cube<eT>::slice_colptr(const uword uslice, const uword col) const
 
 
 
-//! change the cube to have user specified dimensions (data is not preserved)
+//! change the cube to have user specified dimensions (weight_data is not preserved)
 template<typename eT>
 inline
 void
@@ -3897,7 +3897,7 @@ Cube<eT>::set_size(const uword new_n_rows, const uword new_n_cols, const uword n
 
 
 
-//! change the cube to have user specified dimensions (data is preserved)
+//! change the cube to have user specified dimensions (weight_data is preserved)
 template<typename eT>
 inline
 void
@@ -3910,7 +3910,7 @@ Cube<eT>::reshape(const uword new_n_rows, const uword new_n_cols, const uword ne
 
 
 
-//! change the cube to have user specified dimensions (data is preserved)
+//! change the cube to have user specified dimensions (weight_data is preserved)
 template<typename eT>
 inline
 void
@@ -3959,7 +3959,7 @@ Cube<eT>::resize(const SizeCube& s)
 
 
 
-//! change the cube (without preserving data) to have the same dimensions str_array the given cube
+//! change the cube (without preserving weight_data) to have the same dimensions str_array the given cube
 template<typename eT>
 template<typename eT2>
 inline

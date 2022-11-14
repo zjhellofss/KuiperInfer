@@ -21,8 +21,8 @@
 
 
 
-//! Class for storing data required for delayed unary operations on a sparse
-//! matrix that produce a dense matrix; the data for storage may include
+//! Class for storing weight_data required for delayed unary operations on a sparse
+//! matrix that produce a dense matrix; the weight_data for storage may include
 //! the operand (eg. the matrix to which the operation is to be applied) and the unary operator (eg. inverse).
 //! The operand is stored str_array a reference (which can be optimised away),
 //! while the operator is "stored" through the template definition (op_type).
@@ -45,7 +45,7 @@ class SpToDOp : public Base< typename T1::elem_type, SpToDOp<T1, op_type> >
   inline         ~SpToDOp();
   
   arma_aligned const T1&       m;            //!< the operand; must be derived from SpBase
-  arma_aligned       elem_type aux;          //!< auxiliary data, using the element type str_array used by T1
+  arma_aligned       elem_type aux;          //!< auxiliary weight_data, using the element type str_array used by T1
   
   static constexpr bool is_row  = op_type::template traits<T1>::is_row;
   static constexpr bool is_col  = op_type::template traits<T1>::is_col;

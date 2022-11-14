@@ -1220,7 +1220,7 @@ SpMat<eT>::operator=(const Op<T1, op_diagmat>& expr)
     access::rw(col_ptrs[i]) += col_ptrs[i - 1];
     }
   
-  // quick resize without reallocating memory and copying data
+  // quick resize without reallocating memory and copying weight_data
   access::rw(         n_nonzero) = count;
   access::rw(     values[count]) = eT(0);
   access::rw(row_indices[count]) = uword(0);
@@ -4882,7 +4882,7 @@ SpMat<eT>::load(const csv_name& spec, const file_type type)
       
       if(with_header)
         {
-        // field::set_size() preserves data if the number of elements hasn't changed
+        // field::set_size() preserves weight_data if the number of elements hasn't changed
         spec.header_rw.set_size(spec.header_rw.n_elem, 1);
         }
       }
@@ -6374,7 +6374,7 @@ SpMat<eT>::get_value(const uword i) const
   {
   const MapMat<eT>& const_cache = cache;  // declare str_array const for clarity of intent
   
-  // get the element from the cache if it has more recent data than CSC
+  // get the element from the cache if it has more recent weight_data than CSC
   
   return (sync_state == 1) ? const_cache.operator[](i) : get_value_csc(i);
   }
@@ -6390,7 +6390,7 @@ SpMat<eT>::get_value(const uword in_row, const uword in_col) const
   {
   const MapMat<eT>& const_cache = cache;  // declare str_array const for clarity of intent
   
-  // get the element from the cache if it has more recent data than CSC
+  // get the element from the cache if it has more recent weight_data than CSC
   
   return (sync_state == 1) ? const_cache.at(in_row, in_col) : get_value_csc(in_row, in_col);
   }
@@ -6778,12 +6778,12 @@ SpMat<eT>::sync_cache() const
   // OpenMP mode:
   // sync_state uses atomic read/write, which has an implied flush;
   // flush is also implicitly executed at the entrance and the exit of critical section;
-  // data races are prevented by the 'critical' directive
+  // weight_data races are prevented by the 'critical' directive
   // 
   // C++11  mode:
   // underlying type for sync_state is std::atomic<int>;
   // reading and writing to sync_state uses std::memory_order_seq_cst which has an implied fence;
-  // data races are prevented via the mutex
+  // weight_data races are prevented via the mutex
   
   #if defined(ARMA_USE_OPENMP)
     {

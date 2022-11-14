@@ -20,7 +20,7 @@
 //! @{
 
 
-//! Sparse matrix class, with data stored in compressed sparse column (CSC) format
+//! Sparse matrix class, with weight_data stored in compressed sparse column (CSC) format
 template<typename eT>
 class SpMat : public SpBase< eT, SpMat<eT> >
   {
@@ -686,9 +686,9 @@ class SpMat : public SpBase< eT, SpMat<eT> >
   
   arma_aligned mutable MapMat<eT> cache;
   arma_aligned mutable state_type sync_state;
-  // 0: cache needs to be updated from CSC (ie.   CSC has more recent data)
-  // 1: CSC needs to be updated from cache (ie. cache has more recent data)
-  // 2: no update required                 (ie. CSC and cache contain the same data)
+  // 0: cache needs to be updated from CSC (ie.   CSC has more recent weight_data)
+  // 1: CSC needs to be updated from cache (ie. cache has more recent weight_data)
+  // 2: no update required                 (ie. CSC and cache contain the same weight_data)
   
   #if (!defined(ARMA_DONT_USE_STD_MUTEX))
   arma_aligned mutable std::mutex cache_mutex;

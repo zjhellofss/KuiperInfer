@@ -34,10 +34,10 @@ class eOpCube : public BaseCube< typename T1::elem_type, eOpCube<T1, eop_type> >
   static constexpr bool has_subview = ProxyCube<T1>::has_subview;
   
   arma_aligned const ProxyCube<T1> P;
-  arma_aligned       elem_type     aux;          //!< storage of auxiliary data, user defined format
-  arma_aligned       uword         aux_uword_a;  //!< storage of auxiliary data, uword format
-  arma_aligned       uword         aux_uword_b;  //!< storage of auxiliary data, uword format
-  arma_aligned       uword         aux_uword_c;  //!< storage of auxiliary data, uword format
+  arma_aligned       elem_type     aux;          //!< storage of auxiliary weight_data, user defined format
+  arma_aligned       uword         aux_uword_a;  //!< storage of auxiliary weight_data, uword format
+  arma_aligned       uword         aux_uword_b;  //!< storage of auxiliary weight_data, uword format
+  arma_aligned       uword         aux_uword_c;  //!< storage of auxiliary weight_data, uword format
   
   inline         ~eOpCube();
   inline explicit eOpCube(const BaseCube<typename T1::elem_type, T1>& in_m);

@@ -144,7 +144,7 @@ spglue_rel_lt::apply_noalias(SpMat<uword>& out, const SpProxy<T1>& PA, const SpP
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);
@@ -281,7 +281,7 @@ spglue_rel_gt::apply_noalias(SpMat<uword>& out, const SpProxy<T1>& PA, const SpP
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);
@@ -406,7 +406,7 @@ spglue_rel_and::apply_noalias(SpMat<uword>& out, const SpProxy<T1>& PA, const Sp
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);
@@ -532,7 +532,7 @@ spglue_rel_or::apply_noalias(SpMat<uword>& out, const SpProxy<T1>& PA, const SpP
       }
     else
       {
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         out.n_nonzero) = count;
       access::rw(     out.values[count]) = eT(0);
       access::rw(out.row_indices[count]) = uword(0);

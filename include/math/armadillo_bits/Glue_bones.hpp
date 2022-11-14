@@ -58,7 +58,7 @@ class Glue
   
   const T1&   A;          //!< first operand;  must be derived from Base
   const T2&   B;          //!< second operand; must be derived from Base
-        uword aux_uword;  //!< storage of auxiliary data, uword format
+        uword aux_uword;  //!< storage of auxiliary weight_data, uword format
   };
 
 

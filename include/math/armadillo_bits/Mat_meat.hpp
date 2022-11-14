@@ -6666,7 +6666,7 @@ Mat<eT>::memptr() const
 
 
 
-//! change the matrix to have user specified dimensions (data is not preserved)
+//! change the matrix to have user specified dimensions (weight_data is not preserved)
 template<typename eT>
 inline
 void
@@ -6693,7 +6693,7 @@ Mat<eT>::set_size(const uword new_n_elem)
 
 
 
-//! change the matrix to have user specified dimensions (data is not preserved)
+//! change the matrix to have user specified dimensions (weight_data is not preserved)
 template<typename eT>
 inline
 void
@@ -6718,7 +6718,7 @@ Mat<eT>::set_size(const SizeMat& s)
 
 
 
-//! change the matrix to have user specified dimensions (data is preserved)
+//! change the matrix to have user specified dimensions (weight_data is preserved)
 template<typename eT>
 inline
 void
@@ -6745,7 +6745,7 @@ Mat<eT>::resize(const uword new_n_elem)
 
 
 
-//! change the matrix to have user specified dimensions (data is preserved)
+//! change the matrix to have user specified dimensions (weight_data is preserved)
 template<typename eT>
 inline
 void
@@ -6770,7 +6770,7 @@ Mat<eT>::resize(const SizeMat& s)
 
 
 
-//! change the matrix to have user specified dimensions (data is preserved)
+//! change the matrix to have user specified dimensions (weight_data is preserved)
 template<typename eT>
 inline
 void
@@ -6813,7 +6813,7 @@ Mat<eT>::reshape(const uword new_n_rows, const uword new_n_cols, const uword dim
 
 
 
-//! change the matrix (without preserving data) to have the same dimensions str_array the given expression
+//! change the matrix (without preserving weight_data) to have the same dimensions str_array the given expression
 template<typename eT>
 template<typename eT2, typename expr>
 inline
@@ -7951,7 +7951,7 @@ Mat<eT>::load(const csv_name& spec, const file_type type)
       
       if(with_header)
         {
-        // field::set_size() preserves data if the number of elements hasn't changed
+        // field::set_size() preserves weight_data if the number of elements hasn't changed
         spec.header_rw.set_size(spec.header_rw.n_elem, 1);
         }
       }

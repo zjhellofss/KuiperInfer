@@ -40,8 +40,8 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_ + 1));
     const uint32_t output_w = uint32_t(std::floor((input_w - pooling_w) / stride_ + 1));
     if (output_w <= 0 || output_h <= 0) {
-      LOG(ERROR) << "Output size is less than 0";
-      return InferStatus::kInferFailedOutputEmpty;
+      LOG(ERROR) << "The output size is less than zero";
+      return InferStatus::kInferFailedOutputSizeWrong;
     }
 
     std::shared_ptr<Blob> output_data = std::make_shared<Blob>(output_c, output_h, output_w);

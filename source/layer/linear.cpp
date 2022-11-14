@@ -21,11 +21,11 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
 
   if (this->weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferFailedWeightsBiasEmpty;
+    return InferStatus::kInferFailedWeightsOrBiasEmpty;
   } else {
     if (!this->bias_.empty() && this->weights_.size() != this->bias_.size()) {
       LOG(ERROR) << "The size of the weight and bias is not adapting";
-      return InferStatus::kInferFailedWeightsBiasEmpty;
+      return InferStatus::kInferFailedWeightsOrBiasEmpty;
     }
   }
 

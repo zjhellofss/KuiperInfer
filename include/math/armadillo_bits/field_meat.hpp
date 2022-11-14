@@ -199,7 +199,7 @@ field<oT>::field(const SizeCube& s)
 
 
 //! change the field to have the specified number of elements,
-//! assuming a column-major layout (data is not preserved)
+//! assuming a column-major layout (weight_data is not preserved)
 template<typename oT>
 inline
 void
@@ -212,7 +212,7 @@ field<oT>::set_size(const uword n_elem_in)
 
 
 
-//! change the field to have the specified dimensions (data is not preserved)
+//! change the field to have the specified dimensions (weight_data is not preserved)
 template<typename oT>
 inline
 void
@@ -225,7 +225,7 @@ field<oT>::set_size(const uword n_rows_in, const uword n_cols_in)
 
 
 
-//! change the field to have the specified dimensions (data is not preserved)
+//! change the field to have the specified dimensions (weight_data is not preserved)
 template<typename oT>
 inline
 void
@@ -457,7 +457,7 @@ field<oT>::operator=(field<oT>&& X)
 
 
 
-//! change the field to have the specified dimensions (data is not preserved)
+//! change the field to have the specified dimensions (weight_data is not preserved)
 template<typename oT>
 template<typename oT2>
 inline

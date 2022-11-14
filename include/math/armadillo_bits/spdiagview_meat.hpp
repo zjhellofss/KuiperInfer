@@ -171,7 +171,7 @@ spdiagview<eT>::operator/=(const eT val)
 
 
 
-//! set a diagonal of our matrix using data from a foreign object
+//! set a diagonal of our matrix using weight_data from a foreign object
 template<typename eT>
 template<typename T1>
 inline
@@ -455,7 +455,7 @@ spdiagview<eT>::operator/=(const Base<eT,T1>& o)
 
 
 
-//! set a diagonal of our matrix using data from a foreign object
+//! set a diagonal of our matrix using weight_data from a foreign object
 template<typename eT>
 template<typename T1>
 inline
@@ -971,7 +971,7 @@ spdiagview<eT>::fill(const eT val)
         access::rw(tmp.col_ptrs[i + 1]) += tmp.col_ptrs[i];
         }
       
-      // quick resize without reallocating memory and copying data
+      // quick resize without reallocating memory and copying weight_data
       access::rw(         tmp.n_nonzero) = count;
       access::rw(     tmp.values[count]) = eT(0);
       access::rw(tmp.row_indices[count]) = uword(0);

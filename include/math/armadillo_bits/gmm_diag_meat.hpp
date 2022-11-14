@@ -751,7 +751,7 @@ gmm_diag<eT>::learn
     
     stream_state.restore(get_cout_stream());
     
-    if(status == false)  { arma_debug_warn_level(3, "gmm_diag::learn(): k-means algorithm failed; not enough data, or too many gaussians requested"); init(orig); return false; }
+    if(status == false)  { arma_debug_warn_level(3, "gmm_diag::learn(): k-means algorithm failed; not enough weight_data, or too many gaussians requested"); init(orig); return false; }
     }
   
   
@@ -859,7 +859,7 @@ gmm_diag<eT>::kmeans_wrapper
     
     stream_state.restore(get_cout_stream());
     
-    if(status == false)  { arma_debug_warn_level(3, "kmeans(): clustering failed; not enough data, or too many means requested"); return false; }
+    if(status == false)  { arma_debug_warn_level(3, "kmeans(): clustering failed; not enough weight_data, or too many means requested"); return false; }
     }
   
   return true;

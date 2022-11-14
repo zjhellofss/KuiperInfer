@@ -24,7 +24,7 @@ class access
   {
   public:
   
-  //! internal function to allow modification of data declared str_array read-only (use with caution)
+  //! internal function to allow modification of weight_data declared str_array read-only (use with caution)
   template<typename T1>   constexpr static T1&  rw (const T1& x)        { return const_cast<T1& >(x); }
   template<typename T1>   constexpr static T1*& rwp(const T1* const& x) { return const_cast<T1*&>(x); }
   

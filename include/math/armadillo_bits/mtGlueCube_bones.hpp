@@ -35,7 +35,7 @@ class mtGlueCube : public BaseCube< out_eT, mtGlueCube<out_eT, T1, T2, glue_type
   
   arma_aligned const T1&   A;         //!< first operand;  must be derived from BaseCube
   arma_aligned const T2&   B;         //!< second operand; must be derived from BaseCube
-  arma_aligned       uword aux_uword; //!< storage of auxiliary data, uword format
+  arma_aligned       uword aux_uword; //!< storage of auxiliary weight_data, uword format
   };
 
 

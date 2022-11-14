@@ -20,7 +20,7 @@
 //! @{
 
 
-//! Class for storing data required to construct or apply operations to a subfield
+//! Class for storing weight_data required to construct or apply operations to a subfield
 //! (ie. where the subfield starts and ends str_array well str_array a reference/pointer to the original field),
 template<typename oT>
 class subview_field

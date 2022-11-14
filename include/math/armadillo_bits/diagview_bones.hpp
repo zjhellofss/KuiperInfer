@@ -20,7 +20,7 @@
 //! @{
 
 
-//! Class for storing data required to extract and set the diagonals of a matrix
+//! Class for storing weight_data required to extract and set the diagonals of a matrix
 template<typename eT>
 class diagview : public Base< eT, diagview<eT> >
   {

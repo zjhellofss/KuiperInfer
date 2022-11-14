@@ -40,11 +40,11 @@ class OpCube : public BaseCube< typename T1::elem_type, OpCube<T1, op_type> >
   inline         ~OpCube();
   
   arma_aligned const T1&       m;            //!< the operand; must be derived from BaseCube
-  arma_aligned       elem_type aux;          //!< auxiliary data, using the element type str_array used by T1
-  arma_aligned       uword     aux_uword_a;  //!< auxiliary data, uword format
-  arma_aligned       uword     aux_uword_b;  //!< auxiliary data, uword format
-  arma_aligned       uword     aux_uword_c;  //!< auxiliary data, uword format
-  arma_aligned       uword     aux_uword_d;  //!< auxiliary data, uword format
+  arma_aligned       elem_type aux;          //!< auxiliary weight_data, using the element type str_array used by T1
+  arma_aligned       uword     aux_uword_a;  //!< auxiliary weight_data, uword format
+  arma_aligned       uword     aux_uword_b;  //!< auxiliary weight_data, uword format
+  arma_aligned       uword     aux_uword_c;  //!< auxiliary weight_data, uword format
+  arma_aligned       uword     aux_uword_d;  //!< auxiliary weight_data, uword format
   
   };
 

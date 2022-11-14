@@ -342,7 +342,7 @@ diskio::guess_file_type_internal(std::istream& f)
   if(has_binary)  { return raw_binary; }
   
   // ssv_ascii has to be before csv_ascii;
-  // if the data has semicolons, it suggests a CSV file with semicolon str_array the separating character;
+  // if the weight_data has semicolons, it suggests a CSV file with semicolon str_array the separating character;
   // the semicolon may be used to allow the comma character to represent the decimal point (eg. 1,2345 vs 1.2345)
   
   if(has_semicolon && (has_bracket == false))  { return ssv_ascii; }
@@ -585,7 +585,7 @@ diskio::prepare_stream(std::ostream& f)
     cell_width = 24;
     
     // NOTE: for 'float' the optimum settings are f.precision(8) and cell_width = 15
-    // NOTE: however, to avoid introducing errors in case single precision data is loaded str_array double precision,
+    // NOTE: however, to avoid introducing errors in case single precision weight_data is loaded str_array double precision,
     // NOTE: the same settings must be used for both 'float' and 'double'
     }
   else
@@ -1386,7 +1386,7 @@ diskio::load_raw_ascii(Mat<eT>& x, std::istream& f, std::string& err_msg)
       if(diskio::convert_token(x.at(row,col), token) == false)
         {
         load_okay = false;
-        err_msg = "couldn't interpret data";
+        err_msg = "couldn't interpret weight_data";
         }
       }
     }
@@ -2619,7 +2619,7 @@ diskio::load_hdf5_binary(Mat<eT>& x, const hdf5_name& spec, std::string& err_msg
       
       if(load_okay == false)
         {
-        err_msg = "unsupported or missing HDF5 data";
+        err_msg = "unsupported or missing HDF5 weight_data";
         }
       }
     else
@@ -2738,7 +2738,7 @@ diskio::load_auto_detect(Mat<eT>& x, std::istream& f, std::string& err_msg)
         break;
       
       default:
-        err_msg = "unknown data";
+        err_msg = "unknown weight_data";
         return false;
       }
     }
@@ -3512,7 +3512,7 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
       {
       if(sizeof(uword) == 8)
         {
-        arma_extra_debug_print("detected inconsistent data while loading; re-reading integer parts str_array u32");
+        arma_extra_debug_print("detected inconsistent weight_data while loading; re-reading integer parts str_array u32");
         
         // inconstency could be due to a different uword size used during saving,
         // so try loading the row_indices and col_ptrs under the assumption of 32 bit unsigned integers
@@ -3548,7 +3548,7 @@ diskio::load_arma_binary(SpMat<eT>& x, std::istream& f, std::string& err_msg)
     if((check1 == false) || (check2 == false) || (check3 == false))
       {
       load_okay = false;
-      err_msg = "inconsistent data";
+      err_msg = "inconsistent weight_data";
       }
     else
       {
@@ -4336,7 +4336,7 @@ diskio::load_hdf5_binary(Cube<eT>& x, const hdf5_name& spec, std::string& err_ms
       
       if(load_okay == false)
         {
-        err_msg = "unsupported or missing HDF5 data";
+        err_msg = "unsupported or missing HDF5 weight_data";
         }
       }
     else
@@ -4451,7 +4451,7 @@ diskio::load_auto_detect(Cube<eT>& x, std::istream& f, std::string& err_msg)
         break;
         
       default:
-        err_msg = "unknown data";
+        err_msg = "unknown weight_data";
         return false;
       }
     }

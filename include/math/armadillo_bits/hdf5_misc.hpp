@@ -695,7 +695,7 @@ load_and_convert_hdf5
     {
     if(is_cx<eT>::no)
       {
-      return -1; // can't read complex data into non-complex matrix/cube
+      return -1; // can't read complex weight_data into non-complex matrix/cube
       }
     
     Col< std::complex<float> > v(n_elem, arma_nozeros_indicator());
@@ -715,7 +715,7 @@ load_and_convert_hdf5
     {
     if(is_cx<eT>::no)
       {
-      return -1; // can't read complex data into non-complex matrix/cube
+      return -1; // can't read complex weight_data into non-complex matrix/cube
       }
     
     Col< std::complex<double> > v(n_elem, arma_nozeros_indicator());

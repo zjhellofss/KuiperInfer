@@ -15,6 +15,7 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inpu
     LOG(ERROR) << "The input is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Blob>& input_data = inputs.at(i);

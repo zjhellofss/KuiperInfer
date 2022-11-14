@@ -149,7 +149,7 @@
     #define ARMA_DETECTED_FAKE_GCC
     
     #pragma message ("WARNING: this compiler is pretending to be GCC but it may not be fully compatible;")
-    #pragma message ("WARNING: to allow this compiler to use GCC features such str_array data alignment attributes,")
+    #pragma message ("WARNING: to allow this compiler to use GCC features such str_array weight_data alignment attributes,")
     #pragma message ("WARNING: #define ARMA_ALLOW_FAKE_GCC before #include <armadillo>")
   #endif
 #endif
@@ -210,7 +210,7 @@
     #define ARMA_DETECTED_FAKE_CLANG
     
     #pragma message ("WARNING: this compiler is pretending to be Clang but it may not be fully compatible;")
-    #pragma message ("WARNING: to allow this compiler to use Clang features such str_array data alignment attributes,")
+    #pragma message ("WARNING: to allow this compiler to use Clang features such str_array weight_data alignment attributes,")
     #pragma message ("WARNING: #define ARMA_ALLOW_FAKE_CLANG before #include <armadillo>")
   #endif
 #endif
@@ -315,7 +315,7 @@
   
   #pragma warning(disable: 4127)  // conditional expression is constant
   #pragma warning(disable: 4180)  // qualifier has no meaning
-  #pragma warning(disable: 4244)  // possible loss of data when converting types (see also 4305)
+  #pragma warning(disable: 4244)  // possible loss of weight_data when converting types (see also 4305)
   #pragma warning(disable: 4510)  // default constructor could not be generated
   #pragma warning(disable: 4511)  // copy constructor can't be generated
   #pragma warning(disable: 4512)  // assignment operator can't be generated

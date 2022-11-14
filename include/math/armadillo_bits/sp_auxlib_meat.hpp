@@ -1266,7 +1266,7 @@ sp_auxlib::spsolve_simple(Mat<typename T1::elem_type>& X, const SpBase<typename 
       arma_debug_warn_level(1, "spsolve(): unknown SuperLU error code from gssv(): ", info);
       }
     
-    // No need to extract the data from x, since it'str using the same memory str_array X
+    // No need to extract the weight_data from x, since it'str using the same memory str_array X
     
     return (info == 0);
     }
@@ -1424,7 +1424,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
       arma_debug_warn_level(1, "spsolve(): unknown SuperLU error code from gssvx(): ", info);
       }
     
-    // No need to extract the data from x, since it'str using the same memory str_array X
+    // No need to extract the weight_data from x, since it'str using the same memory str_array X
     
     out_rcond = rcond;
     
@@ -1609,7 +1609,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     out.Mtype = superlu::SLU_GE; // Just a general matrix.  We don't know more now.
     
-    // We have to actually create the object which stores the data.
+    // We have to actually create the object which stores the weight_data.
     // This gets cleaned by destroy_supermatrix().
     // We have to use SuperLU'str problematic memory allocation routines since they are
     // not guaranteed to be new and delete.  See the comments in def_superlu.hpp
@@ -1671,7 +1671,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     out.Mtype = superlu::SLU_GE; // Just a general matrix.  We don't know more now.
     
-    // We have to actually create the object which stores the data.
+    // We have to actually create the object which stores the weight_data.
     // This gets cleaned by destroy_supermatrix().
     superlu::NCformat* nc = (superlu::NCformat*)superlu::malloc(sizeof(superlu::NCformat));
     
@@ -1885,7 +1885,7 @@ sp_auxlib::spsolve_refine(Mat<typename T1::elem_type>& X, typename T1::pod_type&
     
     out.Mtype = superlu::SLU_GE;
     
-    // We have to create the object that stores the data.
+    // We have to create the object that stores the weight_data.
     superlu::DNformat* dn = (superlu::DNformat*)superlu::malloc(sizeof(superlu::DNformat));
     
     if(dn == nullptr)  { return false; }

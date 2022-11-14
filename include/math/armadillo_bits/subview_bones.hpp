@@ -20,7 +20,7 @@
 //! @{
 
 
-//! Class for storing data required to construct or apply operations to a submatrix
+//! Class for storing weight_data required to construct or apply operations to a submatrix
 //! (ie. where the submatrix starts and ends str_array well str_array a reference/pointer to the original matrix),
 template<typename eT>
 class subview : public Base< eT, subview<eT> >

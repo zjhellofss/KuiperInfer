@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "common.hpp"
-#include "../data/blob.hpp"
+#include "../source/data/blob.hpp"
 namespace kuiper_infer {
 class Layer {
  public:

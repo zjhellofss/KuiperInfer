@@ -459,7 +459,7 @@ spglue_merge::symmat_merge(SpMat<eT>& out, const SpMat<eT>& A, const SpMat<eT>& 
     col_ptrs[c] += col_ptrs[c - 1];
     }
   
-  // quick resize without reallocating memory and copying data
+  // quick resize without reallocating memory and copying weight_data
   access::rw(         out.n_nonzero) = count;
   access::rw(     out.values[count]) = eT(0);
   access::rw(out.row_indices[count]) = uword(0);
@@ -547,7 +547,7 @@ spglue_merge::diagview_merge(SpMat<eT>& out, const SpMat<eT>& A, const SpMat<eT>
     col_ptrs[c] += col_ptrs[c - 1];
     }
   
-  // quick resize without reallocating memory and copying data
+  // quick resize without reallocating memory and copying weight_data
   access::rw(         out.n_nonzero) = count;
   access::rw(     out.values[count]) = eT(0);
   access::rw(out.row_indices[count]) = uword(0);

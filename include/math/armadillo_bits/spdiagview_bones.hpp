@@ -20,7 +20,7 @@
 //! @{
 
 
-//! Class for storing data required to extract and set the diagonals of a sparse matrix
+//! Class for storing weight_data required to extract and set the diagonals of a sparse matrix
 template<typename eT>
 class spdiagview : public SpBase< eT, spdiagview<eT> >
   {

@@ -40,9 +40,9 @@ class eOp : public Base< typename T1::elem_type, eOp<T1, eop_type> >
   
   arma_aligned const Proxy<T1> P;
   
-  arma_aligned       elem_type aux;          //!< storage of auxiliary data, user defined format
-  arma_aligned       uword     aux_uword_a;  //!< storage of auxiliary data, uword format
-  arma_aligned       uword     aux_uword_b;  //!< storage of auxiliary data, uword format
+  arma_aligned       elem_type aux;          //!< storage of auxiliary weight_data, user defined format
+  arma_aligned       uword     aux_uword_a;  //!< storage of auxiliary weight_data, uword format
+  arma_aligned       uword     aux_uword_b;  //!< storage of auxiliary weight_data, uword format
   
   inline         ~eOp();
   inline explicit eOp(const T1& in_m);

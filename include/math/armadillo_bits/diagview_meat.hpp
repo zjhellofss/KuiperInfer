@@ -211,7 +211,7 @@ diagview<eT>::operator/=(const eT val)
 
 
 
-//! set a diagonal of our matrix using data from a foreign object
+//! set a diagonal of our matrix using weight_data from a foreign object
 template<typename eT>
 template<typename T1>
 inline
