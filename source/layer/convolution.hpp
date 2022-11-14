@@ -11,12 +11,16 @@ class ConvolutionLayer : public ParamLayer {
  public:
   explicit ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
                             const std::vector<std::shared_ptr<Blob>> &bias,
-                            uint32_t padding, uint32_t stride);
+                            uint32_t padding, uint32_t stride, bool use_bias = true);
+
+  explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
+                            uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias = true);
 
   InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                       std::vector<std::shared_ptr<Blob>> &outputs) override;
 
  private:
+  bool use_bias_ = false;
   uint32_t padding_ = 0;
   uint32_t stride_ = 1;
 };

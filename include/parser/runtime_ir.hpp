@@ -32,7 +32,7 @@ enum class ParameterType {
 };
 
 struct RuntimeParameter {
-  RuntimeParameter(ParameterType type = ParameterType::kParameterNull) : type(type) {
+  explicit RuntimeParameter(ParameterType type = ParameterType::kParameterNull) : type(type) {
 
   }
   ParameterType type = ParameterType::kParameterNull;
@@ -61,7 +61,10 @@ std::vector<T> RuntimeAttribute::get() {
   std::vector<T> weights;
   switch (type) {
     case DataType::kTypeFloat32: {
-      weights = std::vector<float>((float *) weight_data.data(), (float *) weight_data.data() + weight_data.size());
+      const uint32_t float_size = 4;
+      CHECK_EQ(weight_data.size() % float_size, 0);
+      weights = std::vector<float>((float *) weight_data.data(),
+                                   (float *) weight_data.data() + (weight_data.size() / float_size));
       break;
     }
     default: {
@@ -138,11 +141,15 @@ class RuntimeGraph {
 
   bool Init();
 
+  void BuildLayers();
+
  private:
   uint32_t start_node_ = 0;
   std::string param_path_;
   std::string bin_path_;
   std::vector<std::shared_ptr<Layer>> layers_;
+
+  std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   std::unique_ptr<pnnx::Graph> graph_;
 };

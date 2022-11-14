@@ -9,7 +9,10 @@
 namespace kuiper_infer {
 class ParamLayer : public Layer {
  public:
-  explicit ParamLayer(const std::string &layer_name, const std::vector<std::shared_ptr<Blob>> &weights, const std::vector<std::shared_ptr<Blob>> &bias);
+  explicit ParamLayer(const std::string &layer_name, const std::vector<std::shared_ptr<Blob>> &weights,
+                      const std::vector<std::shared_ptr<Blob>> &bias);
+
+  explicit ParamLayer(const std::string &layer_name);
 
   const std::vector<std::shared_ptr<Blob>> &weights() const;
 

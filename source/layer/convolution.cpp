@@ -9,9 +9,22 @@ namespace kuiper_infer {
 
 ConvolutionLayer::ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
                                    const std::vector<std::shared_ptr<Blob>> &bias,
-                                   uint32_t padding, uint32_t stride) :
-    ParamLayer("Convolution", weights, bias), padding_(padding), stride_(stride) {
+                                   uint32_t padding, uint32_t stride, bool use_bias)
+    : ParamLayer("Convolution", weights, bias), padding_(padding), stride_(stride), use_bias_(use_bias) {
+}
 
+ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
+                                   uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias)
+    : ParamLayer("Convolution"), padding_(padding), stride_(stride), use_bias_(use_bias) {
+
+  for (uint32_t i = 0; i < output_channel; ++i) {
+    std::shared_ptr<Blob> weight = std::make_shared<Blob>(in_channel, kernel_h, kernel_w);
+    this->weights_.push_back(weight);
+    if (use_bias_) {
+      std::shared_ptr<Blob> bias = std::make_shared<Blob>(1, 1, 1);
+      this->bias_.push_back(bias);
+    }
+  }
 }
 
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
@@ -74,11 +87,15 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
       }
 
       std::shared_ptr<Blob> bias;
-      if (!this->bias_.empty() && k < this->bias_.size()) {
+      if (!this->bias_.empty() && this->use_bias_) {
+        if (this->bias_.size() != this->weights_.size()) {
+          LOG(ERROR) << "The size of the weight and bias is not adapting";
+          return InferStatus::kInferFailedWeightBiasNoAdapting;
+        }
         bias = this->bias_.at(k);
       }
 
-      if (!bias->empty()) {
+      if (bias != nullptr) {
         arma::mat bias_mat(output_h, output_w);
         bias_mat.fill(bias->data().front());
         output_channel += bias_mat;

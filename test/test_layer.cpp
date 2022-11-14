@@ -107,6 +107,8 @@ TEST(test_layer, linear1) {
   weight_data->Fill(1.);
   bias_data->Fill(2.);
 
+//  1 1 1 400
+
   std::vector<std::shared_ptr<Blob>> weight_datas;
   weight_datas.push_back(weight_data);
 

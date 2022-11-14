@@ -8,8 +8,22 @@
 namespace kuiper_infer {
 
 LinearLayer::LinearLayer(const std::vector<std::shared_ptr<Blob>> &weights,
-                         const std::vector<std::shared_ptr<Blob>> &bias) : ParamLayer("Linear", weights, bias) {
+                         const std::vector<std::shared_ptr<Blob>> &bias, bool use_bias)
+    : ParamLayer("Linear", weights, bias), use_bias_(use_bias) {
 
+}
+
+LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias)
+    : ParamLayer("Linear"), use_bias_(use_bias) {
+
+  for (uint32_t i = 0; i < batch; ++i) {
+    std::shared_ptr<Blob> weight = std::make_shared<Blob>(in_channel, in_dim, out_dim);
+    this->weights_.push_back(weight);
+    if (use_bias_) {
+      std::shared_ptr<Blob> bias = std::make_shared<Blob>(1, 1, 1);
+      this->bias_.push_back(bias);
+    }
+  }
 }
 
 InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
@@ -39,9 +53,18 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     const std::shared_ptr<Blob> &input = inputs.at(i);
     std::shared_ptr<Blob> bias;
 
-    if (!this->bias_.empty() && i < this->bias_.size()) {
+    if (!this->bias_.empty() && this->use_bias_) {
+      if (this->weights_.size() != this->bias_.size()) {
+        LOG(ERROR) << "The size of the weight and bias is not adapting";
+        return InferStatus::kInferFailedWeightBiasNoAdapting;
+      }
       bias = this->bias_.at(i);
     }
+
+    if (bias != nullptr && bias->channels() != input->channels()) {
+      return InferStatus::kInferFailedWeightBiasNoAdapting;
+    }
+
     std::shared_ptr<Blob> output = std::make_shared<Blob>(input->channels(), input->rows(), weight->cols());
 
     if (input->channels() != weight->channels() || weight->rows() != input->cols()) {
@@ -54,9 +77,9 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
         const arma::mat &weight_data = weight->at(c);
         arma::mat &output_data = output->at(c);
         output_data = input_data * weight_data;
-        if (bias != nullptr) {
-          if (c < bias->channels() && bias->cols() == output_data.n_cols &&
-              bias->rows() == output_data.n_rows) {
+        if (bias != nullptr && this->use_bias_) {
+          if (bias->cols() == output_data.n_cols
+              && bias->rows() == output_data.n_rows) {
             output_data += bias->at(c);
           } else {
             LOG(ERROR) << "The size of the bias and input is not adapting";

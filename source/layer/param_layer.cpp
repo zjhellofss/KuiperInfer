@@ -13,6 +13,10 @@ ParamLayer::ParamLayer(const std::string &layer_name,
 
 }
 
+ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {
+
+}
+
 const std::vector<std::shared_ptr<Blob>> &ParamLayer::weights() const {
   return this->weights_;
 }
