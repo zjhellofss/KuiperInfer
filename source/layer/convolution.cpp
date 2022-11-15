@@ -38,6 +38,11 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
     return InferStatus::kInferFailedWeightsOrBiasEmpty;
   }
 
+  if (this->use_bias_ && this->bias_.size() != this->weights_.size()) {
+    LOG(ERROR) << "The size of the weight and bias is not adapting";
+    return InferStatus::kInferFailedWeightBiasNoAdapting;
+  }
+
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Blob> &input = inputs.at(i);
@@ -88,10 +93,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
 
       std::shared_ptr<Blob> bias;
       if (!this->bias_.empty() && this->use_bias_) {
-        if (this->bias_.size() != this->weights_.size()) {
-          LOG(ERROR) << "The size of the weight and bias is not adapting";
-          return InferStatus::kInferFailedWeightBiasNoAdapting;
-        }
         bias = this->bias_.at(k);
       }
 

@@ -20,7 +20,7 @@ LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, u
     std::shared_ptr<Blob> weight = std::make_shared<Blob>(in_channel, in_dim, out_dim);
     this->weights_.push_back(weight);
     if (use_bias_) {
-      std::shared_ptr<Blob> bias = std::make_shared<Blob>(1, 1, 1);
+      std::shared_ptr<Blob> bias = std::make_shared<Blob>(in_channel, 1, out_dim);
       this->bias_.push_back(bias);
     }
   }
@@ -37,9 +37,9 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     LOG(ERROR) << "Weight parameters is empty";
     return InferStatus::kInferFailedWeightsOrBiasEmpty;
   } else {
-    if (!this->bias_.empty() && this->use_bias_ && this->weights_.size() != this->bias_.size()) {
+    if (this->use_bias_ && this->weights_.size() != this->bias_.size()) {
+      return InferStatus::kInferFailedWeightBiasNoAdapting;
       LOG(ERROR) << "The size of the weight and bias is not adapting";
-      return InferStatus::kInferFailedWeightsOrBiasEmpty;
     }
   }
 
@@ -56,10 +56,6 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
 
     if (!this->bias_.empty() && this->use_bias_) {
       bias = this->bias_.at(i);
-    }
-
-    if (bias != nullptr && bias->channels() != input->channels()) {
-      return InferStatus::kInferFailedWeightBiasNoAdapting;
     }
 
     std::shared_ptr<Blob> output = std::make_shared<Blob>(input->channels(), input->rows(), weight->cols());
@@ -79,8 +75,8 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
               && bias->rows() == output_data.n_rows) {
             output_data += bias->at(c);
           } else {
-            LOG(ERROR) << "The size of the bias and input is not adapting";
-            return InferStatus::kInferFailedWeightBiasNoAdapting;
+            LOG(ERROR) << "The size of the bias and output is not adapting";
+            return InferStatus::kInferFailedOutputSizeWrong;
           }
         }
       }
