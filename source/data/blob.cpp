@@ -107,20 +107,25 @@ void Blob::Fill(double value) {
   this->data_.fill(value);
 }
 
-void Blob::Fill(const std::vector<double> &values, bool need_transpose) {
+void Blob::Fill(const std::vector<double> &values) {
   CHECK(!this->data_.empty());
   const uint32_t total_elems = this->data_.size();
   CHECK_EQ(values.size(), total_elems);
 
-  const uint32_t planes = this->rows() * this->cols();
+  const uint32_t rows = this->rows();
+  const uint32_t cols = this->cols();
+  const uint32_t planes = rows * cols;
   const uint32_t channels = this->data_.n_slices;
 
+  uint32_t index = 0;
   for (uint32_t i = 0; i < channels; ++i) {
     auto &channel_data = this->data_.slice(i);
     channel_data = arma::mat(values.data() + i * planes, this->rows(), this->cols());
-    if (need_transpose) {
-      CHECK_EQ(this->cols(), this->rows());
-      channel_data = channel_data.t();
+    for (int r = 0; r < rows; ++r) {
+      for (int c = 0; c < cols; ++c) {
+        channel_data.at(r, c) = values.at(index);
+        index += 1;
+      }
     }
   }
 }

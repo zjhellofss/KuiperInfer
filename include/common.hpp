@@ -16,19 +16,19 @@ enum class InferStatus {
 };
 
 enum class ParseParameterAttrStatus {
-  kParameterFailedUnknown = -1,
-  kParameterFailedStride = 0,
-  kParameterFailedPadding = 1,
-  kParameterFailedKernel = 2,
-  kParameterFailedUseBias = 3,
-  kParameterFailedInChannel = 4,
-  kParameterFailedOutChannel = 5,
-  kParameterFailedWeightSize = 6,
-  kParameterFailedBiasSize = 7,
-  kParameterFailedParamsSize = 8,
-  kParameterFailedAttrBias = 9,
-  kParameterFailedAttrWeight = 10,
-  kParameterSuccess = 11
+  kParameterMissingUnknown = -1,
+  kParameterMissingStride = 0,
+  kParameterMissingPadding = 1,
+  kParameterMissingKernel = 2,
+  kParameterMissingUseBias = 3,
+  kParameterMissingInChannel = 4,
+  kParameterMissingOutChannel = 5,
+  kParameterMissingWeightSize = 6,
+  kParameterMissingBiasSize = 7,
+  kParameterMissingParamsSize = 8,
+  kParameterMissingAttrBias = 9,
+  kParameterMissingAttrWeight = 10,
+  kParameterParseSuccess = 11
 };
 }
 #endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_

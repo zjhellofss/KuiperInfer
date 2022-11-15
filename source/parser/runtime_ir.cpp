@@ -182,7 +182,8 @@ void RuntimeGraph::BuildLayers() {
       this->output_operators_.push_back(op);
     } else if (op->type == "nn.Conv2d") {
       std::shared_ptr<Layer> conv_layer = BuildLayer(op->type, op);
-      this->layers_.push_back(conv_layer);
+      if (conv_layer)
+        this->layers_.push_back(conv_layer);
     }
   }
 }
@@ -198,6 +199,6 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> inputs) {
     inputs = outputs;
   }
   const auto &output = outputs.front();
-  output->Show();
+//  output->Show();
 }
 }

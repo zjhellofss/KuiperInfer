@@ -45,7 +45,7 @@ class Blob {
 
   void Fill(double value);
 
-  void Fill(const std::vector<double> &values, bool need_transpose = false);
+  void Fill(const std::vector<double> &values);
 
   void Show();
 

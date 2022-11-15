@@ -4,6 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "parser/runtime_ir.hpp"
+#include <ctime>
 
 TEST(test_ir, load) {
   using namespace kuiper_infer;
@@ -22,6 +23,5 @@ TEST(test_ir, build) {
   std::shared_ptr<Blob> input = std::make_shared<Blob>(1, 28, 28);
   input->Fill(1.);
   inputs.push_back(input);
-
   graph.Forward(inputs);
 }

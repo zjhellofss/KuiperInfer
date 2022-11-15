@@ -53,7 +53,7 @@ TEST(test_blob, fill2) {
   const uint32_t rows = 4;
   const uint32_t cols = 4;
   Blob blob(channels, rows, cols);
-  blob.Fill(datas, true);
+  blob.Fill(datas);
   blob.Flatten();
   ASSERT_EQ(blob.channels(), 1);
   ASSERT_EQ(blob.rows(), 1);
