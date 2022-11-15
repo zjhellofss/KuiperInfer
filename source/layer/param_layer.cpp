@@ -75,7 +75,7 @@ void ParamLayer::set_bias(const std::vector<double> &bias) {
 
 InferStatus ParamLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                                 std::vector<std::shared_ptr<Blob>> &outputs) {
-  return InferStatus::kInferUnknown;
+  LOG(FATAL) << "Layer not implement yet!";
 }
 
 }

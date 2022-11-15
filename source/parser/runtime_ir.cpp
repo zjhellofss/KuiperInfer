@@ -1,5 +1,7 @@
 
 #include "parser/runtime_ir.hpp"
+#include "../layer/convolution.hpp"
+#include "../layer/build_layer.hpp"
 
 #include <memory>
 
@@ -171,4 +173,27 @@ bool RuntimeGraph::Init() {
   return true;
 }
 
+void RuntimeGraph::BuildLayers() {
+  LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty!";
+  for (const auto &op : this->operators_) {
+    if (op->type == "pnnx.Input") {
+      this->input_operators_.push_back(op);
+    } else if (op->type == "pnnx.Output") {
+      this->output_operators_.push_back(op);
+    } else if (op->type == "nn.Conv2d") {
+      std::shared_ptr<Layer> conv_layer = BuildLayer(op->type, op);
+      this->layers_.push_back(conv_layer);
+    }
+  }
+}
+
+void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Blob>> &inputs) {
+  LOG_IF(FATAL, inputs.empty()) << "Inputs is empty";
+  LOG_IF(FATAL, this->layers_.empty()) << "Layers is empty";
+  bool is_first_layer = true;
+  for (const auto &layer : this->layers_) {
+    std::vector<std::shared_ptr<Blob>> outputs;
+    layer->Forward(inputs, outputs);
+  }
+}
 }

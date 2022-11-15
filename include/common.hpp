@@ -14,5 +14,19 @@ enum class InferStatus {
   kInferFailedOutputSizeWrong = 4,
   kInferSuccess = 5,
 };
+
+enum class ParameterAttrParseStatus {
+  kParameterFailedUnknown = -1,
+  kParameterFailedStride = 0,
+  kParameterFailedPadding = 1,
+  kParameterFailedKernel = 2,
+  kParameterFailedUseBias = 3,
+  kParameterFailedInChannel = 4,
+  kParameterFailedOutChannel = 5,
+  kParameterFailedWeightSize = 6,
+  kParameterFailedBiasSize = 7,
+  kParameterFailedParamsSize = 8,
+  kParameterSuccess = 9
+};
 }
 #endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_

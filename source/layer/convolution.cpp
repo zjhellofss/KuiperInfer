@@ -3,9 +3,14 @@
 //
 
 #include "convolution.hpp"
+#include "parser/runtime_ir.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
+
+ConvolutionLayer::ConvolutionLayer() : ParamLayer("Convolution") {
+
+}
 
 ConvolutionLayer::ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
                                    const std::vector<std::shared_ptr<Blob>> &bias,

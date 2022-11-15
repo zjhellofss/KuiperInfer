@@ -5,7 +5,7 @@
 #include <map>
 
 #include "ir.h"
-#include "layer.hpp"
+#include "../../source/layer/layer.hpp"
 
 namespace kuiper_infer {
 enum class DataType {
@@ -31,7 +31,11 @@ enum class ParameterType {
   kParameterBool = 7,
 };
 
+
+
 struct RuntimeParameter {
+  virtual ~RuntimeParameter() = default;
+
   explicit RuntimeParameter(ParameterType type = ParameterType::kParameterNull) : type(type) {
 
   }
@@ -61,10 +65,14 @@ std::vector<T> RuntimeAttribute::get() {
   std::vector<T> weights;
   switch (type) {
     case DataType::kTypeFloat32: {
+      const bool is_double = std::is_same<T, double>::value;
+      CHECK_EQ(is_double, true);
       const uint32_t float_size = 4;
       CHECK_EQ(weight_data.size() % float_size, 0);
-      weights = std::vector<float>((float *) weight_data.data(),
-                                   (float *) weight_data.data() + (weight_data.size() / float_size));
+      for (int i = 0; i < weight_data.size() / float_size; ++i) {
+        double v = *((float *) weight_data.data() + i);
+        weights.push_back(v);
+      }
       break;
     }
     default: {
@@ -143,6 +151,9 @@ class RuntimeGraph {
 
   void BuildLayers();
 
+  void Forward(const std::vector<std::shared_ptr<Blob>> &inputs);
+
+ private:
  private:
   uint32_t start_node_ = 0;
   std::string param_path_;
@@ -150,6 +161,7 @@ class RuntimeGraph {
   std::vector<std::shared_ptr<Layer>> layers_;
 
   std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;
+  std::vector<std::shared_ptr<RuntimeOperator>> output_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   std::unique_ptr<pnnx::Graph> graph_;
 };

@@ -9,6 +9,8 @@
 namespace kuiper_infer {
 class ConvolutionLayer : public ParamLayer {
  public:
+  explicit ConvolutionLayer();
+
   explicit ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
                             const std::vector<std::shared_ptr<Blob>> &bias,
                             uint32_t padding, uint32_t stride, bool use_bias = true);
@@ -18,6 +20,7 @@ class ConvolutionLayer : public ParamLayer {
 
   InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                       std::vector<std::shared_ptr<Blob>> &outputs) override;
+
 
  private:
   bool use_bias_ = false;
