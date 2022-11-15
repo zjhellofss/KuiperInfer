@@ -31,8 +31,6 @@ enum class RuntimeParameterType {
   kParameterBool = 7,
 };
 
-
-
 struct RuntimeParameter {
   virtual ~RuntimeParameter() = default;
 
@@ -149,16 +147,17 @@ class RuntimeGraph {
 
   bool Init();
 
-  void BuildLayers();
+  void Build();
 
   void Forward(std::vector<std::shared_ptr<Blob>> inputs);
 
  private:
+  static std::shared_ptr<Layer> CreateLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op);
  private:
-  uint32_t start_node_ = 0;
   std::string param_path_;
   std::string bin_path_;
   std::vector<std::shared_ptr<Layer>> layers_;
+  std::vector<std::shared_ptr<Blob>> inter_nodes_;
 
   std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>> output_operators_;

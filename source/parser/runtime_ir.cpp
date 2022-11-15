@@ -1,7 +1,6 @@
 
 #include "parser/runtime_ir.hpp"
 #include "../layer/convolution.hpp"
-#include "../layer/build_layer.hpp"
 
 #include <memory>
 
@@ -173,7 +172,7 @@ bool RuntimeGraph::Init() {
   return true;
 }
 
-void RuntimeGraph::BuildLayers() {
+void RuntimeGraph::Build() {
   LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty!";
   for (const auto &op : this->operators_) {
     if (op->type == "pnnx.Input") {
@@ -181,7 +180,7 @@ void RuntimeGraph::BuildLayers() {
     } else if (op->type == "pnnx.Output") {
       this->output_operators_.push_back(op);
     } else if (op->type == "nn.Conv2d") {
-      std::shared_ptr<Layer> conv_layer = BuildLayer(op->type, op);
+      std::shared_ptr<Layer> conv_layer = RuntimeGraph::CreateLayer(op->type, op);
       if (conv_layer)
         this->layers_.push_back(conv_layer);
     }
@@ -191,14 +190,26 @@ void RuntimeGraph::BuildLayers() {
 void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> inputs) {
   LOG_IF(FATAL, inputs.empty()) << "Inputs is empty";
   LOG_IF(FATAL, this->layers_.empty()) << "Layers is empty";
-  bool is_first_layer = true;
   std::vector<std::shared_ptr<Blob>> outputs;
   for (const auto &layer : this->layers_) {
     LOG_IF(FATAL, !layer) << "Meet the empty layer";
-    layer->Forward(inputs, outputs);
+    const InferStatus &infer_status = layer->Forward(inputs, outputs);
+    LOG_IF(FATAL, infer_status != InferStatus::kInferSuccess)
+            << layer->layer_name() << " layer error, error code: " << int(infer_status);
     inputs = outputs;
   }
   const auto &output = outputs.front();
-//  output->Show();
+}
+
+std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
+                                                 const std::shared_ptr<RuntimeOperator> &op) {
+  LOG_IF(FATAL, !op) << "Operator is empty!";
+  if (layer_type == "nn.Conv2d") {
+    std::shared_ptr<Layer> conv_layer;
+    const ParseParameterAttrStatus &result = CreateConvolutionLayer(op, conv_layer);
+    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
+            << "Build convolution layer failed, error code: " << int(result);
+    return conv_layer;
+  }
 }
 }

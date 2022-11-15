@@ -36,6 +36,8 @@ class Layer {
 
   virtual void set_bias(const std::vector<double> &bias);
 
+  virtual const std::string &layer_name() const;
+
  protected:
   std::string layer_name_;
 };
