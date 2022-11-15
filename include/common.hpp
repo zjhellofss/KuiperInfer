@@ -26,7 +26,9 @@ enum class ParameterAttrParseStatus {
   kParameterFailedWeightSize = 6,
   kParameterFailedBiasSize = 7,
   kParameterFailedParamsSize = 8,
-  kParameterSuccess = 9
+  kParameterFailedAttrBias = 9,
+  kParameterFailedAttrWeight = 10,
+  kParameterSuccess = 11
 };
 }
 #endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_

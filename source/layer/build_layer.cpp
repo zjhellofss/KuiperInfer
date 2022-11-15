@@ -88,6 +88,11 @@ static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOper
 
   // load weights
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
+  if (attrs.find("bias") == attrs.end()) {
+    LOG(ERROR) << "Can not find the bias attribute";
+    return ParameterAttrParseStatus::kParameterFailedAttrBias;
+  }
+
   const auto &bias = attrs.at("bias");
   const std::vector<int> &bias_shape = bias->shape;
   if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
@@ -97,6 +102,10 @@ static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOper
 
   std::vector<double> bias_values = bias->get<double>();
   conv_layer->set_bias(bias_values);
+  if (attrs.find("weight") == attrs.end()) {
+    LOG(ERROR) << "Can not find the bias attribute";
+    return ParameterAttrParseStatus::kParameterFailedAttrWeight;
+  }
 
   const auto &weight = attrs.at("weight");
   const std::vector<int> &weight_shape = weight->shape;
@@ -107,7 +116,6 @@ static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOper
 
   std::vector<double> weight_values = weight->get<double>();
   conv_layer->set_weights(weight_values);
-
   return ParameterAttrParseStatus::kParameterSuccess;
 }
 
