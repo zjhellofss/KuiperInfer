@@ -7,70 +7,70 @@
 
 namespace kuiper_infer {
 
-static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOperator> &op,
-                                               std::shared_ptr<Layer> conv_layer) {
+static ParseParameterAttrStatus BuildConvLayer(const std::shared_ptr<RuntimeOperator> &op,
+                                               std::shared_ptr<Layer> &conv_layer) {
   CHECK(op != nullptr);
   const std::map<std::string, RuntimeParameter *> params = op->params;
 
   if (params.find("in_channels") == params.end()) {
     LOG(ERROR) << "Can not find the in channel parameter";
-    return ParameterAttrParseStatus::kParameterFailedInChannel;
+    return ParseParameterAttrStatus::kParameterFailedInChannel;
   }
 
   const auto &in_channel = dynamic_cast<RuntimeParameterInt *>(params.at("in_channels"));
   if (!in_channel) {
     LOG(ERROR) << "Can not find the in channel parameter";
-    return ParameterAttrParseStatus::kParameterFailedInChannel;
+    return ParseParameterAttrStatus::kParameterFailedInChannel;
   }
 
   if (params.find("out_channels") == params.end()) {
     LOG(ERROR) << "Can not find the out channel parameter";
-    return ParameterAttrParseStatus::kParameterFailedOutChannel;
+    return ParseParameterAttrStatus::kParameterFailedOutChannel;
   }
 
   const auto &out_channel = dynamic_cast<RuntimeParameterInt *>(params.at("out_channels"));
   if (!out_channel) {
     LOG(ERROR) << "Can not find the out channel parameter";
-    return ParameterAttrParseStatus::kParameterFailedOutChannel;
+    return ParseParameterAttrStatus::kParameterFailedOutChannel;
   }
 
   if (params.find("padding") == params.end()) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return ParameterAttrParseStatus::kParameterFailedPadding;
+    return ParseParameterAttrStatus::kParameterFailedPadding;
   }
 
   const auto &padding = dynamic_cast<RuntimeParameterIntArray *>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return ParameterAttrParseStatus::kParameterFailedPadding;
+    return ParseParameterAttrStatus::kParameterFailedPadding;
   }
 
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the bias parameter";
-    return ParameterAttrParseStatus::kParameterFailedUseBias;
+    return ParseParameterAttrStatus::kParameterFailedUseBias;
   }
   const auto &use_bias = dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
   if (!use_bias) {
     LOG(ERROR) << "Can not find the bias parameter";
-    return ParameterAttrParseStatus::kParameterFailedUseBias;
+    return ParseParameterAttrStatus::kParameterFailedUseBias;
   }
 
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return ParameterAttrParseStatus::kParameterFailedStride;
+    return ParseParameterAttrStatus::kParameterFailedStride;
   }
   const auto &stride = dynamic_cast<RuntimeParameterIntArray *>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return ParameterAttrParseStatus::kParameterFailedStride;
+    return ParseParameterAttrStatus::kParameterFailedStride;
   }
 
   if (params.find("kernel_size") == params.end()) {
-    return ParameterAttrParseStatus::kParameterFailedKernel;
+    return ParseParameterAttrStatus::kParameterFailedKernel;
   }
   const auto &kernel = dynamic_cast<RuntimeParameterIntArray *>(params.at("kernel_size"));
   if (!kernel) {
-    return ParameterAttrParseStatus::kParameterFailedKernel;
+    return ParseParameterAttrStatus::kParameterFailedKernel;
   }
 
   const uint32_t dims = 2;
@@ -78,7 +78,7 @@ static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOper
   const std::vector<int> &paddings = padding->value;
   const std::vector<int> &strides = stride->value;
   if (kernels.size() != dims || paddings.size() != dims || stride->value.size() != dims) {
-    return ParameterAttrParseStatus::kParameterFailedParamsSize;
+    return ParseParameterAttrStatus::kParameterFailedParamsSize;
   }
 
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,
@@ -90,41 +90,41 @@ static ParameterAttrParseStatus BuildConvLayer(const std::shared_ptr<RuntimeOper
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
   if (attrs.find("bias") == attrs.end()) {
     LOG(ERROR) << "Can not find the bias attribute";
-    return ParameterAttrParseStatus::kParameterFailedAttrBias;
+    return ParseParameterAttrStatus::kParameterFailedAttrBias;
   }
 
   const auto &bias = attrs.at("bias");
   const std::vector<int> &bias_shape = bias->shape;
   if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
     LOG(ERROR) << "Bias shape is wrong";
-    return ParameterAttrParseStatus::kParameterFailedBiasSize;
+    return ParseParameterAttrStatus::kParameterFailedBiasSize;
   }
 
   std::vector<double> bias_values = bias->get<double>();
   conv_layer->set_bias(bias_values);
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the bias attribute";
-    return ParameterAttrParseStatus::kParameterFailedAttrWeight;
+    return ParseParameterAttrStatus::kParameterFailedAttrWeight;
   }
 
   const auto &weight = attrs.at("weight");
   const std::vector<int> &weight_shape = weight->shape;
   if (weight_shape.empty()) {
     LOG(ERROR) << "Weight shape is empty";
-    return ParameterAttrParseStatus::kParameterFailedWeightSize;
+    return ParseParameterAttrStatus::kParameterFailedWeightSize;
   }
 
   std::vector<double> weight_values = weight->get<double>();
   conv_layer->set_weights(weight_values);
-  return ParameterAttrParseStatus::kParameterSuccess;
+  return ParseParameterAttrStatus::kParameterSuccess;
 }
 
 std::shared_ptr<Layer> BuildLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op) {
   CHECK(op != nullptr);
   if (layer_type == "nn.Conv2d") {
     std::shared_ptr<Layer> conv_layer;
-    const ParameterAttrParseStatus result = BuildConvLayer(op, conv_layer);
-    LOG_IF(FATAL, result != ParameterAttrParseStatus::kParameterSuccess)
+    const ParseParameterAttrStatus result = BuildConvLayer(op, conv_layer);
+    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterSuccess)
             << "Build convolution layer failed,error code: " << int(result);
     return conv_layer;
   }

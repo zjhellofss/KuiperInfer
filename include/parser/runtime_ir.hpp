@@ -8,7 +8,7 @@
 #include "../../source/layer/layer.hpp"
 
 namespace kuiper_infer {
-enum class DataType {
+enum class RuntimeDataType {
   kTypeNull = 0,
   kTypeFloat32 = 1,
   kTypeFloat64 = 2,
@@ -20,7 +20,7 @@ enum class DataType {
   kTypeUInt8 = 8,
 };
 
-enum class ParameterType {
+enum class RuntimeParameterType {
   kParameterNull = 0,
   kParameterInt = 1,
   kParameterFloat = 2,
@@ -36,14 +36,14 @@ enum class ParameterType {
 struct RuntimeParameter {
   virtual ~RuntimeParameter() = default;
 
-  explicit RuntimeParameter(ParameterType type = ParameterType::kParameterNull) : type(type) {
+  explicit RuntimeParameter(RuntimeParameterType type = RuntimeParameterType::kParameterNull) : type(type) {
 
   }
-  ParameterType type = ParameterType::kParameterNull;
+  RuntimeParameterType type = RuntimeParameterType::kParameterNull;
 };
 
 struct RuntimeOperand {
-  DataType type;
+  RuntimeDataType type;
   std::string name;
   std::vector<int32_t> shapes;
 };
@@ -52,7 +52,7 @@ struct RuntimeAttribute {
   // ir中的层权重参数
   std::vector<char> weight_data;
   std::vector<int> shape;
-  DataType type = DataType::kTypeNull;
+  RuntimeDataType type = RuntimeDataType::kTypeNull;
 
   template<class T>
   std::vector<T> get();
@@ -61,10 +61,10 @@ struct RuntimeAttribute {
 template<class T>
 std::vector<T> RuntimeAttribute::get() {
   CHECK(!weight_data.empty());
-  CHECK(type != DataType::kTypeNull);
+  CHECK(type != RuntimeDataType::kTypeNull);
   std::vector<T> weights;
   switch (type) {
-    case DataType::kTypeFloat32: {
+    case RuntimeDataType::kTypeFloat32: {
       const bool is_double = std::is_same<T, double>::value;
       CHECK_EQ(is_double, true);
       const uint32_t float_size = 4;
@@ -95,49 +95,49 @@ struct RuntimeOperator {
 };
 
 struct RuntimeParameterInt : public RuntimeParameter {
-  RuntimeParameterInt() : RuntimeParameter(ParameterType::kParameterInt) {
+  RuntimeParameterInt() : RuntimeParameter(RuntimeParameterType::kParameterInt) {
 
   }
   int value = 0;
 };
 
 struct RuntimeParameterFloat : public RuntimeParameter {
-  RuntimeParameterFloat() : RuntimeParameter(ParameterType::kParameterFloat) {
+  RuntimeParameterFloat() : RuntimeParameter(RuntimeParameterType::kParameterFloat) {
 
   }
   float value = 0.f;
 };
 
 struct RuntimeParameterString : public RuntimeParameter {
-  RuntimeParameterString() : RuntimeParameter(ParameterType::kParameterString) {
+  RuntimeParameterString() : RuntimeParameter(RuntimeParameterType::kParameterString) {
 
   }
   std::string value;
 };
 
 struct RuntimeParameterIntArray : public RuntimeParameter {
-  RuntimeParameterIntArray() : RuntimeParameter(ParameterType::kParameterIntArray) {
+  RuntimeParameterIntArray() : RuntimeParameter(RuntimeParameterType::kParameterIntArray) {
 
   }
   std::vector<int> value;
 };
 
 struct RuntimeParameterFloatArray : public RuntimeParameter {
-  RuntimeParameterFloatArray() : RuntimeParameter(ParameterType::kParameterFloatArray) {
+  RuntimeParameterFloatArray() : RuntimeParameter(RuntimeParameterType::kParameterFloatArray) {
 
   }
   std::vector<float> value;
 };
 
 struct RuntimeParameterStringArray : public RuntimeParameter {
-  RuntimeParameterStringArray() : RuntimeParameter(ParameterType::kParameterStringArray) {
+  RuntimeParameterStringArray() : RuntimeParameter(RuntimeParameterType::kParameterStringArray) {
 
   }
   std::vector<std::string> value;
 };
 
 struct RuntimeParameterBool : public RuntimeParameter {
-  RuntimeParameterBool() : RuntimeParameter(ParameterType::kParameterBool) {
+  RuntimeParameterBool() : RuntimeParameter(RuntimeParameterType::kParameterBool) {
 
   }
   bool value = false;
@@ -151,7 +151,7 @@ class RuntimeGraph {
 
   void BuildLayers();
 
-  void Forward(const std::vector<std::shared_ptr<Blob>> &inputs);
+  void Forward(std::vector<std::shared_ptr<Blob>> inputs);
 
  private:
  private:

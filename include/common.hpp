@@ -15,7 +15,7 @@ enum class InferStatus {
   kInferSuccess = 5,
 };
 
-enum class ParameterAttrParseStatus {
+enum class ParseParameterAttrStatus {
   kParameterFailedUnknown = -1,
   kParameterFailedStride = 0,
   kParameterFailedPadding = 1,

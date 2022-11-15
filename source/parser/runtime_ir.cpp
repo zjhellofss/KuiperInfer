@@ -54,7 +54,7 @@ bool RuntimeGraph::Init() {
         runtime_operand->name = input->name;
         switch (input->type) {
           case 1: {
-            runtime_operand->type = DataType::kTypeFloat32;
+            runtime_operand->type = RuntimeDataType::kTypeFloat32;
             break;
           }
           default: {
@@ -72,7 +72,7 @@ bool RuntimeGraph::Init() {
         runtime_operand->name = output->name;
         switch (output->type) {
           case 1: {
-            runtime_operand->type = DataType::kTypeFloat32;
+            runtime_operand->type = RuntimeDataType::kTypeFloat32;
             break;
           }
           default: {
@@ -90,7 +90,7 @@ bool RuntimeGraph::Init() {
         switch (attr.type) {
           case 1: {
             std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<RuntimeAttribute>();
-            runtime_attribute->type = DataType::kTypeFloat32;
+            runtime_attribute->type = RuntimeDataType::kTypeFloat32;
             runtime_attribute->weight_data = attr.data;
             runtime_attribute->shape = attr.shape;
             runtime_operator->attribute.insert({name, runtime_attribute});
@@ -187,13 +187,17 @@ void RuntimeGraph::BuildLayers() {
   }
 }
 
-void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Blob>> &inputs) {
+void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> inputs) {
   LOG_IF(FATAL, inputs.empty()) << "Inputs is empty";
   LOG_IF(FATAL, this->layers_.empty()) << "Layers is empty";
   bool is_first_layer = true;
+  std::vector<std::shared_ptr<Blob>> outputs;
   for (const auto &layer : this->layers_) {
-    std::vector<std::shared_ptr<Blob>> outputs;
+    LOG_IF(FATAL, !layer) << "Meet the empty layer";
     layer->Forward(inputs, outputs);
+    inputs = outputs;
   }
+  const auto &output = outputs.front();
+  output->Show();
 }
 }
