@@ -31,4 +31,15 @@ void Layer::set_weights(const std::vector<std::shared_ptr<Blob>> &weights) {
 const std::string &Layer::layer_name() const {
   return this->layer_name_;
 }
+
+InferStatus Layer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs1,
+                           const std::vector<std::shared_ptr<Blob>> &inputs2,
+                           std::vector<std::shared_ptr<Blob>> &ouputs) {
+  LOG(FATAL) << "Layer not implement yet!";
+}
+
+InferStatus Layer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
+                           std::vector<std::shared_ptr<Blob>> &outputs) {
+  LOG(FATAL) << "Layer not implement yet!";
+}
 }

@@ -29,23 +29,23 @@ LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, u
 InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                                  std::vector<std::shared_ptr<Blob>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input is empty";
+    LOG(ERROR) << "The input feature map of linear layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (this->weights_.empty()) {
-    LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferFailedWeightsOrBiasEmpty;
+    LOG(ERROR) << "The weight parameters is empty";
+    return InferStatus::kInferFailedWeightParameterError;
   } else {
     if (this->use_bias_ && this->weights_.size() != this->bias_.size()) {
-      return InferStatus::kInferFailedWeightBiasNoAdapting;
-      LOG(ERROR) << "The size of the weight and bias is not adapting";
+      return InferStatus::kInferFailedBiasParameterError;
+      LOG(ERROR) << "The size of the weight and bias parameters is not equal";
     }
   }
 
   if (this->weights_.size() != inputs.size()) {
-    LOG(ERROR) << "The size of the weight and input is not adapting";
-    return InferStatus::kInferFailedWeightBiasNoAdapting;
+    LOG(ERROR) << "The size of the weight parameters and input is not equal";
+    return InferStatus::kInferFailedWeightParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -59,10 +59,12 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
     }
 
     std::shared_ptr<Blob> output = std::make_shared<Blob>(input->channels(), input->rows(), weight->cols());
-
-    if (input->channels() != weight->channels() || weight->rows() != input->cols()) {
-      LOG(ERROR) << "The size of the weight and input is not adapting";
-      return InferStatus::kInferFailedWeightBiasNoAdapting;
+    if (input->channels() != weight->channels()) {
+      LOG(ERROR) << "The channel of the weight parameter and input is not adapting";
+      return InferStatus::kInferFailedWeightParameterError;
+    } else if (weight->rows() != input->cols()) {
+      LOG(ERROR) << "The size of the weight parameter and input is not adapting";
+      return InferStatus::kInferFailedWeightParameterError;
     } else {
       const uint32_t input_channel = input->channels();
       for (uint32_t c = 0; c < input_channel; ++c) {
@@ -76,7 +78,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
             output_data += bias->at(c);
           } else {
             LOG(ERROR) << "The size of the bias and output is not adapting";
-            return InferStatus::kInferFailedOutputSizeWrong;
+            return InferStatus::kInferFailedBiasParameterError;
           }
         }
       }

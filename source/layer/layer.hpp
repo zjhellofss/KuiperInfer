@@ -22,7 +22,11 @@ class Layer {
   }
 
   virtual InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                              std::vector<std::shared_ptr<Blob>> &outputs) = 0;
+                              std::vector<std::shared_ptr<Blob>> &outputs);
+
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs1,
+                             const std::vector<std::shared_ptr<Blob>> &inputs2,
+                             std::vector<std::shared_ptr<Blob>> &ouputs);
 
   virtual const std::vector<std::shared_ptr<Blob>> &weights() const;
 

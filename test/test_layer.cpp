@@ -215,6 +215,10 @@ TEST(test_layer, sigmoid) {
   }
 }
 
+TEST(test_layer, concat) {
+
+}
+
 TEST(test_layer, flatten) {
   using namespace kuiper_infer;
   const uint32_t channels = 3;

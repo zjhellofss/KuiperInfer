@@ -35,17 +35,17 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                                       std::vector<std::shared_ptr<Blob>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input is empty";
+    LOG(ERROR) << "The input feature map is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
   if (weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferFailedWeightsOrBiasEmpty;
+    return InferStatus::kInferFailedWeightParameterError;
   }
 
   if (this->use_bias_ && this->bias_.size() != this->weights_.size()) {
     LOG(ERROR) << "The size of the weight and bias is not adapting";
-    return InferStatus::kInferFailedWeightBiasNoAdapting;
+    return InferStatus::kInferFailedBiasParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -70,8 +70,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
       uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_ + 1));
       uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_ + 1));
       if (output_h <= 0 || output_w <= 0) {
-        LOG(ERROR) << "The output size is less than zero";
-        return InferStatus::kInferFailedOutputSizeWrong;
+        LOG(ERROR) << "The size of the output feature map is less than zero";
+        return InferStatus::kInferFailedOutputSizeError;
       }
 
       if (!output_data) {
@@ -80,7 +80,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
 
       if (kernel->channels() != input_c) {
         LOG(ERROR) << "The channel of the weight and input is not adapting";
-        return InferStatus::kInferFailedInputUnAdapting;
+        return InferStatus::kInferFailedChannelParameterError;
       }
 
       arma::mat &output_channel = output_data->at(k);

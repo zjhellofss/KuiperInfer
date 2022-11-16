@@ -13,7 +13,7 @@ SoftmaxLayer::SoftmaxLayer() : Layer("Softmax") {
 InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                                   std::vector<std::shared_ptr<Blob>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input is empty";
+    LOG(ERROR) << "The input feature map of softmax layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
   const uint32_t batch_size = inputs.size();

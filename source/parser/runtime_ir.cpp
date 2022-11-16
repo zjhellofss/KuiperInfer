@@ -194,7 +194,7 @@ void RuntimeGraph::Build() {
       this->input_operators_.push_back(kOperator);
     } else if (kOperator->type == "pnnx.Output") {
       this->output_operators_.push_back(kOperator);
-    } else if (kOperator->type == "nn.Conv2d") {
+    } else {
       std::shared_ptr<Layer> conv_layer = RuntimeGraph::CreateLayer(kOperator->type, kOperator);
       if (conv_layer) {
         kOperator->layer = conv_layer;
@@ -266,6 +266,8 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
     LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
             << "Build convolution layer failed, error code: " << int(result);
     return conv_layer;
+  } else {
+    LOG(FATAL) << "Unknown layer to create: " << op->name;
   }
 }
 }

@@ -8,11 +8,13 @@ namespace kuiper_infer {
 enum class InferStatus {
   kInferUnknown = -1,
   kInferFailedInputEmpty = 0,
-  kInferFailedWeightsOrBiasEmpty = 1,
-  kInferFailedInputUnAdapting = 2,
-  kInferFailedWeightBiasNoAdapting = 3,
-  kInferFailedOutputSizeWrong = 4,
-  kInferSuccess = 5,
+  kInferFailedWeightParameterError = 1,
+  kInferFailedBiasParameterError = 2,
+  kInferFailedStrideParameterError = 4,
+  kInferFailedDimParameterError = 5,
+  kInferFailedChannelParameterError = 6,
+  kInferFailedOutputSizeError = 8,
+  kInferSuccess = 9,
 };
 
 enum class ParseParameterAttrStatus {

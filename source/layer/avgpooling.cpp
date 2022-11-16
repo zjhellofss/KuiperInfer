@@ -15,7 +15,7 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
                                          std::vector<std::shared_ptr<Blob>> &outputs) {
 
   if (inputs.empty()) {
-    LOG(ERROR) << "The input is empty";
+    LOG(ERROR) << "The input feature map of average pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
@@ -23,8 +23,8 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
   const uint32_t pooling_w = pooling_size_;
   const uint32_t pooling_h = pooling_size_;
   if (!stride_) {
-    LOG(ERROR) << "The stride parameter is set incorrectly. It must always be greater than 1";
-    stride_ = 1;
+    LOG(ERROR) << "The stride parameter is set incorrectly. It must always be greater than 0";
+    return InferStatus::kInferFailedStrideParameterError;
   }
 
   for (uint32_t i = 0; i < batch; ++i) {
@@ -40,8 +40,8 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_ + 1));
     const uint32_t output_w = uint32_t(std::floor((input_w - pooling_w) / stride_ + 1));
     if (output_w <= 0 || output_h <= 0) {
-      LOG(ERROR) << "The output size is less than zero";
-      return InferStatus::kInferFailedOutputSizeWrong;
+      LOG(ERROR) << "The size of the output feature map is less than zero";
+      return InferStatus::kInferFailedOutputSizeError;
     }
 
     std::shared_ptr<Blob> output_data = std::make_shared<Blob>(output_c, output_h, output_w);
