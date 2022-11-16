@@ -55,18 +55,19 @@ bool RuntimeGraph::Init() {
           }
           const pnnx::Operator *producer = input->producer;
           std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
-          runtime_operand->shapes = input->shape;
           runtime_operand->name = producer->name;
+          runtime_operand->shapes = input->shape;
+
           switch (input->type) {
             case 1: {
               runtime_operand->type = RuntimeDataType::kTypeFloat32;
               break;
             }
             default: {
-              LOG(FATAL) << "Unknown input operand type";
+              LOG(FATAL) << "Unknown input operand type: " << input->type;
             }
           }
-          runtime_operator->input_operands.insert({runtime_operand->name, runtime_operand});
+          runtime_operator->input_operands.insert({producer->name, runtime_operand});
         }
       }
 
@@ -220,11 +221,8 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       break;
     }
 
-//    const auto &current_layer = current_op->layer;
-//    LOG_IF(FATAL, !current_layer) << "Meet a empty layer!";
     std::vector<std::shared_ptr<Blob>> output_data;
     if (is_first_layer) {
-//      current_op->layer->Forward(input_data, output_data);
       output_data = input_data;
     } else {
       const std::string &current_op_name = current_op->name;
@@ -236,6 +234,8 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
 
       } else if (input_operands_size == 2) {
 
+      } else {
+        LOG(FATAL) << "Unknown input size, three input";
       }
     }
     const auto &next_ops = current_op->output_operators;
