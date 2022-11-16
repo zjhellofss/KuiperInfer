@@ -8,14 +8,14 @@
 
 TEST(test_ir, load) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("./tmp/netjt.pnnx.param", "./tmp/netjt.pnnx.bin");
-  bool init = graph.Init();
-  CHECK(init == true);
+//  RuntimeGraph graph("./tmp/netjt.pnnx.param", "./tmp/netjt.pnnx.bin");
+//  bool init = graph.Init();
+//  CHECK(init == true);
 }
 
 TEST(test_ir, build) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("./tmp/netjt.pnnx.param", "./tmp/netjt.pnnx.bin");
+  RuntimeGraph graph("./tmp/resnet18.pnnx.param", "./tmp/resnet18.pnnx.bin");
   bool init = graph.Init();
   CHECK(init == true);
   graph.Build();

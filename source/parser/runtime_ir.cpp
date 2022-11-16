@@ -3,6 +3,7 @@
 #include "../layer/convolution.hpp"
 
 #include <memory>
+#include <queue>
 
 namespace kuiper_infer {
 
@@ -47,38 +48,38 @@ bool RuntimeGraph::Init() {
 
       // 初始化算子中的input
       const std::vector<pnnx::Operand *> &inputs = op->inputs;
-      for (const pnnx::Operand *input : inputs) {
-        std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
-        runtime_operand->shapes = input->shape;
-        runtime_operand->name = input->name;
-        switch (input->type) {
-          case 1: {
-            runtime_operand->type = RuntimeDataType::kTypeFloat32;
-            break;
+      if (!inputs.empty()) {
+        for (const pnnx::Operand *input : inputs) {
+          if (!input) {
+            continue;
           }
-          default: {
-            LOG(FATAL) << "Unknown input operand type";
+          const pnnx::Operator *producer = input->producer;
+          std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
+          runtime_operand->shapes = input->shape;
+          runtime_operand->name = producer->name;
+          switch (input->type) {
+            case 1: {
+              runtime_operand->type = RuntimeDataType::kTypeFloat32;
+              break;
+            }
+            default: {
+              LOG(FATAL) << "Unknown input operand type";
+            }
           }
+          runtime_operator->input_operands.insert({runtime_operand->name, runtime_operand});
         }
-        runtime_operator->inputs.push_back(runtime_operand);
       }
 
-      // 初始化算子中的output
+      // 记录输出operand中的名称
       const std::vector<pnnx::Operand *> &outputs = op->outputs;
       for (const pnnx::Operand *output : outputs) {
-        std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
-        runtime_operand->shapes = output->shape;
-        runtime_operand->name = output->name;
-        switch (output->type) {
-          case 1: {
-            runtime_operand->type = RuntimeDataType::kTypeFloat32;
-            break;
-          }
-          default: {
-            LOG(FATAL) << "Unknown output operand type";
-          }
+        if (!output) {
+          continue;
         }
-        runtime_operator->outputs.push_back(runtime_operand);
+        const auto &consumers = output->consumers;
+        for (const auto &c : consumers) {
+          runtime_operator->output_names.push_back(c->name);
+        }
       }
 
       // 初始化算子中的attribute(权重)
@@ -169,36 +170,91 @@ bool RuntimeGraph::Init() {
       this->operators_.push_back(runtime_operator);
     }
   }
+
+  //构建图关系
+  const uint32_t op_sizes = this->operators_.size();
+  for (uint32_t i = 0; i < op_sizes; ++i) {
+    const auto &current_op = this->operators_.at(i);
+    const std::vector<std::string> output_names = current_op->output_names;
+    for (uint32_t j = i; j < op_sizes; ++j) {
+      const auto &next_op = this->operators_.at(j);
+      if (std::find(output_names.begin(), output_names.end(), next_op->name) != output_names.end()) {
+        current_op->output_operators.insert({next_op->name, next_op});
+      }
+    }
+  }
   return true;
 }
 
 void RuntimeGraph::Build() {
   LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty!";
-  for (const auto &op : this->operators_) {
-    if (op->type == "pnnx.Input") {
-      this->input_operators_.push_back(op);
-    } else if (op->type == "pnnx.Output") {
-      this->output_operators_.push_back(op);
-    } else if (op->type == "nn.Conv2d") {
-      std::shared_ptr<Layer> conv_layer = RuntimeGraph::CreateLayer(op->type, op);
-      if (conv_layer)
-        this->layers_.push_back(conv_layer);
+  for (const auto &kOperator : this->operators_) {
+    if (kOperator->type == "pnnx.Input") {
+      this->input_operators_.push_back(kOperator);
+    } else if (kOperator->type == "pnnx.Output") {
+      this->output_operators_.push_back(kOperator);
+    } else if (kOperator->type == "nn.Conv2d") {
+      std::shared_ptr<Layer> conv_layer = RuntimeGraph::CreateLayer(kOperator->type, kOperator);
+      if (conv_layer) {
+        kOperator->layer = conv_layer;
+      }
     }
   }
 }
 
-void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> inputs) {
-  LOG_IF(FATAL, inputs.empty()) << "Inputs is empty";
-  LOG_IF(FATAL, this->layers_.empty()) << "Layers is empty";
-  std::vector<std::shared_ptr<Blob>> outputs;
-  for (const auto &layer : this->layers_) {
-    LOG_IF(FATAL, !layer) << "Meet the empty layer";
-    const InferStatus &infer_status = layer->Forward(inputs, outputs);
-    LOG_IF(FATAL, infer_status != InferStatus::kInferSuccess)
-            << layer->layer_name() << " layer error, error code: " << int(infer_status);
-    inputs = outputs;
+void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
+  LOG_IF(FATAL, input_data.empty()) << "Inputs is empty";
+  LOG_IF(FATAL, this->input_operators_.size() != 1) << "Only support one input one graph yet!";
+  LOG_IF(FATAL, this->output_operators_.size() != 1) << "Only support one output one graph yet!";
+
+  const auto &input_op = input_operators_.back();
+  auto &output_op = output_operators_.back();
+  std::queue<std::shared_ptr<RuntimeOperator>> ops_queue;
+  ops_queue.push(input_op);
+  bool is_first_layer = true;
+
+  while (!ops_queue.empty()) {
+    const auto &current_op = ops_queue.front();
+    ops_queue.pop();
+    if (!current_op) {
+      break;
+    }
+
+//    const auto &current_layer = current_op->layer;
+//    LOG_IF(FATAL, !current_layer) << "Meet a empty layer!";
+    std::vector<std::shared_ptr<Blob>> output_data;
+    if (is_first_layer) {
+//      current_op->layer->Forward(input_data, output_data);
+      output_data = input_data;
+    } else {
+      const std::string &current_op_name = current_op->name;
+      LOG(INFO) << current_op_name;
+      const auto &input_operands = current_op->input_operands;
+      const uint32_t input_operands_size = input_operands.size();
+      output_data = input_data;
+      if (input_operands_size == 1) {
+
+      } else if (input_operands_size == 2) {
+
+      }
+    }
+    const auto &next_ops = current_op->output_operators;
+    for (const auto &pair : next_ops) {
+      auto &next_op = pair.second;
+      auto &next_input_operands = next_op->input_operands;
+      if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
+        next_input_operands.at(current_op->name)->datas = output_data;
+        if (!next_op->has_transfer) {
+          ops_queue.push(next_op);
+          next_op->has_transfer = true;
+        }
+      }
+    }
+
+    if (is_first_layer) {
+      is_first_layer = false;
+    }
   }
-  const auto &output = outputs.front();
 }
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
@@ -206,7 +262,7 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
   LOG_IF(FATAL, !op) << "Operator is empty!";
   if (layer_type == "nn.Conv2d") {
     std::shared_ptr<Layer> conv_layer;
-    const ParseParameterAttrStatus &result = CreateConvolutionLayer(op, conv_layer);
+    const ParseParameterAttrStatus &result = ConvolutionLayer::GetInstance(op, conv_layer);
     LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
             << "Build convolution layer failed, error code: " << int(result);
     return conv_layer;

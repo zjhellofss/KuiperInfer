@@ -31,13 +31,4 @@ void Layer::set_weights(const std::vector<std::shared_ptr<Blob>> &weights) {
 const std::string &Layer::layer_name() const {
   return this->layer_name_;
 }
-
-void Layer::set_layer_id(int layer_id) {
-  this->layer_id_ = layer_id;
-}
-
-int Layer::layer_id() const {
-  return layer_id_;
-}
-
 }

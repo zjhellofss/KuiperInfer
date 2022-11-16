@@ -44,6 +44,7 @@ struct RuntimeOperand {
   RuntimeDataType type;
   std::string name;
   std::vector<int32_t> shapes;
+  std::vector<std::shared_ptr<Blob>> datas;
 };
 
 struct RuntimeAttribute {
@@ -82,10 +83,14 @@ std::vector<T> RuntimeAttribute::get() {
 
 struct RuntimeOperator {
   ~RuntimeOperator();
+  bool has_transfer = false;
   std::string type;
   std::string name;
-  std::vector<std::shared_ptr<RuntimeOperand> > inputs; // 操作数输入
-  std::vector<std::shared_ptr<RuntimeOperand>> outputs; // 操作数输出
+  std::shared_ptr<Layer> layer; //节点对应的层
+
+  std::vector<std::string> output_names;
+  std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;
+  std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators; //输出节点的名字和节点对应
 
   // 该层算子中的配置和权重
   std::map<std::string, RuntimeParameter *> params;  ///算子的配置信息
@@ -149,19 +154,17 @@ class RuntimeGraph {
 
   void Build();
 
-  void Forward(std::vector<std::shared_ptr<Blob>> inputs);
+  void Forward(std::vector<std::shared_ptr<Blob>> input_data);
 
  private:
   static std::shared_ptr<Layer> CreateLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op);
  private:
   std::string param_path_;
   std::string bin_path_;
-  std::vector<std::shared_ptr<Layer>> layers_;
-  std::vector<std::shared_ptr<Blob>> inter_nodes_;
-
   std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>> output_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   std::unique_ptr<pnnx::Graph> graph_;
 };
+
 }

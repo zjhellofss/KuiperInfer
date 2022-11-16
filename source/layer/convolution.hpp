@@ -7,9 +7,6 @@
 #include "param_layer.hpp"
 
 namespace kuiper_infer {
-
-ParseParameterAttrStatus CreateConvolutionLayer(const std::shared_ptr<RuntimeOperator> &op,std::shared_ptr<Layer> &conv_layer);
-
 class ConvolutionLayer : public ParamLayer {
  public:
   explicit ConvolutionLayer();
@@ -20,6 +17,9 @@ class ConvolutionLayer : public ParamLayer {
 
   explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
                             uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias = true);
+
+  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                              std::shared_ptr<Layer> &conv_layer);
 
   InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
                       std::vector<std::shared_ptr<Blob>> &outputs) override;
