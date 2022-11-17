@@ -4,7 +4,7 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_SIGMOID_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_SIGMOID_HPP_
-#include "abstract/layer.hpp"
+#include "../abstract/layer.hpp"
 namespace kuiper_infer {
 class SigmoidLayer : public Layer {
  public:

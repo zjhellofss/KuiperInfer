@@ -132,9 +132,11 @@ void Tensor::Fill(const std::vector<double> &values) {
 }
 
 void Tensor::Show() {
+  LOG(INFO).precision(7);
+  LOG(INFO).setf(std::ios::fixed);
   for (uint32_t i = 0; i < this->channels(); ++i) {
     LOG(INFO) << "Channel: " << i;
-    LOG(INFO) << '\n' << this->data_.slice(i);
+    this->data_.slice(i).raw_print(LOG(INFO), "\n");
   }
 }
 
@@ -161,6 +163,11 @@ void Tensor::Flatten() {
 
 std::shared_ptr<Tensor> Tensor::Clone() {
   return std::make_shared<Tensor>(*this);
+}
+
+void Tensor::Rand() {
+  CHECK(!this->data_.empty());
+  this->data_.randn();
 }
 
 }

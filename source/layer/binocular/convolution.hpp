@@ -4,7 +4,7 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
-#include "abstract/param_layer.hpp"
+#include "../abstract/param_layer.hpp"
 
 namespace kuiper_infer {
 class ConvolutionLayer : public ParamLayer {

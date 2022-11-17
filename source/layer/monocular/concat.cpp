@@ -4,7 +4,7 @@
 
 #include "concat.hpp"
 #include "parser/runtime_ir.hpp"
-#include "layer_factory.hpp"
+#include "../binocular/layer_factory.hpp"
 
 namespace kuiper_infer {
 
@@ -18,7 +18,7 @@ InferStatus ConcatLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inp
   }
 
   if (dim_ != 1) {
-    return InferStatus::kInferFailedDimParameterError;
+    return InferStatus::kInferFailedDimensionParameterError;
   }
 
   CHECK(inputs1.size() == inputs2.size());

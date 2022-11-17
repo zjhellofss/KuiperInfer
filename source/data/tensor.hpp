@@ -47,6 +47,8 @@ class Tensor {
 
   void Fill(const std::vector<double> &values);
 
+  void Rand();
+
   void Show();
 
   void Flatten();

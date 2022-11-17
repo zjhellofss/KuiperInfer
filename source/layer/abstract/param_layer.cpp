@@ -6,13 +6,6 @@
 #include "param_layer.hpp"
 
 namespace kuiper_infer {
-ParamLayer::ParamLayer(const std::string &layer_name,
-                       const std::vector<std::shared_ptr<Tensor>> &weights,
-                       const std::vector<std::shared_ptr<Tensor>> &bias)
-    : Layer(layer_name), weights_(weights), bias_(bias) {
-
-}
-
 ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {
 
 }
@@ -63,11 +56,6 @@ void ParamLayer::set_bias(const std::vector<double> &bias) {
                                                  bias.begin() + end_offset};
     this->bias_.at(idx)->Fill(sub_values);
   }
-}
-
-InferStatus ParamLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                                std::vector<std::shared_ptr<Tensor>> &outputs) {
-  LOG(FATAL) << "Layer not implement yet!";
 }
 
 }

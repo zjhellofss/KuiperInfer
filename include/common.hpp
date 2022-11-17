@@ -7,32 +7,36 @@
 namespace kuiper_infer {
 enum class InferStatus {
   kInferUnknown = -1,
-  kInferFailedInputEmpty = 0,
-  kInferFailedWeightParameterError = 1,
-  kInferFailedBiasParameterError = 2,
+  kInferFailedInputEmpty = 1,
+  kInferFailedWeightParameterError = 2,
+  kInferFailedBiasParameterError = 3,
   kInferFailedStrideParameterError = 4,
-  kInferFailedDimParameterError = 5,
+  kInferFailedDimensionParameterError = 5,
   kInferFailedChannelParameterError = 6,
-  kInferFailedOutputSizeError = 8,
-  kInferSuccess = 9,
+
+  kInferFailedOutputSizeError = 7,
+  kInferSuccess = 0,
 };
 
 enum class ParseParameterAttrStatus {
   kParameterMissingUnknown = -1,
-  kParameterMissingStride = 0,
-  kParameterMissingPadding = 1,
-  kParameterMissingKernel = 2,
-  kParameterMissingUseBias = 3,
-  kParameterMissingInChannel = 4,
-  kParameterMissingOutChannel = 5,
-  kParameterMissingWeight = 6,
-  kParameterMissingBias = 7,
-  kParameterMissingDim = 8,
+  kParameterMissingStride = 1,
+  kParameterMissingPadding = 2,
+  kParameterMissingKernel = 3,
+  kParameterMissingUseBias = 4,
+  kParameterMissingInChannel = 5,
+  kParameterMissingOutChannel = 6,
 
-  kParameterMissingAttrBias = 9,
-  kParameterMissingAttrWeight = 10,
+  kParameterMissingEps = 7,
+  kParameterMissingNumFeatures = 8,
+  kParameterMissingDim = 9,
 
-  kParameterParseSuccess = 11
+  kParameterMissingAttrBias =10,
+  kParameterMissingAttrWeight = 11,
+  kParameterMissingAttrRunningMean = 12,
+  kParameterMissingAttrRunningVar = 13,
+
+  kParameterParseSuccess = 0
 };
 }
 #endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_

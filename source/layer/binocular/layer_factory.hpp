@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "abstract/layer.hpp"
+#include "../abstract/layer.hpp"
 
 namespace kuiper_infer {
 class LayerRegisterer {

@@ -1,9 +1,9 @@
 
 #include "parser/runtime_ir.hpp"
-#include "../layer/convolution.hpp"
-#include "../layer/concat.hpp"
-#include "../layer/flatten.hpp"
-#include "../layer/layer_factory.hpp"
+#include "../layer/binocular/convolution.hpp"
+#include "../layer/monocular/concat.hpp"
+#include "../layer/binocular/flatten.hpp"
+#include "../layer/binocular/layer_factory.hpp"
 #include <memory>
 #include <queue>
 
@@ -32,6 +32,7 @@ bool RuntimeGraph::Init() {
   if (load_result != 0) {
     return false;
   }
+
   std::vector<pnnx::Operator *> operators = this->graph_->ops;
   if (operators.empty()) {
     LOG(ERROR) << "Do not read the layers' define";
@@ -175,11 +176,10 @@ bool RuntimeGraph::Init() {
   }
 
   //构建图关系
-  const uint32_t op_sizes = this->operators_.size();
-  for (uint32_t i = 0; i < op_sizes; ++i) {
+  for (uint32_t i = 0; i < this->operators_.size(); ++i) {
     const auto &current_op = this->operators_.at(i);
     const std::vector<std::string> output_names = current_op->output_names;
-    for (uint32_t j = i; j < op_sizes; ++j) {
+    for (uint32_t j = i; j < this->operators_.size(); ++j) {
       const auto &next_op = this->operators_.at(j);
       if (std::find(output_names.begin(), output_names.end(), next_op->name) != output_names.end()) {
         current_op->output_operators.insert({next_op->name, next_op});
@@ -249,10 +249,16 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
         }
+        current_op->has_transfer = false;
       } else if (input_operands_size == 2) {
         const auto &input_operand1 = input_datas.front();
         const auto &input_operand2 = input_datas.back();
-        current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
+        const auto &infer_status =
+            current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
+        current_op->has_transfer = false;
+        if (infer_status != InferStatus::kInferSuccess) {
+          LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
+        }
       } else {
         LOG(FATAL) << "The number of the input feature maps is wrong, three input";
       }

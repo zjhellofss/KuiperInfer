@@ -9,9 +9,6 @@
 namespace kuiper_infer {
 class ParamLayer : public Layer {
  public:
-  explicit ParamLayer(const std::string &layer_name, const std::vector<std::shared_ptr<Tensor>> &weights,
-                      const std::vector<std::shared_ptr<Tensor>> &bias);
-
   explicit ParamLayer(const std::string &layer_name);
 
   const std::vector<std::shared_ptr<Tensor>> &weights() const override;
@@ -21,9 +18,6 @@ class ParamLayer : public Layer {
   void set_weights(const std::vector<double> &weights) override;
 
   void set_bias(const std::vector<double> &bias) override;
-
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
 
  protected:
   std::vector<std::shared_ptr<Tensor>> weights_;

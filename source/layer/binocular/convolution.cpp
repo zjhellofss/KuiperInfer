@@ -26,7 +26,7 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
                                       std::vector<std::shared_ptr<Tensor>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map is empty";
+    LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
   if (weights_.empty()) {
@@ -103,6 +103,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
   }
   return InferStatus::kInferSuccess;
 }
+
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                        std::shared_ptr<Layer> &conv_layer) {
   CHECK(op != nullptr);
