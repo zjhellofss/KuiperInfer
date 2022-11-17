@@ -6,8 +6,8 @@
 #include <glog/logging.h>
 namespace kuiper_infer {
 
-InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                  std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                  std::vector<std::shared_ptr<Tensor>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of sigmoid layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -15,8 +15,8 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inpu
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Blob> &input_data = inputs.at(i);
-    std::shared_ptr<Blob> output_data = input_data->Clone();
+    const std::shared_ptr<Tensor> &input_data = inputs.at(i);
+    std::shared_ptr<Tensor> output_data = input_data->Clone();
     arma::cube &output_data_cube = output_data->data();
     output_data_cube = 1 / (1 + arma::exp(output_data_cube));
     outputs.push_back(output_data);

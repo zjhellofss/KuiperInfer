@@ -21,20 +21,20 @@ class Layer {
 
   }
 
-  virtual InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                              std::vector<std::shared_ptr<Blob>> &outputs);
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                              std::vector<std::shared_ptr<Tensor>> &outputs);
 
-  virtual InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs1,
-                             const std::vector<std::shared_ptr<Blob>> &inputs2,
-                             std::vector<std::shared_ptr<Blob>> &ouputs);
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
+                             const std::vector<std::shared_ptr<Tensor>> &inputs2,
+                             std::vector<std::shared_ptr<Tensor>> &ouputs);
 
-  virtual const std::vector<std::shared_ptr<Blob>> &weights() const;
+  virtual const std::vector<std::shared_ptr<Tensor>> &weights() const;
 
-  virtual const std::vector<std::shared_ptr<Blob>> &bias() const;
+  virtual const std::vector<std::shared_ptr<Tensor>> &bias() const;
 
-  virtual void set_weights(const std::vector<std::shared_ptr<Blob>> &weights);
+  virtual void set_weights(const std::vector<std::shared_ptr<Tensor>> &weights);
 
-  virtual void set_bias(const std::vector<std::shared_ptr<Blob>> &bias);
+  virtual void set_bias(const std::vector<std::shared_ptr<Tensor>> &bias);
 
   virtual void set_weights(const std::vector<double> &weights);
 

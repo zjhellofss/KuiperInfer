@@ -11,8 +11,8 @@ AveragePoolingLayer::AveragePoolingLayer(uint32_t kernel_size, uint32_t padding,
 
 }
 
-InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                         std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                         std::vector<std::shared_ptr<Tensor>> &outputs) {
 
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of average pooling layer is empty";
@@ -28,7 +28,7 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
   }
 
   for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Blob> &input_data = inputs.at(i);
+    const std::shared_ptr<Tensor> &input_data = inputs.at(i);
     if (this->padding_ > 0) {
       input_data->Padding({padding_, padding_, padding_, padding_}, 0);
     }
@@ -44,7 +44,7 @@ InferStatus AveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Blob>
       return InferStatus::kInferFailedOutputSizeError;
     }
 
-    std::shared_ptr<Blob> output_data = std::make_shared<Blob>(output_c, output_h, output_w);
+    std::shared_ptr<Tensor> output_data = std::make_shared<Tensor>(output_c, output_h, output_w);
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::mat &input_channel = input_data->at(ic);
       arma::mat &output_channel = output_data->at(ic);

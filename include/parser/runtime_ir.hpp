@@ -44,7 +44,7 @@ struct RuntimeOperand {
   RuntimeDataType type;
   std::string name;
   std::vector<int32_t> shapes;
-  std::vector<std::shared_ptr<Blob>> datas;
+  std::vector<std::shared_ptr<Tensor>> datas;
 };
 
 struct RuntimeAttribute {
@@ -154,10 +154,10 @@ class RuntimeGraph {
 
   void Build();
 
-  void Forward(std::vector<std::shared_ptr<Blob>> input_data);
+  void Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
 
  private:
-  static std::vector<std::shared_ptr<Blob>> CloneData(const std::vector<std::shared_ptr<Blob>> &data);
+  static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
 
   static std::shared_ptr<Layer> CreateLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op);
  private:

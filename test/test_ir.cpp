@@ -19,8 +19,8 @@ TEST(test_ir, build) {
   bool init = graph.Init();
   CHECK(init == true);
   graph.Build();
-  std::vector<std::shared_ptr<Blob>> inputs;
-  std::shared_ptr<Blob> input = std::make_shared<Blob>(1, 28, 28);
+  std::vector<std::shared_ptr<Tensor>> inputs;
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 28, 28);
   input->Fill(1.);
   inputs.push_back(input);
   TICK(x)

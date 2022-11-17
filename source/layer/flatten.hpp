@@ -10,8 +10,8 @@ class FlattenLayer : public Layer {
  public:
   explicit FlattenLayer();
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                      std::vector<std::shared_ptr<Blob>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &flatten_layer);

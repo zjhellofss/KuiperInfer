@@ -11,8 +11,8 @@ class SigmoidLayer : public Layer {
   SigmoidLayer(): Layer("Sigmoid"){
 
   }
-  InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                      std::vector<std::shared_ptr<Blob>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
 };
 }
 

@@ -204,7 +204,7 @@ void RuntimeGraph::Build() {
   }
 }
 
-void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
+void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug) {
   LOG_IF(FATAL, input_data.empty()) << "Inputs is empty";
   LOG_IF(FATAL, this->input_operators_.size() != 1) << "Only support one input one graph yet!";
   LOG_IF(FATAL, this->output_operators_.size() != 1) << "Only support one output one graph yet!";
@@ -228,7 +228,7 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       break;
     }
 
-    std::vector<std::shared_ptr<Blob>> output_data;
+    std::vector<std::shared_ptr<Tensor>> output_data;
     if (is_first_layer) {
       output_data = input_data;
     } else {
@@ -241,12 +241,9 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       for (const auto &pair : current_op->input_operands) {
         input_datas.push_back(pair.second);
       }
-      std::vector<std::shared_ptr<Blob>> ouput_data;
+      std::vector<std::shared_ptr<Tensor>> ouput_data;
       if (input_operands_size == 1) {
         const auto &input_operand1 = input_datas.front();
-        for (int i = 0; i < input_operand1->datas.size(); ++i) {
-          input_operand1->datas.at(i)->Show();
-        }
         const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
@@ -265,8 +262,10 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       auto &next_input_operands = next_op->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
         LOG(INFO) << current_op->name;
-        for (int i = 0; i < output_data.size(); ++i) {
-          output_data.at(i)->Show();
+        if (debug) {
+          for (int i = 0; i < output_data.size(); ++i) {
+            output_data.at(i)->Show();
+          }
         }
         next_input_operands.at(current_op->name)->datas = CloneData(output_data);
         if (!next_op->has_transfer) {
@@ -308,8 +307,8 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
   }
 }
 
-std::vector<std::shared_ptr<Blob>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Blob>> &data) {
-  std::vector<std::shared_ptr<Blob>> output_data;
+std::vector<std::shared_ptr<Tensor>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor>> &data) {
+  std::vector<std::shared_ptr<Tensor>> output_data;
   const uint32_t size = data.size();
   output_data.resize(size);
   for (uint32_t i = 0; i < size; ++i) {

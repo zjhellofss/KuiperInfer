@@ -8,69 +8,69 @@
 #include <memory>
 
 namespace kuiper_infer {
-Blob::Blob(uint32_t channels, uint32_t rows, uint32_t cols) {
+Tensor::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::cube(rows, cols, channels);
 }
 
-uint32_t Blob::rows() const {
+uint32_t Tensor::rows() const {
   CHECK(!this->data_.empty());
   return this->data_.n_rows;
 }
 
-uint32_t Blob::cols() const {
+uint32_t Tensor::cols() const {
   CHECK(!this->data_.empty());
   return this->data_.n_cols;
 }
 
-uint32_t Blob::channels() const {
+uint32_t Tensor::channels() const {
   CHECK(!this->data_.empty());
   return this->data_.n_slices;
 }
 
-uint32_t Blob::size() const {
+uint32_t Tensor::size() const {
   CHECK(!this->data_.empty());
   return this->data_.size();
 }
 
-bool Blob::empty() const {
+bool Tensor::empty() const {
   return this->data_.empty();
 }
 
-double Blob::front() const {
+double Tensor::front() const {
   return this->data_.front();
 }
 
-std::vector<uint32_t> Blob::shapes() const {
+std::vector<uint32_t> Tensor::shapes() const {
   CHECK(!this->data_.empty());
   return {this->channels(), this->rows(), this->cols()};
 }
 
-arma::cube &Blob::data() {
+arma::cube &Tensor::data() {
   return this->data_;
 }
 
-const arma::cube &Blob::data() const {
+const arma::cube &Tensor::data() const {
   return this->data_;
 }
 
-arma::mat &Blob::at(uint32_t channel) {
+arma::mat &Tensor::at(uint32_t channel) {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
 
-const arma::mat &Blob::at(uint32_t channel) const {
+const arma::mat &Tensor::at(uint32_t channel) const {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
 
-double Blob::at(uint32_t channel, uint32_t row, uint32_t col) const {
+double Tensor::at(uint32_t channel, uint32_t row, uint32_t col) const {
   CHECK_LT(row, this->rows());
   CHECK_LT(col, this->cols());
   CHECK_LT(channel, this->channels());
   return this->data_.at(row, col, channel);
 }
 
-void Blob::Padding(const std::vector<uint32_t> &pads, double padding_value) {
+void Tensor::Padding(const std::vector<uint32_t> &pads, double padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
   uint32_t pad_rows1 = pads.at(0);  // up
@@ -102,12 +102,12 @@ void Blob::Padding(const std::vector<uint32_t> &pads, double padding_value) {
   this->data_ = padded_cube;
 }
 
-void Blob::Fill(double value) {
+void Tensor::Fill(double value) {
   CHECK(!this->data_.empty());
   this->data_.fill(value);
 }
 
-void Blob::Fill(const std::vector<double> &values) {
+void Tensor::Fill(const std::vector<double> &values) {
   CHECK(!this->data_.empty());
   const uint32_t total_elems = this->data_.size();
   CHECK_EQ(values.size(), total_elems);
@@ -130,14 +130,14 @@ void Blob::Fill(const std::vector<double> &values) {
   }
 }
 
-void Blob::Show() {
+void Tensor::Show() {
   for (uint32_t i = 0; i < this->channels(); ++i) {
     LOG(INFO) << "Channel: " << i;
     LOG(INFO) << '\n' << this->data_.slice(i);
   }
 }
 
-void Blob::Flatten() {
+void Tensor::Flatten() {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
   arma::cube linear_cube(1, size, 1);
@@ -158,8 +158,8 @@ void Blob::Flatten() {
   this->data_ = linear_cube;
 }
 
-std::shared_ptr<Blob> Blob::Clone() {
-  return std::make_shared<Blob>(*this);
+std::shared_ptr<Tensor> Tensor::Clone() {
+  return std::make_shared<Tensor>(*this);
 }
 
 }

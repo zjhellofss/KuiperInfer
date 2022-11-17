@@ -7,15 +7,15 @@
 #include <memory>
 #include <armadillo>
 namespace kuiper_infer {
-class Blob {
+class Tensor {
  public:
-  explicit Blob() = default;
+  explicit Tensor() = default;
 
-  explicit Blob(uint32_t channels, uint32_t rows, uint32_t cols);
+  explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
-  Blob(const Blob &) = default;
+  Tensor(const Tensor &) = default;
 
-  Blob &operator=(const Blob &) = default;
+  Tensor &operator=(const Tensor &) = default;
 
   uint32_t rows() const;
 
@@ -51,7 +51,7 @@ class Blob {
 
   void Flatten();
 
-  std::shared_ptr<Blob> Clone();
+  std::shared_ptr<Tensor> Clone();
 
  private:
   arma::cube data_;

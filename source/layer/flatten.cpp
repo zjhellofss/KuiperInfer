@@ -11,8 +11,8 @@ FlattenLayer::FlattenLayer() : Layer("Flatten") {
 
 }
 
-InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                  std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                  std::vector<std::shared_ptr<Tensor>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of flatten layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -20,8 +20,8 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inpu
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Blob> &input_data = inputs.at(i);
-    const std::shared_ptr<Blob> output_data = input_data->Clone();
+    const std::shared_ptr<Tensor> &input_data = inputs.at(i);
+    const std::shared_ptr<Tensor> output_data = input_data->Clone();
     CHECK(!output_data->empty());
     output_data->Flatten();
     outputs.push_back(output_data);

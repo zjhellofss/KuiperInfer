@@ -7,8 +7,8 @@
 
 namespace kuiper_infer {
 
-LinearLayer::LinearLayer(const std::vector<std::shared_ptr<Blob>> &weights,
-                         const std::vector<std::shared_ptr<Blob>> &bias, bool use_bias)
+LinearLayer::LinearLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
+                         const std::vector<std::shared_ptr<Tensor>> &bias, bool use_bias)
     : ParamLayer("Linear", weights, bias), use_bias_(use_bias) {
 
 }
@@ -17,17 +17,17 @@ LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, u
     : ParamLayer("Linear"), use_bias_(use_bias) {
 
   for (uint32_t i = 0; i < batch; ++i) {
-    std::shared_ptr<Blob> weight = std::make_shared<Blob>(in_channel, in_dim, out_dim);
+    std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(in_channel, in_dim, out_dim);
     this->weights_.push_back(weight);
     if (use_bias_) {
-      std::shared_ptr<Blob> bias = std::make_shared<Blob>(in_channel, 1, out_dim);
+      std::shared_ptr<Tensor> bias = std::make_shared<Tensor>(in_channel, 1, out_dim);
       this->bias_.push_back(bias);
     }
   }
 }
 
-InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                 std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                 std::vector<std::shared_ptr<Tensor>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of linear layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -50,15 +50,15 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Blob>> &input
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Blob> &weight = this->weights_.at(i);
-    const std::shared_ptr<Blob> &input = inputs.at(i);
-    std::shared_ptr<Blob> bias;
+    const std::shared_ptr<Tensor> &weight = this->weights_.at(i);
+    const std::shared_ptr<Tensor> &input = inputs.at(i);
+    std::shared_ptr<Tensor> bias;
 
     if (!this->bias_.empty() && this->use_bias_) {
       bias = this->bias_.at(i);
     }
 
-    std::shared_ptr<Blob> output = std::make_shared<Blob>(input->channels(), input->rows(), weight->cols());
+    std::shared_ptr<Tensor> output = std::make_shared<Tensor>(input->channels(), input->rows(), weight->cols());
     if (input->channels() != weight->channels()) {
       LOG(ERROR) << "The channel of the weight parameter and input is not adapting";
       return InferStatus::kInferFailedWeightParameterError;

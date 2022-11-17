@@ -12,8 +12,8 @@ ConvolutionLayer::ConvolutionLayer() : ParamLayer("Convolution") {
 
 }
 
-ConvolutionLayer::ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
-                                   const std::vector<std::shared_ptr<Blob>> &bias,
+ConvolutionLayer::ConvolutionLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
+                                   const std::vector<std::shared_ptr<Tensor>> &bias,
                                    uint32_t padding, uint32_t stride, bool use_bias)
     : ParamLayer("Convolution", weights, bias), padding_(padding), stride_(stride), use_bias_(use_bias) {
 }
@@ -23,17 +23,17 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
     : ParamLayer("Convolution"), padding_(padding), stride_(stride), use_bias_(use_bias) {
 
   for (uint32_t i = 0; i < output_channel; ++i) {
-    std::shared_ptr<Blob> weight = std::make_shared<Blob>(in_channel, kernel_h, kernel_w);
+    std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(in_channel, kernel_h, kernel_w);
     this->weights_.push_back(weight);
     if (use_bias_) {
-      std::shared_ptr<Blob> bias = std::make_shared<Blob>(1, 1, 1);
+      std::shared_ptr<Tensor> bias = std::make_shared<Tensor>(1, 1, 1);
       this->bias_.push_back(bias);
     }
   }
 }
 
-InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                      std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                      std::vector<std::shared_ptr<Tensor>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -50,7 +50,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Blob> &input = inputs.at(i);
+    const std::shared_ptr<Tensor> &input = inputs.at(i);
     if (padding_ > 0) {
       input->Padding({padding_, padding_, padding_, padding_}, 0);
     }
@@ -60,10 +60,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
     const uint32_t input_c = input->channels();
 
     const uint32_t kernel_count = this->weights_.size();
-    std::shared_ptr<Blob> output_data;
+    std::shared_ptr<Tensor> output_data;
 
     for (uint32_t k = 0; k < kernel_count; ++k) {
-      const std::shared_ptr<Blob> &kernel = this->weights_.at(k);
+      const std::shared_ptr<Tensor> &kernel = this->weights_.at(k);
       const uint32_t kernel_h = kernel->rows();
       const uint32_t kernel_w = kernel->cols();
 
@@ -75,7 +75,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
       }
 
       if (!output_data) {
-        output_data = std::make_shared<Blob>(kernel_count, output_h, output_w);
+        output_data = std::make_shared<Tensor>(kernel_count, output_h, output_w);
       }
 
       if (kernel->channels() != input_c) {
@@ -96,7 +96,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
         }
       }
 
-      std::shared_ptr<Blob> bias;
+      std::shared_ptr<Tensor> bias;
       if (!this->bias_.empty() && this->use_bias_) {
         bias = this->bias_.at(k);
       }

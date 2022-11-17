@@ -11,7 +11,7 @@ TEST(test_blob, size) {
   const uint32_t channels = 32;
   const uint32_t rows = 16;
   const uint32_t cols = 16;
-  Blob blob(channels, rows, cols);
+  Tensor blob(channels, rows, cols);
   ASSERT_EQ(blob.channels(), channels);
   ASSERT_EQ(blob.rows(), rows);
   ASSERT_EQ(blob.cols(), cols);
@@ -20,7 +20,7 @@ TEST(test_blob, size) {
 
 TEST(test_blob, empty) {
   using namespace kuiper_infer;
-  Blob blob;
+  Tensor blob;
   ASSERT_EQ(blob.empty(), true);
 }
 
@@ -29,7 +29,7 @@ TEST(test_blob, fill1) {
   const uint32_t channels = 64;
   const uint32_t rows = 32;
   const uint32_t cols = 32;
-  Blob blob(channels, rows, cols);
+  Tensor blob(channels, rows, cols);
   const double value = 3.;
   blob.Fill(value);
   for (int i = 0; i < channels; ++i) {
@@ -52,7 +52,7 @@ TEST(test_blob, fill2) {
   const uint32_t channels = 8;
   const uint32_t rows = 4;
   const uint32_t cols = 4;
-  Blob blob(channels, rows, cols);
+  Tensor blob(channels, rows, cols);
   blob.Fill(datas);
   blob.Flatten();
   ASSERT_EQ(blob.channels(), 1);
@@ -69,7 +69,7 @@ TEST(test_blob, padding) {
   const uint32_t rows = 2;
   const uint32_t cols = 2;
   const uint32_t size = 8;
-  Blob blob(channels, rows, cols);
+  Tensor blob(channels, rows, cols);
   blob.Fill(1.);
   blob.Flatten();
   blob.Padding({0, 0, 1, 1}, 2);
@@ -82,7 +82,7 @@ TEST(test_blob, padding2) {
   const uint32_t channels = 1;
   const uint32_t rows = 2;
   const uint32_t cols = 2;
-  Blob blob(channels, rows, cols);
+  Tensor blob(channels, rows, cols);
   blob.Padding({1, 1, 1, 1}, 2);
   for (int i = 0; i < channels; ++i) {
     for (int j = 1; j < rows + 1; ++j) {

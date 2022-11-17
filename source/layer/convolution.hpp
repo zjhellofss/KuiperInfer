@@ -11,8 +11,8 @@ class ConvolutionLayer : public ParamLayer {
  public:
   explicit ConvolutionLayer();
 
-  explicit ConvolutionLayer(const std::vector<std::shared_ptr<Blob>> &weights,
-                            const std::vector<std::shared_ptr<Blob>> &bias,
+  explicit ConvolutionLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
+                            const std::vector<std::shared_ptr<Tensor>> &bias,
                             uint32_t padding, uint32_t stride, bool use_bias = true);
 
   explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
@@ -21,8 +21,8 @@ class ConvolutionLayer : public ParamLayer {
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &conv_layer);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                      std::vector<std::shared_ptr<Blob>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
 
  private:
   bool use_bias_ = false;

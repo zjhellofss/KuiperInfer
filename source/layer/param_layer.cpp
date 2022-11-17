@@ -7,8 +7,8 @@
 
 namespace kuiper_infer {
 ParamLayer::ParamLayer(const std::string &layer_name,
-                       const std::vector<std::shared_ptr<Blob>> &weights,
-                       const std::vector<std::shared_ptr<Blob>> &bias)
+                       const std::vector<std::shared_ptr<Tensor>> &weights,
+                       const std::vector<std::shared_ptr<Tensor>> &bias)
     : Layer(layer_name), weights_(weights), bias_(bias) {
 
 }
@@ -17,19 +17,19 @@ ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {
 
 }
 
-const std::vector<std::shared_ptr<Blob>> &ParamLayer::weights() const {
+const std::vector<std::shared_ptr<Tensor>> &ParamLayer::weights() const {
   return this->weights_;
 }
 
-const std::vector<std::shared_ptr<Blob>> &ParamLayer::bias() const {
+const std::vector<std::shared_ptr<Tensor>> &ParamLayer::bias() const {
   return this->bias_;
 }
 
-void ParamLayer::set_weights(const std::vector<std::shared_ptr<Blob>> &weights) {
+void ParamLayer::set_weights(const std::vector<std::shared_ptr<Tensor>> &weights) {
   this->weights_ = weights;
 }
 
-void ParamLayer::set_bias(const std::vector<std::shared_ptr<Blob>> &bias) {
+void ParamLayer::set_bias(const std::vector<std::shared_ptr<Tensor>> &bias) {
   this->bias_ = bias;
 }
 
@@ -73,8 +73,8 @@ void ParamLayer::set_bias(const std::vector<double> &bias) {
   }
 }
 
-InferStatus ParamLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inputs,
-                                std::vector<std::shared_ptr<Blob>> &outputs) {
+InferStatus ParamLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+                                std::vector<std::shared_ptr<Tensor>> &outputs) {
   LOG(FATAL) << "Layer not implement yet!";
 }
 
