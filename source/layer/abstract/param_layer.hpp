@@ -18,10 +18,6 @@ class ParamLayer : public Layer {
 
   const std::vector<std::shared_ptr<Tensor>> &bias() const override;
 
-  void set_weights(const std::vector<std::shared_ptr<Tensor>> &weights) override;
-
-  void set_bias(const std::vector<std::shared_ptr<Tensor>> &bias) override;
-
   void set_weights(const std::vector<double> &weights) override;
 
   void set_bias(const std::vector<double> &bias) override;

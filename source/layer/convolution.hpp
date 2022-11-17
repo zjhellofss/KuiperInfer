@@ -4,17 +4,11 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
-#include "param_layer.hpp"
+#include "abstract/param_layer.hpp"
 
 namespace kuiper_infer {
 class ConvolutionLayer : public ParamLayer {
  public:
-  explicit ConvolutionLayer();
-
-  explicit ConvolutionLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
-                            const std::vector<std::shared_ptr<Tensor>> &bias,
-                            uint32_t padding, uint32_t stride, bool use_bias = true);
-
   explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
                             uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias = true);
 

@@ -25,14 +25,6 @@ const std::vector<std::shared_ptr<Tensor>> &ParamLayer::bias() const {
   return this->bias_;
 }
 
-void ParamLayer::set_weights(const std::vector<std::shared_ptr<Tensor>> &weights) {
-  this->weights_ = weights;
-}
-
-void ParamLayer::set_bias(const std::vector<std::shared_ptr<Tensor>> &bias) {
-  this->bias_ = bias;
-}
-
 void ParamLayer::set_weights(const std::vector<double> &weights) {
   const uint32_t elem_size = weights.size();
 

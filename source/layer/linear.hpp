@@ -4,14 +4,12 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_LINEAR_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_LINEAR_HPP_
-#include "layer.hpp"
-#include "param_layer.hpp"
+#include "abstract/layer.hpp"
+#include "abstract/param_layer.hpp"
 
 namespace kuiper_infer {
 class LinearLayer : public ParamLayer {
  public:
-  explicit LinearLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
-                       const std::vector<std::shared_ptr<Tensor>> &bias, bool use_bias = true);
 
   explicit LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias = true);
 

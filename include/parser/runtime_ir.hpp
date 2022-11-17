@@ -5,7 +5,7 @@
 #include <map>
 
 #include "ir.h"
-#include "../../source/layer/layer.hpp"
+#include "../../source/layer/abstract/layer.hpp"
 
 namespace kuiper_infer {
 enum class RuntimeDataType {
@@ -159,7 +159,7 @@ class RuntimeGraph {
  private:
   static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
 
-  static std::shared_ptr<Layer> CreateLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op);
+  static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
  private:
   std::string param_path_;
   std::string bin_path_;

@@ -27,7 +27,7 @@ class Tensor {
 
   bool empty() const;
 
-  double front() const;
+  double index(uint32_t offset) const;
 
   std::vector<uint32_t> shapes() const;
 

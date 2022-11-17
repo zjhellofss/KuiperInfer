@@ -7,12 +7,6 @@
 
 namespace kuiper_infer {
 
-LinearLayer::LinearLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
-                         const std::vector<std::shared_ptr<Tensor>> &bias, bool use_bias)
-    : ParamLayer("Linear", weights, bias), use_bias_(use_bias) {
-
-}
-
 LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias)
     : ParamLayer("Linear"), use_bias_(use_bias) {
 

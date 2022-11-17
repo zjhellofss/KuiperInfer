@@ -10,7 +10,7 @@
 #include <glog/logging.h>
 
 #include "common.hpp"
-#include "../data/blob.hpp"
+#include "../../data/tensor.hpp"
 
 namespace kuiper_infer {
 class RuntimeOperator;
@@ -25,8 +25,8 @@ class Layer {
                               std::vector<std::shared_ptr<Tensor>> &outputs);
 
   virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
-                             const std::vector<std::shared_ptr<Tensor>> &inputs2,
-                             std::vector<std::shared_ptr<Tensor>> &ouputs);
+                              const std::vector<std::shared_ptr<Tensor>> &inputs2,
+                              std::vector<std::shared_ptr<Tensor>> &ouputs);
 
   virtual const std::vector<std::shared_ptr<Tensor>> &weights() const;
 
@@ -40,7 +40,7 @@ class Layer {
 
   virtual void set_bias(const std::vector<double> &bias);
 
-  virtual const std::string &layer_name() const;
+  virtual const std::string &layer_name() const { return this->layer_name_; }
 
  protected:
   std::string layer_name_;

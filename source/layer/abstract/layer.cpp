@@ -28,10 +28,6 @@ void Layer::set_weights(const std::vector<std::shared_ptr<Tensor>> &weights) {
   LOG(FATAL) << "Layer not implement yet!";
 }
 
-const std::string &Layer::layer_name() const {
-  return this->layer_name_;
-}
-
 InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
                            const std::vector<std::shared_ptr<Tensor>> &inputs2,
                            std::vector<std::shared_ptr<Tensor>> &ouputs) {

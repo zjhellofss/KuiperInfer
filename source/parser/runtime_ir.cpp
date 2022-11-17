@@ -3,6 +3,7 @@
 #include "../layer/convolution.hpp"
 #include "../layer/concat.hpp"
 #include "../layer/flatten.hpp"
+#include "../layer/layer_factory.hpp"
 #include <memory>
 #include <queue>
 
@@ -196,7 +197,7 @@ void RuntimeGraph::Build() {
     } else if (kOperator->type == "pnnx.Output") {
       this->output_operators_.push_back(kOperator);
     } else {
-      std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator->type, kOperator);
+      std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
       if (layer) {
         kOperator->layer = layer;
       }
@@ -281,30 +282,11 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
   }
 }
 
-std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
-                                                 const std::shared_ptr<RuntimeOperator> &op) {
+std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {
   LOG_IF(FATAL, !op) << "Operator is empty!";
-  if (layer_type == "nn.Conv2d") {
-    std::shared_ptr<Layer> conv_layer;
-    const ParseParameterAttrStatus &result = ConvolutionLayer::GetInstance(op, conv_layer);
-    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
-            << "Build convolution layer failed, error code: " << int(result);
-    return conv_layer;
-  } else if (layer_type == "torch.cat") {
-    std::shared_ptr<Layer> concat_layer;
-    const ParseParameterAttrStatus &result = ConcatLayer::GetInstance(op, concat_layer);
-    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
-            << "Build concat layer failed, error code: " << int(result);
-    return concat_layer;
-  } else if (layer_type == "torch.flatten") {
-    std::shared_ptr<Layer> flatten_layer;
-    const ParseParameterAttrStatus &result = FlattenLayer::GetInstance(op, flatten_layer);
-    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
-            << "Build concat layer failed, error code: " << int(result);
-    return flatten_layer;
-  } else {
-    LOG(FATAL) << "Unknown layer to create: " << op->name;
-  }
+  std::shared_ptr<Layer> layer;
+  LayerRegisterer::CreateLayer(op, layer);
+  return layer;
 }
 
 std::vector<std::shared_ptr<Tensor>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor>> &data) {

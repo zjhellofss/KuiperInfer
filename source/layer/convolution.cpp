@@ -4,19 +4,10 @@
 
 #include "convolution.hpp"
 #include "parser/runtime_ir.hpp"
+#include "layer_factory.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
-
-ConvolutionLayer::ConvolutionLayer() : ParamLayer("Convolution") {
-
-}
-
-ConvolutionLayer::ConvolutionLayer(const std::vector<std::shared_ptr<Tensor>> &weights,
-                                   const std::vector<std::shared_ptr<Tensor>> &bias,
-                                   uint32_t padding, uint32_t stride, bool use_bias)
-    : ParamLayer("Convolution", weights, bias), padding_(padding), stride_(stride), use_bias_(use_bias) {
-}
 
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
                                    uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias)
@@ -226,5 +217,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   conv_layer->set_weights(weight_values);
   return ParseParameterAttrStatus::kParameterParseSuccess;
 }
+
+LayerRegistererWrapper kConvGetInstance("nn.Conv2d", ConvolutionLayer::GetInstance);
 
 }

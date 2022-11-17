@@ -2,7 +2,7 @@
 // Created by fss on 22-11-12.
 //
 
-#include "blob.hpp"
+#include "tensor.hpp"
 #include <glog/logging.h>
 
 #include <memory>
@@ -36,8 +36,9 @@ bool Tensor::empty() const {
   return this->data_.empty();
 }
 
-double Tensor::front() const {
-  return this->data_.front();
+double Tensor::index(uint32_t offset) const {
+  CHECK(offset < this->data_.size());
+  return this->data_.at(offset);
 }
 
 std::vector<uint32_t> Tensor::shapes() const {
