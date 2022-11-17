@@ -6,6 +6,7 @@
 #include <glog/logging.h>
 
 namespace kuiper_infer {
+
 FlattenLayer::FlattenLayer() : Layer("Flatten") {
 
 }

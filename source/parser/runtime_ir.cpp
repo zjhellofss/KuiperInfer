@@ -223,6 +223,7 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
     }
 
     if (current_op == output_op) {
+      LOG(INFO) << "Model inference end";
       // 已经到了输出节点
       break;
     }
@@ -243,6 +244,9 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       std::vector<std::shared_ptr<Blob>> ouput_data;
       if (input_operands_size == 1) {
         const auto &input_operand1 = input_datas.front();
+        for (int i = 0; i < input_operand1->datas.size(); ++i) {
+          input_operand1->datas.at(i)->Show();
+        }
         const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
@@ -260,6 +264,10 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       auto &next_op = pair.second;
       auto &next_input_operands = next_op->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
+        LOG(INFO) << current_op->name;
+        for (int i = 0; i < output_data.size(); ++i) {
+          output_data.at(i)->Show();
+        }
         next_input_operands.at(current_op->name)->datas = CloneData(output_data);
         if (!next_op->has_transfer) {
           ops_queue.push(next_op);
@@ -271,7 +279,6 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
     if (is_first_layer) {
       is_first_layer = false;
     }
-
   }
 }
 

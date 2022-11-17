@@ -15,7 +15,7 @@ TEST(test_ir, load) {
 
 TEST(test_ir, build) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("./tmp/resnet18.pnnx.param", "./tmp/resnet18.pnnx.bin");
+  RuntimeGraph graph("./tmp/resnet181.pnnx.param", "./tmp/resnet181.pnnx.bin");
   bool init = graph.Init();
   CHECK(init == true);
   graph.Build();
