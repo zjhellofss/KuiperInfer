@@ -157,6 +157,8 @@ class RuntimeGraph {
   void Forward(std::vector<std::shared_ptr<Blob>> input_data);
 
  private:
+  static std::vector<std::shared_ptr<Blob>> CloneData(const std::vector<std::shared_ptr<Blob>> &data);
+
   static std::shared_ptr<Layer> CreateLayer(const std::string &layer_type, const std::shared_ptr<RuntimeOperator> &op);
  private:
   std::string param_path_;

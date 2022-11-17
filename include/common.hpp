@@ -25,11 +25,13 @@ enum class ParseParameterAttrStatus {
   kParameterMissingUseBias = 3,
   kParameterMissingInChannel = 4,
   kParameterMissingOutChannel = 5,
-  kParameterMissingWeightSize = 6,
-  kParameterMissingBiasSize = 7,
-  kParameterMissingParamsSize = 8,
+  kParameterMissingWeight = 6,
+  kParameterMissingBias = 7,
+  kParameterMissingDim = 8,
+
   kParameterMissingAttrBias = 9,
   kParameterMissingAttrWeight = 10,
+
   kParameterParseSuccess = 11
 };
 }

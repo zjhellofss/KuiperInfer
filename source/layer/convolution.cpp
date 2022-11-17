@@ -115,7 +115,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Blob>> &
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                        std::shared_ptr<Layer> &conv_layer) {
   CHECK(op != nullptr);
-  const std::map<std::string, RuntimeParameter *> params = op->params;
+  const std::map<std::string, RuntimeParameter *> &params = op->params;
 
   if (params.find("in_channels") == params.end()) {
     LOG(ERROR) << "Can not find the in channel parameter";
@@ -171,12 +171,12 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   }
 
   if (params.find("kernel_size") == params.end()) {
-    LOG(ERROR) << "Can not find the kernel size parameter";
+    LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
   const auto &kernel = dynamic_cast<RuntimeParameterIntArray *>(params.at("kernel_size"));
   if (!kernel) {
-    LOG(ERROR) << "Can not find the kernel size parameter";
+    LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
 
@@ -184,9 +184,9 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const std::vector<int> &kernels = kernel->value;
   const std::vector<int> &paddings = padding->value;
   const std::vector<int> &strides = stride->value;
-  if (kernels.size() != dims || paddings.size() != dims || stride->value.size() != dims) {
-    return ParseParameterAttrStatus::kParameterMissingParamsSize;
-  }
+  CHECK(kernels.size() == dims);
+  CHECK(strides.size() == dims);
+  CHECK(paddings.size() == dims);
 
   // kernel的方向是倒置的
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,
@@ -205,7 +205,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const std::vector<int> &bias_shape = bias->shape;
   if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
     LOG(ERROR) << "Bias shape is wrong";
-    return ParseParameterAttrStatus::kParameterMissingBiasSize;
+    return ParseParameterAttrStatus::kParameterMissingAttrBias;
   }
 
   std::vector<double> bias_values = bias->get<double>();
@@ -219,7 +219,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const std::vector<int> &weight_shape = weight->shape;
   if (weight_shape.empty()) {
     LOG(ERROR) << "Weight shape is empty";
-    return ParseParameterAttrStatus::kParameterMissingWeightSize;
+    return ParseParameterAttrStatus::kParameterMissingAttrWeight;
   }
 
   std::vector<double> weight_values = weight->get<double>();

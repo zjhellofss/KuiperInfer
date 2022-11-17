@@ -1,7 +1,8 @@
 
 #include "parser/runtime_ir.hpp"
 #include "../layer/convolution.hpp"
-
+#include "../layer/concat.hpp"
+#include "../layer/flatten.hpp"
 #include <memory>
 #include <queue>
 
@@ -195,9 +196,9 @@ void RuntimeGraph::Build() {
     } else if (kOperator->type == "pnnx.Output") {
       this->output_operators_.push_back(kOperator);
     } else {
-      std::shared_ptr<Layer> conv_layer = RuntimeGraph::CreateLayer(kOperator->type, kOperator);
-      if (conv_layer) {
-        kOperator->layer = conv_layer;
+      std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator->type, kOperator);
+      if (layer) {
+        kOperator->layer = layer;
       }
     }
   }
@@ -221,6 +222,11 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       break;
     }
 
+    if (current_op == output_op) {
+      // 已经到了输出节点
+      break;
+    }
+
     std::vector<std::shared_ptr<Blob>> output_data;
     if (is_first_layer) {
       output_data = input_data;
@@ -229,13 +235,24 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       LOG(INFO) << current_op_name;
       const auto &input_operands = current_op->input_operands;
       const uint32_t input_operands_size = input_operands.size();
-      output_data = input_data;
+
+      std::vector<std::shared_ptr<RuntimeOperand>> input_datas;
+      for (const auto &pair : current_op->input_operands) {
+        input_datas.push_back(pair.second);
+      }
+      std::vector<std::shared_ptr<Blob>> ouput_data;
       if (input_operands_size == 1) {
-
+        const auto &input_operand1 = input_datas.front();
+        const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
+        if (infer_status != InferStatus::kInferSuccess) {
+          LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
+        }
       } else if (input_operands_size == 2) {
-
+        const auto &input_operand1 = input_datas.front();
+        const auto &input_operand2 = input_datas.back();
+        current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
       } else {
-        LOG(FATAL) << "Unknown input size, three input";
+        LOG(FATAL) << "The number of the input feature maps is wrong, three input";
       }
     }
     const auto &next_ops = current_op->output_operators;
@@ -243,7 +260,7 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
       auto &next_op = pair.second;
       auto &next_input_operands = next_op->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-        next_input_operands.at(current_op->name)->datas = output_data;
+        next_input_operands.at(current_op->name)->datas = CloneData(output_data);
         if (!next_op->has_transfer) {
           ops_queue.push(next_op);
           next_op->has_transfer = true;
@@ -254,6 +271,7 @@ void RuntimeGraph::Forward(std::vector<std::shared_ptr<Blob>> input_data) {
     if (is_first_layer) {
       is_first_layer = false;
     }
+
   }
 }
 
@@ -266,8 +284,30 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::string &layer_type,
     LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
             << "Build convolution layer failed, error code: " << int(result);
     return conv_layer;
+  } else if (layer_type == "torch.cat") {
+    std::shared_ptr<Layer> concat_layer;
+    const ParseParameterAttrStatus &result = ConcatLayer::GetInstance(op, concat_layer);
+    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
+            << "Build concat layer failed, error code: " << int(result);
+    return concat_layer;
+  } else if (layer_type == "torch.flatten") {
+    std::shared_ptr<Layer> flatten_layer;
+    const ParseParameterAttrStatus &result = FlattenLayer::GetInstance(op, flatten_layer);
+    LOG_IF(FATAL, result != ParseParameterAttrStatus::kParameterParseSuccess)
+            << "Build concat layer failed, error code: " << int(result);
+    return flatten_layer;
   } else {
     LOG(FATAL) << "Unknown layer to create: " << op->name;
   }
+}
+
+std::vector<std::shared_ptr<Blob>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Blob>> &data) {
+  std::vector<std::shared_ptr<Blob>> output_data;
+  const uint32_t size = data.size();
+  output_data.resize(size);
+  for (uint32_t i = 0; i < size; ++i) {
+    output_data.at(i) = data.at(i)->Clone();
+  }
+  return output_data;
 }
 }

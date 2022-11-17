@@ -2,6 +2,7 @@
 // Created by fss on 22-11-12.
 //
 #include "flatten.hpp"
+#include "parser/runtime_ir.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -25,5 +26,34 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Blob>> &inpu
     outputs.push_back(output_data);
   }
   return InferStatus::kInferSuccess;
+}
+
+ParseParameterAttrStatus FlattenLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                                   std::shared_ptr<Layer> &flatten_layer) {
+
+  const std::map<std::string, RuntimeParameter *> &params = op->params;
+  if (params.find("start_dim") == params.end()) {
+    LOG(ERROR) << "Can not find the start dim parameter";
+    return ParseParameterAttrStatus::kParameterMissingDim;
+  }
+  const auto &start_dim = dynamic_cast<RuntimeParameterInt *>(params.at("start_dim"));
+  if (!start_dim) {
+    LOG(ERROR) << "Can not find the start dim parameter";
+    return ParseParameterAttrStatus::kParameterMissingDim;
+  }
+
+  if (params.find("end_dim") == params.end()) {
+    LOG(ERROR) << "Can not find the end dim parameter";
+    return ParseParameterAttrStatus::kParameterMissingDim;
+  }
+  const auto &end_dim = dynamic_cast<RuntimeParameterInt *>(params.at("end_dim"));
+  if (!end_dim) {
+    LOG(ERROR) << "Can not find the start dim parameter";
+    return ParseParameterAttrStatus::kParameterMissingDim;
+  }
+
+  CHECK(end_dim->value == -1 && start_dim->value == 1);
+  flatten_layer = std::make_shared<FlattenLayer>();
+  return ParseParameterAttrStatus::kParameterParseSuccess;
 }
 }
