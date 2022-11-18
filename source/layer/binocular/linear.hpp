@@ -4,8 +4,8 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_LINEAR_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_LINEAR_HPP_
-#include "../abstract/layer.hpp"
-#include "../abstract/param_layer.hpp"
+#include "layer/abstract/layer.hpp"
+#include "layer/abstract/param_layer.hpp"
 
 namespace kuiper_infer {
 class LinearLayer : public ParamLayer {

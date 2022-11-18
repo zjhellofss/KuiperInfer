@@ -5,7 +5,7 @@
 #ifndef KUIPER_COURSE_SOURCE_LAYER_BATCHNORM2D_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_BATCHNORM2D_HPP_
 
-#include "../abstract/param_layer.hpp"
+#include "layer/abstract/param_layer.hpp"
 namespace kuiper_infer {
 
 class BatchNorm2dLayer : public ParamLayer {

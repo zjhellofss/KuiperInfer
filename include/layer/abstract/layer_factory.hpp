@@ -7,7 +7,7 @@
 #include <map>
 #include <string>
 #include <memory>
-#include "../abstract/layer.hpp"
+#include "layer.hpp"
 
 namespace kuiper_infer {
 class LayerRegisterer {
@@ -19,7 +19,7 @@ class LayerRegisterer {
 
   static void RegisterCreator(const std::string &layer_type, const Creator &creator);
 
-  static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op, std::shared_ptr<Layer> &layer);
+  static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 
   static CreateRegistry &Registry();
 };

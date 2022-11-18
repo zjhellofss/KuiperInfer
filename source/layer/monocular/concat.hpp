@@ -4,7 +4,7 @@
 
 #ifndef KUIPER_COURSE_SOURCE_LAYER_CONCAT_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_CONCAT_HPP_
-#include "../abstract/layer.hpp"
+#include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 class ConcatLayer : public Layer {
  public:

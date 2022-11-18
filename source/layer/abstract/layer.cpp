@@ -1,7 +1,7 @@
 //
 // Created by fss on 22-11-15.
 //
-#include "layer.hpp"
+#include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 
 const std::vector<std::shared_ptr<Tensor>> &Layer::weights() const {

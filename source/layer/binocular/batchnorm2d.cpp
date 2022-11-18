@@ -2,7 +2,7 @@
 // Created by fss on 22-11-17.
 //
 #include "batchnorm2d.hpp"
-#include "layer_factory.hpp"
+#include "layer/abstract/layer_factory.hpp"
 #include "parser/runtime_ir.hpp"
 
 namespace kuiper_infer {
@@ -72,7 +72,7 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
   const auto &attrs = op->attribute;
   const auto &mean_attr_iter = attrs.find("running_mean");
   if (mean_attr_iter == attrs.end()) {
-    return ParseParameterAttrStatus::kParameterMissingAttrRunningMean;
+    return ParseParameterAttrStatus::kAttrMissingRunningMean;
   }
 
   const auto &mean_attr = mean_attr_iter->second;
@@ -81,13 +81,13 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
 
   const auto &var_attr_iter = attrs.find("running_var");
   if (var_attr_iter == attrs.end()) {
-    return ParseParameterAttrStatus::kParameterMissingAttrRunningVar;
+    return ParseParameterAttrStatus::kAttrMissingRunningVar;
   }
 
   const auto &var_attr = var_attr_iter->second;
   std::vector<double> var = var_attr->get<double>();;
   batch_layer->set_bias(var);
-  return ParseParameterAttrStatus::kParameterParseSuccess;
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
 BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, double eps)

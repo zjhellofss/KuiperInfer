@@ -3,7 +3,7 @@
 //
 #include "flatten.hpp"
 #include "parser/runtime_ir.hpp"
-#include "layer_factory.hpp"
+#include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -56,7 +56,7 @@ ParseParameterAttrStatus FlattenLayer::GetInstance(const std::shared_ptr<Runtime
 
   CHECK(end_dim->value == -1 && start_dim->value == 1);
   flatten_layer = std::make_shared<FlattenLayer>();
-  return ParseParameterAttrStatus::kParameterParseSuccess;
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
 LayerRegistererWrapper kFlattenGetInstance("torch.flatten", FlattenLayer::GetInstance);

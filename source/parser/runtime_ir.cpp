@@ -1,9 +1,6 @@
 
 #include "parser/runtime_ir.hpp"
-#include "../layer/binocular/convolution.hpp"
-#include "../layer/monocular/concat.hpp"
-#include "../layer/binocular/flatten.hpp"
-#include "../layer/binocular/layer_factory.hpp"
+#include "layer/abstract/layer_factory.hpp"
 #include <memory>
 #include <queue>
 
@@ -70,124 +67,25 @@ bool RuntimeGraph::Init() {
       // 初始化算子中的input
       const std::vector<pnnx::Operand *> &inputs = op->inputs;
       if (!inputs.empty()) {
-        for (const pnnx::Operand *input : inputs) {
-          if (!input) {
-            continue;
-          }
-          const pnnx::Operator *producer = input->producer;
-          std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
-          runtime_operand->name = producer->name;
-          runtime_operand->shapes = input->shape;
-
-          switch (input->type) {
-            case 1: {
-              runtime_operand->type = RuntimeDataType::kTypeFloat32;
-              break;
-            }
-            default: {
-              LOG(FATAL) << "Unknown input operand type: " << input->type;
-            }
-          }
-          runtime_operator->input_operands.insert({producer->name, runtime_operand});
-        }
+        InitInputOperators(inputs, runtime_operator);
       }
 
       // 记录输出operand中的名称
       const std::vector<pnnx::Operand *> &outputs = op->outputs;
-      for (const pnnx::Operand *output : outputs) {
-        if (!output) {
-          continue;
-        }
-        const auto &consumers = output->consumers;
-        for (const auto &c : consumers) {
-          runtime_operator->output_names.push_back(c->name);
-        }
+      if (!outputs.empty()) {
+        InitOutputOperators(outputs, runtime_operator);
       }
 
       // 初始化算子中的attribute(权重)
       const std::map<std::string, pnnx::Attribute> &attrs = op->attrs;
-      for (const auto &pair : attrs) {
-        const std::string &name = pair.first;
-        const pnnx::Attribute &attr = pair.second;
-        switch (attr.type) {
-          case 1: {
-            std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<RuntimeAttribute>();
-            runtime_attribute->type = RuntimeDataType::kTypeFloat32;
-            runtime_attribute->weight_data = attr.data;
-            runtime_attribute->shape = attr.shape;
-            runtime_operator->attribute.insert({name, runtime_attribute});
-            break;
-          }
-          default : {
-            LOG(FATAL) << "Unknown attribute type";
-          }
-        }
+      if (!attrs.empty()) {
+        InitGraphAttrs(attrs, runtime_operator);
       }
 
       // 初始化算子中的parameter
       const std::map<std::string, pnnx::Parameter> &params = op->params;
-      for (const auto &pair : params) {
-        const std::string &name = pair.first;
-        const pnnx::Parameter &parameter = pair.second;
-        const int type = parameter.type;
-        switch (type) {
-          case 0: {
-            RuntimeParameter *runtime_parameter = new RuntimeParameter;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 1: {
-            RuntimeParameterBool *runtime_parameter = new RuntimeParameterBool;
-            runtime_parameter->value = parameter.b;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 2: {
-            RuntimeParameterInt *runtime_parameter = new RuntimeParameterInt;
-            runtime_parameter->value = parameter.i;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 3: {
-            RuntimeParameterFloat *runtime_parameter = new RuntimeParameterFloat;
-            runtime_parameter->value = parameter.f;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 4: {
-            RuntimeParameterString *runtime_parameter = new RuntimeParameterString;
-            runtime_parameter->value = parameter.s;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 5: {
-            RuntimeParameterIntArray *runtime_parameter = new RuntimeParameterIntArray;
-            runtime_parameter->value = parameter.ai;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-
-          case 6: {
-            RuntimeParameterFloatArray *runtime_parameter = new RuntimeParameterFloatArray;
-            runtime_parameter->value = parameter.af;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-          case 7: {
-            RuntimeParameterStringArray *runtime_parameter = new RuntimeParameterStringArray;
-            runtime_parameter->value = parameter.as;
-            runtime_operator->params.insert({name, runtime_parameter});
-            break;
-          }
-          default: {
-            LOG(FATAL) << "Unknown parameter type";
-          }
-        }
+      if (!params.empty()) {
+        InitGraphParams(params, runtime_operator);
       }
       this->operators_.push_back(runtime_operator);
     }
@@ -204,6 +102,10 @@ bool RuntimeGraph::Init() {
       }
     }
   }
+
+  // 有环图搜索
+  bool is_dag = CheckDAG();
+  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
   graph_state_ = GraphState::NeedBuild;
   return true;
 }
@@ -272,7 +174,7 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
       const uint32_t input_operands_size = input_operands.size();
 
       std::vector<std::shared_ptr<RuntimeOperand>> input_datas;
-      for (const auto &pair : current_op->input_operands) {
+      for (const auto &pair : input_operands) {
         input_datas.push_back(pair.second);
       }
       std::vector<std::shared_ptr<Tensor>> ouput_data;
@@ -293,10 +195,13 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
         }
       } else {
-        LOG(FATAL) << "The number of the input feature maps is wrong, three input";
+        LOG(FATAL) << "The number of the input feature maps is wrong, greater than two input";
       }
     }
+
     const auto &next_ops = current_op->output_operators;
+
+    // probe next sub layers
     for (const auto &pair : next_ops) {
       auto &next_op = pair.second;
       auto &next_input_operands = next_op->input_operands;
@@ -323,8 +228,8 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {
   LOG_IF(FATAL, !op) << "Operator is empty!";
-  std::shared_ptr<Layer> layer;
-  LayerRegisterer::CreateLayer(op, layer);
+  const auto &layer = LayerRegisterer::CreateLayer(op);
+  LOG_IF(FATAL, !layer) << "Layer init failed";
   return layer;
 }
 
@@ -337,4 +242,159 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::CloneData(const std::vector<s
   }
   return output_data;
 }
+
+void RuntimeGraph::InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
+                                      const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+  for (const pnnx::Operand *input : inputs) {
+    if (!input) {
+      continue;
+    }
+    const pnnx::Operator *producer = input->producer;
+    std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<RuntimeOperand>();
+    runtime_operand->name = producer->name;
+    runtime_operand->shapes = input->shape;
+
+    switch (input->type) {
+      case 1: {
+        runtime_operand->type = RuntimeDataType::kTypeFloat32;
+        break;
+      }
+      default: {
+        LOG(FATAL) << "Unknown input operand type: " << input->type;
+      }
+    }
+    runtime_operator->input_operands.insert({producer->name, runtime_operand});
+  }
+}
+
+void RuntimeGraph::InitOutputOperators(const std::vector<pnnx::Operand *> &outputs,
+                                       const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+  for (const pnnx::Operand *output : outputs) {
+    if (!output) {
+      continue;
+    }
+    const auto &consumers = output->consumers;
+    for (const auto &c : consumers) {
+      runtime_operator->output_names.push_back(c->name);
+    }
+  }
+}
+
+void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
+                                   const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+  for (const auto &pair : params) {
+    const std::string &name = pair.first;
+    const pnnx::Parameter &parameter = pair.second;
+    const int type = parameter.type;
+    switch (type) {
+      case 0: {
+        RuntimeParameter *runtime_parameter = new RuntimeParameter;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 1: {
+        RuntimeParameterBool *runtime_parameter = new RuntimeParameterBool;
+        runtime_parameter->value = parameter.b;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 2: {
+        RuntimeParameterInt *runtime_parameter = new RuntimeParameterInt;
+        runtime_parameter->value = parameter.i;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 3: {
+        RuntimeParameterFloat *runtime_parameter = new RuntimeParameterFloat;
+        runtime_parameter->value = parameter.f;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 4: {
+        RuntimeParameterString *runtime_parameter = new RuntimeParameterString;
+        runtime_parameter->value = parameter.s;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 5: {
+        RuntimeParameterIntArray *runtime_parameter = new RuntimeParameterIntArray;
+        runtime_parameter->value = parameter.ai;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+
+      case 6: {
+        RuntimeParameterFloatArray *runtime_parameter = new RuntimeParameterFloatArray;
+        runtime_parameter->value = parameter.af;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+      case 7: {
+        RuntimeParameterStringArray *runtime_parameter = new RuntimeParameterStringArray;
+        runtime_parameter->value = parameter.as;
+        runtime_operator->params.insert({name, runtime_parameter});
+        break;
+      }
+      default: {
+        LOG(FATAL) << "Unknown parameter type";
+      }
+    }
+  }
+}
+
+void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs,
+                                  const std::shared_ptr<RuntimeOperator> &runtime_operator) {
+  for (const auto &pair : attrs) {
+    const std::string &name = pair.first;
+    const pnnx::Attribute &attr = pair.second;
+    switch (attr.type) {
+      case 1: {
+        std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<RuntimeAttribute>();
+        runtime_attribute->type = RuntimeDataType::kTypeFloat32;
+        runtime_attribute->weight_data = attr.data;
+        runtime_attribute->shape = attr.shape;
+        runtime_operator->attribute.insert({name, runtime_attribute});
+        break;
+      }
+      default : {
+        LOG(FATAL) << "Unknown attribute type";
+      }
+    }
+  }
+}
+
+bool RuntimeGraph::CheckDAG() {
+  std::queue<std::shared_ptr<RuntimeOperator>> operator_queue;
+  if (this->operators_.empty()) {
+    return false;
+  }
+  LOG_IF(FATAL, this->operators_.empty()) << "No operators in the graph!";
+  operator_queue.push(this->operators_.front());
+  while (!operator_queue.empty()) {
+    const auto &current_op = operator_queue.front();
+    current_op->has_transfer = true;
+    operator_queue.pop();
+    const auto &sub_operators = current_op->output_operators;
+    for (const auto &pair : sub_operators) {
+      if (pair.second->has_transfer) {
+        LOG(ERROR) << "The graph exists a loop";
+        return false;
+      } else {
+        operator_queue.push(pair.second);
+      }
+    }
+  }
+
+  for (const auto &op : this->operators_) {
+    op->has_transfer = false;
+  }
+  return true;
+}
+
+
 }

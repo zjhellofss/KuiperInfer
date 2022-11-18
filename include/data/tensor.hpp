@@ -5,7 +5,7 @@
 #ifndef KUIPER_COURSE_DATA_BLOB_HPP_
 #define KUIPER_COURSE_DATA_BLOB_HPP_
 #include <memory>
-#include <armadillo>
+#include "armadillo"
 namespace kuiper_infer {
 class Tensor {
  public:

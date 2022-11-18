@@ -10,7 +10,7 @@
 #include <glog/logging.h>
 
 #include "common.hpp"
-#include "../../data/tensor.hpp"
+#include "data/tensor.hpp"
 
 namespace kuiper_infer {
 class RuntimeOperator;

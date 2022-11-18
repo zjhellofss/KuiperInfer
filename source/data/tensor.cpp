@@ -2,7 +2,7 @@
 // Created by fss on 22-11-12.
 //
 
-#include "tensor.hpp"
+#include "data/tensor.hpp"
 #include <glog/logging.h>
 
 #include <memory>

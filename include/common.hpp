@@ -31,12 +31,12 @@ enum class ParseParameterAttrStatus {
   kParameterMissingNumFeatures = 8,
   kParameterMissingDim = 9,
 
-  kParameterMissingAttrBias =10,
-  kParameterMissingAttrWeight = 11,
-  kParameterMissingAttrRunningMean = 12,
-  kParameterMissingAttrRunningVar = 13,
+  kAttrMissingBias =10,
+  kAttrMissingWeight = 11,
+  kAttrMissingRunningMean = 12,
+  kAttrMissingRunningVar = 13,
 
-  kParameterParseSuccess = 0
+  kParameterAttrParseSuccess = 0
 };
 }
 #endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_

@@ -4,7 +4,7 @@
 
 #include "concat.hpp"
 #include "parser/runtime_ir.hpp"
-#include "../binocular/layer_factory.hpp"
+#include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
 
@@ -48,7 +48,7 @@ ParseParameterAttrStatus ConcatLayer::GetInstance(const std::shared_ptr<RuntimeO
   }
 
   concat_layer = std::make_shared<ConcatLayer>(dim->value);
-  return ParseParameterAttrStatus::kParameterParseSuccess;
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
 LayerRegistererWrapper kConcatGetInstance("torch.cat", ConcatLayer::GetInstance);

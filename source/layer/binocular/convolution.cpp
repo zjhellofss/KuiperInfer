@@ -4,7 +4,7 @@
 
 #include "convolution.hpp"
 #include "parser/runtime_ir.hpp"
-#include "layer_factory.hpp"
+#include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -41,7 +41,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor> &input = inputs.at(i);
+    const std::shared_ptr<Tensor> &input_ = inputs.at(i);
+    std::shared_ptr<Tensor> input = input_->Clone();
+
     if (padding_ > 0) {
       input->Padding({padding_, padding_, padding_, padding_}, 0);
     }
@@ -190,33 +192,33 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
   if (attrs.find("bias") == attrs.end()) {
     LOG(ERROR) << "Can not find the bias attribute";
-    return ParseParameterAttrStatus::kParameterMissingAttrBias;
+    return ParseParameterAttrStatus::kAttrMissingBias;
   }
 
   const auto &bias = attrs.at("bias");
   const std::vector<int> &bias_shape = bias->shape;
   if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
     LOG(ERROR) << "Bias shape is wrong";
-    return ParseParameterAttrStatus::kParameterMissingAttrBias;
+    return ParseParameterAttrStatus::kAttrMissingBias;
   }
 
   std::vector<double> bias_values = bias->get<double>();
   conv_layer->set_bias(bias_values);
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the weight attribute";
-    return ParseParameterAttrStatus::kParameterMissingAttrWeight;
+    return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 
   const auto &weight = attrs.at("weight");
   const std::vector<int> &weight_shape = weight->shape;
   if (weight_shape.empty()) {
     LOG(ERROR) << "Weight shape is empty";
-    return ParseParameterAttrStatus::kParameterMissingAttrWeight;
+    return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 
   std::vector<double> weight_values = weight->get<double>();
   conv_layer->set_weights(weight_values);
-  return ParseParameterAttrStatus::kParameterParseSuccess;
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
 LayerRegistererWrapper kConvGetInstance("nn.Conv2d", ConvolutionLayer::GetInstance);

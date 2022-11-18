@@ -3,7 +3,7 @@
 //
 
 #include <glog/logging.h>
-#include "param_layer.hpp"
+#include "layer/abstract/param_layer.hpp"
 
 namespace kuiper_infer {
 ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {

@@ -22,6 +22,6 @@ TEST(test_ir, build) {
   }
   input->Fill(raw_inputs);
   inputs.push_back(input);
+  inputs.push_back(input);
   graph.Forward(inputs, true);
-
 }

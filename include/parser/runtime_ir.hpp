@@ -3,9 +3,10 @@
 #include <glog/logging.h>
 #include <memory>
 #include <map>
+#include <queue>
 
 #include "ir.h"
-#include "../../source/layer/abstract/layer.hpp"
+#include "layer/abstract/layer.hpp"
 
 namespace kuiper_infer {
 enum class RuntimeDataType {
@@ -165,6 +166,20 @@ class RuntimeGraph {
   void Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
 
  private:
+  static void InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
+                                 const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+  static void InitOutputOperators(const std::vector<pnnx::Operand *> &outputs,
+                                  const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+  static void InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &attrs,
+                             const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+  static void InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
+                              const std::shared_ptr<RuntimeOperator> &runtime_operator);
+
+  bool CheckDAG();
+
   static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
