@@ -53,7 +53,7 @@ bool RuntimeGraph::Init() {
 
   std::vector<pnnx::Operator *> operators = this->graph_->ops;
   if (operators.empty()) {
-    LOG(ERROR) << "Do not read the layers' define";
+    LOG(ERROR) << "Can not read the layers' define";
     return false;
   }
 

@@ -170,4 +170,18 @@ void Tensor::Rand() {
   this->data_.randn();
 }
 
+void Tensor::Concat(const std::shared_ptr<Tensor> &tensor) {
+  CHECK(!this->data_.empty() && !tensor->data_.empty());
+  const uint32_t total_channel = this->data_.n_slices + tensor->data_.n_slices;
+  CHECK(this->rows() == tensor->rows() && this->cols() == tensor->cols()) << "Tensors shape are not adapting";
+  this->data_ = arma::join_slices(this->data_, tensor->data_);
+  CHECK(this->data_.n_slices == total_channel);
+}
+
+void Tensor::Add(const std::shared_ptr<Tensor> &tensor) {
+  CHECK(!this->data_.empty() && !tensor->data_.empty());
+  CHECK(this->shapes() == tensor->shapes()) << "Tensors shape are not adapting";
+  this->data_ = this->data_ + tensor->data_;
+}
+
 }

@@ -51,6 +51,10 @@ class Tensor {
 
   void Show();
 
+  void Concat(const std::shared_ptr<Tensor> &tensor);
+
+  void Add(const std::shared_ptr<Tensor> &tensor);
+
   void Flatten();
 
   std::shared_ptr<Tensor> Clone();

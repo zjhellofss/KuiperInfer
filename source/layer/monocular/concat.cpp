@@ -24,16 +24,10 @@ InferStatus ConcatLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inp
   CHECK(inputs1.size() == inputs2.size());
   const uint32_t size = inputs1.size();
   for (uint32_t i = 0; i < size; ++i) {
-    const arma::cube &input1 = inputs1.at(i)->data();
-    const arma::cube &input2 = inputs2.at(i)->data();
-    if (input1.n_slices != input2.n_slices) {
-      LOG(ERROR) << "The dimensions of two feature maps not equal";
-      return InferStatus::kInferFailedChannelParameterError;
-    }
-
-    std::shared_ptr<Tensor> output = std::make_shared<Tensor>(input1.n_slices, input1.n_rows, input2.n_cols);
-    output->data() = arma::join_slices(inputs1.at(i)->data(), inputs2.at(i)->data());
-    outputs.push_back(output);
+    const auto &input1 = inputs1.at(i);
+    const auto &input2 = inputs2.at(i);
+    input1->Concat(input2);
+    outputs.push_back(input1);
   }
   return InferStatus::kInferSuccess;
 }
