@@ -190,10 +190,10 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
         const auto &input_operand2 = input_datas.back();
         const auto &infer_status =
             current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
-        current_op->has_transfer = false;
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
         }
+        current_op->has_transfer = false;
       } else {
         LOG(FATAL) << "The number of the input feature maps is wrong, greater than two input";
       }

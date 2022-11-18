@@ -23,6 +23,10 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
   const uint32_t batch_size = inputs.size();
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto &input = inputs.at(b);
+    if (input->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
+
     std::shared_ptr<Tensor> output = input->Clone();
 
     for (uint32_t i = 0; i < mean_value_size; ++i) {

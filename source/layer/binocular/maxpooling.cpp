@@ -29,6 +29,9 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> 
 
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
+    if (input_data->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
     const uint32_t input_h = input_data->rows();
     const uint32_t input_w = input_data->cols();
     const uint32_t input_c = input_data->channels();
@@ -48,7 +51,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> 
       for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h_) {
         for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w_) {
           const arma::mat &region = input_channel.submat(r, c, r + pooling_h - 1, c + pooling_w - 1);
-          output_channel.at(int(r / stride_h_), int(c / stride_w_)) = arma::mean(arma::mean(region));
+          output_channel.at(int(r / stride_h_), int(c / stride_w_)) = arma::max(arma::max(region));
         }
       }
     }

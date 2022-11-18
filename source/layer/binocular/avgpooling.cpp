@@ -28,6 +28,10 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
 
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
+    if (input_data->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
+
     const uint32_t input_h = input_data->rows();
     const uint32_t input_w = input_data->cols();
     const uint32_t input_c = input_data->channels();

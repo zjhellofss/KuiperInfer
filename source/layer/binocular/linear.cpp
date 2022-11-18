@@ -46,6 +46,9 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inp
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &weight = this->weights_.at(i);
     const std::shared_ptr<Tensor> &input = inputs.at(i);
+    if (input->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
     std::shared_ptr<Tensor> bias;
 
     if (!this->bias_.empty() && this->use_bias_) {

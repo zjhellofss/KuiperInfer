@@ -43,7 +43,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input = inputs.at(i);
-
+    if (input->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
     if (padding_ > 0) {
       input->Padding({padding_, padding_, padding_, padding_}, 0);
     }

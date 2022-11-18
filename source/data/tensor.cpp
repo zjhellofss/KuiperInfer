@@ -184,4 +184,11 @@ void Tensor::Add(const std::shared_ptr<Tensor> &tensor) {
   this->data_ = this->data_ + tensor->data_;
 }
 
+void Tensor::Transform(double value) {
+  CHECK(!this->data_.empty());
+  this->data_.transform([](double val) {
+    return val < 0. ? 0. : val;
+  });
+}
+
 }

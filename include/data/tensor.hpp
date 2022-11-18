@@ -57,6 +57,8 @@ class Tensor {
 
   void Flatten();
 
+  void Transform(double value);
+
   std::shared_ptr<Tensor> Clone();
 
  private:

@@ -19,6 +19,9 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &in
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input = inputs.at(i);
+    if (input->empty()) {
+      return InferStatus::kInferFailedInputEmpty;
+    }
     std::shared_ptr<Tensor> output = input->Clone();
 
     const arma::cube &input_data = input->data();
