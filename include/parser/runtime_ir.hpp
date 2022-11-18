@@ -154,6 +154,14 @@ class RuntimeGraph {
 
   void Build();
 
+  void set_bin_path(const std::string &bin_path);
+
+  void set_param_path(const std::string &param_path);
+
+  const std::string &param_path() const;
+
+  const std::string &bin_path() const;
+
   void Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
 
  private:
@@ -161,6 +169,12 @@ class RuntimeGraph {
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
  private:
+  enum class GraphState {
+    NeedInit = -2,
+    NeedBuild = -1,
+    Complete = 0,
+  };
+  GraphState graph_state_ = GraphState::NeedInit;
   std::string param_path_;
   std::string bin_path_;
   std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;

@@ -22,11 +22,29 @@ RuntimeGraph::RuntimeGraph(const std::string &param_path, const std::string &bin
 
 }
 
+void RuntimeGraph::set_bin_path(const std::string &bin_path) {
+  this->bin_path_ = bin_path;
+}
+
+void RuntimeGraph::set_param_path(const std::string &param_path) {
+  this->param_path_ = param_path;
+}
+
+const std::string &RuntimeGraph::param_path() const {
+  return this->param_path_;
+}
+
+const std::string &RuntimeGraph::bin_path() const {
+  return this->bin_path_;
+}
+
 bool RuntimeGraph::Init() {
+
   if (this->bin_path_.empty() || this->param_path_.empty()) {
     LOG(ERROR) << "The bin path or param path is empty";
     return false;
   }
+
   this->graph_ = std::make_unique<pnnx::Graph>();
   int load_result = this->graph_->load(param_path_, bin_path_);
   if (load_result != 0) {
@@ -186,11 +204,19 @@ bool RuntimeGraph::Init() {
       }
     }
   }
+  graph_state_ = GraphState::NeedBuild;
   return true;
 }
 
 void RuntimeGraph::Build() {
-  LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty!";
+  if (graph_state_ == GraphState::NeedInit) {
+    LOG(ERROR) << "Graph need be inited!";
+    bool init_graph = Init();
+    LOG_IF(FATAL, !init_graph) << "Init graph failed!";
+  }
+  CHECK(graph_state_ == GraphState::NeedBuild) << "Graph status error, current state is " << int(graph_state_);
+
+  LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty, may be no init";
   for (const auto &kOperator : this->operators_) {
     if (kOperator->type == "pnnx.Input") {
       this->input_operators_.push_back(kOperator);
@@ -203,9 +229,16 @@ void RuntimeGraph::Build() {
       }
     }
   }
+  graph_state_ = GraphState::Complete;
 }
 
 void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug) {
+  if (graph_state_ < GraphState::Complete) {
+    LOG(ERROR) << "Graph need be build!";
+    this->Build();
+  }
+  CHECK(graph_state_ == GraphState::Complete) << "Graph status error, current state is " << int(graph_state_);
+
   LOG_IF(FATAL, input_data.empty()) << "Inputs is empty";
   LOG_IF(FATAL, this->input_operators_.size() != 1) << "Only support one input one graph yet!";
   LOG_IF(FATAL, this->output_operators_.size() != 1) << "Only support one output one graph yet!";
