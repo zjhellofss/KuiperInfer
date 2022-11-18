@@ -10,7 +10,8 @@ namespace kuiper_infer {
 class ConvolutionLayer : public ParamLayer {
  public:
   explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
-                            uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias = true);
+                            uint32_t kernel_w, uint32_t padding, uint32_t stride_h, uint32_t stride_w,
+                            bool use_bias = true);
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &conv_layer);
@@ -21,7 +22,8 @@ class ConvolutionLayer : public ParamLayer {
  private:
   bool use_bias_ = false;
   uint32_t padding_ = 0;
-  uint32_t stride_ = 1;
+  uint32_t stride_h_ = 1;
+  uint32_t stride_w_ = 1;
 };
 
 }

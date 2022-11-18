@@ -10,8 +10,9 @@
 namespace kuiper_infer {
 
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
-                                   uint32_t kernel_w, uint32_t padding, uint32_t stride, bool use_bias)
-    : ParamLayer("Convolution"), padding_(padding), stride_(stride), use_bias_(use_bias) {
+                                   uint32_t kernel_w, uint32_t padding, uint32_t stride_h, uint32_t stride_w,
+                                   bool use_bias)
+    : ParamLayer("Convolution"), padding_(padding), stride_h_(stride_h), stride_w_(stride_w), use_bias_(use_bias) {
 
   for (uint32_t i = 0; i < output_channel; ++i) {
     std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(in_channel, kernel_h, kernel_w);
@@ -41,8 +42,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor> &input_ = inputs.at(i);
-    std::shared_ptr<Tensor> input = input_->Clone();
+    const std::shared_ptr<Tensor> &input = inputs.at(i);
 
     if (padding_ > 0) {
       input->Padding({padding_, padding_, padding_, padding_}, 0);
@@ -60,8 +60,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       const uint32_t kernel_h = kernel->rows();
       const uint32_t kernel_w = kernel->cols();
 
-      uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_ + 1));
-      uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_ + 1));
+      uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+      uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
       if (output_h <= 0 || output_w <= 0) {
         LOG(ERROR) << "The size of the output feature map is less than zero";
         return InferStatus::kInferFailedOutputSizeError;
@@ -81,10 +81,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
         const arma::mat &input_channel = input->at(ic);
         const arma::mat &kernel_channel = kernel->at(ic);
 
-        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_) {
-          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_) {
+        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
             const arma::mat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
-            output_channel.at(int(r / stride_), int(c / stride_)) += arma::accu(region % kernel_channel);
+            output_channel.at(int(r / stride_h_), int(c / stride_w_)) += arma::accu(region % kernel_channel);
           }
         }
       }
