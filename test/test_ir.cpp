@@ -8,19 +8,14 @@
 
 TEST(test_ir, build) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet1819.pnnx.param", "tmp/resnet1819.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet18191.pnnx.param", "tmp/resnet18191.pnnx.bin");
   bool init = graph.Init();
   CHECK(init == true);
   graph.Build();
   std::vector<std::shared_ptr<Tensor>> inputs;
-  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(6, 28, 28);
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 224, 224);
 
-  std::vector<double> raw_inputs;
-  const uint32_t total_size = 4704;
-  for (uint32_t i = 0; i < total_size; ++i) {
-    raw_inputs.push_back(i);
-  }
-  input->Fill(raw_inputs);
+  input->Fill(1.);
   inputs.push_back(input);
   inputs.push_back(input);
   graph.Forward(inputs, true);

@@ -17,6 +17,7 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &in
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
     if (input_data->empty()) {
+      LOG(ERROR) << "The input feature map of sigmoid layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
     std::shared_ptr<Tensor> output_data = input_data->Clone();

@@ -6,8 +6,8 @@
 
 namespace kuiper_infer {
 
-AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w) : Layer(
-    "AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
+AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w)
+    : Layer("AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
 }
 
 InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
@@ -25,10 +25,10 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
 
   // 通过自适应方法中计算stride和pool size
   const uint32_t batch = inputs.size();
-
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
     if (input_data->empty()) {
+      LOG(ERROR) << "The input feature map of average pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
 

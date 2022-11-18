@@ -23,9 +23,10 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &in
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
     if (input_data->empty()) {
+      LOG(ERROR) << "The input feature map of flatten layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    const std::shared_ptr<Tensor> output_data = input_data->Clone();
+    const std::shared_ptr<Tensor> &output_data = input_data->Clone();
     CHECK(!output_data->empty());
     output_data->Flatten();
     outputs.push_back(output_data);

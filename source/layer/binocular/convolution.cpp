@@ -44,6 +44,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input = inputs.at(i);
     if (input->empty()) {
+      LOG(ERROR) << "The input feature map of convolution layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
     if (padding_ > 0) {

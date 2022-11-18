@@ -57,7 +57,7 @@ class Tensor {
 
   void Flatten();
 
-  void Transform(double value);
+  void Transform(const std::function<double(double)> &filter);
 
   std::shared_ptr<Tensor> Clone();
 

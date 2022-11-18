@@ -30,6 +30,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> 
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor> &input_data = inputs.at(i);
     if (input_data->empty()) {
+      LOG(ERROR) << "The input feature map of average pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
     const uint32_t input_h = input_data->rows();

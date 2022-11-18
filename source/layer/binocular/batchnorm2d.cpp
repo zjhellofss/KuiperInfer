@@ -13,6 +13,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
     LOG(ERROR) << "The input feature map of batchnorm layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+
   const uint32_t mean_value_size = this->weights_.size();
   const uint32_t bias_value_size = this->bias_.size();
   if (mean_value_size != bias_value_size) {
@@ -24,11 +25,11 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto &input = inputs.at(b);
     if (input->empty()) {
+      LOG(ERROR) << "The input feature map of batchnorm layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
 
     std::shared_ptr<Tensor> output = input->Clone();
-
     for (uint32_t i = 0; i < mean_value_size; ++i) {
       const double mean_value = weights_.at(i)->index(0);
       const double var_value = bias_.at(i)->index(0);

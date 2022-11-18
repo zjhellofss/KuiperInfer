@@ -20,9 +20,10 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &in
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor> &input = inputs.at(i);
     if (input->empty()) {
+      LOG(ERROR) << "The input feature map of softmax layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    std::shared_ptr<Tensor> output = input->Clone();
+    const std::shared_ptr<Tensor> &output = input->Clone();
 
     const arma::cube &input_data = input->data();
     arma::cube &output_data = output->data();

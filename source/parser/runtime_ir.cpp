@@ -103,9 +103,9 @@ bool RuntimeGraph::Init() {
     }
   }
 
-  // 有环图搜索
-  bool is_dag = CheckDAG();
-  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
+  // 有环图搜索 todo
+  //  bool is_dag = CheckDAG();
+  //  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
   graph_state_ = GraphState::NeedBuild;
   return true;
 }
@@ -377,7 +377,6 @@ bool RuntimeGraph::CheckDAG() {
   operator_queue.push(this->operators_.front());
   while (!operator_queue.empty()) {
     const auto &current_op = operator_queue.front();
-    current_op->has_transfer = true;
     operator_queue.pop();
     const auto &sub_operators = current_op->output_operators;
     for (const auto &pair : sub_operators) {
@@ -388,6 +387,7 @@ bool RuntimeGraph::CheckDAG() {
         operator_queue.push(pair.second);
       }
     }
+    current_op->has_transfer = true;
   }
 
   for (const auto &op : this->operators_) {
@@ -395,6 +395,5 @@ bool RuntimeGraph::CheckDAG() {
   }
   return true;
 }
-
 
 }

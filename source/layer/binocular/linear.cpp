@@ -47,6 +47,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inp
     const std::shared_ptr<Tensor> &weight = this->weights_.at(i);
     const std::shared_ptr<Tensor> &input = inputs.at(i);
     if (input->empty()) {
+      LOG(ERROR) << "The input feature map of linear layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
     std::shared_ptr<Tensor> bias;
@@ -70,8 +71,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inp
         arma::mat &output_data = output->at(c);
         output_data = input_data * weight_data;
         if (bias != nullptr && this->use_bias_) {
-          if (bias->cols() == output_data.n_cols
-              && bias->rows() == output_data.n_rows) {
+          if (bias->cols() == output_data.n_cols && bias->rows() == output_data.n_rows) {
             output_data += bias->at(c);
           } else {
             LOG(ERROR) << "The size of the bias and output is not adapting";
