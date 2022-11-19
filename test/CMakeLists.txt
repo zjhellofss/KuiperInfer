@@ -9,8 +9,8 @@ aux_source_directory(../source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(../source/layer/binocular DIR_BINOCULAR_LAYER)
 aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)
 
-#set(CMAKE_BUILD_TYPE Release)
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
 
 set(link_lib glog pthread gflags gtest)
 set(link_math_lib armadillo blas lapack)

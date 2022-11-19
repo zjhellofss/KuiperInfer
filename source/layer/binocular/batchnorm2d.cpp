@@ -57,35 +57,47 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
 
 ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                        std::shared_ptr<Layer> &batch_layer) {
+  CHECK(op != nullptr) << "BatchNorm get instance failed, operator is null";
 
   const auto &params = op->params;
   if (params.find("eps") == params.end()) {
+    LOG(ERROR) << "Can not find the eps parameter";
     return ParseParameterAttrStatus::kParameterMissingEps;
   }
-  const auto &eps_p = dynamic_cast<RuntimeParameterFloat *>(params.at("eps"));
-  const float eps_value = eps_p->value;
+
+  const auto &eps = dynamic_cast<RuntimeParameterFloat *>(params.at("eps"));
+  if (!eps) {
+    LOG(ERROR) << "Can not find the eps parameter";
+    return ParseParameterAttrStatus::kParameterMissingEps;
+  }
 
   if (params.find("num_features") == params.end()) {
+    LOG(ERROR) << "Can not find the num features parameter";
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;
   }
 
-  const auto &num_features_p = dynamic_cast<RuntimeParameterInt *>(params.at("num_features"));
-  const int num_features = num_features_p->value;
-  batch_layer = std::make_shared<BatchNorm2dLayer>(num_features, eps_value);
+  const auto &num_features = dynamic_cast<RuntimeParameterInt *>(params.at("num_features"));
+  if (!num_features) {
+    LOG(ERROR) << "Can not find the num features parameter";
+    return ParseParameterAttrStatus::kParameterMissingNumFeatures;
+  }
+
+  batch_layer = std::make_shared<BatchNorm2dLayer>(num_features->value, eps->value);
 
   // load weights
   const auto &attrs = op->attribute;
-  const auto &mean_attr_iter = attrs.find("running_mean");
-  if (mean_attr_iter == attrs.end()) {
+  if (attrs.find("running_mean") == attrs.end()) {
+    LOG(ERROR) << "Can not find the running mean attribute";
     return ParseParameterAttrStatus::kAttrMissingRunningMean;
   }
 
-  const auto &mean_attr = mean_attr_iter->second;
+  const auto &mean_attr = attrs.at("running_mean");
   std::vector<double> mean = mean_attr->get<double>();
   batch_layer->set_weights(mean);
 
   const auto &var_attr_iter = attrs.find("running_var");
   if (var_attr_iter == attrs.end()) {
+    LOG(ERROR) << "Can not find the running var attribute";
     return ParseParameterAttrStatus::kAttrMissingRunningVar;
   }
 

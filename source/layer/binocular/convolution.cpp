@@ -207,6 +207,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
 
   std::vector<double> bias_values = bias->get<double>();
   conv_layer->set_bias(bias_values);
+
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the weight attribute";
     return ParseParameterAttrStatus::kAttrMissingWeight;

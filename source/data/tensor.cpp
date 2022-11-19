@@ -151,7 +151,7 @@ void Tensor::Flatten() {
   uint32_t index = 0;
   for (uint32_t c = 0; c < channel; ++c) {
     for (uint32_t r = 0; r < rows; ++r) {
-      for (uint32_t c_ = 0; c_ < cols; ++c_) {
+    for (uint32_t c_ = 0; c_ < cols; ++c_) {
         linear_cube.at(0, index, 0) = this->data_.at(r, c_, c);
         index += 1;
       }
