@@ -8,7 +8,7 @@
 
 TEST(test_ir, build) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet18191.pnnx.param", "tmp/resnet18191.pnnx.bin");
+  RuntimeGraph graph("/home/fss/code/kuiper_infer/tmp/resnet18191.pnnx.param", "/home/fss/code/kuiper_infer/tmp/resnet18191.pnnx.bin");
   bool init = graph.Init();
   CHECK(init == true);
   graph.Build();
@@ -18,5 +18,5 @@ TEST(test_ir, build) {
   input->Fill(1.);
   inputs.push_back(input);
   inputs.push_back(input);
-  graph.Forward(inputs, true);
+  graph.Forward(inputs, false);
 }

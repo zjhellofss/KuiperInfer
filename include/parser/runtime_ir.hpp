@@ -183,6 +183,9 @@ class RuntimeGraph {
   static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
+
+  static bool CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op);
+
  private:
   enum class GraphState {
     NeedInit = -2,

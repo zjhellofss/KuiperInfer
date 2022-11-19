@@ -3,6 +3,7 @@
 #include "layer/abstract/layer_factory.hpp"
 #include <memory>
 #include <queue>
+#include <deque>
 
 namespace kuiper_infer {
 
@@ -36,7 +37,6 @@ const std::string &RuntimeGraph::bin_path() const {
 }
 
 bool RuntimeGraph::Init() {
-
   if (this->bin_path_.empty() || this->param_path_.empty()) {
     LOG(ERROR) << "The bin path or param path is empty";
     return false;
@@ -147,13 +147,29 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
 
   const auto &input_op = input_operators_.back();
   auto &output_op = output_operators_.back();
-  std::queue<std::shared_ptr<RuntimeOperator>> ops_queue;
-  ops_queue.push(input_op);
+  std::deque<std::shared_ptr<RuntimeOperator>> ops_queue;
+  std::deque<std::shared_ptr<RuntimeOperator>> ready_queue;
+
+  ops_queue.push_back(input_op);
   bool is_first_layer = true;
 
-  while (!ops_queue.empty()) {
+  while (true) {
+    //先检查read_queue中有没有就绪的操作符
+    for (auto read_op = ready_queue.begin(); read_op != ready_queue.end();) {
+      if (RuntimeGraph::CheckOperatorReady(*read_op)) {
+        read_op = ready_queue.erase(read_op);
+        ops_queue.push_back(*read_op);
+      } else {
+        ++read_op;
+      }
+    }
+
+    if (ops_queue.empty()) {
+      break;
+    }
+
     const auto &current_op = ops_queue.front();
-    ops_queue.pop();
+    ops_queue.pop_front();
     if (!current_op) {
       break;
     }
@@ -181,6 +197,7 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
       if (input_operands_size == 1) {
         const auto &input_operand1 = input_datas.front();
         const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
+        LOG(INFO) << current_op_name << " ending...";
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
         }
@@ -188,25 +205,31 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
       } else if (input_operands_size == 2) {
         const auto &input_operand1 = input_datas.front();
         const auto &input_operand2 = input_datas.back();
-        const auto &infer_status =
-            current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
-        if (infer_status != InferStatus::kInferSuccess) {
-          LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
+        if (input_operand1->datas.empty() || input_operand2->datas.empty()) {
+          // 有某一支没有准备好数据
+          if (std::find(ready_queue.begin(), ready_queue.end(), current_op) == ready_queue.end()) {
+            ready_queue.push_back(current_op);
+          }
+          continue;
+        } else {
+          const auto &infer_status =
+              current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
+          if (infer_status != InferStatus::kInferSuccess) {
+            LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
+          }
+          current_op->has_transfer = false;
         }
-        current_op->has_transfer = false;
       } else {
         LOG(FATAL) << "The number of the input feature maps is wrong, greater than two input";
       }
     }
 
-    const auto &next_ops = current_op->output_operators;
-
     // probe next sub layers
+    const auto &next_ops = current_op->output_operators;
     for (const auto &pair : next_ops) {
       auto &next_op = pair.second;
       auto &next_input_operands = next_op->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-        LOG(INFO) << current_op->name;
         if (debug) {
           for (int i = 0; i < output_data.size(); ++i) {
             output_data.at(i)->Show();
@@ -214,7 +237,7 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
         }
         next_input_operands.at(current_op->name)->datas = CloneData(output_data);
         if (!next_op->has_transfer) {
-          ops_queue.push(next_op);
+          ops_queue.push_back(next_op);
           next_op->has_transfer = true;
         }
       }
@@ -392,6 +415,23 @@ bool RuntimeGraph::CheckDAG() {
 
   for (const auto &op : this->operators_) {
     op->has_transfer = false;
+  }
+  return true;
+}
+
+bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op) {
+  CHECK(op != nullptr);
+
+  const auto &input_operands_map = op->input_operands;
+  for (const auto &input_operand_iter : input_operands_map) {
+    const std::shared_ptr<RuntimeOperand> &runtime_operand = input_operand_iter.second;
+    if (runtime_operand) {
+      if (runtime_operand->datas.empty()) {
+        return false;
+      }
+    } else {
+      return false;
+    }
   }
   return true;
 }

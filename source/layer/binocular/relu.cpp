@@ -18,9 +18,11 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &input
       LOG(ERROR) << "The input feature map of relu layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    input->Transform([](double val) {
+    const std::shared_ptr<Tensor> &output = input->Clone();
+    output->Transform([](double val) {
       return val > 0. ? val : 0.;
     });
+    outputs.push_back(output);
   }
 
   return InferStatus::kInferSuccess;
@@ -29,8 +31,9 @@ ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOpe
                                                 std::shared_ptr<Layer> &relu_layer) {
   CHECK(op != nullptr) << "Relu operator is empty";
   relu_layer = std::make_shared<ReluLayer>();
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kFlattenGetInstance("nn.ReLU", ReluLayer::GetInstance);
+LayerRegistererWrapper kReluGetInstance("nn.ReLU", ReluLayer::GetInstance);
 }
 

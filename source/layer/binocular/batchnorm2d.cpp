@@ -106,6 +106,6 @@ BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, double eps)
   }
 }
 
-LayerRegistererWrapper kBatchNorm2dvGetInstance("nn.BatchNorm2d", BatchNorm2dLayer::GetInstance);
+LayerRegistererWrapper kBatchNorm2dGetInstance("nn.BatchNorm2d", BatchNorm2dLayer::GetInstance);
 
 }

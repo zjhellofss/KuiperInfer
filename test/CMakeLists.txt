@@ -1,7 +1,6 @@
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
-include_directories(../include/math)
-include_directories(../include/json)
+include_directories(./include/math)
 
 aux_source_directory(../test DIR_TEST)
 aux_source_directory(../source/data DIR_DATA)

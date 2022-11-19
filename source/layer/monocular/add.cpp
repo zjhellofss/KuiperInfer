@@ -3,7 +3,12 @@
 //
 
 #include "add.hpp"
+#include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
+AddLayer::AddLayer() : Layer("Add") {
+
+}
+
 InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
                               const std::vector<std::shared_ptr<Tensor>> &inputs2,
                               std::vector<std::shared_ptr<Tensor>> &outputs) {
@@ -19,5 +24,14 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs
     input1->Add(input2);
     outputs.push_back(input1);
   }
+  return InferStatus::kInferSuccess;
 }
+ParseParameterAttrStatus AddLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                               std::shared_ptr<Layer> &add_layer) {
+  CHECK(op != nullptr) << "Add operator is empty";
+  add_layer = std::make_shared<AddLayer>();
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+}
+
+LayerRegistererWrapper kAddGetInstance("pnnx.Expression", AddLayer::GetInstance);
 }

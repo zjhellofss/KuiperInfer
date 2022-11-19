@@ -7,11 +7,15 @@
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 class AddLayer :public Layer{
-
  public:
+  AddLayer();
+
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
                       const std::vector<std::shared_ptr<Tensor>> &inputs2,
                       std::vector<std::shared_ptr<Tensor>> &outputs) override;
+
+  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                              std::shared_ptr<Layer> &add_layer);
 };
 }
 #endif //KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_ADD_HPP_
