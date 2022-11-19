@@ -14,7 +14,7 @@ TEST(test_ir, build) {
   CHECK(init == true);
   graph.Build();
   std::vector<std::shared_ptr<Tensor>> inputs;
-  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 28, 28);
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 512, 512);
 
   input->Fill(1.);
   inputs.push_back(input);

@@ -58,6 +58,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
     const uint32_t kernel_count = this->weights_.size();
     std::shared_ptr<Tensor> output_data;
 
+
     for (uint32_t k = 0; k < kernel_count; ++k) {
       const std::shared_ptr<Tensor> &kernel = this->weights_.at(k);
       const uint32_t kernel_h = kernel->rows();
@@ -80,12 +81,13 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       }
 
       arma::mat &output_channel = output_data->at(k);
+#pragma omp parallel for num_threads(input_c)
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         const arma::mat &input_channel = input->at(ic);
         const arma::mat &kernel_channel = kernel->at(ic);
 
-        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
             const arma::mat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
             output_channel.at(int(r / stride_h_), int(c / stride_w_)) += arma::accu(region % kernel_channel);
           }

@@ -50,8 +50,8 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::mat &input_channel = input_data->at(ic);
       arma::mat &output_channel = output_data->at(ic);
-      for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h) {
-        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w) {
+      for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w) {
+        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h) {
           const arma::mat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
           output_channel.at(int(r / stride_h), int(c / stride_w)) = arma::mean(arma::mean(region));
         }
