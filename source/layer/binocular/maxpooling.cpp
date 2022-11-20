@@ -52,7 +52,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> 
     }
 
     std::shared_ptr<Tensor> output_data = std::make_shared<Tensor>(output_c, output_h, output_w);
-#pragma omp parallel for num_threads(input_c)
+//#pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::mat &input_channel = input_data->at(ic);
       arma::mat &output_channel = output_data->at(ic);

@@ -16,6 +16,8 @@ include_directories(${gflags_INCLUDE_DIR})
 ### arma
 include_directories(./include/math)
 
+
 enable_testing()
+add_subdirectory(bench)
 add_subdirectory(test)
 

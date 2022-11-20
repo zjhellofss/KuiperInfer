@@ -132,11 +132,9 @@ void Tensor::Fill(const std::vector<double> &values) {
 }
 
 void Tensor::Show() {
-  LOG(INFO).precision(7);
-  LOG(INFO).setf(std::ios::fixed);
   for (uint32_t i = 0; i < this->channels(); ++i) {
     LOG(INFO) << "Channel: " << i;
-    this->data_.slice(i).raw_print(LOG(INFO), "\n");
+    LOG(INFO) << "\n" << this->data_.slice(i);
   }
 }
 
@@ -151,7 +149,7 @@ void Tensor::Flatten() {
   uint32_t index = 0;
   for (uint32_t c = 0; c < channel; ++c) {
     for (uint32_t r = 0; r < rows; ++r) {
-    for (uint32_t c_ = 0; c_ < cols; ++c_) {
+      for (uint32_t c_ = 0; c_ < cols; ++c_) {
         linear_cube.at(0, index, 0) = this->data_.at(r, c_, c);
         index += 1;
       }

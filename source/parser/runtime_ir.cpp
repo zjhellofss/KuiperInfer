@@ -247,6 +247,7 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
       is_first_layer = false;
     }
   }
+  output_op->has_transfer = false;
 }
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {

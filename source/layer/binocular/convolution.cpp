@@ -58,7 +58,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
     const uint32_t kernel_count = this->weights_.size();
     std::shared_ptr<Tensor> output_data;
 
-
     for (uint32_t k = 0; k < kernel_count; ++k) {
       const std::shared_ptr<Tensor> &kernel = this->weights_.at(k);
       const uint32_t kernel_h = kernel->rows();
@@ -81,7 +80,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       }
 
       arma::mat &output_channel = output_data->at(k);
-#pragma omp parallel for num_threads(input_c)
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         const arma::mat &input_channel = input->at(ic);
         const arma::mat &kernel_channel = kernel->at(ic);
@@ -89,7 +87,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
             const arma::mat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
-            output_channel.at(int(r / stride_h_), int(c / stride_w_)) += arma::accu(region % kernel_channel);
+            const double sum_value = arma::accu(region % kernel_channel);
+            output_channel.at(int(r / stride_h_), int(c / stride_w_)) += sum_value;
           }
         }
       }
@@ -191,24 +190,26 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,
                                                   kernels.at(0), kernels.at(1),
                                                   paddings.at(0), strides.at(0),
-                                                  use_bias->value);
+                                                  strides.at(1), use_bias->value);
 
   // load weights
+
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
-  if (attrs.find("bias") == attrs.end()) {
-    LOG(ERROR) << "Can not find the bias attribute";
-    return ParseParameterAttrStatus::kAttrMissingBias;
-  }
+  if (use_bias->value) {
+    if (attrs.find("bias") == attrs.end()) {
+      LOG(ERROR) << "Can not find the bias attribute";
+      return ParseParameterAttrStatus::kAttrMissingBias;
+    }
+    const auto &bias = attrs.at("bias");
+    const std::vector<int> &bias_shape = bias->shape;
+    if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
+      LOG(ERROR) << "Bias shape is wrong";
+      return ParseParameterAttrStatus::kAttrMissingBias;
+    }
 
-  const auto &bias = attrs.at("bias");
-  const std::vector<int> &bias_shape = bias->shape;
-  if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
-    LOG(ERROR) << "Bias shape is wrong";
-    return ParseParameterAttrStatus::kAttrMissingBias;
+    std::vector<double> bias_values = bias->get<double>();
+    conv_layer->set_bias(bias_values);
   }
-
-  std::vector<double> bias_values = bias->get<double>();
-  conv_layer->set_bias(bias_values);
 
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the weight attribute";
