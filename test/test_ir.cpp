@@ -15,11 +15,10 @@ TEST(test_ir, build) {
   CHECK(init == true);
   graph.Build();
   std::vector<std::shared_ptr<Tensor>> inputs;
-  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 512, 512);
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 512,512);
   std::vector<double> input_data;
 
   input->Fill(1.);
   inputs.push_back(input);
   graph.Forward(inputs, true);
-
 }

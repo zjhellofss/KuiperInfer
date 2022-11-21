@@ -17,10 +17,9 @@ static void BM_Identity(benchmark::State &state) {
 
   input->Fill(1.);
   inputs.push_back(input);
-  graph.Forward(inputs, false);
   for (auto _ : state) {
     graph.Forward(inputs, false);
   }
 }
-BENCHMARK(BM_Identity);
+BENCHMARK(BM_Identity)->Iterations(5);
 BENCHMARK_MAIN();
