@@ -7,20 +7,20 @@
 #include <glog/logging.h>
 
 namespace kuiper_infer {
-arma::mat Im2Col(const Tensor &input_data, const Tensor &kernel,
+arma::mat Im2Col(const std::shared_ptr<Tensor> &input_data, const std::shared_ptr<Tensor> &kernel,
                  const uint32_t stride_h, const uint32_t stride_w,
                  const uint32_t output_h, const uint32_t output_w) {
 
-  CHECK(input_data.channels() == kernel.channels()) << "The channel of the input data and kernel is not adapting";
-  const uint32_t kernel_w = kernel.cols();
-  const uint32_t kernel_h = kernel.rows();
+  CHECK(input_data->channels() == kernel->channels()) << "The channel of the input data and kernel is not adapting";
+  const uint32_t kernel_w = kernel->cols();
+  const uint32_t kernel_h = kernel->rows();
   uint32_t output_cols = 0;
 
 
   // 计算Im2col的列数
-  const uint32_t input_channels = input_data.channels();
-  const uint32_t input_width = input_data.cols();
-  const uint32_t input_height = input_data.rows();
+  const uint32_t input_channels = input_data->channels();
+  const uint32_t input_width = input_data->cols();
+  const uint32_t input_height = input_data->rows();
 
   for (uint32_t c = 0; c < input_width - kernel_w + 1; c += stride_w) {
     for (uint32_t r = 0; r < input_height - kernel_h + 1; r += stride_h) {
@@ -35,12 +35,11 @@ arma::mat Im2Col(const Tensor &input_data, const Tensor &kernel,
   for (uint32_t c = 0; c < input_channels; ++c) {
     arma::mat img_cols_c(kernel_w * kernel_h, output_cols);
     double *img_cols_c_ptr = img_cols_c.memptr();
-    const arma::mat &input_channel = input_data.at(c);
-    const arma::mat &kernel_channel = kernel.at(c);
+    const arma::mat &input_channel = input_data->at(c);
+    const arma::mat &kernel_channel = kernel->at(c);
 
     for (uint32_t h = 0; h < input_height - kernel_h + 1; h += stride_h) {
       for (uint32_t w = 0; w < input_width - kernel_w + 1; w += stride_w) {
-
         for (uint32_t kh = 0; kh < kernel_h; ++kh) {
           for (uint32_t kw = 0; kw < kernel_w; ++kw) {
             auto *region_ptr_col = input_channel.colptr(kw + w) + h;

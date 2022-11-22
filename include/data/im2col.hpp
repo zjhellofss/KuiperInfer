@@ -8,7 +8,7 @@
 #include <armadillo>
 #include <glog/logging.h>
 namespace kuiper_infer {
-arma::mat Im2Col(const Tensor &input_data, const Tensor &kernel,
+arma::mat Im2Col(const std::shared_ptr<Tensor> &input_data, const std::shared_ptr<Tensor> &kernel,
                  const uint32_t stride_h, const uint32_t stride_w,
                  const uint32_t output_h, const uint32_t output_w);
 }

@@ -4,6 +4,7 @@
 
 #include "convolution.hpp"
 #include "parser/runtime_ir.hpp"
+#include "data/im2col.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
 
@@ -80,28 +81,29 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       }
 
       arma::mat &output_channel = output_data->at(k);
-      for (uint32_t ic = 0; ic < input_c; ++ic) {
-        const arma::mat &input_channel = input->at(ic);
-        const arma::mat &kernel_channel = kernel->at(ic);
-
-        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-          auto *output_channel_ptr = output_channel.colptr(int(c / stride_h_));
-          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-
-            double acc_value = 0.;
-            auto *kernel_ptr = const_cast<double *>(kernel_channel.memptr());
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              auto *region_ptr_col = input_channel.colptr(kw + c) + r;
-              for (uint32_t kh = 0; kh < kernel_h; ++kh) {
-                auto *region_ptr = region_ptr_col + kh;
-                acc_value += *(region_ptr) * (*kernel_ptr);
-                kernel_ptr += 1;
-              }
-            }
-            *(output_channel_ptr + int(r / stride_h_)) += acc_value;
-          }
-        }
-      }
+      output_channel = Im2Col(input, kernel, stride_h_, stride_w_, output_h, output_w);
+//      for (uint32_t ic = 0; ic < input_c; ++ic) {
+//        const arma::mat &input_channel = input->at(ic);
+//        const arma::mat &kernel_channel = kernel->at(ic);
+//
+//        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+//          auto *output_channel_ptr = output_channel.colptr(int(c / stride_h_));
+//          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+//
+//            double acc_value = 0.;
+//            auto *kernel_ptr = const_cast<double *>(kernel_channel.memptr());
+//            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+//              auto *region_ptr_col = input_channel.colptr(kw + c) + r;
+//              for (uint32_t kh = 0; kh < kernel_h; ++kh) {
+//                auto *region_ptr = region_ptr_col + kh;
+//                acc_value += *(region_ptr) * (*kernel_ptr);
+//                kernel_ptr += 1;
+//              }
+//            }
+//            *(output_channel_ptr + int(r / stride_h_)) += acc_value;
+//          }
+//        }
+//      }
 
       std::shared_ptr<Tensor> bias;
       if (!this->bias_.empty() && this->use_bias_) {

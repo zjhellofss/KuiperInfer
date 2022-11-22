@@ -12,15 +12,15 @@ TEST(test_im2col, test_1c_3w_3h) {
   const arma::mat &data1 = CSVDataLoader::LoadData("tmp/im2cols/input.csv");
   const arma::mat &data2 = CSVDataLoader::LoadData("tmp/im2cols/kernel.csv");
 
-  Tensor input(3, 5, 5);
-  input.at(0) = data1;
-  input.at(1) = data1;
-  input.at(2) = data1;
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(3, 5, 5);
+  input->at(0) = data1;
+  input->at(1) = data1;
+  input->at(2) = data1;
 
-  Tensor kernel(3, 3, 3);
-  kernel.at(0) = data2;
-  kernel.at(1) = data2;
-  kernel.at(2) = data2;
+  std::shared_ptr<Tensor> kernel = std::make_shared<Tensor>(3, 3, 3);
+  kernel->at(0) = data2;
+  kernel->at(1) = data2;
+  kernel->at(2) = data2;
 
   const auto &result = Im2Col(input, kernel, 1, 1, 3, 3);
   ASSERT_EQ(result.n_rows, 3);

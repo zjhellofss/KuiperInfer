@@ -163,7 +163,7 @@ class RuntimeGraph {
 
   const std::string &bin_path() const;
 
-  void Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
+  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
 
  private:
   static void InitInputOperators(const std::vector<pnnx::Operand *> &inputs,

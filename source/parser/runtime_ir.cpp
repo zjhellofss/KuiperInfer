@@ -134,7 +134,8 @@ void RuntimeGraph::Build() {
   graph_state_ = GraphState::Complete;
 }
 
-void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug) {
+std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
+                                                                        bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(ERROR) << "Graph need be build!";
     this->Build();
@@ -246,8 +247,19 @@ void RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_dat
     if (is_first_layer) {
       is_first_layer = false;
     }
+
   }
   output_op->has_transfer = false;
+  std::vector<std::shared_ptr<RuntimeOperand>> output_operands;
+  for (const auto &pair : output_op->input_operands) {
+    output_operands.push_back(pair.second);
+  }
+
+  std::vector<std::vector<std::shared_ptr<Tensor>>> output_datas;
+  CHECK(output_operands.size() == 1) << "Only support one output one graph yet!";
+
+  const auto &output_operand = output_operands.front();
+  return output_operand->datas;
 }
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {
