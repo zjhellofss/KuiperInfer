@@ -13,7 +13,7 @@ namespace kuiper_infer {
 arma::mat CSVDataLoader::LoadData(const std::string &file_path, const char split_char) {
   CHECK(!file_path.empty()) << "File path is empty!";
   std::ifstream in(file_path);
-  CHECK(in.is_open() && in.good()) << "File open failed!";
+  CHECK(in.is_open() && in.good()) << "File open failed! " << file_path;
 
   arma::mat data;
   std::string line_str;
