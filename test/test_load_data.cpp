@@ -86,7 +86,7 @@ TEST(test_load, load_csv_missing_data2) {
   ASSERT_EQ(data_one, 32);
 }
 
-TEST(test_load, split_char1) {
+TEST(test_load, split_char) {
   using namespace kuiper_infer;
   const arma::mat &data = CSVDataLoader::LoadData("./tmp/data5.csv", '-');
 
@@ -123,4 +123,25 @@ TEST(test_load, load_minus_data) {
     }
   }
   ASSERT_EQ(data_minus_one, 33);
+}
+
+TEST(test_load, load_large_data) {
+  using namespace kuiper_infer;
+  const arma::mat &data = CSVDataLoader::LoadData("./tmp/data7.csv", ',');
+  ASSERT_NE(data.empty(), true);
+  ASSERT_EQ(data.n_rows, 1024);
+  ASSERT_EQ(data.n_cols, 1024);
+
+  const uint32_t rows = data.n_rows;
+  const uint32_t cols = data.n_cols;
+
+  int data_minus_one = 0;
+  for (uint32_t i = 0; i < rows; ++i) {
+    for (uint32_t j = 0; j < cols; ++j) {
+      if (data.at(i, j) == -1) {
+        data_minus_one += 1;
+      }
+    }
+  }
+  ASSERT_EQ(data_minus_one, 1024 * 1024);
 }

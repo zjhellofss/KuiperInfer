@@ -26,6 +26,7 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs
   }
   return InferStatus::kInferSuccess;
 }
+
 ParseParameterAttrStatus AddLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                std::shared_ptr<Layer> &add_layer) {
   CHECK(op != nullptr) << "Add operator is empty";
