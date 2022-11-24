@@ -6,8 +6,54 @@
 #include "parser/runtime_ir.hpp"
 #include "data/load_data.hpp"
 
-TEST(test_layer, check_dag) {
+TEST(test_layer, forward_small_map_pool) {
   using namespace kuiper_infer;
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/small_graph_pool/resnet_small_graph1.pnnx.param", "tmp/small_graph_pool/resnet_small_graph1.pnnx.bin");
+  graph.Build();
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
+  input->Ones();
+  LOG(INFO) << input;
+
+  std::vector<std::shared_ptr<Tensor>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor>> output_tensors = graph.Forward(inputs, false);
+  ASSERT_EQ(output_tensors.size(), 1);
+
+  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output2 = CSVDataLoader::LoadData("tmp/small_graph_pool/1.csv");
+  ASSERT_EQ(output1.size(), output2.size());
+
+  const uint32_t size = output1.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_LE(output1.at(i) - output2.at(i), 1e-6);
+  }
+}
+
+TEST(test_layer, forward_small_map) {
+  using namespace kuiper_infer;
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/small_graph/resnet_small_graph1.pnnx.param", "tmp/small_graph/resnet_small_graph1.pnnx.bin");
+  graph.Build();
+  std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
+  input->Ones();
+  LOG(INFO) << input;
+
+  std::vector<std::shared_ptr<Tensor>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor>> output_tensors = graph.Forward(inputs, false);
+  ASSERT_EQ(output_tensors.size(), 1);
+
+  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output2 = CSVDataLoader::LoadData("tmp/small_graph/1.csv");
+  ASSERT_EQ(output1.size(), output2.size());
+
+  const uint32_t size = output1.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_LE(output1.at(i) - output2.at(i), 1e-6);
+  }
 }
 
 TEST(test_layer, forward_conv1_small) {

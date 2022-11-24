@@ -179,8 +179,6 @@ class RuntimeGraph {
   static void InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
                               const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
-  bool CheckDAG();
-
   static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);

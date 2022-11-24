@@ -81,7 +81,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       }
 
       arma::mat &output_channel = output_data->at(k);
-//      output_channel = Im2Col(input, kernel, stride_h_, stride_w_, output_h, output_w);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         const arma::mat &input_channel = input->at(ic);
         const arma::mat &kernel_channel = kernel->at(ic);

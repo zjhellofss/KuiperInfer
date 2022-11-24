@@ -45,6 +45,7 @@ bool RuntimeGraph::Init() {
   this->graph_ = std::make_unique<pnnx::Graph>();
   int load_result = this->graph_->load(param_path_, bin_path_);
   if (load_result != 0) {
+    LOG(ERROR) << "Load param path and bin path error";
     return false;
   }
 
@@ -103,9 +104,6 @@ bool RuntimeGraph::Init() {
     }
   }
 
-  // 有环图搜索 todo
-  bool is_dag = CheckDAG();
-  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
   graph_state_ = GraphState::NeedBuild;
   return true;
 }
@@ -176,7 +174,8 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     }
 
     if (current_op == output_op) {
-      LOG(INFO) << "Model inference end";
+      if (debug)
+        LOG(INFO) << "Model inference end";
       // 已经到了输出节点
       break;
     }
@@ -186,7 +185,8 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       output_data = input_data;
     } else {
       const std::string &current_op_name = current_op->name;
-      LOG(INFO) << current_op_name;
+      if (debug)
+        LOG(INFO) << current_op_name;
       const auto &input_operands = current_op->input_operands;
       const uint32_t input_operands_size = input_operands.size();
 
@@ -198,11 +198,12 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       if (input_operands_size == 1) {
         const auto &input_operand1 = input_datas.front();
         const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
-        LOG(INFO) << current_op_name << " ending...";
+        if (debug)
+          LOG(INFO) << current_op_name << " ending...";
         if (infer_status != InferStatus::kInferSuccess) {
           LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
         }
-        current_op->has_transfer = false;
+        current_op->has_transfer = 0;
       } else if (input_operands_size == 2) {
         const auto &input_operand1 = input_datas.front();
         const auto &input_operand2 = input_datas.back();
@@ -218,7 +219,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
           if (infer_status != InferStatus::kInferSuccess) {
             LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
           }
-          current_op->has_transfer = false;
+          current_op->has_transfer = 0;
         }
       } else {
         LOG(FATAL) << "The number of the input feature maps is wrong, greater than two input";
@@ -239,7 +240,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
         next_input_operands.at(current_op->name)->datas = CloneData(output_data);
         if (!next_op->has_transfer) {
           ops_queue.push_back(next_op);
-          next_op->has_transfer = true;
+          next_op->has_transfer += 1;
         }
       }
     }
@@ -249,7 +250,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     }
 
   }
-  output_op->has_transfer = false;
+  output_op->has_transfer = 0;
   std::vector<std::shared_ptr<RuntimeOperand>> output_operands;
   for (const auto &pair : output_op->input_operands) {
     output_operands.push_back(pair.second);
@@ -402,33 +403,6 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &
       }
     }
   }
-}
-
-bool RuntimeGraph::CheckDAG() {
-  std::queue<std::shared_ptr<RuntimeOperator>> operator_queue;
-  if (this->operators_.empty()) {
-    return false;
-  }
-  LOG_IF(FATAL, this->operators_.empty()) << "No operators in the graph!";
-  operator_queue.push(this->operators_.front());
-
-  while (!operator_queue.empty()) {
-    const auto &current_op = operator_queue.front();
-    operator_queue.pop();
-    const auto &sub_operators = current_op->output_operators;
-    for (const auto &pair : sub_operators) {
-      operator_queue.push(pair.second);
-    }
-    current_op->has_transfer += 1;
-    if (current_op->has_transfer > current_op->input_operands.size()) {
-      return false;
-    }
-  }
-
-  for (const auto &op : this->operators_) {
-    op->has_transfer = 0;
-  }
-  return true;
 }
 
 bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op) {
