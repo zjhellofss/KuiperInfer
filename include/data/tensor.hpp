@@ -41,11 +41,15 @@ class Tensor {
 
   double at(uint32_t channel, uint32_t row, uint32_t col) const;
 
+  double &at(uint32_t channel, uint32_t row, uint32_t col);
+
   void Padding(const std::vector<uint32_t> &pads, double padding_value);
 
   void Fill(double value);
 
   void Fill(const std::vector<double> &values);
+
+  void Ones();
 
   void Rand();
 
@@ -61,9 +65,9 @@ class Tensor {
 
   std::shared_ptr<Tensor> Clone();
 
- private:
   arma::cube data_;
 };
+
 }
 
 #endif //KUIPER_COURSE_DATA_BLOB_HPP_

@@ -6,7 +6,11 @@
 #include "parser/runtime_ir.hpp"
 #include "data/load_data.hpp"
 
-TEST(test_ir, forward_conv1_small) {
+TEST(test_layer, check_dag) {
+  using namespace kuiper_infer;
+}
+
+TEST(test_layer, forward_conv1_small) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
   graph.Build();
@@ -20,7 +24,7 @@ TEST(test_ir, forward_conv1_small) {
   graph.Forward(inputs, true);
 }
 
-TEST(test_ir, forward_conv1_large) {
+TEST(test_layer, forward_conv1_large) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
   graph.Build();

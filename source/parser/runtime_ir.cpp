@@ -104,15 +104,14 @@ bool RuntimeGraph::Init() {
   }
 
   // 有环图搜索 todo
-  //  bool is_dag = CheckDAG();
-  //  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
+  bool is_dag = CheckDAG();
+  LOG_IF(FATAL, !is_dag) << "The graph is not dag!";
   graph_state_ = GraphState::NeedBuild;
   return true;
 }
 
 void RuntimeGraph::Build() {
   if (graph_state_ == GraphState::NeedInit) {
-    LOG(ERROR) << "Graph need be inited!";
     bool init_graph = Init();
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
   }
@@ -126,6 +125,7 @@ void RuntimeGraph::Build() {
       this->output_operators_.push_back(kOperator);
     } else {
       std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
+      CHECK(layer != nullptr) << "Layer create failed!";
       if (layer) {
         kOperator->layer = layer;
       }
@@ -135,7 +135,7 @@ void RuntimeGraph::Build() {
 }
 
 std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
-                                                                        bool debug) {
+                                                           bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(ERROR) << "Graph need be build!";
     this->Build();
@@ -411,23 +411,22 @@ bool RuntimeGraph::CheckDAG() {
   }
   LOG_IF(FATAL, this->operators_.empty()) << "No operators in the graph!";
   operator_queue.push(this->operators_.front());
+
   while (!operator_queue.empty()) {
     const auto &current_op = operator_queue.front();
     operator_queue.pop();
     const auto &sub_operators = current_op->output_operators;
     for (const auto &pair : sub_operators) {
-      if (pair.second->has_transfer) {
-        LOG(ERROR) << "The graph exists a loop";
-        return false;
-      } else {
-        operator_queue.push(pair.second);
-      }
+      operator_queue.push(pair.second);
     }
-    current_op->has_transfer = true;
+    current_op->has_transfer += 1;
+    if (current_op->has_transfer > current_op->input_operands.size()) {
+      return false;
+    }
   }
 
   for (const auto &op : this->operators_) {
-    op->has_transfer = false;
+    op->has_transfer = 0;
   }
   return true;
 }

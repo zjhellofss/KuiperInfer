@@ -71,6 +71,13 @@ double Tensor::at(uint32_t channel, uint32_t row, uint32_t col) const {
   return this->data_.at(row, col, channel);
 }
 
+double &Tensor::at(uint32_t channel, uint32_t row, uint32_t col) {
+  CHECK_LT(row, this->rows());
+  CHECK_LT(col, this->cols());
+  CHECK_LT(channel, this->channels());
+  return this->data_.at(row, col, channel);
+}
+
 void Tensor::Padding(const std::vector<uint32_t> &pads, double padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
@@ -147,10 +154,13 @@ void Tensor::Flatten() {
   uint32_t rows = this->rows();
   uint32_t cols = this->cols();
   uint32_t index = 0;
+
   for (uint32_t c = 0; c < channel; ++c) {
+    const arma::mat &matrix = this->data_.slice(c);
+
     for (uint32_t r = 0; r < rows; ++r) {
       for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        linear_cube.at(0, index, 0) = this->data_.at(r, c_, c);
+        linear_cube.at(0, index, 0) = matrix.at(r, c_);
         index += 1;
       }
     }
@@ -166,6 +176,11 @@ std::shared_ptr<Tensor> Tensor::Clone() {
 void Tensor::Rand() {
   CHECK(!this->data_.empty());
   this->data_.randn();
+}
+
+void Tensor::Ones() {
+  CHECK(!this->data_.empty());
+  this->data_.fill(1.);
 }
 
 void Tensor::Concat(const std::shared_ptr<Tensor> &tensor) {

@@ -52,14 +52,23 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> 
     }
 
     std::shared_ptr<Tensor> output_data = std::make_shared<Tensor>(output_c, output_h, output_w);
-//#pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::mat &input_channel = input_data->at(ic);
       arma::mat &output_channel = output_data->at(ic);
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w_) {
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h_) {
-          const arma::mat &region = input_channel.submat(r, c, r + pooling_h - 1, c + pooling_w - 1);
-          output_channel.at(int(r / stride_h_), int(c / stride_w_)) = arma::max(arma::max(region));
+
+          double max_value = std::numeric_limits<double>::min();
+          for (uint32_t kw = 0; kw < pooling_w; ++kw) {
+            auto *region_ptr_col = input_channel.colptr(kw + c) + r;
+            for (uint32_t kh = 0; kh < pooling_h; ++kh) {
+              auto *region_ptr = region_ptr_col + kh;
+              if (max_value < *region_ptr) {
+                max_value = *region_ptr;
+              }
+            }
+          }
+          output_channel.at(int(r / stride_h_), int(c / stride_w_)) = max_value;
         }
       }
     }

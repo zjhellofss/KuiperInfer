@@ -84,7 +84,7 @@ std::vector<T> RuntimeAttribute::get() {
 
 struct RuntimeOperator {
   ~RuntimeOperator();
-  bool has_transfer = false;
+  int has_transfer = 0;
   std::string type;
   std::string name;
   std::shared_ptr<Layer> layer; //节点对应的层
@@ -151,8 +151,6 @@ class RuntimeGraph {
  public:
   RuntimeGraph(const std::string &param_path, const std::string &bin_path);
 
-  bool Init();
-
   void Build();
 
   void set_bin_path(const std::string &bin_path);
@@ -163,9 +161,12 @@ class RuntimeGraph {
 
   const std::string &bin_path() const;
 
-  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &input_data, bool debug = false);
+  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
+                                               bool debug = false);
 
  private:
+  bool Init();
+
   static void InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
                                  const std::shared_ptr<RuntimeOperator> &runtime_operator);
 

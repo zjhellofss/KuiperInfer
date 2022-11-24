@@ -7,7 +7,7 @@
 #include "data/tensor.hpp"
 #include "data/im2col.hpp"
 
-TEST(test_im2col, test_1c_3w_3h) {
+TEST(test_layer, test_1c_3w_3h) {
   using namespace kuiper_infer;
   const arma::mat &data1 = CSVDataLoader::LoadData("tmp/im2cols/input.csv");
   const arma::mat &data2 = CSVDataLoader::LoadData("tmp/im2cols/kernel.csv");
