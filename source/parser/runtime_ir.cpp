@@ -166,21 +166,24 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
   operator_queue.push_back(input_op);
 
   while (!operator_queue.empty() || !ready_queue.empty()) {
-    for (auto ready_op = ready_queue.begin(); ready_op != ready_queue.end();) {
-      if (RuntimeGraph::CheckOperatorReady(*ready_op)) {
-        ready_op = ready_queue.erase(ready_op);
-        operator_queue.push_back(*ready_op);
-      } else {
-        ++ready_op;
+    for (const std::shared_ptr<RuntimeOperator> &op : ready_queue) {
+      if (RuntimeGraph::CheckOperatorReady(op)) {
+        operator_queue.push_back(op);
       }
     }
+
+    ready_queue.erase(std::remove_if(ready_queue.begin(), ready_queue.end(),
+                                     [](const std::shared_ptr<RuntimeOperator> &op) {
+                                       return RuntimeGraph::CheckOperatorReady(op);
+                                     }), ready_queue.end());
 
     const auto &current_op = operator_queue.front();
     operator_queue.pop_front();
 
     if (!current_op || current_op == output_op) {
-      if (debug)
+      if (debug) {
         LOG(INFO) << "Model inference end";
+      }
       break;
     }
 
@@ -199,8 +202,8 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
         input_operand_datas.push_back(input_operand.second);
       }
 
-      std::vector<std::shared_ptr<Tensor>> layer_input_datas;
       bool has_no_ready = false;
+      std::vector<std::shared_ptr<Tensor>> layer_input_datas;
 
       for (auto &input_operand_data : input_operand_datas) {
         if (input_operand_data->datas.empty()) {
