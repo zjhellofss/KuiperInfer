@@ -8,12 +8,11 @@
 
 TEST(test_layer, forward_small_map_pool) {
   using namespace kuiper_infer;
-  using namespace kuiper_infer;
   RuntimeGraph
       graph("tmp/small_graph_pool/resnet_small_graph1.pnnx.param", "tmp/small_graph_pool/resnet_small_graph1.pnnx.bin");
-  graph.Build("pnnx_input_0", "pnnx_output_0");
 
   for (int j = 0; j < 3; ++j) {
+    graph.Build("pnnx_input_0", "pnnx_output_0");
     std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
     input->Ones();
 
@@ -37,9 +36,9 @@ TEST(test_layer, forward_small_map_pool) {
 TEST(test_layer, forward_small_map) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/small_graph/resnet_small_graph1.pnnx.param", "tmp/small_graph/resnet_small_graph1.pnnx.bin");
-  graph.Build("pnnx_input_0", "pnnx_output_0");
 
   for (int i = 0; i < 3; ++i) {
+    graph.Build("pnnx_input_0", "pnnx_output_0");
     std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
     input->Ones();
 
