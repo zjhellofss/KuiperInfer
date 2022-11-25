@@ -245,11 +245,11 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
   }
 
   std::vector<std::shared_ptr<Tensor>> output_datas;
-  for (const auto &input_operand : output_op->input_operands) {
-    const auto &output_operand = input_operand.second;
-    for (const auto &output_data : output_operand->datas) {
-      output_datas.push_back(output_data);
-    }
+  CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
+  const auto &input_operand = output_op->input_operands.begin();
+  const auto &output_operand = input_operand->second;
+  for (const auto &output_data : output_operand->datas) {
+    output_datas.push_back(output_data);
   }
   return output_datas;
 }
