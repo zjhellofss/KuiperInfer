@@ -71,7 +71,7 @@ TEST(test_layer, forward_conv1_small) {
   input_tensor->at(2) = CSVDataLoader::LoadData("./tmp/im2cols/3.csv");
   inputs.push_back(input_tensor);
 
-  graph.Forward(inputs, true);
+  graph.Forward(inputs, false);
 }
 
 TEST(test_layer, forward_conv1_large) {

@@ -140,7 +140,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
   output_name_ = output_name;
 }
 
-std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
+std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
                                                            bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
@@ -161,24 +161,22 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     output_op = output_operators_maps_.at(output_name_);
   }
 
-  std::deque<std::shared_ptr<RuntimeOperator>> ops_queue;
+  std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
   std::deque<std::shared_ptr<RuntimeOperator>> ready_queue;
+  operator_queue.push_back(input_op);
 
-  ops_queue.push_back(input_op);
-  bool is_first_layer = true;
-
-  while (!ops_queue.empty() || !ready_queue.empty()) {
-    for (auto read_op = ready_queue.begin(); read_op != ready_queue.end();) {
-      if (RuntimeGraph::CheckOperatorReady(*read_op)) {
-        read_op = ready_queue.erase(read_op);
-        ops_queue.push_back(*read_op);
+  while (!operator_queue.empty() || !ready_queue.empty()) {
+    for (auto ready_op = ready_queue.begin(); ready_op != ready_queue.end();) {
+      if (RuntimeGraph::CheckOperatorReady(*ready_op)) {
+        ready_op = ready_queue.erase(ready_op);
+        operator_queue.push_back(*ready_op);
       } else {
-        ++read_op;
+        ++ready_op;
       }
     }
 
-    const auto &current_op = ops_queue.front();
-    ops_queue.pop_front();
+    const auto &current_op = operator_queue.front();
+    operator_queue.pop_front();
 
     if (!current_op || current_op == output_op) {
       if (debug)
@@ -187,64 +185,55 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     }
 
     std::vector<std::shared_ptr<Tensor>> layer_output_datas;
-    if (is_first_layer) {
-      layer_output_datas = input_data;
-      is_first_layer = false;
+    if (current_op == input_op) {
+      layer_output_datas = inputs;
     } else {
       const std::string &current_op_name = current_op->name;
       if (debug) {
         LOG(INFO) << current_op_name;
       }
-      const auto &input_operands = current_op->input_operands;
-      const uint32_t input_operands_size = input_operands.size();
 
-      std::vector<std::shared_ptr<RuntimeOperand>> input_datas;
+      const auto &input_operands = current_op->input_operands;
+      std::vector<std::shared_ptr<RuntimeOperand>> input_operand_datas;
       for (const auto &input_operand : input_operands) {
-        input_datas.push_back(input_operand.second);
+        input_operand_datas.push_back(input_operand.second);
       }
 
       std::vector<std::shared_ptr<Tensor>> layer_input_datas;
-      for (uint32_t i = 0; i < input_operands_size; ++i) {
-        const auto &input_operand_datas = input_datas.at(i)->datas;
-        if (input_operand_datas.empty()) {
+      bool has_no_ready = false;
+
+      for (auto &input_operand_data : input_operand_datas) {
+        if (input_operand_data->datas.empty()) {
           if (std::find(ready_queue.begin(), ready_queue.end(), current_op) != ready_queue.end()) {
             ready_queue.push_back(current_op);
           }
+          has_no_ready = true;
         }
-        for (const auto &input_operand_data : input_operand_datas) {
-          layer_input_datas.push_back(input_operand_data);
+        for (const auto &input_data : input_operand_data->datas) {
+          layer_input_datas.push_back(input_data);
         }
       }
+
+      if (has_no_ready || layer_input_datas.empty()) {
+        continue;
+      }
+
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
-      current_op->has_transfer = false;
-    }
-
-    const auto &next_ops = current_op->output_operators;
-    for (const auto &next_op : next_ops) {
-      const auto &next_rt_operator = next_op.second;
-      auto &next_input_operands = next_rt_operator->input_operands;
-      if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-        if (debug) {
-          for (const auto &output_data : layer_output_datas) {
-            output_data->Show();
-          }
+      if (debug) {
+        for (const auto &output_data : layer_output_datas) {
+          output_data->Show();
         }
-        next_input_operands.at(current_op->name)->datas = CloneData(layer_output_datas);
-        if (!next_rt_operator->has_transfer) {
-          ops_queue.push_back(next_rt_operator);
-        }
-        next_rt_operator->has_transfer = true;
       }
     }
+    ProbeNextLayer(current_op, operator_queue, layer_output_datas);
   }
 
-  output_op->has_transfer = false;
   std::vector<std::shared_ptr<Tensor>> output_datas;
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
-  const auto &input_operand = output_op->input_operands.begin();
-  const auto &output_operand = input_operand->second;
+  const auto &output_op_input_operand = output_op->input_operands.begin();
+  const auto &output_operand = output_op_input_operand->second;
   for (const auto &output_data : output_operand->datas) {
     output_datas.push_back(output_data);
   }
@@ -410,4 +399,20 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
   return true;
 }
 
+void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
+                                  std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
+                                  std::vector<std::shared_ptr<Tensor>> &layer_output_datas) {
+  const auto &next_ops = current_op->output_operators;
+  for (const auto &next_op : next_ops) {
+    const auto &next_rt_operator = next_op.second;
+    auto &next_input_operands = next_rt_operator->input_operands;
+
+    if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
+      next_input_operands.at(current_op->name)->datas = CloneData(layer_output_datas);
+      if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
+        operator_queue.push_back(next_rt_operator);
+      }
+    }
+  }
+}
 }

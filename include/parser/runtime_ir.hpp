@@ -84,7 +84,6 @@ std::vector<T> RuntimeAttribute::get() {
 
 struct RuntimeOperator {
   ~RuntimeOperator();
-  bool has_transfer = false;
   std::string type;
   std::string name;
   std::shared_ptr<Layer> layer; //节点对应的层
@@ -161,11 +160,13 @@ class RuntimeGraph {
 
   const std::string &bin_path() const;
 
-  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
+  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
                                                bool debug = false);
 
  private:
   bool Init();
+
+  static void ForwardOneLayer();
 
   static void InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
                                  const std::shared_ptr<RuntimeOperator> &runtime_operator);
@@ -184,6 +185,10 @@ class RuntimeGraph {
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 
   static bool CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op);
+
+  static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
+                             std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
+                             std::vector<std::shared_ptr<Tensor>> &layer_output_data);
 
  private:
   enum class GraphState {
