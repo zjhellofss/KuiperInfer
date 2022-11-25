@@ -115,7 +115,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
     bool init_graph = Init();
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
   }
-  CHECK(graph_state_ == GraphState::NeedBuild) << "Graph status error, current state is " << int(graph_state_);
+  CHECK(graph_state_ >= GraphState::NeedBuild) << "Graph status error, current state is " << int(graph_state_);
 
   LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty, may be no init";
 
@@ -240,6 +240,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     }
   }
 
+  output_op->has_transfer = false;
   std::vector<std::shared_ptr<Tensor>> output_datas;
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
   const auto &input_operand = output_op->input_operands.begin();
