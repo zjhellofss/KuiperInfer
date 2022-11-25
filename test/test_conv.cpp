@@ -38,7 +38,6 @@ TEST(test_layer, forward_small_map) {
 
   std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
   input->Ones();
-  LOG(INFO) << input;
 
   std::vector<std::shared_ptr<Tensor>> inputs;
   inputs.push_back(input);

@@ -186,9 +186,10 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       break;
     }
 
-    std::vector<std::shared_ptr<Tensor>> output_datas;
+    std::vector<std::shared_ptr<Tensor>> layer_output_datas;
     if (is_first_layer) {
-      output_datas = input_data;
+      layer_output_datas = input_data;
+      is_first_layer = false;
     } else {
       const std::string &current_op_name = current_op->name;
       if (debug) {
@@ -204,8 +205,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
 
       std::vector<std::shared_ptr<Tensor>> layer_input_datas;
       for (uint32_t i = 0; i < input_operands_size; ++i) {
-        const auto &input_operand = input_datas.at(i);
-        const auto &input_operand_datas = input_operand->datas;
+        const auto &input_operand_datas = input_datas.at(i)->datas;
         if (input_operand_datas.empty()) {
           if (std::find(ready_queue.begin(), ready_queue.end(), current_op) != ready_queue.end()) {
             ready_queue.push_back(current_op);
@@ -215,7 +215,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
           layer_input_datas.push_back(input_operand_data);
         }
       }
-      InferStatus status = current_op->layer->Forward(layer_input_datas, output_datas);
+      InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
       current_op->has_transfer = false;
@@ -227,20 +227,16 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       auto &next_input_operands = next_rt_operator->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
         if (debug) {
-          for (const auto &output_data : output_datas) {
+          for (const auto &output_data : layer_output_datas) {
             output_data->Show();
           }
         }
-        next_input_operands.at(current_op->name)->datas = CloneData(output_datas);
+        next_input_operands.at(current_op->name)->datas = CloneData(layer_output_datas);
         if (!next_rt_operator->has_transfer) {
           ops_queue.push_back(next_rt_operator);
         }
         next_rt_operator->has_transfer = true;
       }
-    }
-
-    if (is_first_layer) {
-      is_first_layer = false;
     }
   }
 
