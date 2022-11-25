@@ -10,10 +10,10 @@ TEST(test_layer, forward_small_map_pool) {
   using namespace kuiper_infer;
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/small_graph_pool/resnet_small_graph1.pnnx.param", "tmp/small_graph_pool/resnet_small_graph1.pnnx.bin");
-  graph.Build();
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
   std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
   input->Ones();
-  LOG(INFO) << input;
 
   std::vector<std::shared_ptr<Tensor>> inputs;
   inputs.push_back(input);
@@ -33,9 +33,9 @@ TEST(test_layer, forward_small_map_pool) {
 
 TEST(test_layer, forward_small_map) {
   using namespace kuiper_infer;
-  using namespace kuiper_infer;
   RuntimeGraph graph("tmp/small_graph/resnet_small_graph1.pnnx.param", "tmp/small_graph/resnet_small_graph1.pnnx.bin");
-  graph.Build();
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
   std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
   input->Ones();
   LOG(INFO) << input;
@@ -59,7 +59,8 @@ TEST(test_layer, forward_small_map) {
 TEST(test_layer, forward_conv1_small) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
-  graph.Build();
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
   std::vector<std::shared_ptr<Tensor>> inputs;
   std::shared_ptr<Tensor> input_tensor = std::make_shared<Tensor>(3, 5, 5);
   input_tensor->at(0) = CSVDataLoader::LoadData("./tmp/im2cols/1.csv");
@@ -73,7 +74,7 @@ TEST(test_layer, forward_conv1_small) {
 TEST(test_layer, forward_conv1_large) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
-  graph.Build();
+  graph.Build("pnnx_input_0", "pnnx_output_0");
   std::vector<std::shared_ptr<Tensor>> inputs;
   std::shared_ptr<Tensor> input_tensor = std::make_shared<Tensor>(3, 512, 512);
   input_tensor->at(0) = CSVDataLoader::LoadData("./tmp/im2cols/1_large.csv");

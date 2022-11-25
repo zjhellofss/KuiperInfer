@@ -25,7 +25,7 @@ TEST(test_layer, max_pooling1) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   ASSERT_EQ(output_tensors.size(), 1);
-  const auto &cube1 = output_tensors.at(0)->data_;
+  const auto &cube1 = output_tensors.at(0)->data();
   ASSERT_EQ(cube1.n_slices, 2);
 
   ASSERT_EQ(cube1.at(0, 0, 0), 6);
@@ -60,7 +60,7 @@ TEST(test_layer, max_pooling2) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   ASSERT_EQ(output_tensors.size(), 1);
-  const auto &cube1 = output_tensors.at(0)->data_;
+  const auto &cube1 = output_tensors.at(0)->data();
 
   ASSERT_EQ(cube1.at(0, 0, 0), 56);
   ASSERT_EQ(cube1.at(0, 1, 0), 56);
@@ -85,7 +85,7 @@ TEST(test_layer, max_pooling3) {
   const auto &status = layer.Forward(input_tensors, output_tensors);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(output_tensors.size(), 1);
-  const auto &cube1 = output_tensors.at(0)->data_;
+  const auto &cube1 = output_tensors.at(0)->data();
 
   ASSERT_EQ(cube1.at(0, 0, 0), 126);
   ASSERT_EQ(cube1.at(0, 1, 0), 81);

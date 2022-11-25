@@ -9,7 +9,6 @@ namespace kuiper_infer {
 
 LinearLayer::LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias)
     : ParamLayer("Linear"), use_bias_(use_bias) {
-
   for (uint32_t i = 0; i < batch; ++i) {
     std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(in_channel, in_dim, out_dim);
     this->weights_.push_back(weight);

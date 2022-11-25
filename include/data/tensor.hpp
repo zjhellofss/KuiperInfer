@@ -65,6 +65,7 @@ class Tensor {
 
   std::shared_ptr<Tensor> Clone();
 
+ private:
   arma::cube data_;
 };
 

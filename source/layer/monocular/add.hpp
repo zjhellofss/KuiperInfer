@@ -10,8 +10,7 @@ class AddLayer :public Layer{
  public:
   AddLayer();
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
-                      const std::vector<std::shared_ptr<Tensor>> &inputs2,
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
                       std::vector<std::shared_ptr<Tensor>> &outputs) override;
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,

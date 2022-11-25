@@ -9,21 +9,20 @@ AddLayer::AddLayer() : Layer("Add") {
 
 }
 
-InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
-                              const std::vector<std::shared_ptr<Tensor>> &inputs2,
+InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
                               std::vector<std::shared_ptr<Tensor>> &outputs) {
-  if (inputs1.empty() || inputs2.empty()) {
+
+  const uint32_t size = inputs.size();
+  if (!size) {
     LOG(ERROR) << "The input feature map of add layer is null";
     return InferStatus::kInferFailedInputEmpty;
   }
-  CHECK(inputs2.size() == inputs2.size());
-  const uint32_t size = inputs1.size();
-  for (uint32_t i = 0; i < size; ++i) {
-    const auto &input1 = inputs1.at(i);
-    const auto &input2 = inputs2.at(i);
-    input1->Add(input2);
-    outputs.push_back(input1);
+
+  const std::shared_ptr<Tensor>& input = inputs.at(0);
+  for (uint32_t i = 1; i < size; ++i) {
+    input->Add(inputs.at(i));
   }
+  outputs.push_back(input);
   return InferStatus::kInferSuccess;
 }
 

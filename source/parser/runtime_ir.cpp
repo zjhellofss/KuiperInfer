@@ -55,6 +55,7 @@ bool RuntimeGraph::Init() {
     return false;
   }
 
+  this->operators_.clear();
   for (const pnnx::Operator *op : operators) {
     if (!op) {
       LOG(ERROR) << "Meet the empty node";
@@ -93,11 +94,12 @@ bool RuntimeGraph::Init() {
   }
 
   //构建图关系
-  for (uint32_t i = 0; i < this->operators_.size(); ++i) {
-    const auto &current_op = this->operators_.at(i);
+  for (const auto &current_op : this->operators_) {
     const std::vector<std::string> output_names = current_op->output_names;
-    for (uint32_t j = i; j < this->operators_.size(); ++j) {
-      const auto &next_op = this->operators_.at(j);
+    for (const auto &next_op : this->operators_) {
+      if (next_op == current_op) {
+        continue;
+      }
       if (std::find(output_names.begin(), output_names.end(), next_op->name) != output_names.end()) {
         current_op->output_operators.insert({next_op->name, next_op});
       }
@@ -108,7 +110,7 @@ bool RuntimeGraph::Init() {
   return true;
 }
 
-void RuntimeGraph::Build() {
+void RuntimeGraph::Build(const std::string &input_name, const std::string &output_name) {
   if (graph_state_ == GraphState::NeedInit) {
     bool init_graph = Init();
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
@@ -116,11 +118,15 @@ void RuntimeGraph::Build() {
   CHECK(graph_state_ == GraphState::NeedBuild) << "Graph status error, current state is " << int(graph_state_);
 
   LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty, may be no init";
+
+  this->input_operators_maps_.clear();
+  this->output_operators_maps_.clear();
+
   for (const auto &kOperator : this->operators_) {
     if (kOperator->type == "pnnx.Input") {
-      this->input_operators_.push_back(kOperator);
+      this->input_operators_maps_.insert({kOperator->name, kOperator});
     } else if (kOperator->type == "pnnx.Output") {
-      this->output_operators_.push_back(kOperator);
+      this->output_operators_maps_.insert({kOperator->name, kOperator});
     } else {
       std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
       CHECK(layer != nullptr) << "Layer create failed!";
@@ -130,30 +136,38 @@ void RuntimeGraph::Build() {
     }
   }
   graph_state_ = GraphState::Complete;
+  input_name_ = input_name;
+  output_name_ = output_name;
 }
 
 std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &input_data,
                                                            bool debug) {
   if (graph_state_ < GraphState::Complete) {
-    LOG(ERROR) << "Graph need be build!";
-    this->Build();
+    LOG(FATAL) << "Graph need be build!";
   }
   CHECK(graph_state_ == GraphState::Complete) << "Graph status error, current state is " << int(graph_state_);
 
-  LOG_IF(FATAL, input_data.empty()) << "Inputs is empty";
-  LOG_IF(FATAL, this->input_operators_.size() != 1) << "Only support one input one graph yet!";
-  LOG_IF(FATAL, this->output_operators_.size() != 1) << "Only support one output one graph yet!";
+  std::shared_ptr<RuntimeOperator> input_op;
+  if (input_operators_maps_.find(input_name_) == input_operators_maps_.end()) {
+    LOG(FATAL) << "Can not find the input node: " << input_name_;
+  } else {
+    input_op = input_operators_maps_.at(input_name_);
+  }
 
-  const auto &input_op = input_operators_.back();
-  auto &output_op = output_operators_.back();
+  std::shared_ptr<RuntimeOperator> output_op;
+  if (output_operators_maps_.find(output_name_) == output_operators_maps_.end()) {
+    LOG(FATAL) << "Can not find the output node: " << input_name_;
+  } else {
+    output_op = output_operators_maps_.at(output_name_);
+  }
+
   std::deque<std::shared_ptr<RuntimeOperator>> ops_queue;
   std::deque<std::shared_ptr<RuntimeOperator>> ready_queue;
 
   ops_queue.push_back(input_op);
   bool is_first_layer = true;
 
-  while (true) {
-    //先检查read_queue中有没有就绪的操作符
+  while (!ops_queue.empty() || !ready_queue.empty()) {
     for (auto read_op = ready_queue.begin(); read_op != ready_queue.end();) {
       if (RuntimeGraph::CheckOperatorReady(*read_op)) {
         read_op = ready_queue.erase(read_op);
@@ -163,104 +177,81 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       }
     }
 
-    if (ops_queue.empty()) {
-      break;
-    }
-
     const auto &current_op = ops_queue.front();
     ops_queue.pop_front();
-    if (!current_op) {
-      break;
-    }
 
-    if (current_op == output_op) {
+    if (!current_op || current_op == output_op) {
       if (debug)
         LOG(INFO) << "Model inference end";
-      // 已经到了输出节点
       break;
     }
 
-    std::vector<std::shared_ptr<Tensor>> output_data;
+    std::vector<std::shared_ptr<Tensor>> output_datas;
     if (is_first_layer) {
-      output_data = input_data;
+      output_datas = input_data;
     } else {
       const std::string &current_op_name = current_op->name;
-      if (debug)
+      if (debug) {
         LOG(INFO) << current_op_name;
+      }
       const auto &input_operands = current_op->input_operands;
       const uint32_t input_operands_size = input_operands.size();
 
       std::vector<std::shared_ptr<RuntimeOperand>> input_datas;
-      for (const auto &pair : input_operands) {
-        input_datas.push_back(pair.second);
+      for (const auto &input_operand : input_operands) {
+        input_datas.push_back(input_operand.second);
       }
-      std::vector<std::shared_ptr<Tensor>> ouput_data;
-      if (input_operands_size == 1) {
-        const auto &input_operand1 = input_datas.front();
-        const auto &infer_status = current_op->layer->Forward(input_operand1->datas, output_data);
-        if (debug)
-          LOG(INFO) << current_op_name << " ending...";
-        if (infer_status != InferStatus::kInferSuccess) {
-          LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
-        }
-        current_op->has_transfer = 0;
-      } else if (input_operands_size == 2) {
-        const auto &input_operand1 = input_datas.front();
-        const auto &input_operand2 = input_datas.back();
-        if (input_operand1->datas.empty() || input_operand2->datas.empty()) {
-          // 有某一支没有准备好数据
-          if (std::find(ready_queue.begin(), ready_queue.end(), current_op) == ready_queue.end()) {
+
+      std::vector<std::shared_ptr<Tensor>> layer_input_datas;
+      for (uint32_t i = 0; i < input_operands_size; ++i) {
+        const auto &input_operand = input_datas.at(i);
+        const auto &input_operand_datas = input_operand->datas;
+        if (input_operand_datas.empty()) {
+          if (std::find(ready_queue.begin(), ready_queue.end(), current_op) != ready_queue.end()) {
             ready_queue.push_back(current_op);
           }
-          continue;
-        } else {
-          const auto &infer_status =
-              current_op->layer->Forward(input_operand1->datas, input_operand2->datas, output_data);
-          if (infer_status != InferStatus::kInferSuccess) {
-            LOG(FATAL) << "Infer failed, error code: " << int(infer_status);
-          }
-          current_op->has_transfer = 0;
         }
-      } else {
-        LOG(FATAL) << "The number of the input feature maps is wrong, greater than two input";
+        for (const auto &input_operand_data : input_operand_datas) {
+          layer_input_datas.push_back(input_operand_data);
+        }
       }
+      InferStatus status = current_op->layer->Forward(layer_input_datas, output_datas);
+      CHECK(status == InferStatus::kInferSuccess)
+              << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
+      current_op->has_transfer = false;
     }
 
-    // probe next sub layers
     const auto &next_ops = current_op->output_operators;
-    for (const auto &pair : next_ops) {
-      auto &next_op = pair.second;
-      auto &next_input_operands = next_op->input_operands;
+    for (const auto &next_op : next_ops) {
+      const auto &next_rt_operator = next_op.second;
+      auto &next_input_operands = next_rt_operator->input_operands;
       if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
         if (debug) {
-          for (int i = 0; i < output_data.size(); ++i) {
-            output_data.at(i)->Show();
+          for (const auto &output_data : output_datas) {
+            output_data->Show();
           }
         }
-        next_input_operands.at(current_op->name)->datas = CloneData(output_data);
-        if (!next_op->has_transfer) {
-          ops_queue.push_back(next_op);
-          next_op->has_transfer += 1;
+        next_input_operands.at(current_op->name)->datas = CloneData(output_datas);
+        if (!next_rt_operator->has_transfer) {
+          ops_queue.push_back(next_rt_operator);
         }
+        next_rt_operator->has_transfer = true;
       }
     }
 
     if (is_first_layer) {
       is_first_layer = false;
     }
-
-  }
-  output_op->has_transfer = 0;
-  std::vector<std::shared_ptr<RuntimeOperand>> output_operands;
-  for (const auto &pair : output_op->input_operands) {
-    output_operands.push_back(pair.second);
   }
 
-  std::vector<std::vector<std::shared_ptr<Tensor>>> output_datas;
-  CHECK(output_operands.size() == 1) << "Only support one output one graph yet!";
-
-  const auto &output_operand = output_operands.front();
-  return output_operand->datas;
+  std::vector<std::shared_ptr<Tensor>> output_datas;
+  for (const auto &input_operand : output_op->input_operands) {
+    const auto &output_operand = input_operand.second;
+    for (const auto &output_data : output_operand->datas) {
+      output_datas.push_back(output_data);
+    }
+  }
+  return output_datas;
 }
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {

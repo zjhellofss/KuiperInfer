@@ -84,7 +84,7 @@ std::vector<T> RuntimeAttribute::get() {
 
 struct RuntimeOperator {
   ~RuntimeOperator();
-  int has_transfer = 0;
+  bool has_transfer = false;
   std::string type;
   std::string name;
   std::shared_ptr<Layer> layer; //节点对应的层
@@ -151,7 +151,7 @@ class RuntimeGraph {
  public:
   RuntimeGraph(const std::string &param_path, const std::string &bin_path);
 
-  void Build();
+  void Build(const std::string &input_name, const std::string &output_name);
 
   void set_bin_path(const std::string &bin_path);
 
@@ -192,10 +192,12 @@ class RuntimeGraph {
     Complete = 0,
   };
   GraphState graph_state_ = GraphState::NeedInit;
+  std::string input_name_;
+  std::string output_name_;
   std::string param_path_;
   std::string bin_path_;
-  std::vector<std::shared_ptr<RuntimeOperator>> input_operators_;
-  std::vector<std::shared_ptr<RuntimeOperator>> output_operators_;
+  std::map<std::string, std::shared_ptr<RuntimeOperator>> input_operators_maps_;
+  std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators_maps_;
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   std::unique_ptr<pnnx::Graph> graph_;
 };
