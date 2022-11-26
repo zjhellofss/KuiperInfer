@@ -36,12 +36,17 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       LOG(ERROR) << "The input feature map of average pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
+    std::shared_ptr<Tensor<float>> input_data_;
+
     if (!padding_h_ || !padding_w_) {
-      input_data->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, 0);
+      input_data_ = input_data->Clone();
+      input_data_->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, 0);
+    } else {
+      input_data_ = input_data;
     }
-    const uint32_t input_h = input_data->rows();
-    const uint32_t input_w = input_data->cols();
-    const uint32_t input_c = input_data->channels();
+    const uint32_t input_h = input_data_->rows();
+    const uint32_t input_w = input_data_->cols();
+    const uint32_t input_c = input_data_->channels();
     const uint32_t output_c = input_c;
 
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_h_ + 1));
@@ -53,7 +58,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     std::shared_ptr<Tensor<float>> output_data = std::make_shared<Tensor<float>>(output_c, output_h, output_w);
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::fmat &input_channel = input_data->at(ic);
+      const arma::fmat &input_channel = input_data_->at(ic);
       arma::fmat &output_channel = output_data->at(ic);
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w_) {
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h_) {

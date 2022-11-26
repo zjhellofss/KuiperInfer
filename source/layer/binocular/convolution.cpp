@@ -47,13 +47,18 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       LOG(ERROR) << "The input feature map of convolution layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
+
+    std::shared_ptr<Tensor<float>> input_;
     if (padding_ > 0) {
-      input->Padding({padding_, padding_, padding_, padding_}, 0);
+      input_ = input->Clone();
+      input_->Padding({padding_, padding_, padding_, padding_}, 0);
+    } else {
+      input_ = input;
     }
 
-    const uint32_t input_w = input->cols();
-    const uint32_t input_h = input->rows();
-    const uint32_t input_c = input->channels();
+    const uint32_t input_w = input_->cols();
+    const uint32_t input_h = input_->rows();
+    const uint32_t input_c = input_->channels();
 
     const uint32_t kernel_count = this->weights_.size();
     std::shared_ptr<Tensor<float>> output_data;
@@ -81,7 +86,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
       arma::fmat &output_channel = output_data->at(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
-        const arma::fmat &input_channel = input->at(ic);
+        const arma::fmat &input_channel = input_->at(ic);
         const arma::fmat &kernel_channel = kernel->at(ic);
 
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {

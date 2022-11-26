@@ -26,7 +26,6 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   while (in.good()) {
     std::getline(in, line_str);
     if (line_str.empty()) {
-      LOG(ERROR) << "Meet a empty line!";
       break;
     }
 

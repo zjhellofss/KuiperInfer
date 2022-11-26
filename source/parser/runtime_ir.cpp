@@ -14,7 +14,7 @@ void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_pt
   }
   for (const auto &op : operators) {
     if (op->input_operands.empty()) {
-      LOG(ERROR) << "Meet a operator which input operands is empty!";
+      continue;
     } else {
       const std::map<std::string, std::shared_ptr<RuntimeOperand>> &input_operands_map = op->input_operands;
       for (const auto &input_operand_iter : input_operands_map) {
@@ -23,32 +23,39 @@ void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_pt
         CHECK(type == RuntimeDataType::kTypeFloat32) << "The graph only support float32 yet!";
         const auto &shapes = input_operand->shapes;
         auto &input_datas = input_operand->datas;
-        if (!input_datas.empty()) {
-          continue;
-        }
 
         if (shapes.size() == 2) {
-          uint32_t batch = shapes.at(0);
-          uint32_t elements_size = shapes.at(1);
-          for (uint32_t i = 0; i < batch; ++i) {
-            std::shared_ptr<Tensor<float>>
-                tensor = std::make_shared<Tensor<float>>
-                (1, elements_size, 1);
-            input_datas.push_back(tensor);
+          const uint32_t batch = shapes.at(0);
+          if (!input_datas.empty()) {
+            for (uint32_t i = 0; i < batch; ++i) {
+              const std::vector<uint32_t> &origin_shape = input_datas.at(i)->shapes();
+              const std::vector<int32_t> &current_shape = shapes;
+              CHECK(origin_shape.at(1) == current_shape.at(1));
+            }
+          } else {
+            // input data have tensors
+            input_datas.resize(batch);
+            for (uint32_t i = 0; i < batch; ++i) {
+              input_datas.at(i) = std::make_shared<Tensor<float>>(1, shapes.at(1), 1);
+            }
           }
         } else if (shapes.size() == 4) {
-          uint32_t batch = shapes.at(0);
-          uint32_t channel = shapes.at(1);
-          uint32_t rows = shapes.at(2);
-          uint32_t cols = shapes.at(3);
-          for (uint32_t i = 0; i < batch; ++i) {
-            std::shared_ptr<Tensor<float>>
-                tensor = std::make_shared<Tensor<float>>
-                (channel, rows, cols);
-            input_datas.push_back(tensor);
+          const uint32_t batch = shapes.at(0);
+          if (!input_datas.empty()) {
+            for (uint32_t i = 0; i < batch; ++i) {
+              const std::vector<uint32_t> &origin_shape = input_datas.at(i)->shapes();
+              const std::vector<int32_t> &current_shape = shapes;
+              CHECK(origin_shape.at(0) == current_shape.at(1) &&
+                  origin_shape.at(1) == current_shape.at(2) && origin_shape.at(2) == current_shape.at(3));
+            }
+          } else {
+            input_datas.resize(batch);
+            for (uint32_t i = 0; i < batch; ++i) {
+              input_datas.at(i) = std::make_shared<Tensor<float>>(shapes.at(1), shapes.at(2), shapes.at(3));
+            }
           }
         } else {
-          LOG(FATAL) << "Invalid input dims: " << shapes.size();
+          LOG(FATAL) << "Unsupported shape sizes: " << shapes.size();
         }
       }
     }
