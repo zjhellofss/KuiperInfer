@@ -37,6 +37,8 @@ class Tensor<float> {
 
   uint32_t size() const;
 
+  void set_data(const arma::fcube &data);
+
   bool empty() const;
 
   float index(uint32_t offset) const;

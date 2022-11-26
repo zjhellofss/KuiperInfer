@@ -32,6 +32,13 @@ uint32_t Tensor<float>::size() const {
   return this->data_.size();
 }
 
+void Tensor<float>::set_data(const arma::fcube &data) {
+  CHECK(data.n_rows == data.n_rows);
+  CHECK(data.n_cols == data.n_cols);
+  CHECK(data.n_slices == data.n_slices);
+  this->data_ = data;
+}
+
 bool Tensor<float>::empty() const {
   return this->data_.empty();
 }

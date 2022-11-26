@@ -9,6 +9,12 @@
 #include "layer/abstract/layer.hpp"
 
 namespace kuiper_infer {
+
+class RuntimeGraphShape {
+ public:
+  static void InitOperatorInputShapes(const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
+};
+
 struct RuntimeParameter {
   virtual ~RuntimeParameter() = default;
 
@@ -155,7 +161,8 @@ class RuntimeGraph {
   static void InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
                               const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
-  static std::vector<std::shared_ptr<Tensor<float>>> CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &data);
+  static void CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
+                        const std::vector<std::shared_ptr<Tensor<float>>> &dest);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 

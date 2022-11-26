@@ -7,6 +7,54 @@
 
 namespace kuiper_infer {
 
+void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_ptr<RuntimeOperator>> &operators) {
+  if (operators.empty()) {
+    LOG(ERROR) << "Operators for init input shapes is empty!";
+    return;
+  }
+  for (const auto &op : operators) {
+    if (op->input_operands.empty()) {
+      LOG(ERROR) << "Meet a operator which input operands is empty!";
+    } else {
+      const std::map<std::string, std::shared_ptr<RuntimeOperand>> &input_operands_map = op->input_operands;
+      for (const auto &input_operand_iter : input_operands_map) {
+        const auto &input_operand = input_operand_iter.second;
+        const auto &type = input_operand->type;
+        CHECK(type == RuntimeDataType::kTypeFloat32) << "The graph only support float32 yet!";
+        const auto &shapes = input_operand->shapes;
+        auto &input_datas = input_operand->datas;
+        if (!input_datas.empty()) {
+          continue;
+        }
+
+        if (shapes.size() == 2) {
+          uint32_t batch = shapes.at(0);
+          uint32_t elements_size = shapes.at(1);
+          for (uint32_t i = 0; i < batch; ++i) {
+            std::shared_ptr<Tensor<float>>
+                tensor = std::make_shared<Tensor<float>>
+                (1, elements_size, 1);
+            input_datas.push_back(tensor);
+          }
+        } else if (shapes.size() == 4) {
+          uint32_t batch = shapes.at(0);
+          uint32_t channel = shapes.at(1);
+          uint32_t rows = shapes.at(2);
+          uint32_t cols = shapes.at(3);
+          for (uint32_t i = 0; i < batch; ++i) {
+            std::shared_ptr<Tensor<float>>
+                tensor = std::make_shared<Tensor<float>>
+                (channel, rows, cols);
+            input_datas.push_back(tensor);
+          }
+        } else {
+          LOG(FATAL) << "Invalid input dims: " << shapes.size();
+        }
+      }
+    }
+  }
+}
+
 RuntimeOperator::~RuntimeOperator() {
   for (const auto &param : this->params) {
     if (param.second != nullptr) {
@@ -93,7 +141,7 @@ bool RuntimeGraph::Init() {
     }
   }
 
-  //构建图关系
+  // 构建图关系
   for (const auto &current_op : this->operators_) {
     const std::vector<std::string> &output_names = current_op->output_names;
     for (const auto &next_op : this->operators_) {
@@ -135,13 +183,14 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
       }
     }
   }
+  RuntimeGraphShape::InitOperatorInputShapes(this->operators_);
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
   output_name_ = output_name;
 }
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                                                           bool debug) {
+                                                                  bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
@@ -249,14 +298,12 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
   return layer;
 }
 
-std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &data) {
-  std::vector<std::shared_ptr<Tensor<float>>> output_data;
-  const uint32_t size = data.size();
-  output_data.resize(size);
-  for (uint32_t i = 0; i < size; ++i) {
-    output_data.at(i) = data.at(i)->Clone();
+void RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
+                             const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
+  CHECK(src.size() == dest.size());
+  for (uint32_t i = 0; i < src.size(); ++i) {
+    dest.at(i)->set_data(src.at(i)->data());
   }
-  return output_data;
 }
 
 void RuntimeGraph::InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
@@ -410,7 +457,7 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
     auto &next_input_operands = next_rt_operator->input_operands;
 
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-      next_input_operands.at(current_op->name)->datas = CloneData(layer_output_datas);
+      CloneData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         operator_queue.push_back(next_rt_operator);
       }
