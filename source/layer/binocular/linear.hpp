@@ -13,8 +13,8 @@ class LinearLayer : public ParamLayer {
 
   explicit LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias = true);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
  private:
   bool use_bias_ = false;

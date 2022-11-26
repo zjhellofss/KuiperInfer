@@ -5,6 +5,30 @@
 #ifndef KUIPER_COURSE_INCLUDE_COMMON_HPP_
 #define KUIPER_COURSE_INCLUDE_COMMON_HPP_
 namespace kuiper_infer {
+
+enum class RuntimeDataType {
+  kTypeNull = 0,
+  kTypeFloat32 = 1,
+  kTypeFloat64 = 2,
+  kTypeFloat16 = 3,
+  kTypeInt32 = 4,
+  kTypeInt64 = 5,
+  kTypeInt16 = 6,
+  kTypeInt8 = 7,
+  kTypeUInt8 = 8,
+};
+
+enum class RuntimeParameterType {
+  kParameterNull = 0,
+  kParameterInt = 1,
+  kParameterFloat = 2,
+  kParameterString = 3,
+  kParameterIntArray = 4,
+  kParameterFloatArray = 5,
+  kParameterStringArray = 6,
+  kParameterBool = 7,
+};
+
 enum class InferStatus {
   kInferUnknown = -1,
   kInferFailedInputEmpty = 1,
@@ -31,7 +55,7 @@ enum class ParseParameterAttrStatus {
   kParameterMissingNumFeatures = 8,
   kParameterMissingDim = 9,
 
-  kAttrMissingBias =10,
+  kAttrMissingBias = 10,
   kAttrMissingWeight = 11,
   kAttrMissingRunningMean = 12,
   kAttrMissingRunningVar = 13,

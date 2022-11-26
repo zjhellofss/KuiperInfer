@@ -5,6 +5,7 @@
 #ifndef KUIPER_COURSE_SOURCE_LAYER_LAYER_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_LAYER_HPP_
 #include <string>
+#include <utility>
 #include <vector>
 #include <memory>
 #include <glog/logging.h>
@@ -17,28 +18,28 @@ class RuntimeOperator;
 
 class Layer {
  public:
-  explicit Layer(const std::string &layer_name) : layer_name_(layer_name) {
+  explicit Layer(std::string layer_name) : layer_name_(std::move(layer_name)) {
 
   }
 
-  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                              std::vector<std::shared_ptr<Tensor>> &outputs);
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                              std::vector<std::shared_ptr<Tensor<float>>> &outputs);
 
-  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
-                              const std::vector<std::shared_ptr<Tensor>> &inputs2,
-                              std::vector<std::shared_ptr<Tensor>> &ouputs);
+  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs1,
+                              const std::vector<std::shared_ptr<Tensor<float>>> &inputs2,
+                              std::vector<std::shared_ptr<Tensor<float>>> &ouputs);
 
-  virtual const std::vector<std::shared_ptr<Tensor>> &weights() const;
+  virtual const std::vector<std::shared_ptr<Tensor<float>>> &weights() const;
 
-  virtual const std::vector<std::shared_ptr<Tensor>> &bias() const;
+  virtual const std::vector<std::shared_ptr<Tensor<float>>> &bias() const;
 
-  virtual void set_weights(const std::vector<std::shared_ptr<Tensor>> &weights);
+  virtual void set_weights(const std::vector<std::shared_ptr<Tensor<float>>> &weights);
 
-  virtual void set_bias(const std::vector<std::shared_ptr<Tensor>> &bias);
+  virtual void set_bias(const std::vector<std::shared_ptr<Tensor<float>>> &bias);
 
-  virtual void set_weights(const std::vector<double> &weights);
+  virtual void set_weights(const std::vector<float> &weights);
 
-  virtual void set_bias(const std::vector<double> &bias);
+  virtual void set_bias(const std::vector<float> &bias);
 
   virtual const std::string &layer_name() const { return this->layer_name_; }
 

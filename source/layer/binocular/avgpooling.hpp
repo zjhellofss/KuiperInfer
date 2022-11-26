@@ -10,8 +10,8 @@ class AdaptiveAveragePoolingLayer : public Layer {
  public:
   explicit AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
  private:
   uint32_t output_h_ = 0;
   uint32_t output_w_ = 0;

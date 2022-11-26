@@ -95,7 +95,7 @@ bool RuntimeGraph::Init() {
 
   //构建图关系
   for (const auto &current_op : this->operators_) {
-    const std::vector<std::string> output_names = current_op->output_names;
+    const std::vector<std::string> &output_names = current_op->output_names;
     for (const auto &next_op : this->operators_) {
       if (next_op == current_op) {
         continue;
@@ -140,7 +140,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
   output_name_ = output_name;
 }
 
-std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
+std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                                            bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
@@ -187,7 +187,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       break;
     }
 
-    std::vector<std::shared_ptr<Tensor>> layer_output_datas;
+    std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas;
     if (current_op == input_op) {
       layer_output_datas = inputs;
     } else {
@@ -203,8 +203,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
       }
 
       bool has_no_ready = false;
-      std::vector<std::shared_ptr<Tensor>> layer_input_datas;
-
+      std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (auto &input_operand_data : input_operand_datas) {
         if (input_operand_data->datas.empty()) {
           if (std::find(ready_queue.begin(), ready_queue.end(), current_op) != ready_queue.end()) {
@@ -233,7 +232,7 @@ std::vector<std::shared_ptr<Tensor>> RuntimeGraph::Forward(const std::vector<std
     ProbeNextLayer(current_op, operator_queue, layer_output_datas);
   }
 
-  std::vector<std::shared_ptr<Tensor>> output_datas;
+  std::vector<std::shared_ptr<Tensor<float>>> output_datas;
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
   const auto &output_op_input_operand = output_op->input_operands.begin();
   const auto &output_operand = output_op_input_operand->second;
@@ -250,8 +249,8 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
   return layer;
 }
 
-std::vector<std::shared_ptr<Tensor>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor>> &data) {
-  std::vector<std::shared_ptr<Tensor>> output_data;
+std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &data) {
+  std::vector<std::shared_ptr<Tensor<float>>> output_data;
   const uint32_t size = data.size();
   output_data.resize(size);
   for (uint32_t i = 0; i < size; ++i) {
@@ -404,7 +403,7 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
 
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                                   std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                                  std::vector<std::shared_ptr<Tensor>> &layer_output_datas) {
+                                  std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
   const auto &next_ops = current_op->output_operators;
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;

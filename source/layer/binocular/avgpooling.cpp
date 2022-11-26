@@ -10,8 +10,8 @@ AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h, uint
     : Layer("AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
 }
 
-InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                                                 std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                                                 std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
 
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of average pooling layer is empty";
@@ -26,7 +26,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
   // 通过自适应方法中计算stride和pool size
   const uint32_t batch = inputs.size();
   for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Tensor> &input_data = inputs.at(i);
+    const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     if (input_data->empty()) {
       LOG(ERROR) << "The input feature map of average pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
@@ -46,13 +46,13 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     const uint32_t kernel_w = input_w - (output_w_ - 1) * stride_w;
     const uint32_t output_c = input_c;
 
-    std::shared_ptr<Tensor> output_data = std::make_shared<Tensor>(output_c, output_h_, output_w_);
+    std::shared_ptr<Tensor<float>> output_data = std::make_shared<Tensor<float>>(output_c, output_h_, output_w_);
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::mat &input_channel = input_data->at(ic);
-      arma::mat &output_channel = output_data->at(ic);
+      const arma::fmat &input_channel = input_data->at(ic);
+      arma::fmat &output_channel = output_data->at(ic);
       for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w) {
         for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h) {
-          const arma::mat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
+          const arma::fmat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
           output_channel.at(int(r / stride_h), int(c / stride_w)) = arma::mean(arma::mean(region));
         }
       }

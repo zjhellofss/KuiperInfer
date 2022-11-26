@@ -11,8 +11,8 @@ class SoftmaxLayer : public Layer {
  public:
   explicit SoftmaxLayer();
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
 };
 }

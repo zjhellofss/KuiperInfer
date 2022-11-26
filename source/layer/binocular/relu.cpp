@@ -4,8 +4,8 @@
 #include "relu.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
-InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                               std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                               std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of relu layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -13,12 +13,12 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &input
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor> &input = inputs.at(i);
+    const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     if (input->empty()) {
       LOG(ERROR) << "The input feature map of relu layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    const std::shared_ptr<Tensor> &output = input->Clone();
+    const std::shared_ptr<Tensor<float>> &output = input->Clone();
     output->Transform([](double val) {
       return val > 0. ? val : 0.;
     });

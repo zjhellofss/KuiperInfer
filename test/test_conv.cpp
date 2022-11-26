@@ -13,13 +13,13 @@ TEST(test_layer, forward_small_map_pool) {
 
   for (int j = 0; j < 3; ++j) {
     graph.Build("pnnx_input_0", "pnnx_output_0");
-    std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 5, 5);
     input->Ones();
 
-    std::vector<std::shared_ptr<Tensor>> inputs;
+    std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input);
 
-    std::vector<std::shared_ptr<Tensor>> output_tensors = graph.Forward(inputs, false);
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
     ASSERT_EQ(output_tensors.size(), 1);
 
     const auto &output1 = output_tensors.at(0)->at(0);
@@ -39,13 +39,13 @@ TEST(test_layer, forward_small_map) {
 
   for (int i = 0; i < 3; ++i) {
     graph.Build("pnnx_input_0", "pnnx_output_0");
-    std::shared_ptr<Tensor> input = std::make_shared<Tensor>(1, 5, 5);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 5, 5);
     input->Ones();
 
-    std::vector<std::shared_ptr<Tensor>> inputs;
+    std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input);
 
-    std::vector<std::shared_ptr<Tensor>> output_tensors = graph.Forward(inputs, false);
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
     ASSERT_EQ(output_tensors.size(), 1);
 
     const auto &output1 = output_tensors.at(0)->at(0);
@@ -64,8 +64,8 @@ TEST(test_layer, forward_conv1_small) {
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::vector<std::shared_ptr<Tensor>> inputs;
-  std::shared_ptr<Tensor> input_tensor = std::make_shared<Tensor>(3, 5, 5);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(3, 5, 5);
   input_tensor->at(0) = CSVDataLoader::LoadData("./tmp/im2cols/1.csv");
   input_tensor->at(1) = CSVDataLoader::LoadData("./tmp/im2cols/2.csv");
   input_tensor->at(2) = CSVDataLoader::LoadData("./tmp/im2cols/3.csv");
@@ -78,8 +78,8 @@ TEST(test_layer, forward_conv1_large) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/conv1x1.pnnx.param", "tmp/im2cols/conv1x1.pnnx.bin");
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  std::vector<std::shared_ptr<Tensor>> inputs;
-  std::shared_ptr<Tensor> input_tensor = std::make_shared<Tensor>(3, 512, 512);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(3, 512, 512);
   input_tensor->at(0) = CSVDataLoader::LoadData("./tmp/im2cols/1_large.csv");
   input_tensor->at(1) = CSVDataLoader::LoadData("./tmp/im2cols/2_large.csv");
   input_tensor->at(2) = CSVDataLoader::LoadData("./tmp/im2cols/3_large.csv");

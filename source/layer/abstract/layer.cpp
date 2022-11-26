@@ -4,38 +4,38 @@
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 
-const std::vector<std::shared_ptr<Tensor>> &Layer::weights() const {
+const std::vector<std::shared_ptr<Tensor<float>>> &Layer::weights() const {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-const std::vector<std::shared_ptr<Tensor>> &Layer::bias() const {
+const std::vector<std::shared_ptr<Tensor<float>>> &Layer::bias() const {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_bias(const std::vector<double> &bias) {
+void Layer::set_bias(const std::vector<float> &bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_bias(const std::vector<std::shared_ptr<Tensor>> &bias) {
+void Layer::set_bias(const std::vector<std::shared_ptr<Tensor<float>>> &bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_weights(const std::vector<double> &weights) {
+void Layer::set_weights(const std::vector<float> &weights) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_weights(const std::vector<std::shared_ptr<Tensor>> &weights) {
+void Layer::set_weights(const std::vector<std::shared_ptr<Tensor<float>>> &weights) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs1,
-                           const std::vector<std::shared_ptr<Tensor>> &inputs2,
-                           std::vector<std::shared_ptr<Tensor>> &ouputs) {
+InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs1,
+                           const std::vector<std::shared_ptr<Tensor<float>>> &inputs2,
+                           std::vector<std::shared_ptr<Tensor<float>>> &ouputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                           std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                           std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 }

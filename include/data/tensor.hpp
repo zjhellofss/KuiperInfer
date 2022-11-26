@@ -6,8 +6,20 @@
 #define KUIPER_COURSE_DATA_BLOB_HPP_
 #include <memory>
 #include "armadillo"
+
 namespace kuiper_infer {
+template<typename T>
 class Tensor {
+
+};
+
+template<>
+class Tensor<uint8_t> {
+  // 待实现
+};
+
+template<>
+class Tensor<float> {
  public:
   explicit Tensor() = default;
 
@@ -27,27 +39,27 @@ class Tensor {
 
   bool empty() const;
 
-  double index(uint32_t offset) const;
+  float index(uint32_t offset) const;
 
   std::vector<uint32_t> shapes() const;
 
-  arma::cube &data();
+  arma::fcube &data();
 
-  const arma::cube &data() const;
+  const arma::fcube &data() const;
 
-  arma::mat &at(uint32_t channel);
+  arma::fmat &at(uint32_t channel);
 
-  const arma::mat &at(uint32_t channel) const;
+  const arma::fmat &at(uint32_t channel) const;
 
-  double at(uint32_t channel, uint32_t row, uint32_t col) const;
+  float at(uint32_t channel, uint32_t row, uint32_t col) const;
 
-  double &at(uint32_t channel, uint32_t row, uint32_t col);
+  float &at(uint32_t channel, uint32_t row, uint32_t col);
 
-  void Padding(const std::vector<uint32_t> &pads, double padding_value);
+  void Padding(const std::vector<uint32_t> &pads, float padding_value);
 
-  void Fill(double value);
+  void Fill(float value);
 
-  void Fill(const std::vector<double> &values);
+  void Fill(const std::vector<float> &values);
 
   void Ones();
 
@@ -55,18 +67,18 @@ class Tensor {
 
   void Show();
 
-  void Concat(const std::shared_ptr<Tensor> &tensor);
+  void Concat(const std::shared_ptr<Tensor<float>> &tensor);
 
-  void Add(const std::shared_ptr<Tensor> &tensor);
+  void Add(const std::shared_ptr<Tensor<float>> &tensor);
 
   void Flatten();
 
-  void Transform(const std::function<double(double)> &filter);
+  void Transform(const std::function<float(float)> &filter);
 
   std::shared_ptr<Tensor> Clone();
 
  private:
-  arma::cube data_;
+  arma::fcube data_;
 };
 
 }

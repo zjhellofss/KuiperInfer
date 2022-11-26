@@ -9,29 +9,6 @@
 #include "layer/abstract/layer.hpp"
 
 namespace kuiper_infer {
-enum class RuntimeDataType {
-  kTypeNull = 0,
-  kTypeFloat32 = 1,
-  kTypeFloat64 = 2,
-  kTypeFloat16 = 3,
-  kTypeInt32 = 4,
-  kTypeInt64 = 5,
-  kTypeInt16 = 6,
-  kTypeInt8 = 7,
-  kTypeUInt8 = 8,
-};
-
-enum class RuntimeParameterType {
-  kParameterNull = 0,
-  kParameterInt = 1,
-  kParameterFloat = 2,
-  kParameterString = 3,
-  kParameterIntArray = 4,
-  kParameterFloatArray = 5,
-  kParameterStringArray = 6,
-  kParameterBool = 7,
-};
-
 struct RuntimeParameter {
   virtual ~RuntimeParameter() = default;
 
@@ -45,7 +22,7 @@ struct RuntimeOperand {
   RuntimeDataType type;
   std::string name;
   std::vector<int32_t> shapes;
-  std::vector<std::shared_ptr<Tensor>> datas;
+  std::vector<std::shared_ptr<Tensor<float>>> datas;
 };
 
 struct RuntimeAttribute {
@@ -65,18 +42,18 @@ std::vector<T> RuntimeAttribute::get() {
   std::vector<T> weights;
   switch (type) {
     case RuntimeDataType::kTypeFloat32: {
-      const bool is_double = std::is_same<T, double>::value;
-      CHECK_EQ(is_double, true);
-      const uint32_t float_size = 4;
+      const bool is_float = std::is_same<T, float>::value;
+      CHECK_EQ(is_float, true);
+      const uint32_t float_size = sizeof(float);
       CHECK_EQ(weight_data.size() % float_size, 0);
       for (int i = 0; i < weight_data.size() / float_size; ++i) {
-        double v = *((float *) weight_data.data() + i);
+        float v = *((float *) weight_data.data() + i);
         weights.push_back(v);
       }
       break;
     }
     default: {
-      LOG(FATAL) << "Unknown weight_data Type";
+      LOG(FATAL) << "Unknown weight data type";
     }
   }
   return weights;
@@ -160,13 +137,11 @@ class RuntimeGraph {
 
   const std::string &bin_path() const;
 
-  std::vector<std::shared_ptr<Tensor>> Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                                               bool debug = false);
+  std::vector<std::shared_ptr<Tensor<float>>> Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                                                      bool debug = false);
 
  private:
   bool Init();
-
-  static void ForwardOneLayer();
 
   static void InitInputOperators(const std::vector<pnnx::Operand *> &inputs,
                                  const std::shared_ptr<RuntimeOperator> &runtime_operator);
@@ -180,7 +155,7 @@ class RuntimeGraph {
   static void InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
                               const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
-  static std::vector<std::shared_ptr<Tensor>> CloneData(const std::vector<std::shared_ptr<Tensor>> &data);
+  static std::vector<std::shared_ptr<Tensor<float>>> CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &data);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 
@@ -188,7 +163,7 @@ class RuntimeGraph {
 
   static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                              std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                             std::vector<std::shared_ptr<Tensor>> &layer_output_data);
+                             std::vector<std::shared_ptr<Tensor<float>>> &layer_output_data);
 
  private:
   enum class GraphState {

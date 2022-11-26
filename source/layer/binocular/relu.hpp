@@ -11,8 +11,8 @@ class ReluLayer : public Layer {
   ReluLayer() : Layer("Relu") {
 
   }
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                      std::vector<std::shared_ptr<Tensor>> &outputs) override;
+  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &relu_layer);

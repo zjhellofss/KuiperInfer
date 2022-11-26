@@ -4,7 +4,6 @@
 
 #include "convolution.hpp"
 #include "parser/runtime_ir.hpp"
-#include "data/im2col.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
 
@@ -16,17 +15,17 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
     : ParamLayer("Convolution"), padding_(padding), stride_h_(stride_h), stride_w_(stride_w), use_bias_(use_bias) {
 
   for (uint32_t i = 0; i < output_channel; ++i) {
-    std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(in_channel, kernel_h, kernel_w);
+    std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(in_channel, kernel_h, kernel_w);
     this->weights_.push_back(weight);
     if (use_bias_) {
-      std::shared_ptr<Tensor> bias = std::make_shared<Tensor>(1, 1, 1);
+      std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1, 1, 1);
       this->bias_.push_back(bias);
     }
   }
 }
 
-InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                                      std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -43,7 +42,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor> &input = inputs.at(i);
+    const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     if (input->empty()) {
       LOG(ERROR) << "The input feature map of convolution layer is empty";
       return InferStatus::kInferFailedInputEmpty;
@@ -57,10 +56,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
     const uint32_t input_c = input->channels();
 
     const uint32_t kernel_count = this->weights_.size();
-    std::shared_ptr<Tensor> output_data;
+    std::shared_ptr<Tensor<float>> output_data;
 
     for (uint32_t k = 0; k < kernel_count; ++k) {
-      const std::shared_ptr<Tensor> &kernel = this->weights_.at(k);
+      const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
       const uint32_t kernel_h = kernel->rows();
       const uint32_t kernel_w = kernel->cols();
 
@@ -72,7 +71,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       }
 
       if (!output_data) {
-        output_data = std::make_shared<Tensor>(kernel_count, output_h, output_w);
+        output_data = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
       }
 
       if (kernel->channels() != input_c) {
@@ -80,17 +79,17 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
         return InferStatus::kInferFailedChannelParameterError;
       }
 
-      arma::mat &output_channel = output_data->at(k);
+      arma::fmat &output_channel = output_data->at(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
-        const arma::mat &input_channel = input->at(ic);
-        const arma::mat &kernel_channel = kernel->at(ic);
+        const arma::fmat &input_channel = input->at(ic);
+        const arma::fmat &kernel_channel = kernel->at(ic);
 
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
           auto *output_channel_ptr = output_channel.colptr(int(c / stride_h_));
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
 
-            double acc_value = 0.;
-            auto *kernel_ptr = const_cast<double *>(kernel_channel.memptr());
+            float acc_value = 0.;
+            auto *kernel_ptr = const_cast<float *>(kernel_channel.memptr());
             for (uint32_t kw = 0; kw < kernel_w; ++kw) {
               auto *region_ptr_col = input_channel.colptr(kw + c) + r;
               for (uint32_t kh = 0; kh < kernel_h; ++kh) {
@@ -104,13 +103,13 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
         }
       }
 
-      std::shared_ptr<Tensor> bias;
+      std::shared_ptr<Tensor<float>> bias;
       if (!this->bias_.empty() && this->use_bias_) {
         bias = this->bias_.at(k);
       }
 
       if (bias != nullptr) {
-        arma::mat bias_mat(output_h, output_w);
+        arma::fmat bias_mat(output_h, output_w);
         bias_mat.fill(bias->data().front());
         output_channel += bias_mat;
       }
@@ -217,7 +216,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
 
-    std::vector<double> bias_values = bias->get<double>();
+    std::vector<float> bias_values = bias->get<float>();
     conv_layer->set_bias(bias_values);
   }
 
@@ -233,7 +232,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
     return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 
-  std::vector<double> weight_values = weight->get<double>();
+  std::vector<float> weight_values = weight->get<float>();
   conv_layer->set_weights(weight_values);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

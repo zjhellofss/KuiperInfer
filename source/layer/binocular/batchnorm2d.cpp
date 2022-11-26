@@ -7,8 +7,8 @@
 
 namespace kuiper_infer {
 
-InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                                      std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of batchnorm layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -29,10 +29,10 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       return InferStatus::kInferFailedInputEmpty;
     }
 
-    std::shared_ptr<Tensor> output = input->Clone();
+    std::shared_ptr<Tensor<float>> output = input->Clone();
     for (uint32_t i = 0; i < mean_value_size; ++i) {
-      const double mean_value = weights_.at(i)->index(0);
-      const double var_value = bias_.at(i)->index(0);
+      const float mean_value = weights_.at(i)->index(0);
+      const float var_value = bias_.at(i)->index(0);
 
       if (input->channels() < i) {
         LOG(ERROR) << "The channel of the input feature maps and mean values is not adapting";
@@ -41,11 +41,11 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor>>
       const uint32_t input_row = input->rows();
       const uint32_t input_col = input->cols();
 
-      auto var_mat = arma::mat(input_row, input_col);
+      auto var_mat = arma::fmat(input_row, input_col);
       var_mat.fill(var_value + eps_);
       var_mat = arma::sqrt(var_mat);
 
-      auto mean_mat = arma::mat(input_row, input_col);
+      auto mean_mat = arma::fmat(input_row, input_col);
       mean_mat.fill(mean_value);
 
       output->at(i) = (output->at(i) - mean_mat) / var_mat;
@@ -92,7 +92,7 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
   }
 
   const auto &mean_attr = attrs.at("running_mean");
-  std::vector<double> mean = mean_attr->get<double>();
+  std::vector<float> mean = mean_attr->get<float>();
   batch_layer->set_weights(mean);
 
   const auto &var_attr_iter = attrs.find("running_var");
@@ -102,18 +102,18 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
   }
 
   const auto &var_attr = var_attr_iter->second;
-  std::vector<double> var = var_attr->get<double>();;
+  std::vector<float> var = var_attr->get<float>();;
   batch_layer->set_bias(var);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, double eps)
+BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps)
     : ParamLayer("Batchnorm"), num_features_(num_features), eps_(eps) {
   for (uint32_t i = 0; i < num_features; ++i) {
-    std::shared_ptr<Tensor> weight = std::make_shared<Tensor>(1, 1, 1);
+    std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(1, 1, 1);
     this->weights_.push_back(weight);
 
-    std::shared_ptr<Tensor> bias = std::make_shared<Tensor>(1, 1, 1);
+    std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1, 1, 1);
     this->bias_.push_back(bias);
   }
 }

@@ -9,8 +9,8 @@ AddLayer::AddLayer() : Layer("Add") {
 
 }
 
-InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs,
-                              std::vector<std::shared_ptr<Tensor>> &outputs) {
+InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+                              std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
 
   const uint32_t size = inputs.size();
   if (!size) {
@@ -18,7 +18,7 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor>> &inputs
     return InferStatus::kInferFailedInputEmpty;
   }
 
-  const std::shared_ptr<Tensor>& input = inputs.at(0);
+  const std::shared_ptr<Tensor<float>>& input = inputs.at(0);
   for (uint32_t i = 1; i < size; ++i) {
     input->Add(inputs.at(i));
   }

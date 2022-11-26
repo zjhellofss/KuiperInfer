@@ -11,17 +11,17 @@ class ParamLayer : public Layer {
  public:
   explicit ParamLayer(const std::string &layer_name);
 
-  const std::vector<std::shared_ptr<Tensor>> &weights() const override;
+  const std::vector<std::shared_ptr<Tensor<float>>> &weights() const override;
 
-  const std::vector<std::shared_ptr<Tensor>> &bias() const override;
+  const std::vector<std::shared_ptr<Tensor<float>>> &bias() const override;
 
-  void set_weights(const std::vector<double> &weights) override;
+  void set_weights(const std::vector<float> &weights) override;
 
-  void set_bias(const std::vector<double> &bias) override;
+  void set_bias(const std::vector<float> &bias) override;
 
  protected:
-  std::vector<std::shared_ptr<Tensor>> weights_;
-  std::vector<std::shared_ptr<Tensor>> bias_;
+  std::vector<std::shared_ptr<Tensor<float>>> weights_;
+  std::vector<std::shared_ptr<Tensor<float>>> bias_;
 };
 
 }

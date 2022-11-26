@@ -10,7 +10,7 @@ namespace kuiper_infer {
 
 class CSVDataLoader {
  public:
-  static arma::mat LoadData(const std::string &file_path, char split_char = ',');
+  static arma::fmat LoadData(const std::string &file_path, char split_char = ',');
  private:
   static std::pair<size_t, size_t> GetMatrixSize(std::ifstream &f, char split_char);
 };

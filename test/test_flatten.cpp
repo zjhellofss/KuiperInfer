@@ -10,12 +10,12 @@ TEST(test_layer, test_flatten1_small) {
   const uint32_t channels = 3;
   const uint32_t rows = 32;
   const uint32_t cols = 32;
-  Tensor tensor(channels, rows, cols);
+  Tensor<float> tensor(channels, rows, cols);
   int value = 0;
   for (uint32_t c = 0; c < channels; ++c) {
     for (uint32_t r = 0; r < rows; ++r) {
       for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        tensor.at(c, r, c_) = value;
+        tensor.at(c, r, c_) = (float) value;
         value += 1;
       }
     }
