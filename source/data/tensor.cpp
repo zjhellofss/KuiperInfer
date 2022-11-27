@@ -204,6 +204,11 @@ void Tensor<float>::Add(const std::shared_ptr<Tensor<float>> &tensor) {
   this->data_ = this->data_ + tensor->data_;
 }
 
+void Tensor<float>::Add(float value) {
+  CHECK(!this->data_.empty());
+  this->data_ += value;
+}
+
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {
   CHECK(!this->data_.empty());
   this->data_.transform(filter);

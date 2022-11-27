@@ -45,7 +45,7 @@ TEST(test_layer, forward_small_map) {
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input);
 
-    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, true);
     ASSERT_EQ(output_tensors.size(), 1);
 
     const auto &output1 = output_tensors.at(0)->at(0);

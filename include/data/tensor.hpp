@@ -73,6 +73,8 @@ class Tensor<float> {
 
   void Add(const std::shared_ptr<Tensor<float>> &tensor);
 
+  void Add(float value);
+
   void Flatten();
 
   void Transform(const std::function<float(float)> &filter);

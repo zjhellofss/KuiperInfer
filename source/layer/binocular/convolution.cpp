@@ -30,6 +30,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+
   if (weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
     return InferStatus::kInferFailedWeightParameterError;
@@ -63,50 +64,77 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     const uint32_t kernel_count = this->weights_.size();
     std::shared_ptr<Tensor<float>> output_data;
 
+    uint32_t kernel_h = this->weights_.at(0)->rows();
+    uint32_t kernel_w = this->weights_.at(0)->cols();
+
+    uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+    uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
+    if (output_h <= 0 || output_w <= 0) {
+      LOG(ERROR) << "The size of the output feature map is less than zero";
+      return InferStatus::kInferFailedOutputSizeError;
+    }
+
     for (uint32_t k = 0; k < kernel_count; ++k) {
       const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
-      const uint32_t kernel_h = kernel->rows();
-      const uint32_t kernel_w = kernel->cols();
+      CHECK(kernel->rows() == kernel_h);
+      CHECK(kernel->cols() == kernel_w);
+      CHECK(kernel->channels() == input_c);
+    }
 
-      uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
-      uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
-      if (output_h <= 0 || output_w <= 0) {
-        LOG(ERROR) << "The size of the output feature map is less than zero";
-        return InferStatus::kInferFailedOutputSizeError;
+    uint32_t col_len = 0;
+    uint32_t row_len = kernel_w * kernel_h;
+
+    for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+      for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+        col_len += 1;
       }
+    }
 
-      if (!output_data) {
-        output_data = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
-      }
+    arma::fmat input_matrix;
+    arma::fmat kernel_matrix;
 
-      if (kernel->channels() != input_c) {
-        LOG(ERROR) << "The channel of the weight and input is not adapting";
-        return InferStatus::kInferFailedChannelParameterError;
-      }
-
-      arma::fmat &output_channel = output_data->at(k);
+    for (uint32_t k = 0; k < kernel_count; ++k) {
+      arma::fmat kernel_matrix_c(1, row_len * input_c);
+      const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
-        const arma::fmat &input_channel = input_->at(ic);
-        const arma::fmat &kernel_channel = kernel->at(ic);
+        memcpy(kernel_matrix_c.memptr() + row_len * ic,
+               kernel->data().memptr(), row_len * sizeof(float));
+      }
+      if (kernel_matrix.empty()) {
+        kernel_matrix = kernel_matrix_c;
+      } else {
+        kernel_matrix = arma::join_cols(kernel_matrix, kernel_matrix_c);
+      }
+    }
 
-        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-          auto *output_channel_ptr = output_channel.colptr(int(c / stride_h_));
-          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+    for (uint32_t ic = 0; ic < input_c; ++ic) {
+      arma::fmat input_matrix_c(row_len, col_len);
+      float *input_matrix_c_ptr = input_matrix_c.memptr();
+      const arma::fmat &input_channel = input_->at(ic);
 
-            float acc_value = 0.;
-            auto *kernel_ptr = const_cast<float *>(kernel_channel.memptr());
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              auto *region_ptr_col = input_channel.colptr(kw + c) + r;
-              for (uint32_t kh = 0; kh < kernel_h; ++kh) {
-                auto *region_ptr = region_ptr_col + kh;
-                acc_value += *(region_ptr) * (*kernel_ptr);
-                kernel_ptr += 1;
-              }
-            }
-            *(output_channel_ptr + int(r / stride_h_)) += acc_value;
+      for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+          for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+            const float *region_ptr = input_channel.colptr(c + kw) + r;
+            memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
+            input_matrix_c_ptr += kernel_h;
           }
         }
       }
+
+      if (input_matrix.empty()) {
+        input_matrix = input_matrix_c;
+      } else {
+        input_matrix = arma::join_cols(input_matrix, input_matrix_c);
+      }
+    }
+    arma::fmat output = kernel_matrix * input_matrix;
+    CHECK(output.size() == kernel_count *  output_h * output_w);
+
+    std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+    for (uint32_t k = 0; k < kernel_count; ++k) {
+      arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
+      output_channel.reshape(output_h, output_w);
 
       std::shared_ptr<Tensor<float>> bias;
       if (!this->bias_.empty() && this->use_bias_) {
@@ -114,13 +142,12 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
 
       if (bias != nullptr) {
-        arma::fmat bias_mat(output_h, output_w);
-        bias_mat.fill(bias->data().front());
-        output_channel += bias_mat;
+        float bias_value = bias->index(0);
+        output_channel += bias_value;
       }
+      output_tensor->at(k) = output_channel;
     }
-    CHECK(!output_data->empty());
-    outputs.push_back(output_data);
+    outputs.push_back(output_tensor);
   }
   return InferStatus::kInferSuccess;
 }
