@@ -132,6 +132,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     CHECK(output.size() == kernel_count *  output_h * output_w);
 
     std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+
+#pragma omp parallel for num_threads(kernel_count)
     for (uint32_t k = 0; k < kernel_count; ++k) {
       arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
       output_channel.reshape(output_h, output_w);
