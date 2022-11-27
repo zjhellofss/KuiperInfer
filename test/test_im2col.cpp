@@ -17,7 +17,6 @@ TEST(test_im2col, conv_1x1) {
                    "5  6  7  8 ;"
                    "9  10 12 12;"
                    "13 14 15 16");
-  LOG(INFO) << "\n" << data1;
   input->at(0) = data1;
 
   std::shared_ptr<Tensor<float>> kernel = std::make_shared<Tensor<float>>(1, 2, 2);
@@ -25,7 +24,6 @@ TEST(test_im2col, conv_1x1) {
 
   arma::fmat data2("9  10;"
                    "11 12");
-  LOG(INFO) << "\n" << data2;
   kernel->at(0) = data2;
 
   kernels.push_back(kernel);

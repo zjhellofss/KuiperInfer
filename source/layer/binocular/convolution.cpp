@@ -98,7 +98,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         memcpy(kernel_matrix_c.memptr() + row_len * ic,
-               kernel->data().memptr(), row_len * sizeof(float));
+               kernel->at(ic).memptr(), row_len * sizeof(float));
       }
       if (kernel_matrix.empty()) {
         kernel_matrix = kernel_matrix_c;
@@ -129,11 +129,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
     }
     arma::fmat output = kernel_matrix * input_matrix;
-    CHECK(output.size() == kernel_count *  output_h * output_w);
-
+    CHECK(output.size() == kernel_count * output_h * output_w);
     std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
 
-#pragma omp parallel for num_threads(kernel_count)
     for (uint32_t k = 0; k < kernel_count; ++k) {
       arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
       output_channel.reshape(output_h, output_w);

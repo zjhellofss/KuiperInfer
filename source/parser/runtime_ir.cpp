@@ -27,6 +27,7 @@ void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_pt
         if (shapes.size() == 2) {
           const uint32_t batch = shapes.at(0);
           if (!input_datas.empty()) {
+            CHECK(input_datas.size() == batch) << "Batch size is wrong!";
             for (uint32_t i = 0; i < batch; ++i) {
               const std::vector<uint32_t> &origin_shape = input_datas.at(i)->shapes();
               const std::vector<int32_t> &current_shape = shapes;
@@ -42,6 +43,7 @@ void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_pt
         } else if (shapes.size() == 4) {
           const uint32_t batch = shapes.at(0);
           if (!input_datas.empty()) {
+            CHECK(input_datas.size() == batch) << "Batch size is wrong!";
             for (uint32_t i = 0; i < batch; ++i) {
               const std::vector<uint32_t> &origin_shape = input_datas.at(i)->shapes();
               const std::vector<int32_t> &current_shape = shapes;
