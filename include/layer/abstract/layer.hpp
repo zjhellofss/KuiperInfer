@@ -12,9 +12,9 @@
 
 #include "common.hpp"
 #include "data/tensor.hpp"
+#include "parser/runtime_op.hpp"
 
 namespace kuiper_infer {
-class RuntimeOperator;
 
 class Layer {
  public:

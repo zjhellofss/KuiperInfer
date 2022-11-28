@@ -1,9 +1,12 @@
 
 #include "parser/runtime_ir.hpp"
-#include "layer/abstract/layer_factory.hpp"
 #include <memory>
 #include <queue>
 #include <deque>
+#include "layer/abstract/layer_factory.hpp"
+#include "parser/runtime_parameter.hpp"
+#include "parser/runtime_attr.hpp"
+#include "parser/runtime_op.hpp"
 
 namespace kuiper_infer {
 
@@ -60,14 +63,6 @@ void RuntimeGraphShape::InitOperatorInputShapes(const std::vector<std::shared_pt
           LOG(FATAL) << "Unsupported shape sizes: " << shapes.size();
         }
       }
-    }
-  }
-}
-
-RuntimeOperator::~RuntimeOperator() {
-  for (const auto &param : this->params) {
-    if (param.second != nullptr) {
-      delete param.second;
     }
   }
 }

@@ -5,6 +5,7 @@
 #ifndef KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_ADD_HPP_
 #define KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_ADD_HPP_
 #include "layer/abstract/layer.hpp"
+
 namespace kuiper_infer {
 class AddLayer :public Layer{
  public:
