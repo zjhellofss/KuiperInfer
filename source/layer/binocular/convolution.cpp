@@ -90,11 +90,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
     }
 
-    arma::fmat input_matrix;
     arma::fmat kernel_matrix;
+    arma::fmat kernel_matrix_c(1, row_len * input_c);
 
     for (uint32_t k = 0; k < kernel_count; ++k) {
-      arma::fmat kernel_matrix_c(1, row_len * input_c);
       const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         memcpy(kernel_matrix_c.memptr() + row_len * ic,
@@ -107,8 +106,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
     }
 
+    arma::fmat input_matrix(input_c * row_len, col_len);
+    arma::fmat input_matrix_c(row_len, col_len);
+
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      arma::fmat input_matrix_c(row_len, col_len);
       float *input_matrix_c_ptr = input_matrix_c.memptr();
       const arma::fmat &input_channel = input_->at(ic);
 
@@ -121,17 +122,13 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
           }
         }
       }
-
-      if (input_matrix.empty()) {
-        input_matrix = input_matrix_c;
-      } else {
-        input_matrix = arma::join_cols(input_matrix, input_matrix_c);
-      }
+      input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
     }
     arma::fmat output = kernel_matrix * input_matrix;
     CHECK(output.size() == kernel_count * output_h * output_w);
     std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
 
+#pragma omp parallel for num_threads(kernel_count)
     for (uint32_t k = 0; k < kernel_count; ++k) {
       arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
       output_channel.reshape(output_h, output_w);

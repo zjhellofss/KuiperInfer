@@ -14,12 +14,11 @@ TEST(test_layer, forward_identity_block0) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 511, 512);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 512, 512);
   input->Ones();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
-
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 1);

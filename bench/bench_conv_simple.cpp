@@ -77,9 +77,9 @@ static void BM_ConvIdentity3(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_ConvSimple);
-BENCHMARK(BM_ConvIdentity);
-BENCHMARK(BM_ConvIdentity2);
-BENCHMARK(BM_ConvIdentity3);
+BENCHMARK(BM_ConvSimple)->Iterations(5);
+BENCHMARK(BM_ConvIdentity)->Iterations(5);
+BENCHMARK(BM_ConvIdentity2)->Iterations(5);
+BENCHMARK(BM_ConvIdentity3)->Iterations(5);
 
 BENCHMARK_MAIN();
