@@ -16,6 +16,8 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     LOG(ERROR) << "The input feature map of softmax layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+
+  CHECK(outputs.size() == inputs.size());
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
@@ -23,7 +25,11 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
       LOG(ERROR) << "The input feature map of softmax layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    const std::shared_ptr<Tensor<float>> &output = input->Clone();
+
+    const std::shared_ptr<Tensor<float>> &output = outputs.at(i);
+    CHECK(output != nullptr);
+    CHECK(output->channels() == input->channels() && output->rows() == input->rows()
+              && output->cols() == input->cols());
 
     const arma::fcube &input_data = input->data();
     arma::fcube &output_data = output->data();
@@ -32,7 +38,6 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     const double sum = arma::accu(arma::exp(input_data - max));
     const double offset = max + log(sum);
     output_data = arma::exp(input_data - offset);
-    outputs.push_back(output);
   }
   return InferStatus::kInferSuccess;
 }

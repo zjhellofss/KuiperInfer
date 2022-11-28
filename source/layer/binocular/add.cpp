@@ -18,11 +18,15 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
     return InferStatus::kInferFailedInputEmpty;
   }
 
-  const std::shared_ptr<Tensor<float>>& input = inputs.at(0);
-  for (uint32_t i = 1; i < size; ++i) {
-    input->Add(inputs.at(i));
+  const uint32_t batch_size = outputs.size();
+
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    outputs.at(i)->Fill(0.f);
   }
-  outputs.push_back(input);
+
+  for (uint32_t i = 0; i < size; ++i) {
+    outputs.at(i / (batch_size * 2))->Add(inputs.at(i));
+  }
   return InferStatus::kInferSuccess;
 }
 
@@ -32,7 +36,6 @@ ParseParameterAttrStatus AddLayer::GetInstance(const std::shared_ptr<RuntimeOper
   add_layer = std::make_shared<AddLayer>();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
-
 
 LayerRegistererWrapper kAddGetInstance("pnnx.Expression", AddLayer::GetInstance);
 }

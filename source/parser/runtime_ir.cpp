@@ -63,7 +63,10 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
   CHECK(pnnx_operators.size() == operators.size());
   for (uint32_t i = 0; i < pnnx_operators.size(); ++i) {
     const std::vector<pnnx::Operand *> operands = pnnx_operators.at(i)->outputs;
-    CHECK(operands.size() == 1) << "Only support one node one output yet!";
+    CHECK(operands.size() <= 1) << "Only support one node one output yet!";
+    if (operands.empty()) {
+      continue;
+    }
     pnnx::Operand *operand = operands.front();
     const auto &runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
@@ -94,7 +97,7 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
       CHECK(output_tensors->type == RuntimeDataType::kTypeFloat32);
       CHECK(output_tensors->shapes == shapes);
       for (const auto &output_tensors_data : output_tensors_datas) {
-        const auto &tensor_shapes = output_tensors_data->shapes();
+        const auto &tensor_shapes = output_tensors->shapes;
         if (shapes.size() == 4)
           CHECK(tensor_shapes.at(1) == shapes.at(1) && tensor_shapes.at(2) == shapes.at(2)
                     && tensor_shapes.at(3) == shapes.at(3));
@@ -226,6 +229,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
     }
   }
   RuntimeGraphShape::InitOperatorInputTensor(this->operators_);
+  RuntimeGraphShape::InitOperatorOutputTensor(graph_->ops, this->operators_);
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
   output_name_ = output_name;
@@ -293,27 +297,29 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
         input_operand_datas.push_back(input_operand.second);
       }
 
-      bool has_no_ready = false;
+      bool has_ready = CheckOperatorReady(current_op);
+      if (!has_ready) {
+        if (std::find(ready_queue.begin(), ready_queue.end(), current_op) == ready_queue.end()) {
+          ready_queue.push_back(current_op);
+        }
+        continue;
+      }
+
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (auto &input_operand_data : input_operand_datas) {
-        if (input_operand_data->datas.empty()) {
-          if (std::find(ready_queue.begin(), ready_queue.end(), current_op) != ready_queue.end()) {
-            ready_queue.push_back(current_op);
-          }
-          has_no_ready = true;
-        }
         for (const auto &input_data : input_operand_data->datas) {
           layer_input_datas.push_back(input_data);
         }
       }
 
-      if (has_no_ready || layer_input_datas.empty()) {
-        continue;
-      }
+      CHECK(!layer_input_datas.empty());
 
+      CHECK(current_op->output_operands != nullptr);
+      layer_output_datas = current_op->output_operands->datas;
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
+
       if (debug) {
         for (const auto &output_data : layer_output_datas) {
           output_data->Show();
@@ -321,6 +327,10 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       }
     }
     ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+  }
+
+  for (const auto &op : this->operators_) {
+    op->meat_num = 0;
   }
 
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
@@ -471,19 +481,12 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &
 
 bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op) {
   CHECK(op != nullptr);
-
-  const auto &input_operands_map = op->input_operands;
-  for (const auto &input_operand_iter : input_operands_map) {
-    const std::shared_ptr<RuntimeOperand> &runtime_operand = input_operand_iter.second;
-    if (runtime_operand) {
-      if (runtime_operand->datas.empty()) {
-        return false;
-      }
-    } else {
-      return false;
-    }
+  CHECK(op->meat_num <= op->input_operands.size());
+  if (op->meat_num == op->input_operands.size()) {
+    return true;
+  } else {
+    return false;
   }
-  return true;
 }
 
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
@@ -499,6 +502,7 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         operator_queue.push_back(next_rt_operator);
       }
+      next_rt_operator->meat_num += 1;
     }
   }
 }

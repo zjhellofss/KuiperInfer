@@ -22,6 +22,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     LOG(ERROR) << "The size of the output feature map is less than zero";
     return InferStatus::kInferFailedOutputSizeError;
   }
+  CHECK(inputs.size() == outputs.size());
 
   // 通过自适应方法中计算stride和pool size
   const uint32_t batch = inputs.size();
@@ -44,9 +45,10 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
 
     const uint32_t kernel_h = input_h - (output_h_ - 1) * stride_h;
     const uint32_t kernel_w = input_w - (output_w_ - 1) * stride_w;
-    const uint32_t output_c = input_c;
 
-    std::shared_ptr<Tensor<float>> output_data = std::make_shared<Tensor<float>>(output_c, output_h_, output_w_);
+    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
+    CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_ && output_data->channels() == input_c);
+
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data->at(ic);
       arma::fmat &output_channel = output_data->at(ic);
@@ -57,7 +59,6 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
         }
       }
     }
-    outputs.push_back(output_data);
   }
   return InferStatus::kInferSuccess;
 }

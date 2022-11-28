@@ -18,6 +18,7 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     LOG(ERROR) << "The input feature map of flatten layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+  CHECK(inputs.size() == outputs.size());
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
@@ -26,10 +27,25 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
       LOG(ERROR) << "The input feature map of flatten layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    const std::shared_ptr<Tensor<float>> &output_data = input_data->Clone();
-    CHECK(!output_data->empty());
-    output_data->Flatten();
-    outputs.push_back(output_data);
+    const std::shared_ptr<Tensor<float>> &output_data = outputs.at(i);
+    CHECK(output_data != nullptr);
+    CHECK(output_data->cols() == input_data->size() && output_data->rows() == 1 && output_data->channels() == 1);
+
+    uint32_t channel = input_data->channels();
+    uint32_t rows = input_data->rows();
+    uint32_t cols = input_data->cols();
+    uint32_t index = 0;
+
+    for (uint32_t c = 0; c < channel; ++c) {
+      const arma::fmat &matrix = input_data->data().slice(c);
+
+      for (uint32_t r = 0; r < rows; ++r) {
+        for (uint32_t c_ = 0; c_ < cols; ++c_) {
+          output_data->at(0, index, 0) = matrix.at(r, c_);
+          index += 1;
+        }
+      }
+    }
   }
   return InferStatus::kInferSuccess;
 }

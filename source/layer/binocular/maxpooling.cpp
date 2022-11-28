@@ -21,6 +21,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     LOG(ERROR) << "The input feature map of average pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
+  CHECK(inputs.size() == outputs.size());
 
   const uint32_t batch = inputs.size();
   const uint32_t pooling_h = pooling_size_h_;
@@ -56,7 +57,10 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       return InferStatus::kInferFailedOutputSizeError;
     }
 
-    std::shared_ptr<Tensor<float>> output_data = std::make_shared<Tensor<float>>(output_c, output_h, output_w);
+    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
+    CHECK(output_data != nullptr);
+    CHECK(output_data->channels() == output_c && output_data->rows() == output_h && output_data->cols() == output_w);
+
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data->at(ic);
       arma::fmat &output_channel = output_data->at(ic);
@@ -67,7 +71,6 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         }
       }
     }
-    outputs.push_back(output_data);
   }
   return InferStatus::kInferSuccess;
 }

@@ -35,6 +35,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       LOG(ERROR) << "The size of the weight and bias parameters is not equal";
     }
   }
+  CHECK(inputs.size() == outputs.size());
 
   if (this->weights_.size() != inputs.size()) {
     LOG(ERROR) << "The size of the weight parameters and input is not equal";
@@ -55,7 +56,11 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       bias = this->bias_.at(i);
     }
 
-    std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), weight->cols());
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
+    CHECK(output != nullptr);
+    CHECK(output->channels() == input->channels() && output->rows() == input->rows()
+              && output->cols() == weight->cols());
+
     if (input->channels() != weight->channels()) {
       LOG(ERROR) << "The channel of the weight parameter and input is not adapting";
       return InferStatus::kInferFailedWeightParameterError;
@@ -79,7 +84,6 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
         }
       }
     }
-    outputs.push_back(output);
   }
   return InferStatus::kInferSuccess;
 }

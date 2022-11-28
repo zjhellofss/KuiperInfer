@@ -142,4 +142,32 @@ TEST(test_layer, forward_small_map) {
   }
 }
 
+TEST(test_layer, forward_identity_block3) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet_identity/resnet_identity_graph_test.pnnx.param",
+                     "tmp/resnet_identity/resnet_identity_graph_test.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  for (int i = 0; i < 3; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 512, 512);
+    input->Ones();
+
+    std::vector<std::shared_ptr<Tensor<float>>> inputs;
+    inputs.push_back(input);
+
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+    ASSERT_EQ(output_tensors.size(), 1);
+
+    const auto &output1 = output_tensors.at(0)->at(0);
+    const auto &output2 = CSVDataLoader::LoadData("tmp/resnet_identity/7.csv");
+    ASSERT_EQ(output1.size(), output2.size());
+
+    const uint32_t size = output1.size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_LE(abs(output1.at(j) - output2.at(j)), 1e-6);
+    }
+  }
+}
+
+
 

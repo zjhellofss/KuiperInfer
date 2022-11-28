@@ -19,6 +19,12 @@ TEST(test_layer, max_pooling1) {
   std::vector<std::shared_ptr<Tensor<float>>> input_tensors;
   input_tensors.push_back(input_tensor);
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
+  arma::fmat o1(2, 3);
+  arma::fmat o2(2, 3);
+  std::shared_ptr<Tensor<float>> out_tensor = std::make_shared<Tensor<float>>(2, 2, 3);
+  out_tensor->at(0) = o1;
+  out_tensor->at(1) = o2;
+  output_tensors.push_back(out_tensor);
 
   MaxPoolingLayer layer(0, 0, 2, 2, 1, 1);
   const auto &status = layer.Forward(input_tensors, output_tensors);
@@ -55,6 +61,13 @@ TEST(test_layer, max_pooling2) {
   input_tensors.push_back(input_tensor);
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
 
+  arma::fmat o1(2, 3);
+  arma::fmat o2(2, 3);
+  std::shared_ptr<Tensor<float>> out_tensor = std::make_shared<Tensor<float>>(2, 2, 3);
+  out_tensor->at(0) = o1;
+  out_tensor->at(1) = o2;
+  output_tensors.push_back(out_tensor);
+
   MaxPoolingLayer layer(0, 0, 2, 2, 1, 1);
   const auto &status = layer.Forward(input_tensors, output_tensors);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
@@ -79,7 +92,12 @@ TEST(test_layer, max_pooling3) {
 
   std::vector<std::shared_ptr<Tensor<float>>> input_tensors;
   input_tensors.push_back(input_tensor);
+
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
+  arma::fmat o1(1, 3);
+  std::shared_ptr<Tensor<float>> out_tensor = std::make_shared<Tensor<float>>(1, 1, 3);
+  out_tensor->at(0) = o1;
+  output_tensors.push_back(out_tensor);
 
   MaxPoolingLayer layer(0, 0, 3, 3, 2, 1);
   const auto &status = layer.Forward(input_tensors, output_tensors);

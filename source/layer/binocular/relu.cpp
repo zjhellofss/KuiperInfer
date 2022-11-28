@@ -18,11 +18,12 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       LOG(ERROR) << "The input feature map of relu layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
-    const std::shared_ptr<Tensor<float>> &output = input->Clone();
+    const std::shared_ptr<Tensor<float>> &output = outputs.at(i);
+    output->set_data(input->data());
     output->Transform([](double val) {
       return val > 0. ? val : 0.;
     });
-    outputs.push_back(output);
+    outputs.at(i) = output;
   }
 
   return InferStatus::kInferSuccess;

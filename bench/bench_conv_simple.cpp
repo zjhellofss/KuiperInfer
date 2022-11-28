@@ -77,9 +77,28 @@ static void BM_ConvIdentity3(benchmark::State &state) {
   }
 }
 
+static void BM_ConvIdentity4(benchmark::State &state) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet_identity/resnet_identity_graph_test.pnnx.param",
+                     "tmp/resnet_identity/resnet_identity_graph_test.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 512, 512);
+  input->Ones();
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+
+  for (auto _ : state) {
+    const auto &output = graph.Forward(inputs, false);
+  }
+}
+
 BENCHMARK(BM_ConvSimple)->Iterations(5);
 BENCHMARK(BM_ConvIdentity)->Iterations(5);
 BENCHMARK(BM_ConvIdentity2)->Iterations(5);
 BENCHMARK(BM_ConvIdentity3)->Iterations(5);
+BENCHMARK(BM_ConvIdentity4)->Iterations(5);
 
 BENCHMARK_MAIN();
