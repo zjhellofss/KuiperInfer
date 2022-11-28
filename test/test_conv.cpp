@@ -201,8 +201,6 @@ TEST(test_layer, forward_identity_block4) {
     const auto &output2 = CSVDataLoader::LoadData("tmp/resnet_identity/13.csv");
     ASSERT_EQ(output1.size(), output2.size());
 
-    std::cout << output1;
-
     const uint32_t size = output1.size();
     for (uint32_t j = 0; j < size; ++j) {
       ASSERT_LE(abs(output1.at(j) - output2.at(j)), 1e-6);
