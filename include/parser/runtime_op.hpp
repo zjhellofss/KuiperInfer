@@ -16,7 +16,7 @@
 namespace kuiper_infer {
 class Layer;
 struct RuntimeOperator {
-  int32_t meat_num = 0;
+  int32_t meet_num = 0;
   ~RuntimeOperator();
   std::string type;
   std::string name;

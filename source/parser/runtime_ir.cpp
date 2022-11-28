@@ -257,20 +257,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   }
 
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
-  std::deque<std::shared_ptr<RuntimeOperator>> ready_queue;
   operator_queue.push_back(input_op);
 
-  while (!operator_queue.empty() || !ready_queue.empty()) {
-    for (const std::shared_ptr<RuntimeOperator> &op : ready_queue) {
-      if (RuntimeGraph::CheckOperatorReady(op)) {
-        operator_queue.push_back(op);
-      }
-    }
-
-    ready_queue.erase(std::remove_if(ready_queue.begin(), ready_queue.end(),
-                                     [](const std::shared_ptr<RuntimeOperator> &op) {
-                                       return RuntimeGraph::CheckOperatorReady(op);
-                                     }), ready_queue.end());
+  while (!operator_queue.empty() ) {
 
     const auto &current_op = operator_queue.front();
     operator_queue.pop_front();
@@ -299,9 +288,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
       bool has_ready = CheckOperatorReady(current_op);
       if (!has_ready) {
-        if (std::find(ready_queue.begin(), ready_queue.end(), current_op) == ready_queue.end()) {
-          ready_queue.push_back(current_op);
-        }
         continue;
       }
 
@@ -330,7 +316,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   }
 
   for (const auto &op : this->operators_) {
-    op->meat_num = 0;
+    op->meet_num = 0;
   }
 
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
@@ -348,7 +334,7 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
 
 void RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
                              const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
-  CHECK(src.size() == dest.size());
+  CHECK(src.size() == dest.size()) << "src size: " << src.size() << " dest size: " << dest.size();
   for (uint32_t i = 0; i < src.size(); ++i) {
     dest.at(i)->set_data(src.at(i)->data());
   }
@@ -481,8 +467,8 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute> &
 
 bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op) {
   CHECK(op != nullptr);
-  CHECK(op->meat_num <= op->input_operands.size());
-  if (op->meat_num == op->input_operands.size()) {
+  CHECK(op->meet_num <= op->input_operands.size());
+  if (op->meet_num == op->input_operands.size()) {
     return true;
   } else {
     return false;
@@ -502,7 +488,7 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         operator_queue.push_back(next_rt_operator);
       }
-      next_rt_operator->meat_num += 1;
+      next_rt_operator->meet_num += 1;
     }
   }
 }

@@ -13,6 +13,7 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
                               std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
 
   const uint32_t size = inputs.size();
+  CHECK(size % 2 == 0);
   if (!size) {
     LOG(ERROR) << "The input feature map of add layer is null";
     return InferStatus::kInferFailedInputEmpty;
@@ -24,8 +25,9 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
     outputs.at(i)->Fill(0.f);
   }
 
-  for (uint32_t i = 0; i < size; ++i) {
-    outputs.at(i / (batch_size * 2))->Add(inputs.at(i));
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    inputs.at(i)->Add(inputs.at(i + batch_size));
+    outputs.at(i) = inputs.at(i);
   }
   return InferStatus::kInferSuccess;
 }
