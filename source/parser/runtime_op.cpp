@@ -5,9 +5,7 @@
 namespace kuiper_infer {
 RuntimeOperator::~RuntimeOperator() {
   for (const auto &param : this->params) {
-    if (param.second != nullptr) {
       delete param.second;
-    }
   }
 }
 }

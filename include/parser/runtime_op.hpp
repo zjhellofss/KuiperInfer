@@ -22,6 +22,7 @@ struct RuntimeOperator {
   std::shared_ptr<Layer> layer; //节点对应的层
 
   std::vector<std::string> output_names;
+  std::shared_ptr<RuntimeOperand> output_operands;
   std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;
   std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators; //输出节点的名字和节点对应
 

@@ -13,12 +13,15 @@
 namespace kuiper_infer {
 class RuntimeGraphShape {
  public:
-  static void InitOperatorInputShapes(const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
+  static void InitOperatorInputTensor(const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
+
+  static void InitOperatorOutputTensor(const std::vector<pnnx::Operator *>& pnnx_operators,
+                                       const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
 };
 
 class RuntimeGraph {
  public:
-  RuntimeGraph(const std::string &param_path, const std::string &bin_path);
+  RuntimeGraph(std::string param_path, std::string bin_path);
 
   void Build(const std::string &input_name, const std::string &output_name);
 
