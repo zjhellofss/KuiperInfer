@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include "common.hpp"
+#include "status_code.hpp"
 #include "data/tensor.hpp"
 
 namespace kuiper_infer {

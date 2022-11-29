@@ -25,6 +25,7 @@ InferStatus AddLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
     outputs.at(i)->Fill(0.f);
   }
 
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i)->Add(inputs.at(i + batch_size));
     outputs.at(i) = inputs.at(i);

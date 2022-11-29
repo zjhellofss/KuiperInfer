@@ -10,7 +10,7 @@
 #include <memory>
 #include <glog/logging.h>
 
-#include "common.hpp"
+#include "status_code.hpp"
 #include "data/tensor.hpp"
 #include "parser/runtime_op.hpp"
 
@@ -21,6 +21,8 @@ class Layer {
   explicit Layer(std::string layer_name) : layer_name_(std::move(layer_name)) {
 
   }
+
+  virtual ~Layer() = default;
 
   virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                               std::vector<std::shared_ptr<Tensor<float>>> &outputs);

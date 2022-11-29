@@ -6,7 +6,7 @@
 #define KUIPER_INFER_INCLUDE_PARSER_RUNTIME_ATTR_HPP_
 #include <vector>
 #include <glog/logging.h>
-#include "common.hpp"
+#include "status_code.hpp"
 
 namespace kuiper_infer {
 struct RuntimeAttribute {

@@ -4,6 +4,8 @@
 #include <benchmark/benchmark.h>
 #include "parser/runtime_ir.hpp"
 #include "data/load_data.hpp"
+const int kIterationNum = 5;
+
 static void BM_ConvSimple(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/im2cols/convlarge.pnnx.param",
@@ -95,10 +97,40 @@ static void BM_ConvIdentity4(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_ConvSimple)->Iterations(5);
-BENCHMARK(BM_ConvIdentity)->Iterations(5);
-BENCHMARK(BM_ConvIdentity2)->Iterations(5);
-BENCHMARK(BM_ConvIdentity3)->Iterations(5);
-BENCHMARK(BM_ConvIdentity4)->Iterations(5);
+static void BM_ConvIdentity5(benchmark::State &state) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet_identity/resnet_93_graph.pnnx.param",
+                     "tmp/resnet_identity/resnet_93_graph.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128,128);
+  input1->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128,128);
+  input2->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128,128);
+  input3->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128,128);
+  input4->Fill(1.);
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input1);
+  inputs.push_back(input2);
+  inputs.push_back(input3);
+  inputs.push_back(input4);
+
+  for (auto _ : state) {
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  }
+}
+
+BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity5)->Iterations(kIterationNum);
 
 BENCHMARK_MAIN();

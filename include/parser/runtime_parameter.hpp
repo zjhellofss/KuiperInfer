@@ -4,7 +4,7 @@
 
 #ifndef KUIPER_INFER_INCLUDE_PARSER_RUNTIME_PARAMETER_HPP_
 #define KUIPER_INFER_INCLUDE_PARSER_RUNTIME_PARAMETER_HPP_
-#include "common.hpp"
+#include "status_code.hpp"
 #include <string>
 #include <vector>
 

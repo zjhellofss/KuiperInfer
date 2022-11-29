@@ -21,7 +21,7 @@ class BatchNorm2dLayer : public ParamLayer {
                                               std::shared_ptr<Layer> &batch_layer);
  private:
   uint32_t num_features_ = 0;
-  double eps_ = 1e-5;
+  float eps_ = 1e-5;
 };
 }
 

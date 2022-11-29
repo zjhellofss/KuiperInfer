@@ -92,7 +92,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
     }
 
-    arma::fmat kernel_matrix;
+    arma::fmat kernel_matrix(kernel_count, row_len * input_c);
     arma::fmat kernel_matrix_c(1, row_len * input_c);
 
     for (uint32_t k = 0; k < kernel_count; ++k) {
@@ -101,11 +101,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         memcpy(kernel_matrix_c.memptr() + row_len * ic,
                kernel->at(ic).memptr(), row_len * sizeof(float));
       }
-      if (kernel_matrix.empty()) {
-        kernel_matrix = kernel_matrix_c;
-      } else {
-        kernel_matrix = arma::join_cols(kernel_matrix, kernel_matrix_c);
-      }
+      kernel_matrix.submat(k, 0, k, row_len * input_c - 1) = kernel_matrix_c;
     }
 
     arma::fmat input_matrix(input_c * row_len, col_len);
@@ -126,12 +122,13 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       }
       input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
     }
-    arma::fmat output = kernel_matrix * input_matrix;
+
+    const arma::fmat &output = kernel_matrix * input_matrix;
     CHECK(output.size() == kernel_count * output_h * output_w);
     std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
     CHECK(output_tensor != nullptr);
-    CHECK(output_tensor->channels() == kernel_count
-              && output_tensor->rows() == output_h && output_tensor->cols() == output_w);
+    CHECK(output_tensor->channels() == kernel_count && output_tensor->rows() == output_h &&
+        output_tensor->cols() == output_w);
 
 #pragma omp parallel for num_threads(kernel_count)
     for (uint32_t k = 0; k < kernel_count; ++k) {

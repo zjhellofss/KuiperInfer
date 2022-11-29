@@ -111,7 +111,7 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
     if (padded_cube.empty()) {
       padded_cube = arma::fcube(padded_mat.n_rows, padded_mat.n_cols, channels);
     }
-    padded_cube.slice(i) = padded_mat;
+    padded_cube.slice(i) = std::move(padded_mat);
   }
   CHECK(!padded_cube.empty());
   this->data_ = padded_cube;
@@ -132,16 +132,10 @@ void Tensor<float>::Fill(const std::vector<float> &values) {
   const uint32_t planes = rows * cols;
   const uint32_t channels = this->data_.n_slices;
 
-  uint32_t index = 0;
   for (uint32_t i = 0; i < channels; ++i) {
     auto &channel_data = this->data_.slice(i);
-    channel_data = arma::fmat(values.data() + i * planes, this->rows(), this->cols());
-    for (int r = 0; r < rows; ++r) {
-      for (int c = 0; c < cols; ++c) {
-        channel_data.at(r, c) = values.at(index);
-        index += 1;
-      }
-    }
+    const arma::fmat channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+    channel_data = channel_data_t.t();
   }
 }
 
@@ -176,7 +170,8 @@ void Tensor<float>::Flatten() {
   this->data_ = linear_cube;
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
+std::shared_ptr<Tensor<float>>
+Tensor<float>::Clone() {
   return std::make_shared<Tensor>(*this);
 }
 
@@ -190,18 +185,22 @@ void Tensor<float>::Ones() {
   this->data_.fill(1.);
 }
 
-void Tensor<float>::Concat(const std::shared_ptr<Tensor<float>> &tensor) {
+void Tensor<float>::Concat(const std::shared_ptr<Tensor<float>>
+                           &tensor) {
   CHECK(!this->data_.empty() && !tensor->data_.empty());
   const uint32_t total_channel = this->data_.n_slices + tensor->data_.n_slices;
   CHECK(this->rows() == tensor->rows() && this->cols() == tensor->cols()) << "Tensors shape are not adapting";
-  this->data_ = arma::join_slices(this->data_, tensor->data_);
+  this->
+      data_ = arma::join_slices(this->data_, tensor->data_);
   CHECK(this->data_.n_slices == total_channel);
 }
 
-void Tensor<float>::Add(const std::shared_ptr<Tensor<float>> &tensor) {
+void Tensor<float>::Add(const std::shared_ptr<Tensor<float>>
+                        &tensor) {
   CHECK(!this->data_.empty() && !tensor->data_.empty());
   CHECK(this->shapes() == tensor->shapes()) << "Tensors shape are not adapting";
-  this->data_ = this->data_ + tensor->data_;
+  this->
+      data_ = this->data_ + tensor->data_;
 }
 
 void Tensor<float>::Add(float value) {

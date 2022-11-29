@@ -39,5 +39,4 @@ InferStatus Layer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &in
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-
 }

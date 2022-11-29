@@ -27,3 +27,14 @@ TEST(test_layer, test_flatten1_small) {
     ASSERT_EQ(tensor.index(i), i);
   }
 }
+
+TEST(test_layer, test_flatten2_small) {
+  using namespace kuiper_infer;
+  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
+  Tensor<float> tensor(2, 2, 2);
+  tensor.Fill(values);
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(tensor.index(i), float(i +1));
+  }
+
+}
