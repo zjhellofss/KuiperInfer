@@ -1,0 +1,6 @@
+7767517
+4 3
+pnnx.Input               pnnx_input_0             0 1 0 #0=(4,3,128,128)f32
+nn.ReLU                  relu1                    1 1 0 1 #0=(4,3,128,128)f32 #1=(4,3,128,128)f32
+nn.BatchNorm2d           b1                       1 1 1 2 affine=True eps=1.000000e-05 num_features=3 @bias=(3)f32 @running_mean=(3)f32 @running_var=(3)f32 @weight=(3)f32 #1=(4,3,128,128)f32 #2=(4,3,128,128)f32
+pnnx.Output              pnnx_output_0            1 0 2 #2=(4,3,128,128)f32

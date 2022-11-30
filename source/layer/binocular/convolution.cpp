@@ -144,7 +144,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         float bias_value = bias->index(0);
         output_channel += bias_value;
       }
-      output_tensor->at(k) = output_channel;
+      output_tensor->at(k) = std::move(output_channel);
     }
   }
   return InferStatus::kInferSuccess;

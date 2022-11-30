@@ -1,0 +1,7 @@
+7767517
+5 4
+pnnx.Input               pnnx_input_0             0 1 0 #0=(4,3,128,128)f32
+nn.Conv2d                conv1                    1 1 0 1 bias=True dilation=(1,1) groups=1 in_channels=3 kernel_size=(3,3) out_channels=64 padding=(1,1) padding_mode=zeros stride=(1,1) @bias=(64)f32 @weight=(64,3,3,3)f32 #0=(4,3,128,128)f32 #1=(4,64,128,128)f32
+nn.ReLU                  relu1                    1 1 1 2 #1=(4,64,128,128)f32 #2=(4,64,128,128)f32
+nn.BatchNorm2d           b1                       1 1 2 3 affine=True eps=1.000000e-05 num_features=64 @bias=(64)f32 @running_mean=(64)f32 @running_var=(64)f32 @weight=(64)f32 #2=(4,64,128,128)f32 #3=(4,64,128,128)f32
+pnnx.Output              pnnx_output_0            1 0 3 #3=(4,64,128,128)f32

@@ -332,8 +332,8 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
   return layer;
 }
 
-void RuntimeGraph::CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
-                             const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
+void RuntimeGraph::SetOpInputData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
+                                  const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
   CHECK(src.size() == dest.size()) << "src size: " << src.size() << " dest size: " << dest.size();
   for (uint32_t i = 0; i < src.size(); ++i) {
     dest.at(i)->set_data(src.at(i)->data());
@@ -484,7 +484,7 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
     auto &next_input_operands = next_rt_operator->input_operands;
 
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-      CloneData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
+      SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         operator_queue.push_back(next_rt_operator);
       }

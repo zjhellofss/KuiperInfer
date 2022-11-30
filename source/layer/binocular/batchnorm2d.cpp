@@ -30,6 +30,11 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       return InferStatus::kInferFailedInputEmpty;
     }
 
+    if (input->channels() != mean_value_size) {
+      LOG(ERROR) << "The channel of of input and mean value mat is not equal";
+      return InferStatus::kInferFailedChannelParameterError;
+    }
+
     auto &output = outputs.at(b);
     CHECK(output->rows() == input->rows() && output->cols() == input->cols() &&
         output->channels() == input->channels());
@@ -42,17 +47,10 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         LOG(ERROR) << "The channel of the input feature maps and mean values is not adapting";
         return InferStatus::kInferFailedChannelParameterError;
       }
-      const uint32_t input_row = input->rows();
-      const uint32_t input_col = input->cols();
 
-      auto var_mat = arma::fmat(input_row, input_col);
-      var_mat.fill(var_value + eps_);
-      var_mat = arma::sqrt(var_mat);
-
-      auto mean_mat = arma::fmat(input_row, input_col);
-      mean_mat.fill(mean_value);
-
-      output->at(i) = (output->at(i) - mean_mat) / var_mat;
+      float var_value_ = var_value + eps_;
+      var_value_ = std::sqrt(var_value_);
+      output->at(i) = (input->at(i) - mean_value) / var_value_;
     }
   }
   return InferStatus::kInferSuccess;

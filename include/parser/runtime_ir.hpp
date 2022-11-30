@@ -51,8 +51,8 @@ class RuntimeGraph {
   static void InitGraphParams(const std::map<std::string, pnnx::Parameter> &params,
                               const std::shared_ptr<RuntimeOperator> &runtime_operator);
 
-  static void CloneData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
-                        const std::vector<std::shared_ptr<Tensor<float>>> &dest);
+  static void SetOpInputData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
+                             const std::vector<std::shared_ptr<Tensor<float>>> &dest);
 
   static std::shared_ptr<Layer> CreateLayer(const std::shared_ptr<RuntimeOperator> &op);
 
