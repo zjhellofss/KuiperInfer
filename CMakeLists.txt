@@ -6,17 +6,13 @@ include_directories(./include)
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
 
-### armadillo
+### glog
 find_package(glog REQUIRED)
 
 ### gflag
 find_package(gflags REQUIRED)
 include_directories(${gflags_INCLUDE_DIR})
 
-### arma
-include_directories(./include/math)
-
 enable_testing()
 add_subdirectory(bench)
 add_subdirectory(test)
-

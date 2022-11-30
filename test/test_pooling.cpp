@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "data/tensor.hpp"
-#include "../source/layer/binocular/maxpooling.hpp"
+#include "../source/layer/details/maxpooling.hpp"
 
 TEST(test_layer, max_pooling1) {
   using namespace kuiper_infer;
