@@ -14,7 +14,7 @@ void LayerRegisterer::RegisterCreator(const std::string &layer_type, const Creat
 }
 
 LayerRegisterer::CreateRegistry &LayerRegisterer::Registry() {
-  static CreateRegistry *kRegistry = new CreateRegistry;
+  static CreateRegistry *kRegistry = new CreateRegistry();
   CHECK(kRegistry != nullptr) << "Global layer register init failed!";
   return *kRegistry;
 }

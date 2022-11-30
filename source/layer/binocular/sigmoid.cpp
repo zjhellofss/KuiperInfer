@@ -3,7 +3,9 @@
 //
 
 #include "sigmoid.hpp"
+#include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
+
 namespace kuiper_infer {
 
 InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
@@ -25,9 +27,19 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     CHECK(output->channels() == input->channels() && output->rows() == input->rows()
               && output->cols() == input->cols());
 
-    arma::fcube &output_data_cube = output->data();
-    output_data_cube = 1 / (1 + arma::exp(output_data_cube));
+    arma::fcube &output_data_cube = input->data();
+    output_data_cube = 1 / (1 + arma::exp(-output_data_cube));
+    outputs.at(i) = input;
   }
   return InferStatus::kInferSuccess;
 }
+
+ParseParameterAttrStatus SigmoidLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                                   std::shared_ptr<Layer> &sigmoid_layer) {
+
+  sigmoid_layer = std::make_shared<SigmoidLayer>();
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+}
+
+LayerRegistererWrapper kSigmoidGetInstance("nn.Sigmoid", SigmoidLayer::GetInstance);
 }

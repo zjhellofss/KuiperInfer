@@ -138,7 +138,7 @@ bool RuntimeGraph::Init() {
   this->graph_ = std::make_unique<pnnx::Graph>();
   int load_result = this->graph_->load(param_path_, bin_path_);
   if (load_result != 0) {
-    LOG(ERROR) << "Load param path and bin path error";
+    LOG(ERROR) << "Load param path and bin path error: " << param_path_ << " " << bin_path_;
     return false;
   }
 
@@ -259,7 +259,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
   operator_queue.push_back(input_op);
 
-  while (!operator_queue.empty() ) {
+  while (!operator_queue.empty()) {
 
     const auto &current_op = operator_queue.front();
     operator_queue.pop_front();
