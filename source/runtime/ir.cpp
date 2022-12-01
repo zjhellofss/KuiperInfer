@@ -12,7 +12,7 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-#include "parser/ir.h"
+#include "runtime/ir.h"
 
 #include <limits.h>
 #include <stdint.h>
@@ -27,7 +27,7 @@
 #include <torch/script.h>
 #endif
 
-#include "parser/store_zip.hpp"
+#include "runtime/store_zip.hpp"
 
 namespace pnnx {
 

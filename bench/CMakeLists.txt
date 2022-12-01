@@ -4,7 +4,7 @@ find_package(GTest REQUIRED)
 
 aux_source_directory(../bench DIR_BENCH)
 aux_source_directory(../source/data DIR_DATA)
-aux_source_directory(../source/parser DIR_PARSER)
+aux_source_directory(../source/runtime DIR_PARSER)
 aux_source_directory(../source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(../source/layer/details DIR_BINOCULAR_LAYER)
 aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)

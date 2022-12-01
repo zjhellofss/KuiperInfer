@@ -7,7 +7,7 @@
 
 #include "ir.h"
 #include "layer/abstract/layer.hpp"
-#include "parser/runtime_operand.hpp"
+#include "runtime/runtime_operand.hpp"
 #include "runtime_op.hpp"
 
 namespace kuiper_infer {

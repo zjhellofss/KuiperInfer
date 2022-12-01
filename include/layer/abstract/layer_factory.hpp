@@ -8,7 +8,7 @@
 #include <string>
 #include <memory>
 #include "layer.hpp"
-#include "parser/runtime_op.hpp"
+#include "runtime/runtime_op.hpp"
 
 namespace kuiper_infer {
 class LayerRegisterer {

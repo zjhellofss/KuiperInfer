@@ -12,7 +12,7 @@
 
 #include "status_code.hpp"
 #include "data/tensor.hpp"
-#include "parser/runtime_op.hpp"
+#include "runtime/runtime_op.hpp"
 
 namespace kuiper_infer {
 

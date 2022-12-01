@@ -2,7 +2,7 @@
 // Created by fss on 22-11-12.
 //
 #include "flatten.hpp"
-#include "parser/runtime_ir.hpp"
+#include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include <glog/logging.h>
 

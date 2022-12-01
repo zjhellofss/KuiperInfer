@@ -3,7 +3,7 @@
 //
 
 #include "layer/abstract/layer_factory.hpp"
-#include "parser/runtime_ir.hpp"
+#include "runtime/runtime_ir.hpp"
 
 namespace kuiper_infer {
 void LayerRegisterer::RegisterCreator(const std::string &layer_type, const Creator &creator) {

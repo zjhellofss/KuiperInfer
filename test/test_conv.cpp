@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include <glog/logging.h>
-#include "parser/runtime_ir.hpp"
+#include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
 
 TEST(test_layer, forward_identity_block0) {

@@ -3,7 +3,7 @@
 //
 
 #include "maxpooling.hpp"
-#include "parser/runtime_ir.hpp"
+#include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 
