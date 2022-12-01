@@ -39,6 +39,7 @@ enum class InferStatus {
   kInferFailedChannelParameterError = 6,
 
   kInferFailedOutputSizeError = 7,
+  kInferFailedOperationUnknown = 8,
   kInferSuccess = 0,
 };
 
@@ -54,11 +55,12 @@ enum class ParseParameterAttrStatus {
   kParameterMissingEps = 7,
   kParameterMissingNumFeatures = 8,
   kParameterMissingDim = 9,
+  kParameterMissingExpr = 10,
 
-  kAttrMissingBias = 10,
-  kAttrMissingWeight = 11,
-  kAttrMissingRunningMean = 12,
-  kAttrMissingRunningVar = 13,
+  kAttrMissingBias = 11,
+  kAttrMissingWeight = 12,
+  kAttrMissingRunningMean = 13,
+  kAttrMissingRunningVar = 14,
 
   kParameterAttrParseSuccess = 0
 };

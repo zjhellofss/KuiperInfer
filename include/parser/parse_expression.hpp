@@ -7,6 +7,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <memory>
 
 namespace kuiper_infer {
 
@@ -14,9 +15,10 @@ enum class TokenType {
   TokenUnknown = -1,
   TokenInputNumber = 0,
   TokenComma = 1,
-  TokenOperation = 2,
-  TokenLeftBracket = 3,
-  TokenRightBracket = 4,
+  TokenAdd = 2,
+  TokenMul = 3,
+  TokenLeftBracket = 4,
+  TokenRightBracket = 5,
 };
 
 struct Token {
@@ -29,6 +31,14 @@ struct Token {
   }
 };
 
+struct TokenNode {
+  int32_t num_index = -1;
+  std::shared_ptr<TokenNode> left = nullptr;
+  std::shared_ptr<TokenNode> right = nullptr;
+  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left, std::shared_ptr<TokenNode> right);
+  TokenNode() = default;
+};
+
 // add(add(add(@0,@1),@1),add(@0,@2))
 class ExpressionParser {
  public:
@@ -36,15 +46,17 @@ class ExpressionParser {
 
   }
 
-  void Parse();
+  void Tokenizer(bool need_retoken = false);
 
-  void Tokenizer();
+  std::shared_ptr<TokenNode> Generate();
 
   const std::vector<Token> &tokens() const;
 
   const std::vector<std::string> &token_strs() const;
 
  private:
+  std::shared_ptr<TokenNode> Generate_(int32_t &index);
+
   std::vector<Token> tokens_;
   std::vector<std::string> token_strs_;
   std::string statement_;

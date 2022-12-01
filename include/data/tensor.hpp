@@ -71,9 +71,11 @@ class Tensor<float> {
 
   void Concat(const std::shared_ptr<Tensor<float>> &tensor);
 
-  void Add(const std::shared_ptr<Tensor<float>> &tensor);
+  void ElementAdd(const std::shared_ptr<Tensor<float>> &tensor);
 
-  void Add(float value);
+  void ElementAdd(float value);
+
+  void ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor);
 
   void Flatten();
 

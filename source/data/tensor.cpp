@@ -195,17 +195,21 @@ void Tensor<float>::Concat(const std::shared_ptr<Tensor<float>>
   CHECK(this->data_.n_slices == total_channel);
 }
 
-void Tensor<float>::Add(const std::shared_ptr<Tensor<float>>
-                        &tensor) {
+void Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor) {
   CHECK(!this->data_.empty() && !tensor->data_.empty());
   CHECK(this->shapes() == tensor->shapes()) << "Tensors shape are not adapting";
-  this->
-      data_ = this->data_ + tensor->data_;
+  this->data_ = this->data_ + tensor->data_;
 }
 
-void Tensor<float>::Add(float value) {
+void Tensor<float>::ElementAdd(float value) {
   CHECK(!this->data_.empty());
   this->data_ += value;
+}
+
+void Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor) {
+  CHECK(!this->data_.empty() && !tensor->empty());
+  CHECK(this->shapes() == tensor->shapes());
+  this->data_ %= tensor->data_;
 }
 
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {

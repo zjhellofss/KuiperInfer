@@ -280,15 +280,16 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
         LOG(INFO) << current_op_name;
       }
 
+      bool has_ready = CheckOperatorReady(current_op);
+      if (!has_ready) {
+        operator_queue.push_back(current_op);
+        continue;
+      }
+
       const auto &input_operands = current_op->input_operands;
       std::vector<std::shared_ptr<RuntimeOperand>> input_operand_datas;
       for (const auto &input_operand : input_operands) {
         input_operand_datas.push_back(input_operand.second);
-      }
-
-      bool has_ready = CheckOperatorReady(current_op);
-      if (!has_ready) {
-        continue;
       }
 
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
@@ -486,7 +487,11 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
       SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
-        operator_queue.push_back(next_rt_operator);
+        next_rt_operator->meet_num += 1;
+        if (CheckOperatorReady(next_rt_operator)) {
+          operator_queue.push_back(next_rt_operator);
+        }
+        next_rt_operator->meet_num -= 1;
       }
       next_rt_operator->meet_num += 1;
     }

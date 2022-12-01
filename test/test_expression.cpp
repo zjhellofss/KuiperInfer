@@ -4,6 +4,66 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "parser/parse_expression.hpp"
+#include "runtime/runtime_ir.hpp"
+#include "data/load_data.hpp"
+
+TEST(test_expression, add1) {
+//  using namespace kuiper_infer;
+//  RuntimeGraph graph
+//      ("tmp/add/resnet_batchnorm_add.pnnx.param",
+//       "tmp/add/resnet_batchnorm_add.pnnx.bin");
+//
+//  graph.Build("pnnx_input_0", "pnnx_output_0");
+//
+//  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
+//  input1->Fill(1.);
+//
+//  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128, 128);
+//  input2->Fill(1.);
+//
+//  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128, 128);
+//  input3->Fill(1.);
+//
+//  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128, 128);
+//  input4->Fill(1.);
+//
+//  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+//  inputs.push_back(input1);
+//  inputs.push_back(input2);
+//  inputs.push_back(input3);
+//  inputs.push_back(input4);
+//
+//  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+//  ASSERT_EQ(output_tensors.size(), 4);
+//
+//  const auto &output1 = output_tensors.at(0)->at(0);
+//  std::cout << output1 << std::endl;
+//  const auto &output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
+//  ASSERT_EQ(output1.size(), output2.size());
+//
+//  const uint32_t size = output1.size();
+//  for (uint32_t j = 0; j < size; ++j) {
+//    ASSERT_LE(abs(output1.at(j) - output2.at(j)), 1e-6);
+//  }
+}
+
+TEST(test_parser, tokenizer_gen) {
+  using namespace kuiper_infer;
+  const std::string &str = "mul(add(add(@0,@1),@2),add(@0,@2))";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &nodes = parser.Generate();
+  ASSERT_EQ(nodes->num_index, -3);
+  ASSERT_EQ(nodes->left->num_index, -2);
+  ASSERT_EQ(nodes->left->left->left->num_index, 0);
+
+  ASSERT_EQ(nodes->left->left->num_index, -2);
+  ASSERT_EQ(nodes->left->right->num_index, 2);
+
+  ASSERT_EQ(nodes->right->left->num_index, 0);
+  ASSERT_EQ(nodes->right->right->num_index, 2);
+  ASSERT_EQ(nodes->right->num_index, -2);
+}
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;
