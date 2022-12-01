@@ -31,7 +31,6 @@ TEST(test_parser, tokenizer) {
   ASSERT_EQ(token_strs.at(10), ",");
   ASSERT_EQ(token_strs.at(11), "@1");
 
-
   ASSERT_EQ(token_strs.at(12), ")");
   ASSERT_EQ(token_strs.at(13), ",");
 
@@ -44,8 +43,6 @@ TEST(test_parser, tokenizer) {
   ASSERT_EQ(token_strs.at(19), ")");
   ASSERT_EQ(token_strs.at(20), ")");
 }
-
-
 
 TEST(test_parser, tokenizer2) {
   using namespace kuiper_infer;
@@ -73,7 +70,6 @@ TEST(test_parser, tokenizer2) {
   ASSERT_EQ(token_strs.at(10), ",");
   ASSERT_EQ(token_strs.at(11), "@1");
 
-
   ASSERT_EQ(token_strs.at(12), ")");
   ASSERT_EQ(token_strs.at(13), ",");
 
@@ -92,4 +88,36 @@ TEST(test_parser, tokenizer2) {
   ASSERT_EQ(token_strs.at(23), ")");
   ASSERT_EQ(token_strs.at(24), ")");
   ASSERT_EQ(token_strs.at(25), ")");
+}
+
+TEST(test_parser, tokenizer3) {
+  using namespace kuiper_infer;
+  const std::string &str = "add(add(add(@0,@1),@2),mul(@0,@2))";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &tokens = parser.tokens();
+  ASSERT_EQ(tokens.empty(), false);
+
+  const auto &token_strs = parser.token_strs();
+  ASSERT_EQ(token_strs.at(0), "add");
+  ASSERT_EQ(token_strs.at(1), "(");
+  ASSERT_EQ(token_strs.at(2), "add");
+  ASSERT_EQ(token_strs.at(3), "(");
+
+  ASSERT_EQ(token_strs.at(4), "add");
+  ASSERT_EQ(token_strs.at(5), "(");
+
+  ASSERT_EQ(token_strs.at(6), "@0");
+  ASSERT_EQ(token_strs.at(7), ",");
+  ASSERT_EQ(token_strs.at(8), "@1");
+  ASSERT_EQ(token_strs.at(9), ")");
+  ASSERT_EQ(token_strs.at(10), ",");
+  ASSERT_EQ(token_strs.at(11), "@2");
+
+  ASSERT_EQ(token_strs.at(12), ")");
+  ASSERT_EQ(token_strs.at(13), ",");
+
+  ASSERT_EQ(token_strs.at(14), "mul");
+  ASSERT_EQ(token_strs.at(15), "(");
+
 }

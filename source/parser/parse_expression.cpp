@@ -27,6 +27,16 @@ void ExpressionParser::Tokenizer() {
       std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
       token_strs_.push_back(token_operation);
       i = i + 3;
+    } else if (c == 'm') {
+      CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'u')
+              << "Parse add token failed, illegal character: " << c;
+      CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'l')
+              << "Parse add token failed, illegal character: " << c;
+      Token token(TokenType::TokenOperation, i, i + 3);
+      tokens_.push_back(token);
+      std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
+      token_strs_.push_back(token_operation);
+      i = i + 3;
     } else if (c == '@') {
       CHECK(i + 1 < statement_.size() && std::isdigit(statement_.at(i + 1)))
               << "Parse number token failed, illegal character: " << c;
