@@ -38,9 +38,7 @@ TEST(test_expression, add1) {
 
   const auto &output1 = output_tensors.at(0)->at(0);
 //  std::cout << output1 << std::endl;
-  LOG(INFO) << output_tensors.at(0)->data();
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
-  LOG(INFO) << output2;
 
   ASSERT_EQ(output1.size(), output2.size());
 
@@ -76,7 +74,7 @@ TEST(test_expression, add2) {
   inputs.push_back(input3);
   inputs.push_back(input4);
 
-  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, true);
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto &output1 = output_tensors.at(0)->at(0);
@@ -90,6 +88,46 @@ TEST(test_expression, add2) {
   }
 }
 
+
+TEST(test_expression, mul1) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph
+      ("tmp/add/resnet_batchnorm_add3.pnnx.param",
+       "tmp/add/resnet_batchnorm_add3.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(1, 4, 4);
+  input1->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(1, 4, 4);
+  input2->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(1, 4, 4);
+  input3->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(1, 4, 4);
+  input4->Fill(1.);
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input1);
+  inputs.push_back(input2);
+  inputs.push_back(input3);
+  inputs.push_back(input4);
+
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  ASSERT_EQ(output_tensors.size(), 4);
+
+  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
+
+  ASSERT_EQ(output1.size(), output2.size());
+
+  const uint32_t size = output1.size();
+  for (uint32_t j = 0; j < size; ++j) {
+    ASSERT_LE(abs(output1.at(j) - output2.at(j)), 5e-6);
+  }
+}
 //TEST(test_parser, tokenizer_gen) {
 //  using namespace kuiper_infer;
 //  const std::string &str = "mul(add(add(@0,@1),@2),add(@0,@2))";

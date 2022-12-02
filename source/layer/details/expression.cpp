@@ -46,15 +46,6 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       }
       op_stack.push(input_token_nodes);
     } else {
-      if (inputs.size() > 9) {
-        LOG(INFO) << inputs.at(0)->at(0).front();
-        LOG(INFO) << inputs.at(4)->at(0).front();
-        LOG(INFO) << inputs.at(8)->at(0).front();
-        LOG(INFO) << inputs.at(12)->at(0).front();
-        LOG(INFO) << inputs.at(16)->at(0).front();
-        LOG(INFO) << inputs.at(20)->at(0).front();
-
-      }
       //operation
       const int32_t op = token_node->num_index;
       CHECK(op_stack.size() >= 2);
