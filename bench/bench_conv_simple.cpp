@@ -2,7 +2,7 @@
 // Created by fss on 22-11-22.
 //
 #include <benchmark/benchmark.h>
-#include "parser/runtime_ir.hpp"
+#include "runtime//runtime_ir.hpp"
 #include "data/load_data.hpp"
 const int kIterationNum = 5;
 
@@ -126,11 +126,11 @@ static void BM_ConvIdentity5(benchmark::State &state) {
   }
 }
 
-//BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
-//BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
-//BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
-//BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
-//BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
+BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);
 BENCHMARK(BM_ConvIdentity5)->Iterations(kIterationNum);
 
 BENCHMARK_MAIN();

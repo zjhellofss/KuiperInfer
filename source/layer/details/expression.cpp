@@ -4,6 +4,7 @@
 
 #include "expression.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include <stack>
 
 namespace kuiper_infer {
 ExpressionLayer::ExpressionLayer(const std::string &statement)
@@ -30,29 +31,65 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   for (uint32_t i = 0; i < batch_size; ++i) {
     outputs.at(i)->Fill(0.f);
   }
-  std::cout << inputs.at(0)->at(0).at(0) << std::endl;
-  std::cout << inputs.at(4)->at(0).at(0) << std::endl;
-  if (inputs.size() >= 9) {
-    std::cout << inputs.at(8)->at(0).at(0) << std::endl;
-  }
-  if (expression.token_type == TokenType::TokenAdd) {
-//#pragma omp parallel for num_threads(batch_size)
-    for (uint32_t i = 0; i < batch_size; ++i) {
-      inputs.at(i)->ElementAdd(inputs.at(i + batch_size));
-      outputs.at(i) = inputs.at(i);
+
+  std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
+
+  const std::vector<std::shared_ptr<TokenNode>> &token_nodes = this->parser_->Generate();
+
+  for (const auto &token_node : token_nodes) {
+    if (token_node->num_index >= 0) {
+      // operator
+      uint32_t start_pos = token_node->num_index * batch_size;
+      std::vector<std::shared_ptr<Tensor<float>>> input_token_nodes;
+      for (uint32_t i = 0; i < batch_size; ++i) {
+        input_token_nodes.push_back(inputs.at(i + start_pos));
+      }
+      op_stack.push(input_token_nodes);
+    } else {
+      if (inputs.size() > 9) {
+        LOG(INFO) << inputs.at(0)->at(0).front();
+        LOG(INFO) << inputs.at(4)->at(0).front();
+        LOG(INFO) << inputs.at(8)->at(0).front();
+        LOG(INFO) << inputs.at(12)->at(0).front();
+        LOG(INFO) << inputs.at(16)->at(0).front();
+        LOG(INFO) << inputs.at(20)->at(0).front();
+
+      }
+      //operation
+      const int32_t op = token_node->num_index;
+      CHECK(op_stack.size() >= 2);
+      std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
+      CHECK(input_node1.size() == batch_size);
+      op_stack.pop();
+
+      std::vector<std::shared_ptr<Tensor<float>>> input_node2 = op_stack.top();
+      CHECK(input_node2.size() == batch_size);
+      op_stack.pop();
+
+      CHECK(input_node1.size() == input_node2.size());
+      std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes;
+      if (op == -2) {
+        for (uint32_t i = 0; i < batch_size; ++i) {
+          output_token_nodes.push_back(Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i)));
+        }
+      } else if (op == -3) {
+        for (uint32_t i = 0; i < batch_size; ++i) {
+          output_token_nodes.push_back(Tensor<float>::ElementMultiply(input_node1.at(i), input_node2.at(i)));
+        }
+      } else {
+        LOG(ERROR) << "Unknown operation type: " << op;
+        return InferStatus::kInferFailedOperationUnknown;
+      }
+      op_stack.push(output_token_nodes);
     }
-    std::cout << outputs.at(0)->at(0).at(0) << std::endl;
-    std::cout << "-----------\n";
-  } else if (expression.token_type == TokenType::TokenMul) {
-//#pragma omp parallel for num_threads(batch_size)
-    for (uint32_t i = 0; i < batch_size; ++i) {
-      inputs.at(i)->ElementMultiply(inputs.at(i + batch_size));
-      outputs.at(i) = inputs.at(i);
-    }
-  } else {
-    return InferStatus::kInferFailedOperationUnknown;
   }
 
+  CHECK(op_stack.size() == 1);
+  std::vector<std::shared_ptr<Tensor<float>>> output_node = op_stack.top();
+  op_stack.pop();
+  for (int i = 0; i < batch_size; ++i) {
+    outputs.at(i) = output_node.at(i);
+  }
   return InferStatus::kInferSuccess;
 }
 

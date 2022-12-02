@@ -8,6 +8,7 @@
 #include <memory>
 
 namespace kuiper_infer {
+
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
 }
@@ -204,6 +205,26 @@ void Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor) {
 void Tensor<float>::ElementAdd(float value) {
   CHECK(!this->data_.empty());
   this->data_ += value;
+}
+
+std::shared_ptr<Tensor<float>> Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
+                                                         const std::shared_ptr<Tensor<float>> &tensor2) {
+  CHECK(!tensor1->empty() && !tensor2->empty());
+  CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
+  std::shared_ptr<Tensor<float>> output_tensor =
+      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
+  output_tensor->data_ = tensor1->data_ + tensor2->data_;
+  return output_tensor;
+}
+
+std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
+                                                              const std::shared_ptr<Tensor<float>> &tensor2) {
+  CHECK(!tensor1->empty() && !tensor2->empty());
+  CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
+  std::shared_ptr<Tensor<float>> output_tensor =
+      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
+  output_tensor->data_ = tensor1->data_ % tensor2->data_;
+  return output_tensor;
 }
 
 void Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor) {

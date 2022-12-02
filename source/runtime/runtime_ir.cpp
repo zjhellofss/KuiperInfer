@@ -261,7 +261,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
   while (!operator_queue.empty()) {
 
-    const auto &current_op = operator_queue.front();
+    std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
     operator_queue.pop_front();
 
     if (!current_op || current_op == output_op) {
@@ -286,11 +286,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
         continue;
       }
 
-      const auto &input_operands = current_op->input_operands;
-      std::vector<std::shared_ptr<RuntimeOperand>> input_operand_datas;
-      for (const auto &input_operand : input_operands) {
-        input_operand_datas.push_back(input_operand.second);
-      }
+      std::vector<std::shared_ptr<RuntimeOperand>> input_operand_datas = current_op->input_operands_seq;
 
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (auto &input_operand_data : input_operand_datas) {
@@ -298,6 +294,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
           layer_input_datas.push_back(input_data);
         }
       }
+
 
       CHECK(!layer_input_datas.empty());
 
@@ -362,6 +359,7 @@ void RuntimeGraph::InitInputOperators(const std::vector<pnnx::Operand *> &inputs
       }
     }
     runtime_operator->input_operands.insert({producer->name, runtime_operand});
+    runtime_operator->input_operands_seq.push_back(runtime_operand);
   }
 }
 
@@ -483,9 +481,9 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;
     auto &next_input_operands = next_rt_operator->input_operands;
-
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
       SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
+      const auto &iter = next_input_operands.find(current_op->name);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         next_rt_operator->meet_num += 1;
         if (CheckOperatorReady(next_rt_operator)) {

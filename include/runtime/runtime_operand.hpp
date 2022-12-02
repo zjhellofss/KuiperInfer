@@ -12,7 +12,7 @@
 
 namespace kuiper_infer {
 struct RuntimeOperand {
-  RuntimeDataType type;
+  RuntimeDataType type = RuntimeDataType::kTypeNull;
   std::string name;
   std::vector<int32_t> shapes;
   std::vector<std::shared_ptr<Tensor<float>>> datas;

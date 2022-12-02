@@ -155,8 +155,8 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
   }
 }
 
-std::shared_ptr<TokenNode> ExpressionParser::Generate() {
-  this->tokens_.clear();
+std::vector<std::shared_ptr<TokenNode> > ExpressionParser::Generate() {
+
   if (this->tokens_.empty()) {
     this->Tokenizer(true);
   }
@@ -168,10 +168,11 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate() {
   // 转逆波兰式,之后转移到expression中
   std::vector<std::shared_ptr<TokenNode>> reverse_polish;
   ReversePolish(root, reverse_polish);
-  for (const auto &node : reverse_polish) {
-    LOG(INFO) << node->num_index;
-  }
-  return root;
+//  for (const auto &node : reverse_polish) {
+//    LOG(INFO) << node->num_index;
+//  }
+
+  return reverse_polish;
 }
 
 TokenNode::TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left, std::shared_ptr<TokenNode> right) :

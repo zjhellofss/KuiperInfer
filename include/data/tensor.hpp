@@ -73,6 +73,12 @@ class Tensor<float> {
 
   void ElementAdd(const std::shared_ptr<Tensor<float>> &tensor);
 
+  static std::shared_ptr<Tensor<float>> ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
+                                                   const std::shared_ptr<Tensor<float>> &tensor2);
+
+  static std::shared_ptr<Tensor<float>> ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
+                                                   const std::shared_ptr<Tensor<float>> &tensor2);
+
   void ElementAdd(float value);
 
   void ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor);

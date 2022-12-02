@@ -5,6 +5,7 @@
 #ifndef KUIPER_INFER_INCLUDE_PARSER_RUNTIME_OPERATOR_HPP_
 #define KUIPER_INFER_INCLUDE_PARSER_RUNTIME_OPERATOR_HPP_
 #include <vector>
+#include <unordered_map>
 #include <map>
 #include <memory>
 #include <string>
@@ -25,6 +26,7 @@ struct RuntimeOperator {
   std::vector<std::string> output_names;
   std::shared_ptr<RuntimeOperand> output_operands;
   std::map<std::string, std::shared_ptr<RuntimeOperand>> input_operands;
+  std::vector<std::shared_ptr<RuntimeOperand>> input_operands_seq;
   std::map<std::string, std::shared_ptr<RuntimeOperator>> output_operators; //输出节点的名字和节点对应
 
   // 该层算子中的配置和权重
