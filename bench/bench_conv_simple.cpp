@@ -4,7 +4,7 @@
 #include <benchmark/benchmark.h>
 #include "runtime//runtime_ir.hpp"
 #include "data/load_data.hpp"
-const int kIterationNum = 5;
+const int kIterationNum = 25;
 
 static void BM_ConvSimple(benchmark::State &state) {
   using namespace kuiper_infer;
@@ -99,38 +99,54 @@ static void BM_ConvIdentity4(benchmark::State &state) {
 
 static void BM_ConvIdentity5(benchmark::State &state) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet_identity/resnet_93_graph.pnnx.param",
-                     "tmp/resnet_identity/resnet_93_graph.pnnx.bin");
+  RuntimeGraph graph("tmp/batchnorm/resnet_batchnorm_identity3.pnnx.param",
+                     "tmp/batchnorm/resnet_batchnorm_identity3.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128,128);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(1.);
 
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128,128);
+  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(1.);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128,128);
+  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(1.);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128,128);
+  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input5 = std::make_shared<Tensor<float>>(3, 224, 224);
+  input5->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input6 = std::make_shared<Tensor<float>>(3, 224, 224);
+  input6->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input7 = std::make_shared<Tensor<float>>(3, 224, 224);
+  input7->Fill(1.);
+
+  std::shared_ptr<Tensor<float>> input8 = std::make_shared<Tensor<float>>(3, 224, 224);
+  input8->Fill(1.);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
   inputs.push_back(input2);
   inputs.push_back(input3);
   inputs.push_back(input4);
+  inputs.push_back(input5);
+  inputs.push_back(input6);
+  inputs.push_back(input7);
+  inputs.push_back(input8);
 
   for (auto _ : state) {
     std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   }
 }
 
-BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
+//BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
 //BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
-BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
-BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
-BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);
+//BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
+//BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
+//BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);
 BENCHMARK(BM_ConvIdentity5)->Iterations(kIterationNum);
 
 BENCHMARK_MAIN();
