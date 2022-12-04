@@ -127,7 +127,7 @@ static void BM_ConvIdentity5(benchmark::State &state) {
 }
 
 BENCHMARK(BM_ConvSimple)->Iterations(kIterationNum);
-BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
+//BENCHMARK(BM_ConvIdentity)->Iterations(kIterationNum);
 BENCHMARK(BM_ConvIdentity2)->Iterations(kIterationNum);
 BENCHMARK(BM_ConvIdentity3)->Iterations(kIterationNum);
 BENCHMARK(BM_ConvIdentity4)->Iterations(kIterationNum);

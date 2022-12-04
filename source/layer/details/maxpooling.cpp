@@ -34,9 +34,22 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     if (input_data->empty()) {
-      LOG(ERROR) << "The input feature map of average pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
+    } else {
+      uint32_t input_h = input_data->rows();
+      uint32_t input_w = input_data->cols();
+      uint32_t output_h = uint32_t(std::floor((input_h - pooling_h + 2 * padding_h_) / stride_h_ + 1));
+      uint32_t output_w = uint32_t(std::floor((input_w - pooling_w + 2 * padding_w_) / stride_w_ + 1));
+      if (!output_w || !output_h) {
+        LOG(ERROR) << "The size of the output feature map is less than zero";
+        return InferStatus::kInferFailedOutputSizeError;
+      }
     }
+  }
+
+#pragma omp parallel for num_threads(batch)
+  for (uint32_t i = 0; i < batch; ++i) {
+    const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     std::shared_ptr<Tensor<float>> input_data_;
 
     if (!padding_h_ || !padding_w_) {
@@ -52,15 +65,12 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_h_ + 1));
     const uint32_t output_w = uint32_t(std::floor((input_w - pooling_w) / stride_w_ + 1));
-    if (output_w <= 0 || output_h <= 0) {
-      LOG(ERROR) << "The size of the output feature map is less than zero";
-      return InferStatus::kInferFailedOutputSizeError;
-    }
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     CHECK(output_data != nullptr);
     CHECK(output_data->channels() == output_c && output_data->rows() == output_h && output_data->cols() == output_w);
 
+#pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data->at(ic);
       arma::fmat &output_channel = output_data->at(ic);

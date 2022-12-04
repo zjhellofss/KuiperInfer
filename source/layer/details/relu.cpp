@@ -12,12 +12,10 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
 
   const uint32_t batch_size = inputs.size();
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
-    if (input->empty()) {
-      LOG(ERROR) << "The input feature map of relu layer is empty";
-      return InferStatus::kInferFailedInputEmpty;
-    }
+    CHECK(!input->empty()) << "Relu layer input is empty";
     const std::shared_ptr<Tensor<float>> &output = outputs.at(i);
     output->set_data(input->data());
     output->Transform([](double val) {

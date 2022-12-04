@@ -13,6 +13,17 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
 }
 
+Tensor<float>::Tensor(const Tensor &tensor) {
+  this->data_ = tensor.data_;
+}
+
+Tensor<float> &Tensor<float>::operator=(const Tensor &tensor) {
+  if (this != &tensor) {
+    this->data_ = tensor.data_;
+  }
+  return *this;
+}
+
 uint32_t Tensor<float>::rows() const {
   CHECK(!this->data_.empty());
   return this->data_.n_rows;
@@ -186,27 +197,6 @@ void Tensor<float>::Ones() {
   this->data_.fill(1.);
 }
 
-void Tensor<float>::Concat(const std::shared_ptr<Tensor<float>>
-                           &tensor) {
-  CHECK(!this->data_.empty() && !tensor->data_.empty());
-  const uint32_t total_channel = this->data_.n_slices + tensor->data_.n_slices;
-  CHECK(this->rows() == tensor->rows() && this->cols() == tensor->cols()) << "Tensors shape are not adapting";
-  this->
-      data_ = arma::join_slices(this->data_, tensor->data_);
-  CHECK(this->data_.n_slices == total_channel);
-}
-
-void Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor) {
-  CHECK(!this->data_.empty() && !tensor->data_.empty());
-  CHECK(this->shapes() == tensor->shapes()) << "Tensors shape are not adapting";
-  this->data_ = this->data_ + tensor->data_;
-}
-
-void Tensor<float>::ElementAdd(float value) {
-  CHECK(!this->data_.empty());
-  this->data_ += value;
-}
-
 std::shared_ptr<Tensor<float>> Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
                                                          const std::shared_ptr<Tensor<float>> &tensor2) {
   CHECK(!tensor1->empty() && !tensor2->empty());
@@ -225,12 +215,6 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_
       std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
   output_tensor->data_ = tensor1->data_ % tensor2->data_;
   return output_tensor;
-}
-
-void Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor) {
-  CHECK(!this->data_.empty() && !tensor->empty());
-  CHECK(this->shapes() == tensor->shapes());
-  this->data_ %= tensor->data_;
 }
 
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {

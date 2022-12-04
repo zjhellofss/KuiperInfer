@@ -25,9 +25,9 @@ class Tensor<float> {
 
   explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
-  Tensor(const Tensor &) = default;
+  Tensor(const Tensor &tensor);
 
-  Tensor &operator=(const Tensor &) = default;
+  Tensor<float> &operator=(const Tensor &tensor);
 
   uint32_t rows() const;
 
@@ -69,19 +69,11 @@ class Tensor<float> {
 
   void Show();
 
-  void Concat(const std::shared_ptr<Tensor<float>> &tensor);
-
-  void ElementAdd(const std::shared_ptr<Tensor<float>> &tensor);
-
   static std::shared_ptr<Tensor<float>> ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
                                                    const std::shared_ptr<Tensor<float>> &tensor2);
 
   static std::shared_ptr<Tensor<float>> ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                   const std::shared_ptr<Tensor<float>> &tensor2);
-
-  void ElementAdd(float value);
-
-  void ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor);
+                                                        const std::shared_ptr<Tensor<float>> &tensor2);
 
   void Flatten();
 
