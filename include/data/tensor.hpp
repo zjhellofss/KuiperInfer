@@ -5,6 +5,7 @@
 #ifndef KUIPER_COURSE_DATA_BLOB_HPP_
 #define KUIPER_COURSE_DATA_BLOB_HPP_
 #include <memory>
+#include <vector>
 #include "armadillo"
 
 namespace kuiper_infer {
@@ -45,6 +46,8 @@ class Tensor<float> {
 
   std::vector<uint32_t> shapes() const;
 
+  const std::vector<uint32_t> &raw_shapes() const;
+
   arma::fcube &data();
 
   const arma::fcube &data() const;
@@ -69,6 +72,8 @@ class Tensor<float> {
 
   void Show();
 
+  void ReRawshape(const std::vector<uint32_t> &shapes);
+
   static std::shared_ptr<Tensor<float>> ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
                                                    const std::shared_ptr<Tensor<float>> &tensor2);
 
@@ -82,6 +87,7 @@ class Tensor<float> {
   std::shared_ptr<Tensor> Clone();
 
  private:
+  std::vector<uint32_t> raw_shapes_;
   arma::fcube data_;
 };
 

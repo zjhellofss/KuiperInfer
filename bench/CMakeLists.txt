@@ -13,8 +13,7 @@ aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)
 
 find_package(OpenMP REQUIRED)
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fopenmp")
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fopenmp -march=native")
 
 set(link_lib glog pthread gflags gtest)
 set(link_math_lib armadillo blas lapack)

@@ -11,15 +11,18 @@ namespace kuiper_infer {
 
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
+  this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
 }
 
 Tensor<float>::Tensor(const Tensor &tensor) {
   this->data_ = tensor.data_;
+  this->raw_shapes_ = tensor.raw_shapes_;
 }
 
 Tensor<float> &Tensor<float>::operator=(const Tensor &tensor) {
   if (this != &tensor) {
     this->data_ = tensor.data_;
+    this->raw_shapes_ = tensor.raw_shapes_;
   }
   return *this;
 }
@@ -220,6 +223,21 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {
   CHECK(!this->data_.empty());
   this->data_.transform(filter);
+}
+
+void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {
+  CHECK(!shapes.empty());
+  const uint32_t origin_size = this->size();
+  uint32_t current_size = 1;
+  for (uint32_t s : shapes) {
+    current_size *= s;
+  }
+  CHECK(current_size == origin_size);
+  this->raw_shapes_ = shapes;
+}
+
+const std::vector<uint32_t> &Tensor<float>::raw_shapes() const {
+  return this->raw_shapes_;
 }
 
 }

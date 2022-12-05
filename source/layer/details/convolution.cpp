@@ -5,6 +5,7 @@
 #include "convolution.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "data/fast_copy.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -53,6 +54,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
+    const uint32_t conv_dimension = 3;
+    CHECK(input->raw_shapes().size() == conv_dimension);
 
     std::shared_ptr<Tensor<float>> input_;
     if (padding_ > 0) {
