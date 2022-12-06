@@ -49,21 +49,20 @@ void Winograd(const arma::fmat &kernel_g, const arma::fmat &feature, arma::fmat 
   _mm_store_ps(BTd.memptr() + 12, BTd_3);
 
   float BTd0 = *BTd.memptr();
-  float BTd1 = *(BTd.memptr() + 1);
-  float BTd2 = *(BTd.memptr() + 2);
-  float BTd3 = *(BTd.memptr() + 3);
   float BTd4 = *(BTd.memptr() + 4);
+  float BTd1 = *(BTd.memptr() + 1);
   float BTd5 = *(BTd.memptr() + 5);
+  float BTd2 = *(BTd.memptr() + 2);
   float BTd6 = *(BTd.memptr() + 6);
+  float BTd3 = *(BTd.memptr() + 3);
   float BTd7 = *(BTd.memptr() + 7);
-
   float BTd8 = *(BTd.memptr() + 8);
-  float BTd9 = *(BTd.memptr() + 9);
-  float BTd10 = *(BTd.memptr() + 10);
-  float BTd11 = *(BTd.memptr() + 11);
   float BTd12 = *(BTd.memptr() + 12);
+  float BTd9 = *(BTd.memptr() + 9);
   float BTd13 = *(BTd.memptr() + 13);
+  float BTd10 = *(BTd.memptr() + 10);
   float BTd14 = *(BTd.memptr() + 14);
+  float BTd11 = *(BTd.memptr() + 11);
   float BTd15 = *(BTd.memptr() + 15);
 
   float *V_mem = V.memptr();
