@@ -36,5 +36,5 @@ static void BM_Copy2(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_Copy1);
-BENCHMARK(BM_Copy2);
+//BENCHMARK(BM_Copy1);
+//BENCHMARK(BM_Copy2);
