@@ -130,6 +130,7 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   }
   CHECK(!padded_cube.empty());
   this->data_ = padded_cube;
+  this->raw_shapes_ = this->shapes();
 }
 
 void Tensor<float>::Fill(float value) {
@@ -164,7 +165,7 @@ void Tensor<float>::Show() {
 void Tensor<float>::Flatten() {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
-  arma::fcube linear_cube(1, size, 1);
+  arma::fcube linear_cube(size, 1, 1);
 
   uint32_t channel = this->channels();
   uint32_t rows = this->rows();
@@ -176,13 +177,14 @@ void Tensor<float>::Flatten() {
 
     for (uint32_t r = 0; r < rows; ++r) {
       for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        linear_cube.at(0, index, 0) = matrix.at(r, c_);
+        linear_cube.at(index, 0, 0) = matrix.at(r, c_);
         index += 1;
       }
     }
   }
   CHECK_EQ(index, size);
   this->data_ = linear_cube;
+  this->raw_shapes_ = std::vector<uint32_t>{size};
 }
 
 std::shared_ptr<Tensor<float>>
@@ -232,12 +234,20 @@ void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {
   for (uint32_t s : shapes) {
     current_size *= s;
   }
+  CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
+
+  if (shapes.size() == 3) {
+    this->data_.reshape(shapes.at(2), shapes.at(0), shapes.at(1));
+  } else if (shapes.size() == 2) {
+    this->data_.reshape(shapes.at(1), shapes.at(0), 1);
+  } else {
+    this->data_.reshape(shapes.at(0), 1, 1);
+  }
   this->raw_shapes_ = shapes;
 }
 
 const std::vector<uint32_t> &Tensor<float>::raw_shapes() const {
   return this->raw_shapes_;
 }
-
 }

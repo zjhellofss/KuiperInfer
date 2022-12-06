@@ -11,9 +11,13 @@ namespace kuiper_infer {
 
 void *FastMemoryCopy(float *out, const float *in, size_t n) {
   CHECK(out != nullptr && in != nullptr);
-  n >>= 4;
-  for (__m512 *ov = (__m512 *) out, *iv = (__m512 *) in; n--;) {
-    _mm512_storeu_ps((float *) (ov++), _mm512_loadu_ps((float *) (iv++)));
+  if (n < 16 || n % 16 != 0) {
+    memcpy(out, in, sizeof(float) * n);
+  } else {
+    n >>= 4;
+    for (__m512 *ov = (__m512 *) out, *iv = (__m512 *) in; n--;) {
+      _mm512_storeu_ps((float *) (ov++), _mm512_loadu_ps((float *) (iv++)));
+    }
   }
   return out;
 }

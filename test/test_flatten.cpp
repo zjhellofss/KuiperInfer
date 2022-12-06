@@ -26,6 +26,9 @@ TEST(test_layer, test_flatten1_small) {
   for (uint32_t i = 0; i < size; ++i) {
     ASSERT_EQ(tensor.index(i), i);
   }
+  const auto &shapes = tensor.raw_shapes();
+  ASSERT_EQ(shapes.size(), 1);
+  ASSERT_EQ(shapes.at(0), size);
 }
 
 TEST(test_layer, test_flatten2_small) {
@@ -36,5 +39,52 @@ TEST(test_layer, test_flatten2_small) {
   for (uint32_t i = 0; i < 8; ++i) {
     ASSERT_EQ(tensor.index(i), float(i +1));
   }
+}
 
+TEST(test_layer, test_flatten3_small) {
+  using namespace kuiper_infer;
+  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
+  Tensor<float> tensor(2, 2, 2);
+  tensor.Fill(values);
+  tensor.ReRawshape({1, 2, 4});
+
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(tensor.index(i), float(i +1));
+  }
+}
+
+TEST(test_layer, test_flatten4_small) {
+  using namespace kuiper_infer;
+  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
+  Tensor<float> tensor(2, 2, 2);
+  tensor.Fill(values);
+  tensor.ReRawshape({1, 8});
+
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(tensor.index(i), float(i +1));
+  }
+}
+
+TEST(test_layer, test_flatten5_small) {
+  using namespace kuiper_infer;
+  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
+  Tensor<float> tensor(2, 2, 2);
+  tensor.Fill(values);
+  tensor.ReRawshape({2, 4});
+
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(tensor.index(i), float(i +1));
+  }
+}
+
+TEST(test_layer, test_flatten6_small) {
+  using namespace kuiper_infer;
+  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
+  Tensor<float> tensor(2, 2, 2);
+  tensor.Fill(values);
+  tensor.ReRawshape({2, 1, 4});
+
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(tensor.index(i), float(i +1));
+  }
 }
