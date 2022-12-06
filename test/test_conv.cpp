@@ -255,28 +255,28 @@ TEST(test_layer, forward_identity_block6) {
   graph.Build("pnnx_input_0", "pnnx_output_0");
   for (int i = 0; i < 3; ++i) {
     std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input1->Fill(1.);
+    input1->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input2->Fill(1.);
+    input2->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input3->Fill(1.);
+    input3->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input4->Fill(1.);
+    input4->Fill(2.);
 
-    std::shared_ptr<Tensor<float>> input5= std::make_shared<Tensor<float>>(3, 224, 224);
-    input5->Fill(1.);
+    std::shared_ptr<Tensor<float>> input5 = std::make_shared<Tensor<float>>(3, 224, 224);
+    input5->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input6 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input6->Fill(1.);
+    input6->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input7 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input7->Fill(1.);
+    input7->Fill(2.);
 
     std::shared_ptr<Tensor<float>> input8 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input8->Fill(1.);
+    input8->Fill(2.);
 
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input1);
@@ -296,8 +296,10 @@ TEST(test_layer, forward_identity_block6) {
     ASSERT_EQ(output1.size(), output2.size());
 
     const uint32_t size = output1.size();
+    float abs_all = 0.f;
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(abs(output1.at(j) - output2.at(j)), 1e-6);
+      abs_all += abs(output1.at(j) - output2.at(j));
     }
+    ASSERT_LE(abs_all / size, 1e-6);
   }
 }

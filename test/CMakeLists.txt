@@ -10,7 +10,7 @@ aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)
 aux_source_directory(../source/shape DIR_SHAPE)
 aux_source_directory(../source/parser DIR_PARSER)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fopenmp -march=native")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
 
 find_package(OpenMP REQUIRED)
 
