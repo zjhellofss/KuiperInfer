@@ -7,7 +7,7 @@
 #include <cassert>
 #include <armadillo>
 
-void WinogradTransformG(const arma::fmat &kernel, arma::fmat &kernel_g);
+arma::fmat WinogradTransformG(const arma::fmat &kernel);
 
-void Winograd(const arma::fmat &kernel_g, const arma::fmat &feature, arma::fmat &result);
+arma::fmat Winograd(const arma::fmat &kernel_g, const arma::fmat &feature);
 #endif //KUIPER_INFER_SOURCE_LAYER_DETAILS_CONVOLUTION_3X3_HPP_

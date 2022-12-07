@@ -113,7 +113,7 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   CHECK_GT(channels, 0);
 
   for (uint32_t i = 0; i < channels; ++i) {
-    const arma::fmat &sub_mat = this->data_.slice(i);
+    arma::fmat sub_mat = this->data_.slice(i);
     CHECK(!sub_mat.empty());
 
     arma::fmat padded_mat(sub_mat.n_rows + pad_rows1 + pad_rows2,

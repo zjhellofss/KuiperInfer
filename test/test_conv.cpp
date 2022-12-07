@@ -300,6 +300,6 @@ TEST(test_layer, forward_identity_block6) {
     for (uint32_t j = 0; j < size; ++j) {
       abs_all += abs(output1.at(j) - output2.at(j));
     }
-    ASSERT_LE(abs_all / size, 1e-6);
+    ASSERT_LE(abs_all / size, 5e-7);
   }
 }

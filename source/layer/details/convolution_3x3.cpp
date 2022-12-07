@@ -6,7 +6,7 @@
 #include <glog/logging.h>
 #include <x86intrin.h>
 
-void WinogradTransformG(const arma::fmat &kernel, arma::fmat &kernel_g) {
+arma::fmat WinogradTransformG(const arma::fmat &kernel) {
   CHECK(!kernel.empty() && kernel.n_cols == 3 && kernel.n_rows == 3);
 
   float G1[12] = {1, 0, 0,
@@ -21,10 +21,11 @@ void WinogradTransformG(const arma::fmat &kernel, arma::fmat &kernel_g) {
   arma::fmat G(G1, 3, 4);
   arma::fmat GT(GT1, 4, 3);
   const arma::fmat &Gg = kernel * G;
-  kernel_g = GT * Gg;
+  const arma::fmat& kernel_g = GT * Gg;
+  return kernel_g;
 }
 
-void Winograd(const arma::fmat &kernel_g, const arma::fmat &feature, arma::fmat &result) {
+arma::fmat Winograd(const arma::fmat &kernel_g, const arma::fmat &feature) {
   CHECK(!kernel_g.empty() && kernel_g.n_cols == 4 && kernel_g.n_rows == 4);
   CHECK(!feature.empty() && feature.n_cols == 4 && feature.n_rows == 4);
 
@@ -112,8 +113,10 @@ void Winograd(const arma::fmat &kernel_g, const arma::fmat &feature, arma::fmat 
   float AT_UV3 = *(AT_UV.memptr() + 3);
   float AT_UV7 = *(AT_UV.memptr() + 7);
 
+  arma::fmat result(2, 2);
   result[0] = (AT_UV0_ + AT_UV1_ + AT_UV2);
   result[2] = (AT_UV4 + AT_UV5 + AT_UV6);
   result[1] = (AT_UV1_ - AT_UV2 - AT_UV3);
   result[3] = (AT_UV5 - AT_UV6 - AT_UV7);
+  return result;
 }

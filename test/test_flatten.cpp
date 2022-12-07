@@ -88,3 +88,39 @@ TEST(test_layer, test_flatten6_small) {
     ASSERT_EQ(tensor.index(i), float(i +1));
   }
 }
+
+TEST(test_layer, test_reshape) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(8, 24, 32);
+  tensor.Rand();
+
+  ASSERT_EQ(tensor.channels(), 8);
+  ASSERT_EQ(tensor.rows(), 24);
+  ASSERT_EQ(tensor.cols(), 32);
+
+  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
+
+  ASSERT_EQ(tensor.size(), tensor1->size());
+  const uint32_t size = tensor.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(tensor.index(i), tensor1->index(i));
+  }
+}
+
+TEST(test_layer, test_reshape2) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(8, 24, 32);
+  tensor.Rand();
+
+  ASSERT_EQ(tensor.channels(), 8);
+  ASSERT_EQ(tensor.rows(), 24);
+  ASSERT_EQ(tensor.cols(), 32);
+
+  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
+
+  ASSERT_EQ(tensor.size(), tensor1->size());
+  const uint32_t size = tensor.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(tensor.index(i), tensor1->index(i));
+  }
+}
