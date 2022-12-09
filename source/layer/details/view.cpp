@@ -42,7 +42,7 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       }
     }
 
-    CHECK(zero_index == shapes_.size() - 1) << "Minus one shape is in the wrong axis";
+    CHECK(zero_index == -1 || zero_index == shapes_.size() - 1) << "Minus one shape is in the wrong axis";
     if (zero_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));

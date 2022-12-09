@@ -249,8 +249,8 @@ TEST(test_layer, forward_identity_block5) {
 
 TEST(test_layer, forward_identity_block6) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.param",
-                     "tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity7.pnnx.param",
+                     "tmp/resnet_identity/resnet_batchnorm_identity7.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   for (int i = 0; i < 3; ++i) {

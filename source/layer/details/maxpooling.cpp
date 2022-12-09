@@ -52,7 +52,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     std::shared_ptr<Tensor<float>> input_data_;
 
-    if (!padding_h_ || !padding_w_) {
+    if (padding_h_ > 0 || padding_w_ > 0) {
       input_data_ = input_data->Clone();
       input_data_->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, 0);
     } else {
