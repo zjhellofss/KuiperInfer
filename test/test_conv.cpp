@@ -249,8 +249,8 @@ TEST(test_layer, forward_identity_block5) {
 
 TEST(test_layer, forward_identity_block6) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity5.pnnx.param",
-                     "tmp/resnet_identity/resnet_batchnorm_identity5.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.param",
+                     "tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   for (int i = 0; i < 3; ++i) {
@@ -292,7 +292,7 @@ TEST(test_layer, forward_identity_block6) {
     ASSERT_EQ(output_tensors.size(), 8);
 
     const auto &output1 = output_tensors.at(0)->at(0);
-    const auto &output2 = CSVDataLoader::LoadData("tmp/resnet_identity/22.csv");
+    const auto &output2 = CSVDataLoader::LoadData("tmp/resnet_identity/23.csv");
     ASSERT_EQ(output1.size(), output2.size());
 
     const uint32_t size = output1.size();

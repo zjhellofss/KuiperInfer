@@ -63,6 +63,7 @@ enum class ParseParameterAttrStatus {
   kAttrMissingWeight = 22,
   kAttrMissingRunningMean = 23,
   kAttrMissingRunningVar = 24,
+  kAttrMissingOutFeatures = 26,
 
   kParameterAttrParseSuccess = 0
 };

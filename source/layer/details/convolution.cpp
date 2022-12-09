@@ -243,7 +243,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
 
-    std::vector<float> bias_values = bias->get<float>();
+    const std::vector<float> &bias_values = bias->get<float>();
     conv_layer->set_bias(bias_values);
   }
 

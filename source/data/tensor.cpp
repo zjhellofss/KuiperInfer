@@ -11,7 +11,13 @@ namespace kuiper_infer {
 
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
-  this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  if (channels == 1 && rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else if (channels == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  }
 }
 
 Tensor<float>::Tensor(const Tensor &tensor) {
@@ -108,28 +114,10 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   uint32_t pad_cols1 = pads.at(2);  // left
   uint32_t pad_cols2 = pads.at(3);  // right
 
-  arma::fcube padded_cube;
-  uint32_t channels = this->channels();
-  CHECK_GT(channels, 0);
-
-  for (uint32_t i = 0; i < channels; ++i) {
-    arma::fmat sub_mat = this->data_.slice(i);
-    CHECK(!sub_mat.empty());
-
-    arma::fmat padded_mat(sub_mat.n_rows + pad_rows1 + pad_rows2,
-                          sub_mat.n_cols + pad_cols1 + pad_cols2);
-
-    padded_mat.fill((float) padding_value);
-    padded_mat.submat(pad_rows1, pad_cols1, pad_rows1 + sub_mat.n_rows - 1,
-                      pad_cols1 + sub_mat.n_cols - 1) = sub_mat;
-
-    if (padded_cube.empty()) {
-      padded_cube = arma::fcube(padded_mat.n_rows, padded_mat.n_cols, channels);
-    }
-    padded_cube.slice(i) = std::move(padded_mat);
-  }
-  CHECK(!padded_cube.empty());
-  this->data_ = padded_cube;
+  this->data_.insert_rows(0, pad_rows1);
+  this->data_.insert_rows(this->data_.n_rows, pad_rows2);
+  this->data_.insert_cols(0, pad_cols1);
+  this->data_.insert_cols(this->data_.n_cols, pad_cols2);
   this->raw_shapes_ = this->shapes();
 }
 
@@ -202,24 +190,48 @@ void Tensor<float>::Ones() {
   this->data_.fill(1.);
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                         const std::shared_ptr<Tensor<float>> &tensor2) {
+std::shared_ptr<Tensor<float>>
+Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>>
+                          &tensor1,
+                          const std::shared_ptr<Tensor<float>> &tensor2) {
   CHECK(!tensor1->empty() && !tensor2->empty());
   CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
-  std::shared_ptr<Tensor<float>> output_tensor =
-      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
-  output_tensor->data_ = tensor1->data_ + tensor2->data_;
-  return output_tensor;
+  std::shared_ptr<Tensor<float>>
+      output_tensor =
+      std::make_shared<Tensor<float>>
+          (tensor1->
+              channels(), tensor1
+               ->
+                   rows(), tensor1
+               ->
+                   cols()
+          );
+  output_tensor->
+      data_ = tensor1->data_ + tensor2->data_;
+  return
+      output_tensor;
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                              const std::shared_ptr<Tensor<float>> &tensor2) {
+std::shared_ptr<Tensor<float>>
+Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>>
+                               &tensor1,
+                               const std::shared_ptr<Tensor<float>> &tensor2) {
   CHECK(!tensor1->empty() && !tensor2->empty());
   CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
-  std::shared_ptr<Tensor<float>> output_tensor =
-      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
-  output_tensor->data_ = tensor1->data_ % tensor2->data_;
-  return output_tensor;
+  std::shared_ptr<Tensor<float>>
+      output_tensor =
+      std::make_shared<Tensor<float>>
+          (tensor1->
+              channels(), tensor1
+               ->
+                   rows(), tensor1
+               ->
+                   cols()
+          );
+  output_tensor->
+      data_ = tensor1->data_ % tensor2->data_;
+  return
+      output_tensor;
 }
 
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {

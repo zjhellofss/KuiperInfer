@@ -104,5 +104,5 @@ ParseParameterAttrStatus ExpressionLayer::GetInstance(const std::shared_ptr<Runt
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kExpressinnGetInstance("pnnx.Expression", ExpressionLayer::GetInstance);
+LayerRegistererWrapper kExpressionGetInstance("pnnx.Expression", ExpressionLayer::GetInstance);
 }
