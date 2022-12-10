@@ -54,8 +54,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
-    const uint32_t conv_dimension = 3;
-    CHECK(input->raw_shapes().size() == conv_dimension);
 
     std::shared_ptr<Tensor<float>> input_;
     if (padding_ > 0) {
@@ -88,6 +86,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
     uint32_t row_len = kernel_w * kernel_h;
     uint32_t col_len = ((input_w - kernel_w + 1) / stride_w_) * ((input_h - kernel_w + 1) / stride_h_);
+    if (!col_len) {
+      col_len = 1;
+    }
 
     arma::fmat kernel_matrix(kernel_count, row_len * input_c);
     arma::fmat kernel_matrix_c(1, row_len * input_c);

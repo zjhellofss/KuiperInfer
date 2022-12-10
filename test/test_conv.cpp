@@ -249,57 +249,28 @@ TEST(test_layer, forward_identity_block5) {
 
 TEST(test_layer, forward_identity_block6) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity7.pnnx.param",
-                     "tmp/resnet_identity/resnet_batchnorm_identity7.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity9.pnnx.param",
+                     "tmp/resnet_identity/resnet_batchnorm_identity9.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  for (int i = 0; i < 3; ++i) {
+  int repeat_number = 3;
+  for (int i = 0; i < repeat_number; ++i) {
     std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
     input1->Fill(2.);
 
-    std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input2->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input3->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input4->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input5 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input5->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input6 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input6->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input7 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input7->Fill(2.);
-
-    std::shared_ptr<Tensor<float>> input8 = std::make_shared<Tensor<float>>(3, 224, 224);
-    input8->Fill(2.);
-
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input1);
-    inputs.push_back(input2);
-    inputs.push_back(input3);
-    inputs.push_back(input4);
-    inputs.push_back(input5);
-    inputs.push_back(input6);
-    inputs.push_back(input7);
-    inputs.push_back(input8);
 
     std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
-    ASSERT_EQ(output_tensors.size(), 8);
+    ASSERT_EQ(output_tensors.size(), 1);
 
-    const auto &output1 = output_tensors.at(0)->at(0);
+    const auto &output1 = output_tensors.at(0)->data();
     const auto &output2 = CSVDataLoader::LoadData("tmp/resnet_identity/23.csv");
-    ASSERT_EQ(output1.size(), output2.size());
 
-    const uint32_t size = output1.size();
-    float abs_all = 0.f;
-    for (uint32_t j = 0; j < size; ++j) {
-      abs_all += abs(output1.at(j) - output2.at(j));
+    uint32_t size1 = output1.size();
+    uint32_t size2 = output2.size();
+    for (uint32_t s = 0; s < size1; ++s) {
+      ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
     }
-    ASSERT_LE(abs_all / size, 5e-7);
   }
 }

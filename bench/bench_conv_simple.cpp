@@ -4,7 +4,7 @@
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
-const int kIterationNum = 5;
+const int kIterationNum = 15;
 
 static void BM_ConvSimple(benchmark::State &state) {
   using namespace kuiper_infer;
@@ -99,8 +99,8 @@ static void BM_ConvIdentity4(benchmark::State &state) {
 
 static void BM_ConvIdentity5(benchmark::State &state) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.param",
-                     "tmp/resnet_identity/resnet_batchnorm_identity6.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet_identity/resnet_batchnorm_identity91.pnnx.param",
+                     "tmp/resnet_identity/resnet_batchnorm_identity91.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);

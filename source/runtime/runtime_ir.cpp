@@ -295,7 +295,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
         }
       }
 
-
       CHECK(!layer_input_datas.empty());
 
       CHECK(current_op->output_operands != nullptr);
@@ -306,7 +305,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
       if (debug) {
         for (const auto &output_data : layer_output_datas) {
-          output_data->Show();
+          LOG(INFO) << "\n" << output_data->data().slice(0);
         }
       }
     }
