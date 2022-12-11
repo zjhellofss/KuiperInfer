@@ -12,8 +12,13 @@ namespace kuiper_infer {
 
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
                                    uint32_t kernel_w, uint32_t padding, uint32_t stride_h, uint32_t stride_w,
-                                   bool use_bias)
-    : ParamLayer("Convolution"), padding_(padding), stride_h_(stride_h), stride_w_(stride_w), use_bias_(use_bias) {
+                                   uint32_t groups, bool use_bias)
+    : ParamLayer("Convolution"), padding_(padding), stride_h_(stride_h),
+      stride_w_(stride_w), groups_(groups), use_bias_(use_bias) {
+
+  if (groups != 1) {
+    in_channel /= groups;
+  }
 
   for (uint32_t i = 0; i < output_channel; ++i) {
     std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(in_channel, kernel_h, kernel_w);
@@ -51,7 +56,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     return InferStatus::kInferFailedStrideParameterError;
   }
 
-#pragma omp parallel for num_threads(batch_size)
+//#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
 
@@ -77,11 +82,16 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
     CHECK(output_h > 0 && output_w > 0) << "The size of the output feature map is less than zero";
 
+    if (groups_ != 1) {
+      CHECK(kernel_count % groups_ == 0);
+      CHECK(input_c % groups_ == 0);
+    }
+
     for (uint32_t k = 0; k < kernel_count; ++k) {
       const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
       CHECK(kernel->rows() == kernel_h);
       CHECK(kernel->cols() == kernel_w);
-      CHECK(kernel->channels() == input_c);
+      CHECK(kernel->channels() == input_c / groups_);
     }
 
     uint32_t row_len = kernel_w * kernel_h;
@@ -90,59 +100,63 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       col_len = 1;
     }
 
-    arma::fmat kernel_matrix(kernel_count, row_len * input_c);
-    arma::fmat kernel_matrix_c(1, row_len * input_c);
+    uint32_t input_c_group = input_c / groups_;
+    uint32_t kernel_count_group = kernel_count / groups_;
 
-    for (uint32_t k = 0; k < kernel_count; ++k) {
-      const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k);
-      for (uint32_t ic = 0; ic < input_c; ++ic) {
-        memcpy(kernel_matrix_c.memptr() + row_len * ic,
-               kernel->at(ic).memptr(), row_len * sizeof(float));
+    for (uint32_t g = 0; g < groups_; ++g) {
+      arma::fmat kernel_matrix(kernel_count_group, row_len * input_c_group);
+      arma::fmat kernel_matrix_c(1, row_len * input_c_group);
+
+      for (uint32_t k = 0; k < kernel_count_group; ++k) {
+        const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k + g * kernel_count_group);
+        for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+          memcpy(kernel_matrix_c.memptr() + row_len * ic,
+                 kernel->at(ic).memptr(), row_len * sizeof(float));
+        }
+        kernel_matrix.submat(k, 0, k, row_len * input_c_group - 1) = kernel_matrix_c;
       }
-      kernel_matrix.submat(k, 0, k, row_len * input_c - 1) = kernel_matrix_c;
-    }
 
-    arma::fmat input_matrix(input_c * row_len, col_len);
-    arma::fmat input_matrix_c(row_len, col_len);
+      arma::fmat input_matrix(input_c_group * row_len, col_len);
+      arma::fmat input_matrix_c(row_len, col_len);
 
-    for (uint32_t ic = 0; ic < input_c; ++ic) {
-      float *input_matrix_c_ptr = input_matrix_c.memptr();
-      const arma::fmat &input_channel = input_->at(ic);
+      for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+        float *input_matrix_c_ptr = input_matrix_c.memptr();
+        const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
 
-      for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-        for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-          for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-            const float *region_ptr = input_channel.colptr(c + kw) + r;
-            memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
-            input_matrix_c_ptr += kernel_h;
+        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+              const float *region_ptr = input_channel.colptr(c + kw) + r;
+              memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
+              input_matrix_c_ptr += kernel_h;
+            }
           }
         }
-      }
-      input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
-    }
-
-    const arma::fmat &output = kernel_matrix * input_matrix;
-    CHECK(output.size() == kernel_count * output_h * output_w);
-    std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
-    CHECK(output_tensor != nullptr);
-    CHECK(output_tensor->channels() == kernel_count &&
-        output_tensor->rows() == output_h && output_tensor->cols() == output_w);
-
-#pragma omp parallel for num_threads(kernel_count)
-    for (uint32_t k = 0; k < kernel_count; ++k) {
-      arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
-      output_channel.reshape(output_h, output_w);
-
-      std::shared_ptr<Tensor<float>> bias;
-      if (!this->bias_.empty() && this->use_bias_) {
-        bias = this->bias_.at(k);
+        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
       }
 
-      if (bias != nullptr) {
-        float bias_value = bias->index(0);
-        output_channel += bias_value;
+      const arma::fmat &output = kernel_matrix * input_matrix;
+      CHECK(output.size() == kernel_count_group * output_h * output_w);
+      std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
+      CHECK(output_tensor != nullptr);
+      CHECK(output_tensor->channels() == kernel_count &&
+          output_tensor->rows() == output_h && output_tensor->cols() == output_w);
+
+      for (uint32_t k = 0; k < kernel_count_group; ++k) {
+        arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
+        output_channel.reshape(output_h, output_w);
+
+        std::shared_ptr<Tensor<float>> bias;
+        if (!this->bias_.empty() && this->use_bias_) {
+          bias = this->bias_.at(k);
+        }
+
+        if (bias != nullptr) {
+          float bias_value = bias->index(0);
+          output_channel += bias_value;
+        }
+        output_tensor->at(k + g * kernel_count_group) = std::move(output_channel);
       }
-      output_tensor->at(k) = std::move(output_channel);
     }
   }
   return InferStatus::kInferSuccess;
@@ -216,6 +230,12 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
 
+  const auto &groups = dynamic_cast<RuntimeParameterInt *>(params.at("groups"));
+  if (!groups) {
+    LOG(ERROR) << "Can not find the groups parameter";
+    return ParseParameterAttrStatus::kParameterMissingGroups;
+  }
+
   const uint32_t dims = 2;
   const std::vector<int> &kernels = kernel->value;
   const std::vector<int> &paddings = padding->value;
@@ -228,7 +248,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,
                                                   kernels.at(0), kernels.at(1),
                                                   paddings.at(0), strides.at(0),
-                                                  strides.at(1), use_bias->value);
+                                                  strides.at(1), groups->value, use_bias->value);
 
   // load weights
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
@@ -260,7 +280,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
     return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 
-  std::vector<float> weight_values = weight->get<float>();
+  const std::vector<float> &weight_values = weight->get<float>();
   conv_layer->set_weights(weight_values);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

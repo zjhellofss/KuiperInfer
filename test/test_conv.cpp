@@ -269,8 +269,25 @@ TEST(test_layer, forward_identity_block6) {
 
     uint32_t size1 = output1.size();
     uint32_t size2 = output2.size();
+    ASSERT_EQ(size1, size2);
     for (uint32_t s = 0; s < size1; ++s) {
       ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
     }
   }
+}
+
+TEST(test_layer, forward_group_conv) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/group_conv/group_conv.pnnx.param",
+                     "tmp/group_conv/group_conv.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(4, 16, 16);
+  input1->Fill(2.f);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input1);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+  ASSERT_EQ(outputs.size(), 1);
+  LOG(INFO) << outputs.front()->data();
 }

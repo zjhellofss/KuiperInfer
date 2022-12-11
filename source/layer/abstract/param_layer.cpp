@@ -34,6 +34,7 @@ void ParamLayer::set_weights(const std::vector<float> &weights) {
   for (uint32_t i = 0; i < batch_size; ++i) {
     weight_size += this->weights_.at(i)->size();
   }
+
   CHECK_EQ(weight_size, elem_size);
 
   const uint32_t blob_size = elem_size / batch_size;

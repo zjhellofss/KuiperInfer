@@ -58,6 +58,7 @@ enum class ParseParameterAttrStatus {
   kParameterMissingExpr = 10,
   kParameterMissingOutHW = 11,
   kParameterMissingShape = 12,
+  kParameterMissingGroups = 13,
 
   kAttrMissingBias = 21,
   kAttrMissingWeight = 22,
