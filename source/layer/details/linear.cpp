@@ -62,7 +62,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       CHECK(bias_data.n_rows == out_features_);
       result += bias_data.slice(0);
     }
-    outputs.at(i)->at(0) = result;
+    outputs.at(i)->at(0) = std::move(result);
   }
   return InferStatus::kInferSuccess;
 }
