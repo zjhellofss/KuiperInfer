@@ -56,8 +56,10 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     return InferStatus::kInferFailedStrideParameterError;
   }
 
-//#pragma omp parallel for num_threads(batch_size)
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
+
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
 
     std::shared_ptr<Tensor<float>> input_;
@@ -137,11 +139,11 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
       const arma::fmat &output = kernel_matrix * input_matrix;
       CHECK(output.size() == kernel_count_group * output_h * output_w);
-      std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       CHECK(output_tensor != nullptr);
       CHECK(output_tensor->channels() == kernel_count &&
           output_tensor->rows() == output_h && output_tensor->cols() == output_w);
 
+#pragma omp parallel for num_threads(kernel_count)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output_channel = output.submat(k, 0, k, output_h * output_w - 1);
         output_channel.reshape(output_h, output_w);
