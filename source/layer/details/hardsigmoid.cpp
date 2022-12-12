@@ -19,7 +19,7 @@ InferStatus HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
-    CHECK(!input->empty()) << "HardSwish layer input is empty";
+    CHECK(!input->empty()) << "HardSigmoid layer input is empty";
     const std::shared_ptr<Tensor<float>> &output = outputs.at(i);
 
     output->set_data(input->data());
