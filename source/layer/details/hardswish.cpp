@@ -10,7 +10,7 @@ HardSwishLayer::HardSwishLayer() : Layer("HardSwish") {}
 InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                     std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of convolution layer is empty";
+    LOG(ERROR) << "The input feature map of hardswish layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
   const uint32_t batch = inputs.size();
