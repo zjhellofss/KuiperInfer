@@ -114,28 +114,10 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   uint32_t pad_cols1 = pads.at(2);  // left
   uint32_t pad_cols2 = pads.at(3);  // right
 
-  arma::fcube padded_cube;
-  uint32_t channels = this->channels();
-  CHECK_GT(channels, 0);
-
-  for (uint32_t i = 0; i < channels; ++i) {
-    const arma::fmat &sub_mat = this->data_.slice(i);
-    CHECK(!sub_mat.empty());
-
-    arma::fmat padded_mat(sub_mat.n_rows + pad_rows1 + pad_rows2,
-                          sub_mat.n_cols + pad_cols1 + pad_cols2);
-
-    padded_mat.fill((float) padding_value);
-    padded_mat.submat(pad_rows1, pad_cols1, pad_rows1 + sub_mat.n_rows - 1,
-                      pad_cols1 + sub_mat.n_cols - 1) = sub_mat;
-
-    if (padded_cube.empty()) {
-      padded_cube = arma::fcube(padded_mat.n_rows, padded_mat.n_cols, channels);
-    }
-    padded_cube.slice(i) = std::move(padded_mat);
-  }
-  CHECK(!padded_cube.empty());
-  this->data_ = padded_cube;
+  this->data_.insert_rows(0, pad_rows1);
+  this->data_.insert_rows(this->data_.n_rows, pad_rows2);
+  this->data_.insert_cols(0, pad_cols1);
+  this->data_.insert_cols(this->data_.n_cols, pad_cols2);
   this->raw_shapes_ = this->shapes();
 }
 
@@ -216,14 +198,7 @@ Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>>
   CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
   std::shared_ptr<Tensor<float>>
       output_tensor =
-      std::make_shared<Tensor<float>>
-          (tensor1->
-              channels(), tensor1
-               ->
-                   rows(), tensor1
-               ->
-                   cols()
-          );
+      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
   output_tensor->
       data_ = tensor1->data_ + tensor2->data_;
   return
@@ -238,14 +213,7 @@ Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>>
   CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
   std::shared_ptr<Tensor<float>>
       output_tensor =
-      std::make_shared<Tensor<float>>
-          (tensor1->
-              channels(), tensor1
-               ->
-                   rows(), tensor1
-               ->
-                   cols()
-          );
+      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(), tensor1->cols());
   output_tensor->
       data_ = tensor1->data_ % tensor2->data_;
   return
@@ -254,7 +222,11 @@ Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>>
 
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {
   CHECK(!this->data_.empty());
-  this->data_.transform(filter);
+  uint32_t channels = this->channels();
+#pragma omp parallel for num_threads(channels)
+  for (uint32_t c = 0; c < channels; ++c) {
+    this->data_.slice(c).transform(filter);
+  }
 }
 
 void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {

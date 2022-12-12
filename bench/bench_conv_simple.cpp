@@ -4,7 +4,7 @@
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
-const int kIterationNum = 15;
+const int kIterationNum = 5;
 
 static void BM_ConvSimple(benchmark::State &state) {
   using namespace kuiper_infer;
