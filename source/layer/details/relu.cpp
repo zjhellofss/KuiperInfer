@@ -18,7 +18,7 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     CHECK(!input->empty()) << "Relu layer input is empty";
     const std::shared_ptr<Tensor<float>> &output = outputs.at(i);
     output->set_data(input->data());
-    output->Transform([](double val) {
+    output->Transform([](float val) {
       return val > 0. ? val : 0.;
     });
     outputs.at(i) = output;

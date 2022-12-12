@@ -1,0 +1,449 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 1M of event 'cpu-clock'
+# Event count (approx.): 491382250000
+#
+# Children      Self  Command       Shared Object          
+# ........  ........  ............  .......................
+#
+    97.51%    14.91%  bench_kuiper  libc.so.6              
+            |          
+            |--94.93%--__clone3 (inlined)
+            |          |          
+            |           --94.93%--start_thread (inlined)
+            |                     |          
+            |                     |--41.96%--0x7f5cab32196c
+            |                     |          |          
+            |                     |          |--32.09%--0x7f5cab1c3d24
+            |                     |          |          |          
+            |                     |          |           --31.89%--__GI___sched_yield (inlined)
+            |                     |          |                     |          
+            |                     |          |                      --26.04%--entry_SYSCALL_64_after_hwframe
+            |                     |          |                                |          
+            |                     |          |                                 --25.79%--do_syscall_64
+            |                     |          |                                           |          
+            |                     |          |                                           |--20.82%--__x64_sys_sched_yield
+            |                     |          |                                           |          |          
+            |                     |          |                                           |           --20.57%--do_sched_yield
+            |                     |          |                                           |                     |          
+            |                     |          |                                           |                      --17.74%--schedule
+            |                     |          |                                           |                                |          
+            |                     |          |                                           |                                 --17.34%--__schedule
+            |                     |          |                                           |                                           |          
+            |                     |          |                                           |                                            --1.34%--finish_task_switch.isra.0
+            |                     |          |                                           |          
+            |                     |          |                                            --4.41%--syscall_enter_from_user_mode
+            |                     |          |          
+            |                     |          |--4.87%--0x7f5cab1c374c
+            |                     |          |          |          
+            |                     |          |           --4.84%--__GI___sched_yield (inlined)
+            |                     |          |                     |          
+            |                     |          |                      --3.96%--entry_SYSCALL_64_after_hwframe
+            |                     |          |                                |          
+            |                     |          |                                 --3.92%--do_syscall_64
+            |                     |          |                                           |          
+            |                     |          |                                           |--3.17%--__x64_sys_sched_yield
+            |                     |          |                                           |          |          
+            |                     |          |                                           |           --3.14%--do_sched_yield
+            |                     |          |                                           |                     |          
+            |                     |          |                                           |                      --2.66%--schedule
+            |                     |          |                                           |                                |          
+            |                     |          |                                           |                                 --2.59%--__schedule
+            |                     |          |                                           |          
+            |                     |          |                                            --0.65%--syscall_enter_from_user_mode
+            |                     |          |          
+            |                     |          |--1.98%--0x7f5cab1c3d81
+            |                     |          |          sgemm_kernel_SKYLAKEX
+            |                     |          |          
+            |                     |           --1.13%--0x7f5cab1c3c34
+            |                     |                     |          
+            |                     |                      --1.13%--__GI___sched_yield (inlined)
+            |                     |                                |          
+            |                     |                                 --0.92%--entry_SYSCALL_64_after_hwframe
+            |                     |                                           |          
+            |                     |                                            --0.91%--do_syscall_64
+            |                     |                                                      |          
+            |                     |                                                       --0.74%--__x64_sys_sched_yield
+            |                     |                                                                 |          
+            |                     |                                                                  --0.73%--do_sched_yield
+            |                     |                                                                            |          
+            |                     |                                                                             --0.63%--schedule
+            |                     |                                                                                       |          
+            |                     |                                                                                        --0.61%--__schedule
+            |                     |          
+            |                     |--35.34%--0x7f5cab3218a1
+            |                     |          |          
+            |                     |           --35.17%--__GI___sched_yield (inlined)
+            |                     |                     |          
+            |                     |                      --28.81%--entry_SYSCALL_64_after_hwframe
+            |                     |                                |          
+            |                     |                                 --28.52%--do_syscall_64
+            |                     |                                           |          
+            |                     |                                           |--23.10%--__x64_sys_sched_yield
+            |                     |                                           |          |          
+            |                     |                                           |           --22.81%--do_sched_yield
+            |                     |                                           |                     |          
+            |                     |                                           |                      --19.22%--schedule
+            |                     |                                           |                                |          
+            |                     |                                           |                                 --18.78%--__schedule
+            |                     |                                           |                                           |          
+            |                     |                                           |                                            --2.11%--finish_task_switch.isra.0
+            |                     |                                           |          
+            |                     |                                            --4.68%--syscall_enter_from_user_mode
+            |                     |          
+            |                     |--6.78%--0x7f5cad9a2ba9
+            |                     |          |          
+            |                     |           --6.17%--0x7f5cad9a574a
+            |                     |          
+            |                     |--5.38%--0x7f5cad9a2b77
+            |                     |          |          
+            |                     |           --4.88%--0x7f5cad9a5592
+            |                     |          
+            |                     |--3.87%--0x7f5cad9a2b9d
+            |                     |          |          
+            |                     |           --3.64%--kuiper_infer::ConvolutionLayer::Forward
+            |                     |          
+            |                      --1.21%--0x7f5cab3218a4
+            |          
+            |--1.93%--__GI___sched_yield (inlined)
+            |          |          
+            |           --1.93%--entry_SYSCALL_64_after_hwframe
+            |                     |          
+            |                      --1.91%--do_syscall_64
+            |                                |          
+            |                                 --1.57%--__x64_sys_sched_yield
+            |                                           |          
+            |                                            --1.55%--do_sched_yield
+            |                                                      |          
+            |                                                       --1.07%--schedule
+            |                                                                 |          
+            |                                                                  --1.04%--__schedule
+            |          
+             --0.62%--0xffffffffffffffff
+
+    81.48%     6.00%  bench_kuiper  libopenblasp-r0.3.20.so
+            |          
+            |--37.99%--0x7f5cab32196c
+            |          |          
+            |          |--31.89%--0x7f5cab1c3d24
+            |          |          |          
+            |          |           --31.89%--__GI___sched_yield (inlined)
+            |          |                     |          
+            |          |                      --26.04%--entry_SYSCALL_64_after_hwframe
+            |          |                                |          
+            |          |                                 --25.79%--do_syscall_64
+            |          |                                           |          
+            |          |                                           |--20.82%--__x64_sys_sched_yield
+            |          |                                           |          |          
+            |          |                                           |           --20.57%--do_sched_yield
+            |          |                                           |                     |          
+            |          |                                           |                      --17.74%--schedule
+            |          |                                           |                                |          
+            |          |                                           |                                 --17.34%--__schedule
+            |          |                                           |                                           |          
+            |          |                                           |                                            --1.34%--finish_task_switch.isra.0
+            |          |                                           |          
+            |          |                                            --4.41%--syscall_enter_from_user_mode
+            |          |          
+            |          |--4.84%--0x7f5cab1c374c
+            |          |          __GI___sched_yield (inlined)
+            |          |          |          
+            |          |           --3.96%--entry_SYSCALL_64_after_hwframe
+            |          |                     |          
+            |          |                      --3.92%--do_syscall_64
+            |          |                                |          
+            |          |                                |--3.17%--__x64_sys_sched_yield
+            |          |                                |          |          
+            |          |                                |           --3.14%--do_sched_yield
+            |          |                                |                     |          
+            |          |                                |                      --2.66%--schedule
+            |          |                                |                                |          
+            |          |                                |                                 --2.59%--__schedule
+            |          |                                |          
+            |          |                                 --0.65%--syscall_enter_from_user_mode
+            |          |          
+            |           --1.13%--0x7f5cab1c3c34
+            |                     __GI___sched_yield (inlined)
+            |                     |          
+            |                      --0.92%--entry_SYSCALL_64_after_hwframe
+            |                                |          
+            |                                 --0.91%--do_syscall_64
+            |                                           |          
+            |                                            --0.74%--__x64_sys_sched_yield
+            |                                                      |          
+            |                                                       --0.73%--do_sched_yield
+            |                                                                 |          
+            |                                                                  --0.63%--schedule
+            |                                                                            |          
+            |                                                                             --0.61%--__schedule
+            |          
+            |--35.17%--0x7f5cab3218a1
+            |          |          
+            |           --35.17%--__GI___sched_yield (inlined)
+            |                     |          
+            |                      --28.81%--entry_SYSCALL_64_after_hwframe
+            |                                |          
+            |                                 --28.52%--do_syscall_64
+            |                                           |          
+            |                                           |--23.10%--__x64_sys_sched_yield
+            |                                           |          |          
+            |                                           |           --22.81%--do_sched_yield
+            |                                           |                     |          
+            |                                           |                      --19.22%--schedule
+            |                                           |                                |          
+            |                                           |                                 --18.78%--__schedule
+            |                                           |                                           |          
+            |                                           |                                            --2.11%--finish_task_switch.isra.0
+            |                                           |          
+            |                                            --4.68%--syscall_enter_from_user_mode
+            |          
+            |--5.74%--__clone3 (inlined)
+            |          start_thread (inlined)
+            |          |          
+            |          |--3.97%--0x7f5cab32196c
+            |          |          |          
+            |          |           --1.98%--0x7f5cab1c3d81
+            |          |                     sgemm_kernel_SKYLAKEX
+            |          |          
+            |           --1.21%--0x7f5cab3218a4
+            |          
+             --2.30%--0x7f5cab1c431a
+                       exec_blas
+                       |          
+                        --2.06%--0x7f5cab1c3d24
+                                  __GI___sched_yield (inlined)
+                                  |          
+                                   --1.71%--entry_SYSCALL_64_after_hwframe
+                                             |          
+                                              --1.69%--do_syscall_64
+                                                        |          
+                                                         --1.39%--__x64_sys_sched_yield
+                                                                   |          
+                                                                    --1.38%--do_sched_yield
+                                                                              |          
+                                                                               --0.93%--schedule
+                                                                                         |          
+                                                                                          --0.91%--__schedule
+
+    61.85%    61.85%  bench_kuiper  [kernel.kallsyms]      
+            |          
+            |--59.87%--__clone3 (inlined)
+            |          |          
+            |           --59.87%--start_thread (inlined)
+            |                     |          
+            |                     |--31.04%--0x7f5cab32196c
+            |                     |          |          
+            |                     |          |--26.04%--0x7f5cab1c3d24
+            |                     |          |          |          
+            |                     |          |           --26.04%--__GI___sched_yield (inlined)
+            |                     |          |                     |          
+            |                     |          |                      --26.04%--entry_SYSCALL_64_after_hwframe
+            |                     |          |                                |          
+            |                     |          |                                 --25.79%--do_syscall_64
+            |                     |          |                                           |          
+            |                     |          |                                           |--20.82%--__x64_sys_sched_yield
+            |                     |          |                                           |          |          
+            |                     |          |                                           |           --20.57%--do_sched_yield
+            |                     |          |                                           |                     |          
+            |                     |          |                                           |                      --17.74%--schedule
+            |                     |          |                                           |                                |          
+            |                     |          |                                           |                                 --17.34%--__schedule
+            |                     |          |                                           |                                           |          
+            |                     |          |                                           |                                            --1.34%--finish_task_switch.isra.0
+            |                     |          |                                           |          
+            |                     |          |                                            --4.41%--syscall_enter_from_user_mode
+            |                     |          |          
+            |                     |          |--3.96%--0x7f5cab1c374c
+            |                     |          |          __GI___sched_yield (inlined)
+            |                     |          |          |          
+            |                     |          |           --3.96%--entry_SYSCALL_64_after_hwframe
+            |                     |          |                     |          
+            |                     |          |                      --3.92%--do_syscall_64
+            |                     |          |                                |          
+            |                     |          |                                |--3.17%--__x64_sys_sched_yield
+            |                     |          |                                |          |          
+            |                     |          |                                |           --3.14%--do_sched_yield
+            |                     |          |                                |                     |          
+            |                     |          |                                |                      --2.66%--schedule
+            |                     |          |                                |                                |          
+            |                     |          |                                |                                 --2.59%--__schedule
+            |                     |          |                                |          
+            |                     |          |                                 --0.65%--syscall_enter_from_user_mode
+            |                     |          |          
+            |                     |           --0.92%--0x7f5cab1c3c34
+            |                     |                     __GI___sched_yield (inlined)
+            |                     |                     |          
+            |                     |                      --0.92%--entry_SYSCALL_64_after_hwframe
+            |                     |                                |          
+            |                     |                                 --0.91%--do_syscall_64
+            |                     |                                           |          
+            |                     |                                            --0.74%--__x64_sys_sched_yield
+            |                     |                                                      |          
+            |                     |                                                       --0.73%--do_sched_yield
+            |                     |                                                                 |          
+            |                     |                                                                  --0.63%--schedule
+            |                     |                                                                            |          
+            |                     |                                                                             --0.61%--__schedule
+            |                     |          
+            |                      --28.81%--0x7f5cab3218a1
+            |                                |          
+            |                                 --28.81%--__GI___sched_yield (inlined)
+            |                                           |          
+            |                                            --28.81%--entry_SYSCALL_64_after_hwframe
+            |                                                      |          
+            |                                                       --28.52%--do_syscall_64
+            |                                                                 |          
+            |                                                                 |--23.10%--__x64_sys_sched_yield
+            |                                                                 |          |          
+            |                                                                 |           --22.81%--do_sched_yield
+            |                                                                 |                     |          
+            |                                                                 |                      --19.22%--schedule
+            |                                                                 |                                |          
+            |                                                                 |                                 --18.78%--__schedule
+            |                                                                 |                                           |          
+            |                                                                 |                                            --2.11%--finish_task_switch.isra.0
+            |                                                                 |          
+            |                                                                  --4.68%--syscall_enter_from_user_mode
+            |          
+             --1.97%--0xffffffffffffffff
+                       |          
+                        --1.91%--0x7f5cab1c431a
+                                  exec_blas
+                                  |          
+                                   --1.71%--0x7f5cab1c3d24
+                                             __GI___sched_yield (inlined)
+                                             |          
+                                              --1.71%--entry_SYSCALL_64_after_hwframe
+                                                        |          
+                                                         --1.69%--do_syscall_64
+                                                                   |          
+                                                                    --1.39%--__x64_sys_sched_yield
+                                                                              |          
+                                                                               --1.38%--do_sched_yield
+                                                                                         |          
+                                                                                          --0.93%--schedule
+                                                                                                    |          
+                                                                                                     --0.91%--__schedule
+
+    18.37%    14.05%  bench_kuiper  libgomp.so.1.0.0       
+            |          
+            |--12.25%--__clone3 (inlined)
+            |          start_thread (inlined)
+            |          |          
+            |          |--6.78%--0x7f5cad9a2ba9
+            |          |          |          
+            |          |           --6.17%--0x7f5cad9a574a
+            |          |          
+            |           --5.38%--0x7f5cad9a2b77
+            |                     |          
+            |                      --4.88%--0x7f5cad9a5592
+            |          
+            |--3.78%--0x7f5cad9a2b9d
+            |          |          
+            |           --3.56%--kuiper_infer::ConvolutionLayer::Forward
+            |          
+            |--1.81%--0xffffffffffffffff
+            |          benchmark::internal::(anonymous namespace)::RunBenchmarks
+            |          benchmark::internal::BenchmarkRunner::DoOneRepetition
+            |          benchmark::internal::BenchmarkRunner::DoNIterations
+            |          benchmark::internal::(anonymous namespace)::RunInThread
+            |          benchmark::internal::BenchmarkInstance::Run
+            |          BM_ConvIdentity5
+            |          |          
+            |           --1.80%--kuiper_infer::RuntimeGraph::Forward
+            |                     |          
+            |                     |--0.99%--kuiper_infer::ConvolutionLayer::Forward
+            |                     |          |          
+            |                     |           --0.65%--0x7f5cad9a41ec
+            |                     |                     |          
+            |                     |                      --0.60%--0x7f5cad9a574a
+            |                     |          
+            |                      --0.72%--kuiper_infer::ReluLayer::Forward
+            |          
+             --0.53%--GOMP_parallel
+
+     6.35%     3.18%  bench_kuiper  bench_kuiper           
+            |          
+            |--2.77%--__clone3 (inlined)
+            |          start_thread (inlined)
+            |          0x7f5cad9a2b9d
+            |          |          
+            |           --2.64%--kuiper_infer::ConvolutionLayer::Forward
+            |          
+            |--2.07%--benchmark::internal::(anonymous namespace)::RunBenchmarks
+            |          |          
+            |           --2.07%--benchmark::internal::BenchmarkRunner::DoOneRepetition
+            |                     benchmark::internal::BenchmarkRunner::DoNIterations
+            |                     benchmark::internal::(anonymous namespace)::RunInThread
+            |                     benchmark::internal::BenchmarkInstance::Run
+            |                     BM_ConvIdentity5
+            |                     |          
+            |                      --2.01%--kuiper_infer::RuntimeGraph::Forward
+            |                                |          
+            |                                |--1.12%--kuiper_infer::ConvolutionLayer::Forward
+            |                                |          |          
+            |                                |           --0.65%--0x7f5cad9a41ec
+            |                                |                     |          
+            |                                |                      --0.60%--0x7f5cad9a574a
+            |                                |          
+            |                                 --0.73%--kuiper_infer::ReluLayer::Forward
+            |          
+             --1.01%--kuiper_infer::ConvolutionLayer::Forward
+
+     5.06%     0.00%  bench_kuiper  [unknown]              
+            |
+            ---0xffffffffffffffff
+               |          
+               |--2.55%--0x7f5cab1c431a
+               |          exec_blas
+               |          |          
+               |           --2.07%--0x7f5cab1c3d24
+               |                     |          
+               |                      --2.06%--__GI___sched_yield (inlined)
+               |                                |          
+               |                                 --1.71%--entry_SYSCALL_64_after_hwframe
+               |                                           |          
+               |                                            --1.69%--do_syscall_64
+               |                                                      |          
+               |                                                       --1.39%--__x64_sys_sched_yield
+               |                                                                 |          
+               |                                                                  --1.38%--do_sched_yield
+               |                                                                            |          
+               |                                                                             --0.93%--schedule
+               |                                                                                       |          
+               |                                                                                        --0.91%--__schedule
+               |          
+                --2.47%--benchmark::internal::(anonymous namespace)::RunBenchmarks
+                          |          
+                           --2.47%--benchmark::internal::BenchmarkRunner::DoOneRepetition
+                                     benchmark::internal::BenchmarkRunner::DoNIterations
+                                     benchmark::internal::(anonymous namespace)::RunInThread
+                                     benchmark::internal::BenchmarkInstance::Run
+                                     BM_ConvIdentity5
+                                     |          
+                                      --2.40%--kuiper_infer::RuntimeGraph::Forward
+                                                |          
+                                                |--1.49%--kuiper_infer::ConvolutionLayer::Forward
+                                                |          |          
+                                                |          |--0.83%--GOMP_parallel
+                                                |          |          |          
+                                                |          |           --0.51%--kuiper_infer::ConvolutionLayer::Forward
+                                                |          |          
+                                                |           --0.65%--0x7f5cad9a41ec
+                                                |                     |          
+                                                |                      --0.60%--0x7f5cad9a574a
+                                                |          
+                                                 --0.74%--kuiper_infer::ReluLayer::Forward
+
+     0.03%     0.00%  bench_kuiper  libstdc++.so.6.0.30    
+     0.00%     0.00%  bench_kuiper  libblas.so.3           
+     0.00%     0.00%  bench_kuiper  ld-linux-x86-64.so.2   
+     0.00%     0.00%  bench_kuiper  libarmadillo.so.11.4.2 
+
+
+#
+# (Cannot load tips.txt file, please install perf!)
+#
