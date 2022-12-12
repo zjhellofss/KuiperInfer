@@ -286,7 +286,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
         continue;
       }
 
-      std::vector<std::shared_ptr<RuntimeOperand>> input_operand_datas = current_op->input_operands_seq;
+      const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas = current_op->input_operands_seq;
 
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (auto &input_operand_data : input_operand_datas) {
@@ -479,7 +479,7 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
   const auto &next_ops = current_op->output_operators;
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;
-    auto &next_input_operands = next_rt_operator->input_operands;
+    const auto &next_input_operands = next_rt_operator->input_operands;
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
       SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       const auto &iter = next_input_operands.find(current_op->name);
