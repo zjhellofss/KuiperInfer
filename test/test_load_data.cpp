@@ -7,7 +7,7 @@
 
 TEST(test_load, load_csv_data) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data1.csv");
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data1.csv");
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 4);
@@ -23,7 +23,7 @@ TEST(test_load, load_csv_data) {
 
 TEST(test_load, load_csv_arange) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data2.csv");
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data2.csv");
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 4);
@@ -41,7 +41,7 @@ TEST(test_load, load_csv_arange) {
 
 TEST(test_load, load_csv_missing_data1) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data4.csv");
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data4.csv");
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 11);
@@ -63,7 +63,7 @@ TEST(test_load, load_csv_missing_data1) {
 
 TEST(test_load, load_csv_missing_data2) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data3.csv");
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data3.csv");
 
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
@@ -88,7 +88,7 @@ TEST(test_load, load_csv_missing_data2) {
 
 TEST(test_load, split_char) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data5.csv", '-');
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data5.csv", '-');
 
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
@@ -105,7 +105,7 @@ TEST(test_load, split_char) {
 
 TEST(test_load, load_minus_data) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data6.csv", ',');
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data6.csv", ',');
 
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
@@ -127,7 +127,7 @@ TEST(test_load, load_minus_data) {
 
 TEST(test_load, load_large_data) {
   using namespace kuiper_infer;
-  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data7.csv", ',');
+  const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/data7.csv", ',');
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 1024);
   ASSERT_EQ(data.n_cols, 1024);

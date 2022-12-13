@@ -10,8 +10,8 @@
 TEST(test_expression, add1) {
   using namespace kuiper_infer;
   RuntimeGraph graph
-      ("tmp/add/resnet_batchnorm_add.pnnx.param",
-       "tmp/add/resnet_batchnorm_add.pnnx.bin");
+      ("tmp/add/resnet_add.pnnx.param",
+       "tmp/add/resnet_add.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
@@ -51,8 +51,8 @@ TEST(test_expression, add1) {
 TEST(test_expression, add2) {
   using namespace kuiper_infer;
   RuntimeGraph graph
-      ("tmp/add/resnet_batchnorm_add2.pnnx.param",
-       "tmp/add/resnet_batchnorm_add2.pnnx.bin");
+      ("tmp/add/resnet_add2.pnnx.param",
+       "tmp/add/resnet_add2.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
@@ -92,8 +92,8 @@ TEST(test_expression, add2) {
 TEST(test_expression, mul1) {
   using namespace kuiper_infer;
   RuntimeGraph graph
-      ("tmp/add/resnet_batchnorm_add3.pnnx.param",
-       "tmp/add/resnet_batchnorm_add3.pnnx.bin");
+      ("tmp/add/resnet_add3.pnnx.param",
+       "tmp/add/resnet_add3.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
@@ -128,23 +128,7 @@ TEST(test_expression, mul1) {
     ASSERT_LE(abs(output1.at(j) - output2.at(j)), 5e-6);
   }
 }
-//TEST(test_parser, tokenizer_gen) {
-//  using namespace kuiper_infer;
-//  const std::string &str = "mul(add(add(@0,@1),@2),add(@0,@2))";
-//  ExpressionParser parser(str);
-//  parser.Tokenizer();
-//  const auto &nodes = parser.Generate();
-//  ASSERT_EQ(nodes->num_index, -3);
-//  ASSERT_EQ(nodes->left->num_index, -2);
-//  ASSERT_EQ(nodes->left->left->left->num_index, 0);
-//
-//  ASSERT_EQ(nodes->left->left->num_index, -2);
-//  ASSERT_EQ(nodes->left->right->num_index, 2);
-//
-//  ASSERT_EQ(nodes->right->left->num_index, 0);
-//  ASSERT_EQ(nodes->right->right->num_index, 2);
-//  ASSERT_EQ(nodes->right->num_index, -2);
-//}
+
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;

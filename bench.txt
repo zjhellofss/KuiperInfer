@@ -422,7 +422,7 @@
                                      benchmark::internal::BenchmarkRunner::DoNIterations
                                      benchmark::internal::(anonymous namespace)::RunInThread
                                      benchmark::internal::BenchmarkInstance::Run
-                                     BM_ConvIdentity5
+                                     BM_Resnet18
                                      |          
                                       --2.40%--kuiper_infer::RuntimeGraph::Forward
                                                 |          
