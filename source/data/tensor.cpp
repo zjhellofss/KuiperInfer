@@ -138,7 +138,7 @@ void Tensor<float>::Fill(const std::vector<float> &values) {
 
   for (uint32_t i = 0; i < channels; ++i) {
     auto &channel_data = this->data_.slice(i);
-    const arma::fmat& channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+    const arma::fmat &channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
     channel_data = channel_data_t.t();
   }
 }
@@ -262,12 +262,14 @@ void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {
 
   if (shapes.size() == 3) {
     this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
   } else if (shapes.size() == 2) {
     this->data_.reshape(shapes.at(0), shapes.at(1), 1);
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
   } else {
     this->data_.reshape(shapes.at(0), 1, 1);
+    this->raw_shapes_ = {shapes.at(0)};
   }
-  this->raw_shapes_ = shapes;
 }
 
 const std::vector<uint32_t> &Tensor<float>::raw_shapes() const {

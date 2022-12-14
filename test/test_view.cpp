@@ -23,7 +23,6 @@ TEST(test_layer, forward_view) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
-  outputs1.push_back(std::make_shared<Tensor<float>>(3, 32, 32));
   layer1.Forward(inputs, outputs1);
 
   ASSERT_EQ(outputs1.front()->channels(), 3);
@@ -35,7 +34,6 @@ TEST(test_layer, forward_view) {
   }
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs2;
-  outputs2.push_back(std::make_shared<Tensor<float>>(32, 3, 32));
   layer2.Forward(inputs, outputs2);
   ASSERT_EQ(outputs2.front()->channels(), 32);
   ASSERT_EQ(outputs2.front()->rows(), 3);
@@ -46,7 +44,6 @@ TEST(test_layer, forward_view) {
   }
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs3;
-  outputs3.push_back(std::make_shared<Tensor<float>>(32, 32, 3));
   layer3.Forward(inputs, outputs3);
   ASSERT_EQ(outputs3.front()->channels(), 32);
   ASSERT_EQ(outputs3.front()->rows(), 32);
@@ -60,7 +57,6 @@ TEST(test_layer, forward_view) {
   kuiper_infer::ViewLayer layer4({1, 32, 32, -1});
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs4;
-  outputs4.push_back(std::make_shared<Tensor<float>>(32, 32, 3));
   layer4.Forward(inputs, outputs4);
   ASSERT_EQ(outputs4.front()->channels(), 32);
   ASSERT_EQ(outputs4.front()->rows(), 32);
@@ -74,7 +70,6 @@ TEST(test_layer, forward_view) {
   kuiper_infer::ViewLayer layer5({1, 32, 3, -1});
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs5;
-  outputs5.push_back(std::make_shared<Tensor<float>>(32, 3, 32));
   layer5.Forward(inputs, outputs5);
   ASSERT_EQ(outputs5.front()->channels(), 32);
   ASSERT_EQ(outputs5.front()->rows(), 3);
@@ -87,7 +82,6 @@ TEST(test_layer, forward_view) {
 
   kuiper_infer::ViewLayer layer6({1, 3, 32, -1});
   std::vector<std::shared_ptr<Tensor<float>>> outputs6;
-  outputs6.push_back(std::make_shared<Tensor<float>>(3, 32, 32));
   layer6.Forward(inputs, outputs6);
   ASSERT_EQ(outputs6.front()->channels(), 3);
   ASSERT_EQ(outputs6.front()->rows(), 32);
@@ -96,4 +90,256 @@ TEST(test_layer, forward_view) {
   for (int i = 0; i < output6->size(); ++i) {
     ASSERT_EQ(output6->index(i), values.at(i));
   }
+}
+
+TEST(test_layer, reshape1) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({1, 3, 32, -1});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 32, 3);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 1);
+  ASSERT_EQ(inputs.size(), 1);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.at(0), 3);
+  ASSERT_EQ(shapes.at(1), 32);
+  ASSERT_EQ(shapes.at(2), 2);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.at(0), 3);
+  ASSERT_EQ(raw_shapes.at(1), 32);
+  ASSERT_EQ(raw_shapes.at(2), 2);
+}
+
+TEST(test_layer, reshape2) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({1, 32, 3, 3});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 1);
+  ASSERT_EQ(inputs.size(), 1);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.at(0), 32);
+  ASSERT_EQ(shapes.at(1), 3);
+  ASSERT_EQ(shapes.at(2), 3);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.at(0), 32);
+  ASSERT_EQ(raw_shapes.at(1), 3);
+  ASSERT_EQ(raw_shapes.at(2), 3);
+}
+
+TEST(test_layer, reshape3) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 96, 3, -1});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.at(0), 96);
+  ASSERT_EQ(shapes.at(1), 3);
+  ASSERT_EQ(shapes.at(2), 1);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.at(0), 96);
+  ASSERT_EQ(raw_shapes.at(1), 3);
+  ASSERT_EQ(raw_shapes.at(2), 1);
+}
+
+TEST(test_layer, reshape4) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 3, 32, -1});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 4);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.at(0), 3);
+  ASSERT_EQ(shapes.at(1), 32);
+  ASSERT_EQ(shapes.at(2), 4);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.at(0), 3);
+  ASSERT_EQ(raw_shapes.at(1), 32);
+  ASSERT_EQ(raw_shapes.at(2), 4);
+}
+
+TEST(test_layer, reshape5) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 32});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 1, 1);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.size(), 1);
+  ASSERT_EQ(raw_shapes.at(0), 32);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.size(), 3);
+  ASSERT_EQ(shapes.at(0), 1);
+  ASSERT_EQ(shapes.at(1), 32);
+  ASSERT_EQ(shapes.at(2), 1);
+}
+
+TEST(test_layer, reshape6) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 96});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(shapes.size(), 1);
+  ASSERT_EQ(shapes.at(0), 96);
+
+  const auto &shapes2 = outputs.front()->shapes();
+  ASSERT_EQ(shapes2.size(), 3);
+  ASSERT_EQ(shapes2.at(0), 1); // channels
+  ASSERT_EQ(shapes2.at(1), 96); // rows
+  ASSERT_EQ(shapes2.at(2), 1); // cols
+}
+
+TEST(test_layer, reshape7) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 2, 3, 24});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(24, 6, 1);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(shapes.size(), 3);
+  ASSERT_EQ(shapes.at(0), 2);
+  ASSERT_EQ(shapes.at(1), 3);
+  ASSERT_EQ(shapes.at(2), 24);
+
+  const auto &shapes2 = outputs.front()->shapes();
+  ASSERT_EQ(shapes2.size(), 3);
+  ASSERT_EQ(shapes2.at(0), 2); // channels
+  ASSERT_EQ(shapes2.at(1), 3); // rows
+  ASSERT_EQ(shapes2.at(2), 24); // cols
+}
+
+TEST(test_layer, reshape8) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 2, 48});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(shapes.size(), 2);
+  ASSERT_EQ(shapes.at(0), 2);
+  ASSERT_EQ(shapes.at(1), 48);
+
+  const auto &shapes2 = outputs.front()->shapes();
+  ASSERT_EQ(shapes2.size(), 3);
+  ASSERT_EQ(shapes2.at(0), 1); // channels
+  ASSERT_EQ(shapes2.at(1), 2); // rows
+  ASSERT_EQ(shapes2.at(2), 48); // cols
+}
+
+TEST(test_layer, reshape9) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({2, 3, 48});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 6, 24);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 2);
+  ASSERT_EQ(inputs.size(), 2);
+
+  const auto &shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(shapes.size(), 2);
+  ASSERT_EQ(shapes.at(0), 3);
+  ASSERT_EQ(shapes.at(1), 48);
+
+  const auto &shapes2 = outputs.front()->shapes();
+  ASSERT_EQ(shapes2.size(), 3);
+  ASSERT_EQ(shapes2.at(0), 1); // channels
+  ASSERT_EQ(shapes2.at(1), 3); // rows
+  ASSERT_EQ(shapes2.at(2), 48); // cols
+}
+
+
+TEST(test_layer, reshape10) {
+  using namespace kuiper_infer;
+  ViewLayer view_layer({1, 3, 32, 33});
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 33);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  view_layer.Forward(inputs, outputs);
+
+  ASSERT_EQ(outputs.size(), 1);
+  ASSERT_EQ(inputs.size(), 1);
+
+  const auto &shapes = outputs.front()->shapes();
+  ASSERT_EQ(shapes.at(0), 3);
+  ASSERT_EQ(shapes.at(1), 32);
+  ASSERT_EQ(shapes.at(2), 33);
+
+  const auto &raw_shapes = outputs.front()->raw_shapes();
+  ASSERT_EQ(raw_shapes.at(0), 3);
+  ASSERT_EQ(raw_shapes.at(1), 32);
+  ASSERT_EQ(raw_shapes.at(2), 33);
 }

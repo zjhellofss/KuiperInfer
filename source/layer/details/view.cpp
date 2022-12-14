@@ -15,9 +15,9 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     return InferStatus::kInferFailedInputEmpty;
   }
   CHECK(!shapes_.empty());
-  CHECK(inputs.size() == outputs.size());
-
   const uint32_t batch_size = inputs.size();
+  CHECK(shapes_.front() != -1 && shapes_.front() == batch_size);
+
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     if (input_data->empty()) {
@@ -30,7 +30,6 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     int zero_index = -1;
 
     std::vector<uint32_t> shapes;
-    CHECK(shapes_.front() != -1);
     for (int j = 1; j < shapes_.size(); ++j) {
       CHECK(shapes_.at(j) == -1 || shapes_.at(j) > 0);
       if (shapes_.at(j) == -1) {
@@ -42,14 +41,14 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       }
     }
 
-    CHECK(zero_index == -1 || zero_index == shapes_.size() - 1) << "Minus one shape is in the wrong axis";
+    CHECK(zero_index == -1 || zero_index == shapes_.size() - 1) << "Minus one shape is in the wrong axis, only at the last axis!";
     if (zero_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
     }
     std::shared_ptr<Tensor<float>> output_data = input_data->Clone();
     output_data->ReRawshape(shapes);
-    outputs.at(i) = output_data;
+    outputs.push_back(output_data);
   }
   return InferStatus::kInferSuccess;
 }
