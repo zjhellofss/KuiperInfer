@@ -34,9 +34,9 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     const arma::fcube &input_data = input->data();
     arma::fcube &output_data = output->data();
 
-    const double max = input_data.max();
-    const double sum = arma::accu(arma::exp(input_data - max));
-    const double offset = max + log(sum);
+    const float max = input_data.max();
+    const float sum = arma::accu(arma::exp(input_data - max));
+    const float offset = max + logf(sum);
     output_data = arma::exp(input_data - offset);
   }
   return InferStatus::kInferSuccess;

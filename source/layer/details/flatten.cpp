@@ -14,7 +14,7 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
   int start_dim = start_dim_;
   int end_dim = end_dim_;
-  int total_dims = 3;
+  int total_dims = 4; // NCHW
 
   if (start_dim < 0) {
     start_dim = total_dims + start_dim;
@@ -22,18 +22,37 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   if (end_dim < 0) {
     end_dim = total_dims + end_dim;
   }
-  CHECK(start_dim == 1 && end_dim == 2);
+
+  end_dim -= 1;
+  start_dim -= 1;
+  CHECK(end_dim > start_dim);
+  CHECK(end_dim <= 2 && start_dim >= 0);
+
   for (uint32_t i = 0; i < inputs.size(); ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     const auto &shapes = input->shapes();
     uint32_t elements_size = 1;
 
-    for (int s = start_dim - 1; s <= end_dim; ++s) {
+    for (int s = start_dim; s <= end_dim; ++s) {
       elements_size *= shapes.at(s);
     }
     std::shared_ptr<Tensor<float>> output = input->Clone();
-    output->ReRawshape({1, elements_size, 1});
-    outputs.at(i) = output;
+    if (start_dim == 0 && end_dim == 2) {
+      output->ReRawshape({elements_size});
+    } else if (start_dim == 1 && end_dim == 2) {
+      uint32_t channels = input->channels();
+      output->ReRawshape({channels, elements_size});
+    } else if (start_dim == 0 && end_dim == 1) {
+      uint32_t cols = input->cols();
+      output->ReRawshape({elements_size, cols});
+    } else {
+      LOG(FATAL) << "Wrong flatten dim: " << "start dim: " << start_dim << " end dim: " << end_dim;
+    }
+    if (outputs.size() > i) {
+      outputs.at(i) = output;
+    } else {
+      outputs.push_back(output);
+    }
   }
   return InferStatus::kInferSuccess;
 }

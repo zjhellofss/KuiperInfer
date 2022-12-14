@@ -92,7 +92,7 @@ TEST(test_layer, forward_view) {
   }
 }
 
-TEST(test_layer, reshape1) {
+TEST(test_layer, view1) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 3, 32, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 32, 3);
@@ -116,7 +116,7 @@ TEST(test_layer, reshape1) {
   ASSERT_EQ(raw_shapes.at(2), 2);
 }
 
-TEST(test_layer, reshape2) {
+TEST(test_layer, view2) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 32, 3, 3});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
@@ -140,7 +140,7 @@ TEST(test_layer, reshape2) {
   ASSERT_EQ(raw_shapes.at(2), 3);
 }
 
-TEST(test_layer, reshape3) {
+TEST(test_layer, view3) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 96, 3, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
@@ -165,7 +165,7 @@ TEST(test_layer, reshape3) {
   ASSERT_EQ(raw_shapes.at(2), 1);
 }
 
-TEST(test_layer, reshape4) {
+TEST(test_layer, view4) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 3, 32, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 4);
@@ -190,7 +190,7 @@ TEST(test_layer, reshape4) {
   ASSERT_EQ(raw_shapes.at(2), 4);
 }
 
-TEST(test_layer, reshape5) {
+TEST(test_layer, view5) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 32});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 1, 1);
@@ -215,7 +215,7 @@ TEST(test_layer, reshape5) {
   ASSERT_EQ(shapes.at(2), 1);
 }
 
-TEST(test_layer, reshape6) {
+TEST(test_layer, view6) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 96});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
@@ -240,7 +240,7 @@ TEST(test_layer, reshape6) {
   ASSERT_EQ(shapes2.at(2), 1); // cols
 }
 
-TEST(test_layer, reshape7) {
+TEST(test_layer, view7) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 2, 3, 24});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(24, 6, 1);
@@ -267,7 +267,7 @@ TEST(test_layer, reshape7) {
   ASSERT_EQ(shapes2.at(2), 24); // cols
 }
 
-TEST(test_layer, reshape8) {
+TEST(test_layer, view8) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 2, 48});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
@@ -293,7 +293,7 @@ TEST(test_layer, reshape8) {
   ASSERT_EQ(shapes2.at(2), 48); // cols
 }
 
-TEST(test_layer, reshape9) {
+TEST(test_layer, view9) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 3, 48});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 6, 24);
@@ -320,7 +320,7 @@ TEST(test_layer, reshape9) {
 }
 
 
-TEST(test_layer, reshape10) {
+TEST(test_layer, view10) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 3, 32, 33});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 33);
