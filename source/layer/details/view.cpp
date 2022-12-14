@@ -41,14 +41,19 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       }
     }
 
-    CHECK(zero_index == -1 || zero_index == shapes_.size() - 1) << "Minus one shape is in the wrong axis, only at the last axis!";
+    CHECK(zero_index == -1 || zero_index == shapes_.size() - 1)
+            << "Minus one shape is in the wrong axis, only at the last axis!";
     if (zero_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
     }
     std::shared_ptr<Tensor<float>> output_data = input_data->Clone();
     output_data->ReRawshape(shapes);
-    outputs.push_back(output_data);
+    if (outputs.size() > i) {
+      outputs.at(i) = output_data;
+    } else {
+      outputs.push_back(output_data);
+    }
   }
   return InferStatus::kInferSuccess;
 }
