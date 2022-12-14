@@ -11,9 +11,9 @@
 namespace kuiper_infer {
 
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
-                                   uint32_t kernel_w, uint32_t padding, uint32_t stride_h, uint32_t stride_w,
-                                   uint32_t groups, bool use_bias)
-    : ParamLayer("Convolution"), padding_(padding), stride_h_(stride_h),
+                                   uint32_t kernel_w, uint32_t padding_h, uint32_t padding_w, uint32_t stride_h,
+                                   uint32_t stride_w, uint32_t groups, bool use_bias)
+    : ParamLayer("Convolution"), padding_h_(padding_h), padding_w_(padding_w), stride_h_(stride_h),
       stride_w_(stride_w), groups_(groups), use_bias_(use_bias) {
 
   if (groups != 1) {
@@ -32,7 +32,7 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
 
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
-  if (inputs.empty()) {
+  if (inputs.empty() || inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
@@ -46,8 +46,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     LOG(ERROR) << "The size of the weight and bias is not adapting";
     return InferStatus::kInferFailedBiasParameterError;
   }
-
-  CHECK(inputs.size() == outputs.size());
 
   const uint32_t batch_size = inputs.size();
 
@@ -63,9 +61,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
 
     std::shared_ptr<Tensor<float>> input_;
-    if (padding_ > 0) {
+    if (padding_h_ > 0 || padding_w_ > 0) {
       input_ = input->Clone();
-      input_->Padding({padding_, padding_, padding_, padding_}, 0);
+      input_->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, 0);
     } else {
       input_ = input;
     }
@@ -248,9 +246,9 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
 
   // kernel的方向是倒置的
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,
-                                                  kernels.at(0), kernels.at(1),
-                                                  paddings.at(0), strides.at(0),
-                                                  strides.at(1), groups->value, use_bias->value);
+                                                  kernels.at(0), kernels.at(1), paddings.at(0),
+                                                  paddings.at(1), strides.at(0), strides.at(1),
+                                                  groups->value, use_bias->value);
 
   // load weights
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;

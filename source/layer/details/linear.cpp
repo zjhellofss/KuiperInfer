@@ -46,6 +46,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     const std::vector<uint32_t> &raw_shapes = input->raw_shapes();
+    CHECK(raw_shapes.size() == 2);
     const uint32_t feature_dims = raw_shapes.at(0);
     CHECK(weight_data.n_rows == feature_dims && feature_dims == in_features_);
 

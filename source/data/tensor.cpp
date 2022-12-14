@@ -138,7 +138,7 @@ void Tensor<float>::Fill(const std::vector<float> &values) {
 
   for (uint32_t i = 0; i < channels; ++i) {
     auto &channel_data = this->data_.slice(i);
-    const arma::fmat channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+    const arma::fmat& channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
     channel_data = channel_data_t.t();
   }
 }

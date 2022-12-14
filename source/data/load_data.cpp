@@ -37,7 +37,7 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
     while (line_stream.good()) {
       std::getline(line_stream, token, split_char);
       try {
-        data.at(row, col) = std::stod(token);
+        data.at(row, col) = std::stof(token);
       }
       catch (...) {
         continue;

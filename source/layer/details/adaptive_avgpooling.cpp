@@ -42,8 +42,9 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     const uint32_t pooling_h = input_h - (output_h_ - 1) * stride_h;
     const uint32_t pooling_w = input_w - (output_w_ - 1) * stride_w;
 
-    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
-    CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_ && output_data->channels() == input_c);
+    const std::shared_ptr<Tensor<float>> &output_data = outputs.at(i);
+    CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_
+              && output_data->channels() == input_c) << "The output size of adaptive pooling is error";
 
 #pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
@@ -52,8 +53,8 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w) {
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h) {
 
-          float *output_channel_ptr = output_channel.colptr(int(c / stride_w));
           float mean_value = 0.f;
+          float *output_channel_ptr = output_channel.colptr(int(c / stride_w));
           for (uint32_t w = 0; w < pooling_w; ++w) {
             const float *col_ptr = input_channel.colptr(c + w) + r;
             for (uint32_t h = 0; h < pooling_h; ++h) {
@@ -89,6 +90,6 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::sha
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kAdaptiveAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
+LayerRegistererWrapper kAdaptiveAdaAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
 
 }

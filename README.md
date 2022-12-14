@@ -2,11 +2,11 @@
 自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 
 ## 使用的技术
-开发语言: C++ 17
+开发语言：C++ 17
 
 数学库：Armadillo+OpenBlas
 
-加速库: OpenMP
+加速库：OpenMP
 
 单元测试：GTest
 
@@ -31,10 +31,10 @@
 
 ## 目录
 1. source是源码目录
-    * data/ 是张量类的实现
+    * data/ 是张量类Tensor的实现和Tensor初始化方法
     * layer/ 是算子的实现
     * parser/ 是Pnnx表达式的解析类
-    * runtime/ 是计算图解析和运行时相关
+    * runtime/ 是计算图结构，解析和运行时相关
 2. test是单元测试目录，由于是个人项目，不能做到单元测试全覆盖。
 3. bench是google benchmark, 包含对MobilenetV3和Resnet18的性能测试。
 

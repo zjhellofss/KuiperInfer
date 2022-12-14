@@ -78,3 +78,25 @@ TEST(test_layer, forward_mobilenet) {
     ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
   }
 }
+
+TEST(test_layer, forward_mobilenet_224) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/mobilenet/mobile_224.pnnx.param",
+                     "tmp/mobilenet/mobile_224.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  input1->Fill(1.f);
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input1);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+  ASSERT_EQ(outputs.size(), 1);
+
+  const auto &output1 = outputs.front()->data().slice(0);
+  const auto &output2 = CSVDataLoader::LoadData("tmp/mobilenet/3.csv");
+  ASSERT_EQ(output1.size(), output2.size());
+  for (uint32_t s = 0; s < output1.size(); ++s) {
+    ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
+  }
+}
