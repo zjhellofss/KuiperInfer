@@ -15,7 +15,7 @@ class RuntimeGraphShape {
  public:
   static void InitOperatorInputTensor(const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
 
-  static void InitOperatorOutputTensor(const std::vector<pnnx::Operator *>& pnnx_operators,
+  static void InitOperatorOutputTensor(const std::vector<pnnx::Operator *> &pnnx_operators,
                                        const std::vector<std::shared_ptr<RuntimeOperator>> &operators);
 };
 
@@ -60,7 +60,7 @@ class RuntimeGraph {
 
   static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                              std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                             std::vector<std::shared_ptr<Tensor<float>>> &layer_output_data);
+                             const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_data);
 
  private:
   enum class GraphState {

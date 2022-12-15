@@ -271,9 +271,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       break;
     }
 
-    std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas;
     if (current_op == input_op) {
-      layer_output_datas = inputs;
+      const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas = inputs;
+      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
       const std::string &current_op_name = current_op->name;
       if (debug) {
@@ -289,7 +289,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas = current_op->input_operands_seq;
 
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
-      for (auto &input_operand_data : input_operand_datas) {
+      for (const auto &input_operand_data : input_operand_datas) {
         for (const auto &input_data : input_operand_data->datas) {
           layer_input_datas.push_back(input_data);
         }
@@ -298,7 +298,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       CHECK(!layer_input_datas.empty());
 
       CHECK(current_op->output_operands != nullptr);
-      layer_output_datas = current_op->output_operands->datas;
+      std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas = current_op->output_operands->datas;
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
@@ -308,8 +308,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
           LOG(INFO) << "\n" << output_data->data().slice(0);
         }
       }
+      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     }
-    ProbeNextLayer(current_op, operator_queue, layer_output_datas);
   }
 
   for (const auto &op : this->operators_) {
@@ -475,7 +475,7 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
 
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                                   std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                                  std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
+                                  const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
   const auto &next_ops = current_op->output_operators;
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;
