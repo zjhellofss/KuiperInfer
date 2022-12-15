@@ -12,7 +12,7 @@ TEST(test_layer, forward_resnet18) {
                      "tmp/resnet/resnet18_batch1.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  int repeat_number = 3;
+  int repeat_number = 1;
   for (int i = 0; i < repeat_number; ++i) {
     std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
     input1->Fill(2.);

@@ -6,6 +6,7 @@
 #include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "data/fast_copy.hpp"
+#include "convolution_3x3.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -54,7 +55,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     return InferStatus::kInferFailedStrideParameterError;
   }
 
-#pragma omp parallel for num_threads(batch_size)
+//#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
 
@@ -71,9 +72,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     const uint32_t input_w = input_->cols();
     const uint32_t input_h = input_->rows();
     const uint32_t input_c = input_->channels();
-
     const uint32_t kernel_count = this->weights_.size();
-    std::shared_ptr<Tensor<float>> output_data;
 
     uint32_t kernel_h = this->weights_.at(0)->rows();
     uint32_t kernel_w = this->weights_.at(0)->cols();
@@ -94,69 +93,125 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       CHECK(kernel->channels() == input_c / groups_);
     }
 
-    uint32_t row_len = kernel_w * kernel_h;
-    uint32_t col_len = ((input_w - kernel_w + 1) / stride_w_) * ((input_h - kernel_w + 1) / stride_h_);
-    if (!col_len) {
-      col_len = 1;
-    }
+    if (stride_h_ == 1 && stride_w_ == 1 && kernel_w == 3 && kernel_h == 3 && groups_ == 1) {
+      input_->Padding({0, 4 - input_h % 4, 0, 4 - input_w % 4}, 0.f);
+      const uint32_t input_h_padding = (4 - input_h % 4) + input_h;
+      const uint32_t input_w_padding = (4 - input_w % 4) + input_w;
 
-    uint32_t input_c_group = input_c / groups_;
-    uint32_t kernel_count_group = kernel_count / groups_;
+      const uint32_t output_h_padding = uint32_t(std::floor(input_h_padding - kernel_h + 1));
+      const uint32_t output_w_padding = uint32_t(std::floor(input_w_padding - kernel_h + 1));
+      const uint32_t out_channels = this->weights_.size();
 
-    for (uint32_t g = 0; g < groups_; ++g) {
-      std::vector<arma::fmat> kernel_matrix_arr(kernel_count_group);
-      arma::fmat kernel_matrix_c(1, row_len * input_c_group);
+      std::shared_ptr<Tensor<float>>
+          output_channels = std::make_shared<Tensor<float>>(out_channels, output_h_padding, output_w_padding);
+      std::shared_ptr<Tensor<float>> output_channels_ = outputs.at(i);
 
-      for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k + g * kernel_count_group);
-        for (uint32_t ic = 0; ic < input_c_group; ++ic) {
-          memcpy(kernel_matrix_c.memptr() + row_len * ic,
-                 kernel->at(ic).memptr(), row_len * sizeof(float));
-        }
-        kernel_matrix_arr.at(k) = kernel_matrix_c;
-      }
+      for (uint32_t oc = 0; oc < out_channels; ++oc) {
+        std::shared_ptr<Tensor<float>> kernel = this->weights_.at(oc);
+        arma::fmat &output_channel = output_channels->at(oc);
+        arma::fmat &output_channel_clipping = output_channels_->at(oc);
 
-      arma::fmat input_matrix(input_c_group * row_len, col_len);
-      arma::fmat input_matrix_c(row_len, col_len);
+        for (uint32_t ic = 0; ic < input_c; ++ic) {
+          const arma::fmat &input_channel = input_->at(ic);
+          const arma::fmat &kernel_channel = kernel->at(ic);
+          CHECK(kernel_channel.n_cols == 3 && kernel_channel.n_rows == 3);
 
-      for (uint32_t ic = 0; ic < input_c_group; ++ic) {
-        float *input_matrix_c_ptr = input_matrix_c.memptr();
-        const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
+          const arma::fmat &kernel_channel_g = WinogradTransformG(kernel_channel);
 
-        uint32_t offset_index = 0;
-        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              const float *region_ptr = input_channel.colptr(c + kw) + r;
-              memcpy(input_matrix_c_ptr + offset_index * kernel_h, region_ptr, kernel_h * sizeof(float));
-              offset_index += 1;
+          const uint32_t h_tiles = input_channel.n_rows;
+          const uint32_t w_tiles = input_channel.n_cols;
+          CHECK(h_tiles % 4 == 0 && w_tiles % 4 == 0);
+
+          for (uint32_t h_tile = 0; h_tile < h_tiles; h_tile += 2) {
+            for (uint32_t w_tile = 0; w_tile < w_tiles; w_tile += 2) {
+              if (h_tile + 4 <= h_tiles && w_tile + 4 <= w_tiles) {
+
+                arma::fmat tile_mat(4, 4);
+                for (uint32_t j = 0; j < 4; ++j) {
+                  const float *col_ptr = input_channel.colptr(j + w_tile) + h_tile;
+                  memcpy(tile_mat.memptr() + j * 4, col_ptr, 4 * sizeof(float));
+                }
+                const arma::fmat &output_tile = Winograd(kernel_channel_g, tile_mat);
+                if (w_tile + 2 <= output_w_padding && h_tile + 2 <= output_h_padding) {
+                  float *output_channel_ptr = output_channel.colptr(w_tile) + h_tile;
+                  *(output_channel_ptr) += *(output_tile.memptr());
+                  *(output_channel_ptr + 1) += *(output_tile.memptr() + 1);
+
+                  output_channel_ptr = output_channel.colptr(w_tile + 1) + h_tile;
+                  *(output_channel_ptr) += *(output_tile.memptr() + 2);
+                  *(output_channel_ptr + 1) += *(output_tile.memptr() + 3);
+                }
+              }
             }
           }
         }
-        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
+        output_channel_clipping = output_channel.submat(0, 0, output_h - 1, output_w - 1);
+      }
+    } else {
+      uint32_t row_len = kernel_w * kernel_h;
+      uint32_t col_len = ((input_w - kernel_w + 1) / stride_w_) * ((input_h - kernel_w + 1) / stride_h_);
+      if (!col_len) {
+        col_len = 1;
       }
 
-      CHECK(output_tensor != nullptr);
-      CHECK(output_tensor->channels() == kernel_count &&
-          output_tensor->rows() == output_h && output_tensor->cols() == output_w);
+      uint32_t input_c_group = input_c / groups_;
+      uint32_t kernel_count_group = kernel_count / groups_;
 
-      const uint32_t max_threads = kernel_count_group < 32 ? kernel_count_group : 32;
-#pragma omp parallel for num_threads(max_threads)
-      for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        arma::fmat output = (kernel_matrix_arr.at(k)) * input_matrix;
-        CHECK(output.size() == output_h * output_w);
+      for (uint32_t g = 0; g < groups_; ++g) {
+        std::vector<arma::fmat> kernel_matrix_arr(kernel_count_group);
+        arma::fmat kernel_matrix_c(1, row_len * input_c_group);
 
-        output.reshape(output_h, output_w);
-        std::shared_ptr<Tensor<float>> bias;
-        if (!this->bias_.empty() && this->use_bias_) {
-          bias = this->bias_.at(k);
+        for (uint32_t k = 0; k < kernel_count_group; ++k) {
+          const std::shared_ptr<Tensor<float>> &kernel = this->weights_.at(k + g * kernel_count_group);
+          for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+            memcpy(kernel_matrix_c.memptr() + row_len * ic,
+                   kernel->at(ic).memptr(), row_len * sizeof(float));
+          }
+          kernel_matrix_arr.at(k) = kernel_matrix_c;
         }
 
-        if (bias != nullptr) {
-          float bias_value = bias->index(0);
-          output += bias_value;
+        arma::fmat input_matrix(input_c_group * row_len, col_len);
+        arma::fmat input_matrix_c(row_len, col_len);
+
+        for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+          float *input_matrix_c_ptr = input_matrix_c.memptr();
+          const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
+
+          uint32_t offset_index = 0;
+          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+            for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+              for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+                const float *region_ptr = input_channel.colptr(c + kw) + r;
+                memcpy(input_matrix_c_ptr + offset_index * kernel_h, region_ptr, kernel_h * sizeof(float));
+                offset_index += 1;
+              }
+            }
+          }
+          input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
         }
-        output_tensor->at(k + g * kernel_count_group) = std::move(output);
+
+        CHECK(output_tensor != nullptr);
+        CHECK(output_tensor->channels() == kernel_count &&
+            output_tensor->rows() == output_h && output_tensor->cols() == output_w);
+
+        const uint32_t max_threads = kernel_count_group < 32 ? kernel_count_group : 32;
+//#pragma omp parallel for num_threads(max_threads)
+        for (uint32_t k = 0; k < kernel_count_group; ++k) {
+          arma::fmat output = (kernel_matrix_arr.at(k)) * input_matrix;
+          CHECK(output.size() == output_h * output_w);
+
+          output.reshape(output_h, output_w);
+          std::shared_ptr<Tensor<float>> bias;
+          if (!this->bias_.empty() && this->use_bias_) {
+            bias = this->bias_.at(k);
+          }
+
+          if (bias != nullptr) {
+            float bias_value = bias->index(0);
+            output += bias_value;
+          }
+          output_tensor->at(k + g * kernel_count_group) = std::move(output);
+        }
       }
     }
   }
