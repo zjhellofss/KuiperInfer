@@ -4,7 +4,11 @@
 #include "convolution_3x3.hpp"
 #include <armadillo>
 #include <glog/logging.h>
+#include <gtest/gtest.h>
 #include <x86intrin.h>
+
+#include "data/tensor.hpp"
+#include "tick.hpp"
 
 arma::fmat WinogradTransformG(const arma::fmat &kernel) {
   CHECK(!kernel.empty() && kernel.n_cols == 3 && kernel.n_rows == 3);
@@ -21,7 +25,7 @@ arma::fmat WinogradTransformG(const arma::fmat &kernel) {
   arma::fmat G(G1, 3, 4);
   arma::fmat GT(GT1, 4, 3);
   const arma::fmat &Gg = kernel * G;
-  const arma::fmat& kernel_g = GT * Gg;
+  const arma::fmat &kernel_g = GT * Gg;
   return kernel_g;
 }
 
@@ -119,4 +123,93 @@ arma::fmat Winograd(const arma::fmat &kernel_g, const arma::fmat &feature) {
   result[1] = (AT_UV1_ - AT_UV2 - AT_UV3);
   result[3] = (AT_UV5 - AT_UV6 - AT_UV7);
   return result;
+}
+
+TEST(test_winograd, winograd3x3) {
+  using namespace kuiper_infer;
+
+  const uint32_t input_h = 9;
+  const uint32_t input_w = 9;
+
+  const uint32_t in_channels = 1;
+  const uint32_t out_channels = 4;
+  const uint32_t elem_size = 81;
+  const uint32_t kernel_h = 3;
+  const uint32_t kernel_w = 3;
+
+  std::vector<float> values;
+  for (int i = 0; i < elem_size; ++i) {
+    values.push_back(float(i));
+  }
+
+  const uint32_t input_h_padding = (4 - input_h % 4) + input_h;
+  const uint32_t input_w_padding = (4 - input_w % 4) + input_w;
+
+  Tensor<float> input(1, input_h, input_w);
+  input.Fill(values);
+  input.Show();
+  input.Padding({0, 4 - input_h % 4, 0, 4 - input_w % 4}, 0.f);
+  input.Show();
+
+  const uint32_t output_h = uint32_t(std::floor(input_h - kernel_h + 1));
+  const uint32_t output_w = uint32_t(std::floor(input_w - kernel_h + 1));
+
+  const uint32_t output_h_padding = uint32_t(std::floor(input_h_padding - kernel_h + 1));
+  const uint32_t output_w_padding = uint32_t(std::floor(input_w_padding - kernel_h + 1));
+
+  std::vector<std::shared_ptr<Tensor<float>>> kernels;
+  for (int i = 0; i < out_channels; ++i) {
+    std::shared_ptr<Tensor<float>> kernel = std::make_shared<Tensor<float>>(1, kernel_h, kernel_w);
+    kernel->Fill(1.f);
+    kernels.push_back(kernel);
+  }
+
+  std::shared_ptr<Tensor<float>>
+      output_channels = std::make_shared<Tensor<float>>(out_channels, output_h_padding, output_w_padding);
+  std::shared_ptr<Tensor<float>>
+      output_channels_clipping = std::make_shared<Tensor<float>>(out_channels, output_h, output_w);
+
+  TICK(OC)
+  for (uint32_t oc = 0; oc < out_channels; ++oc) {
+    std::shared_ptr<Tensor<float>> kernel = kernels.at(oc);
+    arma::fmat &output_channel = output_channels->at(oc);
+    arma::fmat &output_channel_clipping = output_channels_clipping->at(oc);
+
+    for (uint32_t ic = 0; ic < in_channels; ++ic) {
+      const arma::fmat &input_channel = input.at(ic);
+      const arma::fmat &kernel_channel = kernel->at(ic);
+      CHECK(kernel_channel.n_cols == 3 && kernel_channel.n_rows == 3);
+
+      const arma::fmat &kernel_channel_g = WinogradTransformG(kernel_channel);
+
+      const uint32_t h_tiles = input_channel.n_rows;
+      const uint32_t w_tiles = input_channel.n_cols;
+      CHECK(h_tiles % 4 == 0 && w_tiles % 4 == 0);
+
+      for (uint32_t h_tile = 0; h_tile < h_tiles; h_tile += 2) {
+        for (uint32_t w_tile = 0; w_tile < w_tiles; w_tile += 2) {
+          if (h_tile + 4 <= h_tiles && w_tile + 4 <= w_tiles) {
+
+            arma::fmat tile_mat(4, 4);
+            for (uint32_t i = 0; i < 4; ++i) {
+              const float *col_ptr = input_channel.colptr(i + w_tile) + h_tile;
+              memcpy(tile_mat.memptr() + i * 4, col_ptr, 4 * sizeof(float));
+            }
+            const arma::fmat &output_tile = Winograd(kernel_channel_g, tile_mat);
+            if (w_tile + 2 <= output_w_padding && h_tile + 2 <= output_h_padding) {
+              float *output_channel_ptr = output_channel.colptr(w_tile) + h_tile;
+              *(output_channel_ptr) += *(output_tile.memptr());
+              *(output_channel_ptr + 1) += *(output_tile.memptr() + 1);
+
+              output_channel_ptr = output_channel.colptr(w_tile + 1) + h_tile;
+              *(output_channel_ptr) += *(output_tile.memptr() + 2);
+              *(output_channel_ptr + 1) += *(output_tile.memptr() + 3);
+            }
+          }
+        }
+      }
+    }
+    output_channel_clipping = output_channel.submat(0, 0, output_h - 1, output_w - 1);
+  }
+  TOCK(OC)
 }

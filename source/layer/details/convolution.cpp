@@ -140,7 +140,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       CHECK(output_tensor->channels() == kernel_count &&
           output_tensor->rows() == output_h && output_tensor->cols() == output_w);
 
-#pragma omp parallel for num_threads(32)
+      const uint32_t max_threads = kernel_count_group < 32 ? kernel_count_group : 32;
+#pragma omp parallel for num_threads(max_threads)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output = (kernel_matrix_arr.at(k)) * input_matrix;
         CHECK(output.size() == output_h * output_w);
