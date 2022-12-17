@@ -20,7 +20,7 @@ TEST(test_layer, forward_resnet18) {
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input1);
 
-    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, true);
     ASSERT_EQ(output_tensors.size(), 1);
 
     const auto &output1 = output_tensors.at(0)->data();
@@ -92,8 +92,8 @@ TEST(test_layer, forward_mobilenet_224) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
-  for (int i = 0; i < 3; ++i) {
-    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+  for (int i = 0; i < 1; ++i) {
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
     ASSERT_EQ(outputs.size(), 1);
 
     const auto &output1 = outputs.front()->data().slice(0);

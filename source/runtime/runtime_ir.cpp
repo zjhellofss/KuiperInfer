@@ -5,6 +5,7 @@
 #include <deque>
 #include <utility>
 #include "layer/abstract/layer_factory.hpp"
+#include "tick.hpp"
 
 namespace kuiper_infer {
 
@@ -237,6 +238,7 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                                                   bool debug) {
+  TICK(Forward);
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
@@ -276,9 +278,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
       const std::string &current_op_name = current_op->name;
-      if (debug) {
-        LOG(INFO) << current_op_name;
-      }
+//      if (debug) {
+//        LOG(INFO) << current_op_name;
+//      }
 
       bool has_ready = CheckOperatorReady(current_op);
       if (!has_ready) {
@@ -299,15 +301,23 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
       CHECK(current_op->output_operands != nullptr);
       std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas = current_op->output_operands->datas;
+      const auto &start = std::chrono::steady_clock::now();
+
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
+      if (debug) {
+        const double duration =
+            std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
+        LOG(INFO) << current_op_name << " " << duration << "s";
+      }
+
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
 
-      if (debug) {
-        for (const auto &output_data : layer_output_datas) {
-          LOG(INFO) << "\n" << output_data->data().slice(0);
-        }
-      }
+//      if (debug) {
+//        for (const auto &output_data : layer_output_datas) {
+//          LOG(INFO) << "\n" << output_data->data().slice(0);
+//        }
+//      }
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     }
   }
@@ -319,6 +329,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
   const auto &output_op_input_operand = output_op->input_operands.begin();
   const auto &output_operand = output_op_input_operand->second;
+  if (debug) {
+    TOCK(Forward)
+  }
   return output_operand->datas;
 }
 

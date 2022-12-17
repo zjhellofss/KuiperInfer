@@ -244,7 +244,6 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {
   CHECK(!this->data_.empty());
   uint32_t channels = this->channels();
-#pragma omp parallel for num_threads(channels)
   for (uint32_t c = 0; c < channels; ++c) {
     this->data_.slice(c).transform(filter);
   }

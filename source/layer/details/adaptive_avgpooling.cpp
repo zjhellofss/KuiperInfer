@@ -46,7 +46,6 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_
               && output_data->channels() == input_c) << "The output size of adaptive pooling is error";
 
-#pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data->at(ic);
       arma::fmat &output_channel = output_data->at(ic);

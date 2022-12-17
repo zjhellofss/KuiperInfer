@@ -133,14 +133,15 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
             }
           }
         }
-        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
+        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = std::move(input_matrix_c);
       }
 
       CHECK(output_tensor != nullptr);
       CHECK(output_tensor->channels() == kernel_count &&
           output_tensor->rows() == output_h && output_tensor->cols() == output_w);
 
-#pragma omp parallel for num_threads(32)
+      uint32_t thread_count = kernel_count_group < 128 ? kernel_count_group : 128;
+#pragma omp parallel for num_threads(thread_count)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output = (kernel_matrix_arr.at(k)) * input_matrix;
         CHECK(output.size() == output_h * output_w);

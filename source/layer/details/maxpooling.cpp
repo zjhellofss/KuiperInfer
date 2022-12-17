@@ -70,7 +70,6 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     CHECK(output_data != nullptr);
     CHECK(output_data->channels() == output_c && output_data->rows() == output_h && output_data->cols() == output_w);
 
-#pragma omp parallel for num_threads(input_c)
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data_->at(ic);
 
