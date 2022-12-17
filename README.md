@@ -46,9 +46,6 @@ Ubuntu 22.04, Intel(R) Core(TM) i7-11800H @ 2.30GHz, 32G Memory
 8x3x224x224, NCHW格式
 ### 模型运行速度
 
-Benchmark                            Time             CPU   Iterations
-BM_Resnet18/iterations:5    1410739345 ns    738977365 ns            5
-BM_MobilenetV3/iterations:5 1192045921 ns    726926230 ns            5
 
 |  Benchmark  | Batch Size | Time          | CPU        |Iterations|
 |  ----  |------------|---------------|---------------|---------------|
