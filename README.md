@@ -39,6 +39,25 @@
 3. bench是google benchmark, 包含对MobilenetV3和Resnet18的性能测试。
 
 
+
+## 课程计划
+我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
+
+| 课程节数    | 主要内容                   | 进度  |课程链接|
+|---------|------------------------|-----|---------------------|
+| 第一次课    | 整体框架解读和开发环境配置          | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/|
+| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/|
+| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 录制中 | |
+| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 未完成 | |
+| 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 | |
+| 第六次课    | 照猫画虎，完成MaxPooling算子    | 未完成 | |
+| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 | |
+| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 | |
+| 第二季课程待叙 | ...                    | ... | |
+
+先列前八次(第一季)的课程，课程目录可能会发生变化。
+后续课程会在第八次课程讲完后发布。
+
 ## 性能
 ### 测试环境
 Ubuntu 22.04, Intel(R) Core(TM) i7-11800H @ 2.30GHz, 32G Memory
@@ -47,10 +66,15 @@ Ubuntu 22.04, Intel(R) Core(TM) i7-11800H @ 2.30GHz, 32G Memory
 ### 模型运行速度
 
 
-|  Benchmark  | Batch Size | Time          | CPU        |Iterations|
-|  ----  |------------|---------------|---------------|---------------|
-| BM_Resnet18  | 8          | 1410739345 ns |738977365 ns|5|
-| BM_MobilenetV3 | 8          | 1192045921 ns |726926230 ns|5|
+|  Benchmark  | Batch Size | Time                | CPU              |Iterations|
+|  ----  |------------|---------------------|------------------|---------------|
+| BM_Resnet18  | 8          | 1.4107 s ± 0.15s    | 0.7390 s ± 0.15s |5|
+| BM_MobilenetV3 | 8          | 1.1920 s   ±  0.15s | 0.7269 s ± 0.15s         |5|
 
-## Flag
-在b站上开一门教学课程，欢迎大家关注。
+
+## 致谢
+优秀的数学库Openblas: https://github.com/xianyi/OpenBLAS
+
+优秀的数学库Armadillo: https://arma.sourceforge.net/docs.html
+
+给予我灵感的Caffe框架: https://github.com/BVLC/caffe

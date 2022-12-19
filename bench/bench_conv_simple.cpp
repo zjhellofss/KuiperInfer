@@ -92,8 +92,6 @@ static void BM_ConvIdentity4(benchmark::State &state) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
-
-
   for (auto _ : state) {
     const auto &output = graph.Forward(inputs, false);
   }
@@ -144,6 +142,25 @@ static void BM_Resnet18(benchmark::State &state) {
   }
 }
 
+static void BM_Resnet18_Batch16(benchmark::State &state) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet/resnet18_batch16.pnnx.param",
+                     "tmp/resnet/resnet18_batch16.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  for (int i = 0; i < 16; ++i) {
+    std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+    input1->Fill(1.);
+    inputs.push_back(input1);
+  }
+
+  for (auto _ : state) {
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  }
+}
+
 static void BM_MobilenetV3(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/mobilenet/mobile_batch8.pnnx.param",
@@ -184,13 +201,14 @@ static void BM_MobilenetV3(benchmark::State &state) {
   inputs.push_back(input7);
   inputs.push_back(input8);
 
-
   for (auto _ : state) {
     std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   }
 }
 
 BENCHMARK(BM_Resnet18)->Iterations(kIterationNum);
+BENCHMARK(BM_Resnet18_Batch16)->Iterations(kIterationNum);
+
 BENCHMARK(BM_MobilenetV3)->Iterations(kIterationNum);
 
 BENCHMARK_MAIN();
