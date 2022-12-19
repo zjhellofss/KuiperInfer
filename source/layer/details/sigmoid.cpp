@@ -16,16 +16,15 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   }
   CHECK(inputs.size() == outputs.size());
   const uint32_t batch_size = inputs.size();
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
-    if (input->empty()) {
-      LOG(ERROR) << "The input feature map of sigmoid layer is empty";
-      return InferStatus::kInferFailedInputEmpty;
-    }
+    CHECK(!input->empty()) << "The input feature map of sigmoid layer is empty!";
+
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     CHECK(output != nullptr);
-    CHECK(output->channels() == input->channels() && output->rows() == input->rows()
-              && output->cols() == input->cols());
+    CHECK(output->channels() == input->channels()
+              && output->rows() == input->rows() && output->cols() == input->cols());
 
     arma::fcube &output_data_cube = input->data();
     output_data_cube = 1 / (1 + arma::exp(-output_data_cube));

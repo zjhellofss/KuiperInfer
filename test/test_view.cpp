@@ -314,8 +314,8 @@ TEST(test_layer, view9) {
 
   const auto &shapes2 = outputs.front()->shapes();
   ASSERT_EQ(shapes2.size(), 3);
-  ASSERT_EQ(shapes2.at(0), 1); // channels
-  ASSERT_EQ(shapes2.at(1), 3); // rows
+  ASSERT_EQ(shapes2.at(0), 1);  // channels
+  ASSERT_EQ(shapes2.at(1), 3);  // rows
   ASSERT_EQ(shapes2.at(2), 48); // cols
 }
 

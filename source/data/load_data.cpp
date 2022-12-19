@@ -39,7 +39,8 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
       try {
         data.at(row, col) = std::stof(token);
       }
-      catch (...) {
+      catch (std::exception &e) {
+        LOG(ERROR) << "Parse CSV File meet error: " << e.what();
         continue;
       }
       col += 1;
@@ -52,19 +53,20 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   return data;
 }
 
-std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &f, char split_char) {
-  bool load_ok = f.good();
-  f.clear();
+
+std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &file, char split_char) {
+  bool load_ok = file.good();
+  file.clear();
   size_t fn_rows = 0;
   size_t fn_cols = 0;
-  const std::ifstream::pos_type start_pos = f.tellg();
+  const std::ifstream::pos_type start_pos = file.tellg();
 
   std::string token;
   std::string line_str;
   std::stringstream line_stream;
 
-  while (f.good() && load_ok) {
-    std::getline(f, line_str);
+  while (file.good() && load_ok) {
+    std::getline(file, line_str);
     if (line_str.empty()) {
       break;
     }
@@ -84,8 +86,8 @@ std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &f, char sp
 
     ++fn_rows;
   }
-  f.clear();
-  f.seekg(start_pos);
+  file.clear();
+  file.seekg(start_pos);
   return {fn_rows, fn_cols};
 }
 }

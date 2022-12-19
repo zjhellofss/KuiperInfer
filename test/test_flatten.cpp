@@ -100,6 +100,7 @@ TEST(test_flatten, reshape) {
   ASSERT_EQ(tensor.cols(), 32);
 
   std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
+  tensor1->ReRawshape({32, 24, 8});
 
   ASSERT_EQ(tensor.size(), tensor1->size());
   const uint32_t size = tensor.size();
@@ -118,6 +119,7 @@ TEST(test_flatten, reshape2) {
   ASSERT_EQ(tensor.cols(), 32);
 
   std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
+  tensor1->ReRawshape({32, 24, 8});
 
   ASSERT_EQ(tensor.size(), tensor1->size());
   const uint32_t size = tensor.size();
@@ -150,7 +152,6 @@ TEST(test_layer, flatten_layer1) {
   ASSERT_EQ(raw_shapes.size(), 1);
 
   ASSERT_EQ(raw_shapes.front(), 8 * 24 * 32);
-
 
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
@@ -186,7 +187,6 @@ TEST(test_layer, flatten_layer2) {
 
   ASSERT_EQ(raw_shapes.front(), 8 * 24 * 32);
 
-
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
@@ -194,7 +194,6 @@ TEST(test_layer, flatten_layer2) {
   for (uint32_t i = 0; i < size1; ++i) {
     ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
   }
-
 
 }
 
