@@ -45,7 +45,6 @@ TEST(test_load, load_csv_missing_data1) {
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 11);
-
   int data_one = 0;
 
   const uint32_t rows = data.n_rows;

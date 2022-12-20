@@ -23,12 +23,12 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     CHECK(output != nullptr);
-    CHECK(output->channels() == input->channels()
-              && output->rows() == input->rows() && output->cols() == input->cols());
+    CHECK(output->channels() == input->channels() && output->rows() == input->rows()
+              && output->cols() == input->cols()) << "The input and output is not adapting!";
 
-    arma::fcube &output_data_cube = input->data();
+    outputs.at(i)->set_data(input->data());
+    arma::fcube &output_data_cube = outputs.at(i)->data();
     output_data_cube = 1 / (1 + arma::exp(-output_data_cube));
-    outputs.at(i) = input;
   }
   return InferStatus::kInferSuccess;
 }
