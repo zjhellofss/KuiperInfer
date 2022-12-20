@@ -47,7 +47,7 @@
 |---------|------------------------|-----|---------------------|
 | 第一次课    | 整体框架解读和开发环境配置          | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/|
 | 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/|
-| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 录制中 | |
+| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/?spm_id_from=333.999.0.0|
 | 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 未完成 | |
 | 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 | |
 | 第六次课    | 照猫画虎，完成MaxPooling算子    | 未完成 | |
