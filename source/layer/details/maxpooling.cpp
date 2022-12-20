@@ -7,9 +7,8 @@
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 
-MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
-                                 uint32_t pooling_size_h, uint32_t pooling_size_w,
-                                 uint32_t stride_h, uint32_t stride_w)
+MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
+                                 uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w)
     : Layer("MaxPooling"), padding_h_(padding_h), padding_w_(padding_w), pooling_size_h_(pooling_size_h),
       pooling_size_w_(pooling_size_w), stride_h_(stride_h), stride_w_(stride_w) {
 

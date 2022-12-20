@@ -28,8 +28,8 @@ std::shared_ptr<Layer> LayerRegisterer::CreateLayer(const std::shared_ptr<Runtim
   LOG_IF(FATAL, !creator) << "Layer creator is empty!";
   std::shared_ptr<Layer> layer;
   const auto &status = creator(op, layer);
-  LOG_IF(FATAL, status != ParseParameterAttrStatus::kParameterAttrParseSuccess) << "Create the layer: " << layer_type
-                                                                                << " failed, error code: "
+  LOG_IF(FATAL, status != ParseParameterAttrStatus::kParameterAttrParseSuccess) << "Create the layer: "
+                                                                                << layer_type << " failed, error code: "
                                                                                 << int(status);
   return layer;
 }

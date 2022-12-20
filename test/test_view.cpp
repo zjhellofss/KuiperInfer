@@ -6,7 +6,8 @@
 #include <glog/logging.h>
 #include "runtime/runtime_ir.hpp"
 #include "../source/layer/details/view.hpp"
-TEST(test_layer, forward_view) {
+
+TEST(test_layer, forward_view0) {
   using namespace kuiper_infer;
   kuiper_infer::ViewLayer layer1({1, 3, 32, 32});
   kuiper_infer::ViewLayer layer2({1, 32, 3, 32});
@@ -19,7 +20,6 @@ TEST(test_layer, forward_view) {
     values.push_back(float(i));
   }
   input->Fill(values);
-
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -34,7 +34,9 @@ TEST(test_layer, forward_view) {
   }
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs2;
-  layer2.Forward(inputs, outputs2);
+  const auto status0 = layer2.Forward(inputs, outputs2);
+  ASSERT_EQ(status0, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs2.front()->channels(), 32);
   ASSERT_EQ(outputs2.front()->rows(), 3);
   ASSERT_EQ(outputs2.front()->cols(), 32);
@@ -44,7 +46,9 @@ TEST(test_layer, forward_view) {
   }
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs3;
-  layer3.Forward(inputs, outputs3);
+  const auto status1 = layer3.Forward(inputs, outputs3);
+  ASSERT_EQ(status1, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs3.front()->channels(), 32);
   ASSERT_EQ(outputs3.front()->rows(), 32);
   ASSERT_EQ(outputs3.front()->cols(), 3);
@@ -57,7 +61,9 @@ TEST(test_layer, forward_view) {
   kuiper_infer::ViewLayer layer4({1, 32, 32, -1});
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs4;
-  layer4.Forward(inputs, outputs4);
+  const auto status2 = layer4.Forward(inputs, outputs4);
+  ASSERT_EQ(status2, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs4.front()->channels(), 32);
   ASSERT_EQ(outputs4.front()->rows(), 32);
   ASSERT_EQ(outputs4.front()->cols(), 3);
@@ -66,11 +72,11 @@ TEST(test_layer, forward_view) {
     ASSERT_EQ(output4->index(i), values.at(i));
   }
 
-
   kuiper_infer::ViewLayer layer5({1, 32, 3, -1});
-
   std::vector<std::shared_ptr<Tensor<float>>> outputs5;
-  layer5.Forward(inputs, outputs5);
+  const auto status3 = layer5.Forward(inputs, outputs5);
+  ASSERT_EQ(status3, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs5.front()->channels(), 32);
   ASSERT_EQ(outputs5.front()->rows(), 3);
   ASSERT_EQ(outputs5.front()->cols(), 32);
@@ -79,10 +85,11 @@ TEST(test_layer, forward_view) {
     ASSERT_EQ(output5->index(i), values.at(i));
   }
 
-
   kuiper_infer::ViewLayer layer6({1, 3, 32, -1});
   std::vector<std::shared_ptr<Tensor<float>>> outputs6;
-  layer6.Forward(inputs, outputs6);
+  const auto status4 = layer6.Forward(inputs, outputs6);
+  ASSERT_EQ(status4, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs6.front()->channels(), 3);
   ASSERT_EQ(outputs6.front()->rows(), 32);
   ASSERT_EQ(outputs6.front()->cols(), 32);
@@ -92,7 +99,7 @@ TEST(test_layer, forward_view) {
   }
 }
 
-TEST(test_layer, view1) {
+TEST(test_layer, forward_view1) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 3, 32, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 32, 3);
@@ -100,8 +107,8 @@ TEST(test_layer, view1) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
@@ -116,7 +123,7 @@ TEST(test_layer, view1) {
   ASSERT_EQ(raw_shapes.at(2), 2);
 }
 
-TEST(test_layer, view2) {
+TEST(test_layer, forward_view2) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 32, 3, 3});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
@@ -124,8 +131,8 @@ TEST(test_layer, view2) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
@@ -140,7 +147,7 @@ TEST(test_layer, view2) {
   ASSERT_EQ(raw_shapes.at(2), 3);
 }
 
-TEST(test_layer, view3) {
+TEST(test_layer, forward_view3) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 96, 3, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 3);
@@ -149,23 +156,25 @@ TEST(test_layer, view3) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
-  const auto &shapes = outputs.front()->shapes();
-  ASSERT_EQ(shapes.at(0), 96);
-  ASSERT_EQ(shapes.at(1), 3);
-  ASSERT_EQ(shapes.at(2), 1);
+  for (int i = 0; i < outputs.size(); ++i) {
+    const auto &shapes = outputs.at(i)->shapes();
+    ASSERT_EQ(shapes.at(0), 96);
+    ASSERT_EQ(shapes.at(1), 3);
+    ASSERT_EQ(shapes.at(2), 1);
 
-  const auto &raw_shapes = outputs.front()->raw_shapes();
-  ASSERT_EQ(raw_shapes.at(0), 96);
-  ASSERT_EQ(raw_shapes.at(1), 3);
-  ASSERT_EQ(raw_shapes.at(2), 1);
+    const auto &raw_shapes = outputs.at(i)->raw_shapes();
+    ASSERT_EQ(raw_shapes.at(0), 96);
+    ASSERT_EQ(raw_shapes.at(1), 3);
+    ASSERT_EQ(raw_shapes.at(2), 1);
+  }
 }
 
-TEST(test_layer, view4) {
+TEST(test_layer, forward_view4) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 3, 32, -1});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 4);
@@ -174,7 +183,8 @@ TEST(test_layer, view4) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
@@ -190,7 +200,7 @@ TEST(test_layer, view4) {
   ASSERT_EQ(raw_shapes.at(2), 4);
 }
 
-TEST(test_layer, view5) {
+TEST(test_layer, forward_view5) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 32});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 1, 1);
@@ -199,23 +209,25 @@ TEST(test_layer, view5) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
-  const auto &raw_shapes = outputs.front()->raw_shapes();
-  ASSERT_EQ(raw_shapes.size(), 1);
-  ASSERT_EQ(raw_shapes.at(0), 32);
+  for (int i = 0; i < outputs.size(); ++i) {
+    const auto &raw_shapes = outputs.at(i)->raw_shapes();
+    ASSERT_EQ(raw_shapes.size(), 1);
+    ASSERT_EQ(raw_shapes.at(0), 32);
 
-  const auto &shapes = outputs.front()->shapes();
-  ASSERT_EQ(shapes.size(), 3);
-  ASSERT_EQ(shapes.at(0), 1);
-  ASSERT_EQ(shapes.at(1), 32);
-  ASSERT_EQ(shapes.at(2), 1);
+    const auto &shapes = outputs.at(i)->shapes();
+    ASSERT_EQ(shapes.size(), 3);
+    ASSERT_EQ(shapes.at(0), 1);
+    ASSERT_EQ(shapes.at(1), 32);
+    ASSERT_EQ(shapes.at(2), 1);
+  }
 }
 
-TEST(test_layer, view6) {
+TEST(test_layer, forward_view6) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 96});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
@@ -224,23 +236,25 @@ TEST(test_layer, view6) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
-  const auto &shapes = outputs.front()->raw_shapes();
-  ASSERT_EQ(shapes.size(), 1);
-  ASSERT_EQ(shapes.at(0), 96);
+  for (int i = 0; i < outputs.size(); ++i) {
+    const auto &shapes = outputs.at(i)->raw_shapes();
+    ASSERT_EQ(shapes.size(), 1);
+    ASSERT_EQ(shapes.at(0), 96);
 
-  const auto &shapes2 = outputs.front()->shapes();
-  ASSERT_EQ(shapes2.size(), 3);
-  ASSERT_EQ(shapes2.at(0), 1); // channels
-  ASSERT_EQ(shapes2.at(1), 96); // rows
-  ASSERT_EQ(shapes2.at(2), 1); // cols
+    const auto &shapes2 = outputs.at(i)->shapes();
+    ASSERT_EQ(shapes2.size(), 3);
+    ASSERT_EQ(shapes2.at(0), 1); // channels
+    ASSERT_EQ(shapes2.at(1), 96); // rows
+    ASSERT_EQ(shapes2.at(2), 1); // cols
+  }
 }
 
-TEST(test_layer, view7) {
+TEST(test_layer, forward_view7) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 2, 3, 24});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(24, 6, 1);
@@ -249,8 +263,8 @@ TEST(test_layer, view7) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -267,7 +281,7 @@ TEST(test_layer, view7) {
   ASSERT_EQ(shapes2.at(2), 24); // cols
 }
 
-TEST(test_layer, view8) {
+TEST(test_layer, forward_view8) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 2, 48});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 1);
@@ -276,24 +290,26 @@ TEST(test_layer, view8) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
-  const auto &shapes = outputs.front()->raw_shapes();
-  ASSERT_EQ(shapes.size(), 2);
-  ASSERT_EQ(shapes.at(0), 2);
-  ASSERT_EQ(shapes.at(1), 48);
+  for (int i = 0; i < outputs.size(); ++i) {
+    const auto &shapes = outputs.at(i)->raw_shapes();
+    ASSERT_EQ(shapes.size(), 2);
+    ASSERT_EQ(shapes.at(0), 2);
+    ASSERT_EQ(shapes.at(1), 48);
 
-  const auto &shapes2 = outputs.front()->shapes();
-  ASSERT_EQ(shapes2.size(), 3);
-  ASSERT_EQ(shapes2.at(0), 1); // channels
-  ASSERT_EQ(shapes2.at(1), 2); // rows
-  ASSERT_EQ(shapes2.at(2), 48); // cols
+    const auto &shapes2 = outputs.at(i)->shapes();
+    ASSERT_EQ(shapes2.size(), 3);
+    ASSERT_EQ(shapes2.at(0), 1); // channels
+    ASSERT_EQ(shapes2.at(1), 2); // rows
+    ASSERT_EQ(shapes2.at(2), 48); // cols
+  }
 }
 
-TEST(test_layer, view9) {
+TEST(test_layer, forward_view9) {
   using namespace kuiper_infer;
   ViewLayer view_layer({2, 3, 48});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 6, 24);
@@ -302,25 +318,26 @@ TEST(test_layer, view9) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
-  const auto &shapes = outputs.front()->raw_shapes();
-  ASSERT_EQ(shapes.size(), 2);
-  ASSERT_EQ(shapes.at(0), 3);
-  ASSERT_EQ(shapes.at(1), 48);
+  for (int i = 0; i < outputs.size(); ++i) {
+    const auto &shapes = outputs.at(i)->raw_shapes();
+    ASSERT_EQ(shapes.size(), 2);
+    ASSERT_EQ(shapes.at(0), 3);
+    ASSERT_EQ(shapes.at(1), 48);
 
-  const auto &shapes2 = outputs.front()->shapes();
-  ASSERT_EQ(shapes2.size(), 3);
-  ASSERT_EQ(shapes2.at(0), 1);  // channels
-  ASSERT_EQ(shapes2.at(1), 3);  // rows
-  ASSERT_EQ(shapes2.at(2), 48); // cols
+    const auto &shapes2 = outputs.at(i)->shapes();
+    ASSERT_EQ(shapes2.size(), 3);
+    ASSERT_EQ(shapes2.at(0), 1);  // channels
+    ASSERT_EQ(shapes2.at(1), 3);  // rows
+    ASSERT_EQ(shapes2.at(2), 48); // cols
+  }
 }
 
-
-TEST(test_layer, view10) {
+TEST(test_layer, forward_view10) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 3, 32, 33});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 33);
@@ -328,8 +345,8 @@ TEST(test_layer, view10) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  view_layer.Forward(inputs, outputs);
-
+  const auto status = view_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
