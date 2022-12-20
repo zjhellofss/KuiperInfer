@@ -140,18 +140,23 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       CHECK(output_tensor->channels() == kernel_count &&
           output_tensor->rows() == output_h && output_tensor->cols() == output_w);
 
-      uint32_t thread_count = kernel_count_group < 128 ? kernel_count_group : 128;
+      std::vector<arma::fmat> outputs_matrix(kernel_count_group);
+      uint32_t thread_count = kernel_count_group < 32 ? kernel_count_group : 32;
 #pragma omp parallel for num_threads(thread_count)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        arma::fmat output = (kernel_matrix_arr.at(k)) * input_matrix;
-        CHECK(output.size() == output_h * output_w);
+        const arma::fmat& output = (kernel_matrix_arr.at(k)) * input_matrix;
+        outputs_matrix.at(k) = output;
+      }
 
-        output.reshape(output_h, output_w);
+      for (uint32_t k = 0; k < kernel_count_group; ++k) {
         std::shared_ptr<Tensor<float>> bias;
         if (!this->bias_.empty() && this->use_bias_) {
           bias = this->bias_.at(k);
         }
+        arma::fmat output = outputs_matrix.at(k);
+        CHECK(output.size() == output_h * output_w);
 
+        output.reshape(output_h, output_w);
         if (bias != nullptr) {
           float bias_value = bias->index(0);
           output += bias_value;

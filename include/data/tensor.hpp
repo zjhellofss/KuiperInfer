@@ -44,6 +44,8 @@ class Tensor<float> {
 
   float index(uint32_t offset) const;
 
+  float &index(uint32_t offset);
+
   std::vector<uint32_t> shapes() const;
 
   const std::vector<uint32_t> &raw_shapes() const;

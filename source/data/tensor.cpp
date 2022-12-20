@@ -69,6 +69,11 @@ float Tensor<float>::index(uint32_t offset) const {
   return this->data_.at(offset);
 }
 
+float &Tensor<float>::index(uint32_t offset) {
+  CHECK(offset < this->data_.size());
+  return this->data_.at(offset);
+}
+
 std::vector<uint32_t> Tensor<float>::shapes() const {
   CHECK(!this->data_.empty());
   return {this->channels(), this->rows(), this->cols()};
