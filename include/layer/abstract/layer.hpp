@@ -27,9 +27,6 @@ class Layer {
   virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                               std::vector<std::shared_ptr<Tensor<float>>> &outputs);
 
-  virtual InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs1,
-                              const std::vector<std::shared_ptr<Tensor<float>>> &inputs2,
-                              std::vector<std::shared_ptr<Tensor<float>>> &ouputs);
 
   virtual const std::vector<std::shared_ptr<Tensor<float>>> &weights() const;
 

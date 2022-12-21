@@ -6,7 +6,7 @@
 #include "data/tensor.hpp"
 #include "../source/layer/details/flatten.hpp"
 
-TEST(test_flatten, flatten1_small) {
+TEST(test_flatten, flatten1) {
   using namespace kuiper_infer;
   const uint32_t channels = 3;
   const uint32_t rows = 32;
@@ -32,103 +32,33 @@ TEST(test_flatten, flatten1_small) {
   ASSERT_EQ(shapes.at(0), size);
 }
 
-TEST(test_flatten, flatten2_small) {
+TEST(test_flatten, flatten2) {
   using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
+  const uint32_t channels = 4;
+  const uint32_t rows = 320;
+  const uint32_t cols = 320;
+  Tensor<float> tensor(channels, rows, cols);
+  int value = 0;
+  for (uint32_t c = 0; c < channels; ++c) {
+    for (uint32_t r = 0; r < rows; ++r) {
+      for (uint32_t c_ = 0; c_ < cols; ++c_) {
+        tensor.at(c, r, c_) = (float) value;
+        value += 1;
+      }
+    }
   }
-}
 
-TEST(test_flatten, flatten3_small) {
-  using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({1, 2, 4});
-
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_flatten, flatten4_small) {
-  using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({1, 8});
-
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_flatten, flatten5_small) {
-  using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({2, 4});
-
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_flatten, flatten6_small) {
-  using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({2, 1, 4});
-
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_flatten, reshape) {
-  using namespace kuiper_infer;
-  Tensor<float> tensor(8, 24, 32);
-  tensor.Rand();
-
-  ASSERT_EQ(tensor.channels(), 8);
-  ASSERT_EQ(tensor.rows(), 24);
-  ASSERT_EQ(tensor.cols(), 32);
-
-  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
-  tensor1->ReRawshape({32, 24, 8});
-
-  ASSERT_EQ(tensor.size(), tensor1->size());
-  const uint32_t size = tensor.size();
+  tensor.Flatten();
+  const uint32_t size = rows * cols * channels;
   for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), tensor1->index(i));
+    ASSERT_EQ(tensor.index(i), i);
   }
+  const auto &shapes = tensor.raw_shapes();
+  ASSERT_EQ(shapes.size(), 1);
+  ASSERT_EQ(shapes.at(0), size);
 }
 
-TEST(test_flatten, reshape2) {
-  using namespace kuiper_infer;
-  Tensor<float> tensor(8, 24, 32);
-  tensor.Rand();
-
-  ASSERT_EQ(tensor.channels(), 8);
-  ASSERT_EQ(tensor.rows(), 24);
-  ASSERT_EQ(tensor.cols(), 32);
-
-  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
-  tensor1->ReRawshape({32, 24, 8});
-
-  ASSERT_EQ(tensor.size(), tensor1->size());
-  const uint32_t size = tensor.size();
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), tensor1->index(i));
-  }
-}
-
-TEST(test_layer, flatten_layer1) {
+TEST(test_layer, forward_flatten_layer1) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->Rand();
@@ -138,7 +68,8 @@ TEST(test_layer, flatten_layer1) {
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, 3);
-  flatten_layer.Forward(inputs, outputs);
+  const auto status = flatten_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
 
   const auto &shapes = outputs.front()->shapes();
@@ -162,7 +93,7 @@ TEST(test_layer, flatten_layer1) {
   }
 }
 
-TEST(test_layer, flatten_layer2) {
+TEST(test_layer, forward_flatten_layer2) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->Rand();
@@ -172,7 +103,8 @@ TEST(test_layer, flatten_layer2) {
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, -1); // 1 3 -> 0 2
-  flatten_layer.Forward(inputs, outputs);
+  const auto status = flatten_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
 
   const auto &shapes = outputs.front()->shapes();
@@ -197,7 +129,7 @@ TEST(test_layer, flatten_layer2) {
 
 }
 
-TEST(test_layer, flatten_layer3) {
+TEST(test_layer, forward_flatten_layer3) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->Rand();
@@ -207,7 +139,8 @@ TEST(test_layer, flatten_layer3) {
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, 2); // 0 1
-  flatten_layer.Forward(inputs, outputs);
+  const auto status = flatten_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);;
   ASSERT_EQ(outputs.size(), 1);
 
   const auto &shapes = outputs.front()->shapes();
@@ -232,7 +165,7 @@ TEST(test_layer, flatten_layer3) {
   }
 }
 
-TEST(test_layer, flatten_layer4) {
+TEST(test_layer, forward_flatten_layer4) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->Rand();
@@ -242,7 +175,9 @@ TEST(test_layer, flatten_layer4) {
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, -2); // 0 1
-  flatten_layer.Forward(inputs, outputs);
+  const auto status = flatten_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs.size(), 1);
 
   const auto &shapes = outputs.front()->shapes();
@@ -267,7 +202,7 @@ TEST(test_layer, flatten_layer4) {
   }
 }
 
-TEST(test_layer, flatten_layer5) {
+TEST(test_layer, forward_flatten_layer5) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->Rand();
@@ -277,7 +212,9 @@ TEST(test_layer, flatten_layer5) {
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(2, 3); // 1 2
-  flatten_layer.Forward(inputs, outputs);
+  const auto status = flatten_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+
   ASSERT_EQ(outputs.size(), 1);
 
   const auto &shapes = outputs.front()->shapes();
