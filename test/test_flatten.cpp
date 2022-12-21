@@ -81,7 +81,6 @@ TEST(test_layer, forward_flatten_layer1) {
 
   const auto &raw_shapes = outputs.front()->raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
-
   ASSERT_EQ(raw_shapes.front(), 8 * 24 * 32);
 
   uint32_t size1 = inputs.front()->size();

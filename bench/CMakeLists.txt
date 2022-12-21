@@ -1,6 +1,7 @@
 find_package(benchmark REQUIRED)
-find_package(GTest REQUIRED)
-
+find_package(OpenMP REQUIRED)
+find_package(Armadillo REQUIRED)
+find_package(glog REQUIRED)
 
 aux_source_directory(../bench DIR_BENCH)
 aux_source_directory(../source/data DIR_DATA)
@@ -11,16 +12,8 @@ aux_source_directory(../source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(../source/layer/details DIR_BINOCULAR_LAYER)
 aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)
 
-find_package(OpenMP REQUIRED)
-set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fopenmp -march=native")
+set(link_lib glog::glog pthread benchmark::benchmark benchmark::benchmark_main)
+set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
 
-set(link_lib glog pthread gflags gtest)
-set(link_math_lib armadillo blas lapack)
 add_executable(bench_kuiper ${DIR_BENCH} ${DIR_DATA} ${DIR_BINOCULAR_LAYER} ${DIR_RUNTIME} ${DIR_MONOCULAR_LAYER} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER})
-target_link_libraries(bench_kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX benchmark::benchmark benchmark::benchmark_main)
-target_include_directories(bench_kuiper PUBLIC ./include/math)
-target_include_directories(bench_kuiper PUBLIC ${GTEST_INCLUDE_DIRS})
-
-
-
+target_link_libraries(bench_kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)

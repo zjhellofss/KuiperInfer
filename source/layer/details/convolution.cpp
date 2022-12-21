@@ -3,10 +3,10 @@
 //
 
 #include "convolution.hpp"
+#include <glog/logging.h>
+
 #include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
-#include "data/fast_copy.hpp"
-#include <glog/logging.h>
 
 namespace kuiper_infer {
 
