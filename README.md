@@ -1,7 +1,8 @@
 # KuiperInfer
 自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 
-## 使用的技术
+
+## 使用的技术和开发环境
 开发语言：C++ 17
 
 数学库：Armadillo+OpenBlas
@@ -11,6 +12,19 @@
 单元测试：GTest
 
 性能测试：Google Benchmark
+
+## 安装过程
+1. sudo apt install cmake libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev
+
+2. git clone --recursive https://github.com/zjhellofss/KuiperInfer.git
+
+3. cd KuiperInfer
+
+4. mkdir build
+
+5. cmake ..
+
+6. make -j8
 
 ## 已经支持的算子
 **总体秉承算子用到再开发的理念；**
