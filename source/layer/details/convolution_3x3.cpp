@@ -147,9 +147,7 @@ TEST(test_winograd, winograd3x3) {
 
   Tensor<float> input(1, input_h, input_w);
   input.Fill(values);
-  input.Show();
   input.Padding({0, 4 - input_h % 4, 0, 4 - input_w % 4}, 0.f);
-  input.Show();
 
   const uint32_t output_h = uint32_t(std::floor(input_h - kernel_h + 1));
   const uint32_t output_w = uint32_t(std::floor(input_w - kernel_h + 1));
