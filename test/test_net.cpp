@@ -11,8 +11,8 @@ TEST(test_net, forward_resnet18) {
   RuntimeGraph graph("tmp/resnet/resnet18_batch1.param",
                      "tmp/resnet/resnet18_batch1.pnnx.bin");
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  int repeat_number = 2;
 
+  int repeat_number = 2;
   for (int i = 0; i < repeat_number; ++i) {
     std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
     input1->Fill(2.);
@@ -20,16 +20,13 @@ TEST(test_net, forward_resnet18) {
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
     inputs.push_back(input1);
 
-    std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
-    ASSERT_EQ(output_tensors.size(), 1);
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+    ASSERT_EQ(outputs.size(), 1);
 
-    const auto &output1 = output_tensors.at(0)->data();
     const auto &output2 = CSVDataLoader::LoadData("tmp/resnet/23.csv");
-
-    uint32_t size1 = output1.size();
-    uint32_t size2 = output2.size();
-    ASSERT_EQ(size1, size2);
-    for (uint32_t s = 0; s < size1; ++s) {
+    const auto &output1 = outputs.front()->data().slice(0);
+    ASSERT_EQ(output1.size(), output2.size());
+    for (uint32_t s = 0; s < output1.size(); ++s) {
       ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
     }
   }
@@ -68,11 +65,12 @@ TEST(test_net, forward_mobilenet1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
-  for (int i = 0; i < 2; ++i) {
+  int repeat_size = 3;
+  for (int i = 0; i < repeat_size; ++i) {
     std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
     ASSERT_EQ(outputs.size(), 1);
 
-    const auto &output1 = outputs.front()->data().slice(0);
+    const auto &output1 = outputs.front()->data();
     const auto &output2 = CSVDataLoader::LoadData("tmp/mobilenet/2.csv");
     ASSERT_EQ(output1.size(), output2.size());
     for (uint32_t s = 0; s < output1.size(); ++s) {
@@ -87,18 +85,21 @@ TEST(test_net, forward_mobilenet2) {
                      "tmp/mobilenet/mobile_224.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  const uint32_t channels = 3;
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(channels, 224, 224);
   input1->Fill(1.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
-  for (int i = 0; i < 1; ++i) {
+  int repeat_size = 3;
+  for (int i = 0; i < repeat_size; ++i) {
     std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
     ASSERT_EQ(outputs.size(), 1);
 
-    const auto &output1 = outputs.front()->data().slice(0);
     const auto &output2 = CSVDataLoader::LoadData("tmp/mobilenet/3.csv");
+    const auto &output1 = outputs.front()->data();
     ASSERT_EQ(output1.size(), output2.size());
+
     for (uint32_t s = 0; s < output1.size(); ++s) {
       ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
     }
