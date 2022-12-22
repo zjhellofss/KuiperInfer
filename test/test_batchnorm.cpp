@@ -6,7 +6,7 @@
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
 
-TEST(test_layer, forward_batchnorm) {
+TEST(test_layer, forward_batchnorm1) {
   using namespace kuiper_infer;
   RuntimeGraph graph
       ("tmp/batchnorm/resnet_batchnorm.pnnx.param",
@@ -14,23 +14,13 @@ TEST(test_layer, forward_batchnorm) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input4->Fill(1.);
-
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  const int batch_size = 4;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
+    input1->Fill(1.);
+    inputs.push_back(input1);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
@@ -45,7 +35,6 @@ TEST(test_layer, forward_batchnorm) {
   }
 }
 
-
 TEST(test_layer, forward_batchnorm2) {
   using namespace kuiper_infer;
   RuntimeGraph graph
@@ -54,23 +43,13 @@ TEST(test_layer, forward_batchnorm2) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input4->Fill(1.);
-
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  const int batch_size = 4;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
+    input1->Fill(1.);
+    inputs.push_back(input1);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
@@ -84,7 +63,6 @@ TEST(test_layer, forward_batchnorm2) {
     ASSERT_LE(abs(output1.at(i) - output2.at(i)), 1e-6);
   }
 
-
   const auto &output3 = output_tensors.at(0)->at(63);
   const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/3.csv");
   ASSERT_EQ(output3.size(), output4.size());
@@ -95,7 +73,6 @@ TEST(test_layer, forward_batchnorm2) {
   }
 }
 
-
 TEST(test_layer, forward_batchnorm3) {
   using namespace kuiper_infer;
   RuntimeGraph graph
@@ -104,27 +81,16 @@ TEST(test_layer, forward_batchnorm3) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 128, 128);
-  input4->Fill(1.);
-
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  const int batch_size = 4;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 128, 128);
+    input1->Fill(1.);
+    inputs.push_back(input1);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
-
 
   const auto &output3 = output_tensors.at(0)->at(63);
   const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/5.csv");
