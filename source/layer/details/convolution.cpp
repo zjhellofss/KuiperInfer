@@ -133,7 +133,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
             }
           }
         }
-        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = std::move(input_matrix_c);
+        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
       }
 
       CHECK(output_tensor != nullptr);
