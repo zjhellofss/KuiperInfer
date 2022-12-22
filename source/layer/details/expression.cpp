@@ -14,7 +14,6 @@ ExpressionLayer::ExpressionLayer(const std::string &statement)
 
 InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
-
   const uint32_t size = inputs.size();
   CHECK(size % 2 == 0);
   if (!size) {
@@ -33,9 +32,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
-
   const std::vector<std::shared_ptr<TokenNode>> &token_nodes = this->parser_->Generate();
-
   for (const auto &token_node : token_nodes) {
     if (token_node->num_index >= 0) {
       // operator
@@ -48,8 +45,9 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     } else {
       //operation
       const int32_t op = token_node->num_index;
-      CHECK(op_stack.size() >= 2);
+      CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
+
       CHECK(input_node1.size() == batch_size);
       op_stack.pop();
 
@@ -59,11 +57,11 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
       CHECK(input_node1.size() == input_node2.size());
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes;
-      if (op == -2) {
+      if (op == -int(TokenType::TokenAdd)) {
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.push_back(Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i)));
         }
-      } else if (op == -3) {
+      } else if (op == -int(TokenType::TokenMul)) {
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.push_back(Tensor<float>::ElementMultiply(input_node1.at(i), input_node2.at(i)));
         }

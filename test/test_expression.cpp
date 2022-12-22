@@ -2,7 +2,6 @@
 // Created by fss on 22-12-1.
 //
 #include <gtest/gtest.h>
-#include <glog/logging.h>
 #include "parser/parse_expression.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
@@ -15,31 +14,19 @@ TEST(test_expression, add1) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input4->Fill(1.);
-
+  const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    input->Fill(1.);
+    inputs.push_back(input);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto &output1 = output_tensors.at(0)->at(0);
-//  std::cout << output1 << std::endl;
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
-
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -56,30 +43,19 @@ TEST(test_expression, add2) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input4->Fill(1.);
-
+  const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    input->Fill(1.);
+    inputs.push_back(input);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto &output1 = output_tensors.at(0)->at(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
-
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -87,7 +63,6 @@ TEST(test_expression, add2) {
     ASSERT_LE(abs(output1.at(j) - output2.at(j)), 5e-6);
   }
 }
-
 
 TEST(test_expression, mul1) {
   using namespace kuiper_infer;
@@ -97,30 +72,19 @@ TEST(test_expression, mul1) {
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input1->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input2->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input3->Fill(1.);
-
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(1, 4, 4);
-  input4->Fill(1.);
-
+  const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input1);
-  inputs.push_back(input2);
-  inputs.push_back(input3);
-  inputs.push_back(input4);
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    input->Fill(1.);
+    inputs.push_back(input);
+  }
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto &output1 = output_tensors.at(0)->at(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
-
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -128,7 +92,6 @@ TEST(test_expression, mul1) {
     ASSERT_LE(abs(output1.at(j) - output2.at(j)), 5e-6);
   }
 }
-
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;
@@ -194,22 +157,19 @@ TEST(test_parser, tokenizer2) {
 
   ASSERT_EQ(token_strs.at(10), ",");
   ASSERT_EQ(token_strs.at(11), "@1");
-
   ASSERT_EQ(token_strs.at(12), ")");
   ASSERT_EQ(token_strs.at(13), ",");
-
   ASSERT_EQ(token_strs.at(14), "add");
+
   ASSERT_EQ(token_strs.at(15), "(");
   ASSERT_EQ(token_strs.at(16), "@0");
   ASSERT_EQ(token_strs.at(17), ",");
-
   ASSERT_EQ(token_strs.at(18), "add");
-
   ASSERT_EQ(token_strs.at(19), "(");
+
   ASSERT_EQ(token_strs.at(20), "@1");
   ASSERT_EQ(token_strs.at(21), ",");
   ASSERT_EQ(token_strs.at(22), "@1");
-
   ASSERT_EQ(token_strs.at(23), ")");
   ASSERT_EQ(token_strs.at(24), ")");
   ASSERT_EQ(token_strs.at(25), ")");
@@ -228,7 +188,6 @@ TEST(test_parser, tokenizer3) {
   ASSERT_EQ(token_strs.at(1), "(");
   ASSERT_EQ(token_strs.at(2), "add");
   ASSERT_EQ(token_strs.at(3), "(");
-
   ASSERT_EQ(token_strs.at(4), "add");
   ASSERT_EQ(token_strs.at(5), "(");
 
@@ -237,12 +196,10 @@ TEST(test_parser, tokenizer3) {
   ASSERT_EQ(token_strs.at(8), "@1");
   ASSERT_EQ(token_strs.at(9), ")");
   ASSERT_EQ(token_strs.at(10), ",");
-  ASSERT_EQ(token_strs.at(11), "@2");
 
+  ASSERT_EQ(token_strs.at(11), "@2");
   ASSERT_EQ(token_strs.at(12), ")");
   ASSERT_EQ(token_strs.at(13), ",");
-
   ASSERT_EQ(token_strs.at(14), "mul");
   ASSERT_EQ(token_strs.at(15), "(");
-
 }

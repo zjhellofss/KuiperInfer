@@ -99,3 +99,61 @@ TEST(test_layer, max_pooling3) {
   ASSERT_EQ(output_tensor->at(0, 0, 1), 81);
   ASSERT_EQ(output_tensor->at(0, 0, 2), 123);
 }
+
+TEST(test_layer, max_pooling4) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(1, 3, 3);
+  arma::fmat data1("13  22 13;"
+                   "4   81 56;"
+                   "126 19 21");
+  input_tensor->at(0) = data1;
+
+  std::vector<std::shared_ptr<Tensor<float>>> input_tensors;
+  input_tensors.push_back(input_tensor);
+
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
+  std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(1, 2, 2);
+  output_tensors.push_back(output_tensor);
+
+  MaxPoolingLayer layer(0, 0, 2, 2, 1, 1);
+  const auto &status = layer.Forward(input_tensors, output_tensors);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(output_tensors.size(), 1);
+
+  ASSERT_EQ(output_tensor->at(0, 0, 0), 81);
+  ASSERT_EQ(output_tensor->at(0, 0, 1), 81);
+  ASSERT_EQ(output_tensor->at(0, 1, 0), 126);
+  ASSERT_EQ(output_tensor->at(0, 1, 1), 81);
+}
+
+
+TEST(test_layer, max_pooling5) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(1, 3, 3);
+  arma::fmat data1("13  22 13;"
+                   "4   81 56;"
+                   "126 19 21");
+  input_tensor->at(0) = data1;
+
+  std::vector<std::shared_ptr<Tensor<float>>> input_tensors;
+  input_tensors.push_back(input_tensor);
+
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
+  std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(1, 4, 4);
+  output_tensors.push_back(output_tensor);
+
+  MaxPoolingLayer layer(1, 1, 2, 2, 1, 1);
+  const auto &status = layer.Forward(input_tensors, output_tensors);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(output_tensors.size(), 1);
+
+  ASSERT_EQ(output_tensor->at(0, 0, 0), 13);
+  ASSERT_EQ(output_tensor->at(0, 0, 1), 22);
+  ASSERT_EQ(output_tensor->at(0, 0, 2), 22);
+  ASSERT_EQ(output_tensor->at(0, 0, 3), 13);
+
+  ASSERT_EQ(output_tensor->at(0, 2, 0), 126);
+  ASSERT_EQ(output_tensor->at(0, 2, 1), 126);
+  ASSERT_EQ(output_tensor->at(0, 2, 2), 81);
+  ASSERT_EQ(output_tensor->at(0, 2, 3), 56);
+}
