@@ -24,14 +24,16 @@ TEST(test_layer, forward_batchnorm1) {
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
-
-  const auto &output1 = output_tensors.at(0)->at(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/batchnorm/1.csv");
-  ASSERT_EQ(output1.size(), output2.size());
 
-  const uint32_t size = output1.size();
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_LE(abs(output1.at(i) - output2.at(i)), 1e-6);
+  for (int i = 0; i < batch_size; ++i) {
+    const auto &output1 = output_tensors.at(i)->at(0);
+    ASSERT_EQ(output1.size(), output2.size());
+
+    const uint32_t size = output1.size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_LE(abs(output1.at(j) - output2.at(j)), 1e-6);
+    }
   }
 }
 
@@ -54,22 +56,24 @@ TEST(test_layer, forward_batchnorm2) {
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->at(0);
-  const auto &output2 = CSVDataLoader::LoadData("tmp/batchnorm/2.csv");
-  ASSERT_EQ(output1.size(), output2.size());
+  for (int j = 0; j < batch_size; ++j) {
+    const auto &output1 = output_tensors.at(j)->at(0);
+    const auto &output2 = CSVDataLoader::LoadData("tmp/batchnorm/2.csv");
+    ASSERT_EQ(output1.size(), output2.size());
 
-  const uint32_t size = output1.size();
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_LE(abs(output1.at(i) - output2.at(i)), 1e-6);
-  }
+    const uint32_t size = output1.size();
+    for (uint32_t i = 0; i < size; ++i) {
+      ASSERT_LE(abs(output1.at(i) - output2.at(i)), 1e-6);
+    }
 
-  const auto &output3 = output_tensors.at(0)->at(63);
-  const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/3.csv");
-  ASSERT_EQ(output3.size(), output4.size());
+    const auto &output3 = output_tensors.at(j)->at(63);
+    const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/3.csv");
+    ASSERT_EQ(output3.size(), output4.size());
 
-  const uint32_t size2 = output3.size();
-  for (uint32_t i = 0; i < size2; ++i) {
-    ASSERT_LE(abs(output3.at(i) - output4.at(i)), 1e-6);
+    const uint32_t size2 = output3.size();
+    for (uint32_t i = 0; i < size2; ++i) {
+      ASSERT_LE(abs(output3.at(i) - output4.at(i)), 1e-6);
+    }
   }
 }
 
@@ -91,13 +95,14 @@ TEST(test_layer, forward_batchnorm3) {
 
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
+  for (int j = 0; j < batch_size; ++j) {
+    const auto &output3 = output_tensors.at(j)->at(63);
+    const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/5.csv");
+    ASSERT_EQ(output3.size(), output4.size());
 
-  const auto &output3 = output_tensors.at(0)->at(63);
-  const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/5.csv");
-  ASSERT_EQ(output3.size(), output4.size());
-
-  const uint32_t size2 = output3.size();
-  for (uint32_t i = 0; i < size2; ++i) {
-    ASSERT_LE(abs(output3.at(i) - output4.at(i)), 1e-6);
+    const uint32_t size2 = output3.size();
+    for (uint32_t i = 0; i < size2; ++i) {
+      ASSERT_LE(abs(output3.at(i) - output4.at(i)), 1e-6);
+    }
   }
 }
