@@ -3,7 +3,6 @@ find_package(OpenMP REQUIRED)
 find_package(glog REQUIRED)
 find_package(Armadillo REQUIRED)
 
-
 aux_source_directory(../test DIR_TEST)
 aux_source_directory(../source/data DIR_DATA)
 aux_source_directory(../source/runtime DIR_PARSER)
@@ -16,12 +15,13 @@ aux_source_directory(../source/parser DIR_PARSER)
 set(link_lib glog::glog pthread GTest::gtest)
 set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
 
-include_directories(${glog_INCLUDE_DIR})
-include_directories(${GTest_INCLUDE_DIR})
-
 add_executable(test_kuiper ${DIR_TEST} ${DIR_DATA} ${DIR_PARSER} ${DIR_BINOCULAR_LAYER} ${DIR_MONOCULAR_LAYER} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_SHAPE})
 
 target_link_libraries(test_kuiper ${link_lib} ${link_math_lib})
 target_link_libraries(test_kuiper OpenMP::OpenMP_CXX)
+
+target_include_directories(bench_kuiper PUBLIC ${glog_INCLUDE_DIR})
+target_include_directories(bench_kuiper PUBLIC ${GTest_INCLUDE_DIR})
+target_include_directories(bench_kuiper PUBLIC ${Armadillo_INCLUDE_DIR})
 
 
