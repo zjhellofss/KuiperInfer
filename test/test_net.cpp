@@ -6,13 +6,13 @@
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
 
-TEST(test_layer, forward_resnet18) {
+TEST(test_net, forward_resnet18) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/resnet/resnet18_batch1.param",
                      "tmp/resnet/resnet18_batch1.pnnx.bin");
-
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  int repeat_number = 1;
+  int repeat_number = 2;
+
   for (int i = 0; i < repeat_number; ++i) {
     std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
     input1->Fill(2.);
@@ -35,7 +35,7 @@ TEST(test_layer, forward_resnet18) {
   }
 }
 
-TEST(test_layer, forward_group_conv) {
+TEST(test_net, forward_group_conv) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/group_conv/group_conv.pnnx.param",
                      "tmp/group_conv/group_conv.pnnx.bin");
@@ -57,7 +57,7 @@ TEST(test_layer, forward_group_conv) {
   }
 }
 
-TEST(test_layer, forward_mobilenet) {
+TEST(test_net, forward_mobilenet1) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/mobilenet/mobile.pnnx.param",
                      "tmp/mobilenet/mobile.pnnx.bin");
@@ -81,7 +81,7 @@ TEST(test_layer, forward_mobilenet) {
   }
 }
 
-TEST(test_layer, forward_mobilenet_224) {
+TEST(test_net, forward_mobilenet2) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/mobilenet/mobile_224.pnnx.param",
                      "tmp/mobilenet/mobile_224.pnnx.bin");

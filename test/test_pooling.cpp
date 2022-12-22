@@ -9,8 +9,8 @@
 TEST(test_layer, forward_max_pooling1) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(2, 3, 4);
-  arma::fmat data1("1 2 13 31;"
-                   "4 6 16 7;"
+  arma::fmat data1("1  2  13 31;"
+                   "4  6  16 7;"
                    "16 19 21 5");
 
   arma::fmat data2("1  2   13   31 ;"
@@ -37,12 +37,14 @@ TEST(test_layer, forward_max_pooling1) {
   ASSERT_EQ(output_tensor->at(0, 0, 0), 6);
   ASSERT_EQ(output_tensor->at(0, 1, 0), 19);
   ASSERT_EQ(output_tensor->at(0, 0, 2), 31);
+  ASSERT_EQ(output_tensor->at(0, 1, 2), 21);
+  ASSERT_EQ(output_tensor->at(0, 1, 1), 21);
 
   ASSERT_EQ(output_tensor->at(1, 0, 0), 6);
   ASSERT_EQ(output_tensor->at(1, 1, 0), 19);
   ASSERT_EQ(output_tensor->at(1, 0, 2), 31);
   ASSERT_EQ(output_tensor->at(1, 1, 2), 21);
-
+  ASSERT_EQ(output_tensor->at(1, 1, 1), 21);
 }
 
 TEST(test_layer, forward_max_pooling2) {
@@ -126,7 +128,6 @@ TEST(test_layer, max_pooling4) {
   ASSERT_EQ(output_tensor->at(0, 1, 1), 81);
 }
 
-
 TEST(test_layer, max_pooling5) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(1, 3, 3);
@@ -145,6 +146,7 @@ TEST(test_layer, max_pooling5) {
   MaxPoolingLayer layer(1, 1, 2, 2, 1, 1);
   const auto &status = layer.Forward(input_tensors, output_tensors);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
+
   ASSERT_EQ(output_tensors.size(), 1);
 
   ASSERT_EQ(output_tensor->at(0, 0, 0), 13);
@@ -156,4 +158,9 @@ TEST(test_layer, max_pooling5) {
   ASSERT_EQ(output_tensor->at(0, 2, 1), 126);
   ASSERT_EQ(output_tensor->at(0, 2, 2), 81);
   ASSERT_EQ(output_tensor->at(0, 2, 3), 56);
+
+  ASSERT_EQ(output_tensor->at(0, 3, 0), 126);
+  ASSERT_EQ(output_tensor->at(0, 3, 1), 126);
+  ASSERT_EQ(output_tensor->at(0, 3, 2), 21);
+  ASSERT_EQ(output_tensor->at(0, 3, 3), 21);
 }
