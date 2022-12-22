@@ -96,13 +96,13 @@ TEST(test_layer, forward_batchnorm3) {
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
   for (int j = 0; j < batch_size; ++j) {
-    const auto &output3 = output_tensors.at(j)->at(63);
-    const auto &output4 = CSVDataLoader::LoadData("tmp/batchnorm/5.csv");
-    ASSERT_EQ(output3.size(), output4.size());
+    const auto &output1 = output_tensors.at(j)->at(63);
+    const auto &output2 = CSVDataLoader::LoadData("tmp/batchnorm/5.csv");
+    ASSERT_EQ(output1.size(), output2.size());
 
-    const uint32_t size2 = output3.size();
+    const uint32_t size2 = output1.size();
     for (uint32_t i = 0; i < size2; ++i) {
-      ASSERT_LE(abs(output3.at(i) - output4.at(i)), 1e-6);
+      ASSERT_LE(abs(output1.at(i) - output2.at(i)), 1e-6);
     }
   }
 }

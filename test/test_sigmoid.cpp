@@ -155,3 +155,26 @@ TEST(test_layer, forward_sigmoid6) {
   ASSERT_LE(std::abs(outputs.front()->index(2) - 0.9525741268224334f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(3) - 0.9820137900379085f), 1e-6);
 }
+
+TEST(test_layer, forward_sigmoid7) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 4);
+  input->index(0) = 11.f;
+  input->index(1) = 22.f;
+  input->index(2) = 33.f;
+  input->index(3) = 44.f;
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::shared_ptr<Tensor<float>> output1 = std::make_shared<Tensor<float>>(1, 1, 4);
+  outputs.push_back(output1);
+
+  SigmoidLayer sigmoid_layer;
+  const auto status = sigmoid_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_LE(std::abs(outputs.front()->index(0) - 0.999983298578152f), 1e-6);
+  ASSERT_LE(std::abs(outputs.front()->index(1) - 0.9999999997210531f), 1e-6);
+  ASSERT_LE(std::abs(outputs.front()->index(2) - 0.9999999999999953f), 1e-6);
+  ASSERT_LE(std::abs(outputs.front()->index(3) - 1.0f), 1e-6);
+}

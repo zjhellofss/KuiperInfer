@@ -40,6 +40,7 @@ TEST(test_net, forward_group_conv) {
   graph.Build("pnnx_input_0", "pnnx_output_0");
   std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(4, 16, 16);
   input1->Fill(2.f);
+
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
