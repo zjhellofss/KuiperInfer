@@ -67,3 +67,4 @@ static void BM_MobilenetV3(benchmark::State &state) {
 BENCHMARK(BM_Resnet18)->Iterations(kIterationNum);
 BENCHMARK(BM_Resnet18_Batch16)->Iterations(kIterationNum);
 BENCHMARK(BM_MobilenetV3)->Iterations(kIterationNum);
+BENCHMARK_MAIN();
