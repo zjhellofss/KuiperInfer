@@ -92,9 +92,9 @@ TEST(test_net, forward_mobilenet2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
-  int repeat_size = 3;
+  int repeat_size = 1;
   for (int i = 0; i < repeat_size; ++i) {
-    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
     ASSERT_EQ(outputs.size(), 1);
 
     const auto &output2 = CSVDataLoader::LoadData("tmp/mobilenet/3.csv");

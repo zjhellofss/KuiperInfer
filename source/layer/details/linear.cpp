@@ -36,10 +36,12 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     }
   }
 
-  CHECK(weights_.size() == 1 && bias_.size() == 1);
+  CHECK(weights_.size() == 1);
+  if (use_bias_) {
+    CHECK(bias_.size() == 1);
+  }
   uint32_t batch = inputs.size();
   const std::shared_ptr<Tensor<float>> &weight = weights_.front();
-
 
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
@@ -64,7 +66,14 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       CHECK(bias_data.n_rows == out_features_);
       result += bias_data.slice(0);
     }
-    outputs.at(i)->at(0) = std::move(result);
+
+    auto &output = outputs.at(i);
+    CHECK(output->channels() == 1);
+    const auto &output_raw_shapes = output->raw_shapes();
+    CHECK(output_raw_shapes.size() == 2);
+    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) ==1);
+
+    output->at(0) = std::move(result);
   }
   return InferStatus::kInferSuccess;
 }
