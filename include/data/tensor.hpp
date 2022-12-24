@@ -61,7 +61,7 @@ class Tensor<float> {
   uint32_t size() const;
 
   /**
-   * 初始化张量中的具体数据
+   * 设置张量中的具体数据
    * @param data 数据
    */
   void set_data(const arma::fcube &data);
@@ -143,7 +143,7 @@ class Tensor<float> {
   float &at(uint32_t channel, uint32_t row, uint32_t col);
 
   /**
-   * 填充张量的尺寸
+   * 填充张量
    * @param pads 填充张量的尺寸
    * @param padding_value 填充张量
    */
