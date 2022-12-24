@@ -27,8 +27,12 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   start_dim -= 1;
   CHECK(end_dim > start_dim);
   CHECK(end_dim <= 2 && start_dim >= 0);
+  const uint32_t batch_size = inputs.size();
+  if (outputs.empty()) {
+    outputs = std::vector<std::shared_ptr<Tensor<float>>>(batch_size);
+  }
 
-  for (uint32_t i = 0; i < inputs.size(); ++i) {
+  for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     const auto &shapes = input->shapes();
     uint32_t elements_size = 1;
@@ -50,8 +54,6 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     }
     if (outputs.size() > i) {
       outputs.at(i) = output;
-    } else {
-      outputs.push_back(output);
     }
   }
   return InferStatus::kInferSuccess;

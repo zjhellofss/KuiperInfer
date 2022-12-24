@@ -72,7 +72,7 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
     const auto &runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
     const std::vector<int32_t> &shapes = operand->shape;
-    auto &output_tensors = runtime_op->output_operands;
+    const auto &output_tensors = runtime_op->output_operands;
 
     const int32_t batch = shapes.at(0);
     CHECK(batch >= 0) << "Dynamic batch size is not supported!";
@@ -85,9 +85,10 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
       output_operand->name = operand->name + "_output";
       for (int j = 0; j < batch; ++j) {
         if (shapes.size() == 4) {
-          output_operand->datas.push_back(std::make_shared<Tensor<float>>(shapes.at(1), shapes.at(2), shapes.at(3)));
+          output_operand->datas.push_back(
+              std::make_shared < Tensor < float >> (shapes.at(1), shapes.at(2), shapes.at(3)));
         } else {
-          output_operand->datas.push_back(std::make_shared<Tensor<float>>(1, shapes.at(1), 1));
+          output_operand->datas.push_back(std::make_shared < Tensor < float >> (1, shapes.at(1), 1));
         }
       }
       runtime_op->output_operands = output_operand;
@@ -99,11 +100,12 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
       CHECK(output_tensors->shapes == shapes);
       for (const auto &output_tensors_data : output_tensors_datas) {
         const auto &tensor_shapes = output_tensors->shapes;
-        if (shapes.size() == 4)
-          CHECK(tensor_shapes.at(1) == shapes.at(1) && tensor_shapes.at(2) == shapes.at(2)
-                    && tensor_shapes.at(3) == shapes.at(3));
-        else
+        if (shapes.size() == 4) {
+          CHECK(tensor_shapes.at(1) == shapes.at(1)
+                    && tensor_shapes.at(2) == shapes.at(2) && tensor_shapes.at(3) == shapes.at(3));
+        } else {
           CHECK(tensor_shapes.at(0) == 1 && tensor_shapes.at(1) == shapes.at(1) && tensor_shapes.at(2) == 1);
+        }
       }
     }
   }
@@ -278,9 +280,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
       const std::string &current_op_name = current_op->name;
-//      if (debug) {
-//        LOG(INFO) << current_op_name;
-//      }
 
       bool has_ready = CheckOperatorReady(current_op);
       if (!has_ready) {
@@ -395,54 +394,54 @@ void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter> 
     const pnnx::Parameter &parameter = pair.second;
     const int type = parameter.type;
     switch (type) {
-      case 0: {
+      case int(RuntimeParameterType::kParameterUnknown): {
         RuntimeParameter *runtime_parameter = new RuntimeParameter;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 1: {
+      case int(RuntimeParameterType::kParameterBool): {
         RuntimeParameterBool *runtime_parameter = new RuntimeParameterBool;
         runtime_parameter->value = parameter.b;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 2: {
+      case int(RuntimeParameterType::kParameterInt): {
         RuntimeParameterInt *runtime_parameter = new RuntimeParameterInt;
         runtime_parameter->value = parameter.i;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 3: {
+      case int(RuntimeParameterType::kParameterFloat): {
         RuntimeParameterFloat *runtime_parameter = new RuntimeParameterFloat;
         runtime_parameter->value = parameter.f;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 4: {
+      case int(RuntimeParameterType::kParameterString): {
         RuntimeParameterString *runtime_parameter = new RuntimeParameterString;
         runtime_parameter->value = parameter.s;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 5: {
+      case int(RuntimeParameterType::kParameterIntArray): {
         RuntimeParameterIntArray *runtime_parameter = new RuntimeParameterIntArray;
         runtime_parameter->value = parameter.ai;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
-      case 6: {
+      case int(RuntimeParameterType::kParameterFloatArray): {
         RuntimeParameterFloatArray *runtime_parameter = new RuntimeParameterFloatArray;
         runtime_parameter->value = parameter.af;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
-      case 7: {
+      case int(RuntimeParameterType::kParameterStringArray): {
         RuntimeParameterStringArray *runtime_parameter = new RuntimeParameterStringArray;
         runtime_parameter->value = parameter.as;
         runtime_operator->params.insert({name, runtime_parameter});

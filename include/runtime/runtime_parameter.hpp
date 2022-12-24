@@ -9,13 +9,23 @@
 #include <vector>
 
 namespace kuiper_infer {
-struct RuntimeParameter {
+/**
+ * 计算节点中的参数信息，参数一共可以分为如下的几类
+ * 1.int
+ * 2.float
+ * 3.string
+ * 4.bool
+ * 5.int array
+ * 6.string array
+ * 7.float array
+ */
+struct RuntimeParameter { /// 计算节点中的参数信息
   virtual ~RuntimeParameter() = default;
 
-  explicit RuntimeParameter(RuntimeParameterType type = RuntimeParameterType::kParameterNull) : type(type) {
+  explicit RuntimeParameter(RuntimeParameterType type = RuntimeParameterType::kParameterUnknown) : type(type) {
 
   }
-  RuntimeParameterType type = RuntimeParameterType::kParameterNull;
+  RuntimeParameterType type = RuntimeParameterType::kParameterUnknown;
 };
 
 struct RuntimeParameterInt : public RuntimeParameter {

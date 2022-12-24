@@ -92,7 +92,7 @@ TEST(test_net, forward_mobilenet2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
 
-  int repeat_size = 1;
+  int repeat_size = 3;
   for (int i = 0; i < repeat_size; ++i) {
     std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
     ASSERT_EQ(outputs.size(), 1);
