@@ -88,7 +88,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
 ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                   std::shared_ptr<Layer> &linear_layer) {
-
+  CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto &params = op->params;
   if (params.find("bias") == params.end()) {
     return ParseParameterAttrStatus::kParameterMissingUseBias;

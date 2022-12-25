@@ -66,6 +66,7 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
 ParseParameterAttrStatus FlattenLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                    std::shared_ptr<Layer> &flatten_layer) {
+  CHECK(op != nullptr) << "Flatten operator is nullptr";
   const auto &params = op->params;
   if (params.find("end_dim") == params.end()) {
     return ParseParameterAttrStatus::kParameterMissingDim;

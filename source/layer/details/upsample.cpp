@@ -2,6 +2,7 @@
 // Created by fss on 22-12-25.
 //
 #include "upsample.hpp"
+#include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode)
     : Layer("upsample"), scale_h_(scale_h), scale_w_(scale_w), mode_(mode) {
@@ -61,4 +62,33 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
   }
   return InferStatus::kInferSuccess;
 }
+
+ParseParameterAttrStatus UpSampleLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                                    std::shared_ptr<Layer> &upsample_layer) {
+
+  CHECK(op != nullptr) << "Upsample operator is null";
+  const auto &params = op->params;
+  CHECK(!params.empty()) << "Operator parameter is empty";
+  if (params.find("scale_factor") == params.end()) {
+    return ParseParameterAttrStatus::kParameterMissingScale;
+  }
+
+  const auto &scale_param = params.at("scale_factor");
+  const auto &scales = dynamic_cast<RuntimeParameterFloatArray *>(params.at("scale_factor"));
+  if (scales == nullptr) {
+    return ParseParameterAttrStatus::kParameterMissingScale;
+  }
+  CHECK(scales->value.size() == 2) << "Scale factor need two dimension";
+
+  if (params.find("mode") == params.end()) {
+    return ParseParameterAttrStatus::kParameterMissingResizeMode;
+  }
+
+  const auto &mode = dynamic_cast<RuntimeParameterString *>(params.at("mode"));
+  CHECK(mode->value == "nearest") << "The mode " << mode->value << " is not supported!";
+  upsample_layer = std::make_shared<UpSampleLayer>(scales->value.at(0), scales->value.at(1));
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+}
+
+LayerRegistererWrapper kUpSamplerGetInstance("nn.Upsample", UpSampleLayer::GetInstance);
 }

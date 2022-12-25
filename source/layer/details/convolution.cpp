@@ -180,7 +180,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                        std::shared_ptr<Layer> &conv_layer) {
-  CHECK(op != nullptr);
+  CHECK(op != nullptr) << "Convolution operator is nullptr";
   const std::map<std::string, RuntimeParameter *> &params = op->params;
 
   if (params.find("in_channels") == params.end()) {

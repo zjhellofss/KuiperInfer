@@ -61,13 +61,16 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
 ParseParameterAttrStatus ViewLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                 std::shared_ptr<Layer> &view_layer) {
 
+  CHECK(op != nullptr) << "View operator is nullptr";
   const std::map<std::string, RuntimeParameter *> &params = op->params;
   if (params.find("shape") == params.end()) {
+    LOG(ERROR) << "View layer missing shape";
     return ParseParameterAttrStatus::kParameterMissingShape;
   }
 
   const auto &shape = dynamic_cast<RuntimeParameterIntArray *>(params.at("shape"));
   if (!shape) {
+    LOG(ERROR) << "View layer missing shape";
     return ParseParameterAttrStatus::kParameterMissingShape;
   }
   view_layer = std::make_shared<ViewLayer>(shape->value);

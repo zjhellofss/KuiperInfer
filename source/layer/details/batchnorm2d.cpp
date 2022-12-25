@@ -67,7 +67,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
 ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                        std::shared_ptr<Layer> &batch_layer) {
-  CHECK(op != nullptr) << "BatchNorm get instance failed, operator is null";
+  CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
 
   const auto &params = op->params;
   if (params.find("eps") == params.end()) {

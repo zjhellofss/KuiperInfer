@@ -52,7 +52,7 @@ InferStatus HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
 ParseParameterAttrStatus HardSigmoid::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                   std::shared_ptr<Layer> &hardsigmoid_layer) {
-  CHECK(op != nullptr) << "HardSigmoid operator is empty";
+  CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

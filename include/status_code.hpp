@@ -49,13 +49,15 @@ enum class ParseParameterAttrStatus {
   kParameterMissingOutHW = 11,
   kParameterMissingShape = 12,
   kParameterMissingGroups = 13,
+  kParameterMissingScale = 14,
+  kParameterMissingResizeMode = 15,
+
 
   kAttrMissingBias = 21,
   kAttrMissingWeight = 22,
   kAttrMissingRunningMean = 23,
   kAttrMissingRunningVar = 24,
-  kAttrMissingOutFeatures = 26,
-
+  kAttrMissingOutFeatures = 25,
   kParameterAttrParseSuccess = 0
 };
 }

@@ -3,6 +3,7 @@
 //
 
 #include "silu.hpp"
+#include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 
 SiLULayer::SiLULayer() : Layer("SiLU") {
@@ -42,4 +43,14 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
   return InferStatus::kInferSuccess;
 }
+
+ParseParameterAttrStatus SiLULayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                                std::shared_ptr<Layer> &silu_layer) {
+  CHECK(op != nullptr) << "SiLU operator is nullptr";
+  silu_layer = std::make_shared<SiLULayer>();
+  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+}
+
+LayerRegistererWrapper kSiluGetInstance("nn.SiLU", SiLULayer::GetInstance);
+
 }

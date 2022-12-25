@@ -17,6 +17,9 @@ class UpSampleLayer : public Layer {
 
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
+
+  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+                                              std::shared_ptr<Layer> &upsample_layer);
  private:
   float scale_h_ = 0.f;
   float scale_w_ = 0.f;

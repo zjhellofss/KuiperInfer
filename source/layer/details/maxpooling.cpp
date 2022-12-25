@@ -106,8 +106,8 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
 ParseParameterAttrStatus MaxPoolingLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                       std::shared_ptr<Layer> &max_layer) {
-  CHECK(op != nullptr) << "MaxPooling get instance failed, operator is null";
 
+  CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
   const std::map<std::string, RuntimeParameter *> &params = op->params;
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";

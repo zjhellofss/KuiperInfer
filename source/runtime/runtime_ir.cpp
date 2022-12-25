@@ -337,7 +337,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOperator> &op) {
   LOG_IF(FATAL, !op) << "Operator is empty!";
   const auto &layer = LayerRegisterer::CreateLayer(op);
-  LOG_IF(FATAL, !layer) << "Layer init failed";
+  LOG_IF(FATAL, !layer) << "Layer init failed " << op->type;
   return layer;
 }
 

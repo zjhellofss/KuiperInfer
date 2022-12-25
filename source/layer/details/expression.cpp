@@ -93,7 +93,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
 ParseParameterAttrStatus ExpressionLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                       std::shared_ptr<Layer> &expression_layer) {
-  CHECK(op != nullptr) << "ElementAdd operator is empty";
+  CHECK(op != nullptr) << "Expression operator is nullptr";
   const auto &params = op->params;
   if (params.find("expr") == params.end()) {
     return ParseParameterAttrStatus::kParameterMissingExpr;

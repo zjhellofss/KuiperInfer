@@ -2,19 +2,21 @@
 // Created by fss on 22-12-25.
 //
 
-#ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_SILU_HPP_
-#define KUIPER_INFER_SOURCE_LAYER_DETAILS_SILU_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
-class SiLULayer : public Layer {
+class CatLayer : public Layer {
  public:
-  explicit SiLULayer();
+  explicit CatLayer(int dim);
 
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                              std::shared_ptr<Layer> &silu_layer);
+                                       std::shared_ptr<Layer> &cat_layer);
+ private:
+  int32_t dim_ = 0;
 };
 }
-#endif //KUIPER_INFER_SOURCE_LAYER_DETAILS_SILU_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_DETAILS_CAT_HPP_

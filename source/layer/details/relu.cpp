@@ -38,7 +38,7 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
 }
 ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                 std::shared_ptr<Layer> &relu_layer) {
-  CHECK(op != nullptr) << "Relu operator is empty";
+  CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

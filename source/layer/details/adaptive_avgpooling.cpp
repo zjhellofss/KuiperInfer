@@ -82,6 +82,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
 
 ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                                   std::shared_ptr<Layer> &avg_layer) {
+  CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
   const auto &params = op->params;
   if (params.empty()) {
     return ParseParameterAttrStatus::kParameterMissingOutHW;
@@ -100,7 +101,6 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::sha
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper
-    kAdaptiveAdaAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
+LayerRegistererWrapper kAdaptiveAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
 
 }

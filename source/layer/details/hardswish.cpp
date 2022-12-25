@@ -49,7 +49,7 @@ InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
 ParseParameterAttrStatus HardSwishLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                                      std::shared_ptr<Layer> &hardswish_layer) {
-  CHECK(op != nullptr) << "HardSwishLayer operator is empty";
+  CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
   hardswish_layer = std::make_shared<HardSwishLayer>();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

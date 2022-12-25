@@ -15,7 +15,7 @@ aux_source_directory(../source/layer/monocular DIR_MONOCULAR_LAYER)
 set(link_lib glog::glog pthread benchmark::benchmark benchmark::benchmark_main)
 set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
 
-add_executable(bench_kuiper ${DIR_BENCH} ${DIR_DATA} ${DIR_BINOCULAR_LAYER} ${DIR_RUNTIME} ${DIR_MONOCULAR_LAYER} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER})
+add_executable(bench_kuiper ${DIR_BENCH} ${DIR_DATA} ${DIR_BINOCULAR_LAYER} ${DIR_RUNTIME} ${DIR_MONOCULAR_LAYER} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ../source/layer/details/cat.hpp ../source/layer/details/cat.cpp)
 target_link_libraries(bench_kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(bench_kuiper PUBLIC ${benchmark_INCLUDE_DIRS})
