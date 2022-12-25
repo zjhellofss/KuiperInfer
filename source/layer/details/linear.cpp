@@ -73,12 +73,15 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     }
 
     auto &output = outputs.at(i);
+    if (output == nullptr || output->empty()) {
+      output = std::make_shared<Tensor<float>>(1, out_features_, 1);
+    }
     CHECK(output->channels() == 1);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
-    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) ==1);
-
+    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == 1);
     output->at(0) = std::move(result);
+    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

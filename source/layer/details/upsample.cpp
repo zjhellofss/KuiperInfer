@@ -24,13 +24,14 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube &input_data = inputs.at(i)->data();
-    arma::fcube &output_data = outputs.at(i)->data();
-    if (output_data.empty()) {
-      output_data = arma::fcube(input_data.n_slices,
-                                uint32_t(input_data.n_rows * scale_h_), uint32_t(input_data.n_cols * scale_w_));
+    auto &output = outputs.at(i);
+    if (output == nullptr || output->empty()) {
+      output = std::make_shared<Tensor<float>>(input_data.n_slices,
+                                               uint32_t(input_data.n_rows * scale_h_),
+                                               uint32_t(input_data.n_cols * scale_w_));
     }
+    auto &output_data = output->data();
     CHECK(output_data.n_rows == input_data.n_rows * scale_h_) << "The height of the feature map is not adapting!";
-
     CHECK(output_data.n_cols == input_data.n_cols * scale_w_) << "The width of the feature map is not adapting!";
     CHECK(input_data.n_slices == output_data.n_slices) << "The channel of the feature map is not adapting!";
 
@@ -42,13 +43,13 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
       const uint32_t output_h = output_channel.n_rows;
 
       for (uint32_t w = 0; w < output_w; ++w) {
-        const uint32_t src_w = uint32_t((float) output_w / this->scale_w_);
+        const uint32_t src_w = uint32_t((float) w / this->scale_w_);
         CHECK(src_w < input_channel.n_cols);
         float *output_channel_ptr = output_channel.colptr(w);
         const float *input_channel_ptr = input_channel.colptr(src_w);
 
         for (uint32_t h = 0; h < output_h; ++h) {
-          const uint32_t src_h = uint32_t((float) output_h / this->scale_h_);
+          const uint32_t src_h = uint32_t((float) h / this->scale_h_);
           CHECK(src_h < input_channel.n_rows);
 
           const float src_value = *(input_channel_ptr + src_h);
@@ -56,6 +57,7 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
         }
       }
     }
+    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }
