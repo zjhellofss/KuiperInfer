@@ -33,7 +33,7 @@ InferStatus HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
     }
 
-    CHECK(output->size() == input->size()) << "The output size of hardsigmoid is error";
+    CHECK(output->shapes() == input->shapes()) << "The output size of hardsigmoid is error";
 
     output->set_data(input->data());
     output->Transform([](float val) {
