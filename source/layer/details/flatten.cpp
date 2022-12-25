@@ -12,6 +12,16 @@ FlattenLayer::FlattenLayer(int start_dim, int end_dim) : Layer("Flatten"), start
 InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                   std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
 
+  if (inputs.empty()) {
+    LOG(ERROR) << "The input feature map of flatten layer is empty";
+    return InferStatus::kInferFailedInputEmpty;
+  }
+
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
+
   int start_dim = start_dim_;
   int end_dim = end_dim_;
   int total_dims = 4; // NCHW
@@ -28,9 +38,6 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   CHECK(end_dim > start_dim);
   CHECK(end_dim <= 2 && start_dim >= 0);
   const uint32_t batch_size = inputs.size();
-  if (outputs.empty()) {
-    outputs = std::vector<std::shared_ptr<Tensor<float>>>(batch_size);
-  }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
@@ -52,9 +59,7 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     } else {
       LOG(FATAL) << "Wrong flatten dim: " << "start dim: " << start_dim << " end dim: " << end_dim;
     }
-    if (outputs.size() > i) {
-      outputs.at(i) = output;
-    }
+    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

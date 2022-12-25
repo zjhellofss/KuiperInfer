@@ -14,7 +14,7 @@ TEST(test_layer, forward_view1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
@@ -38,7 +38,7 @@ TEST(test_layer, forward_view2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
@@ -63,7 +63,7 @@ TEST(test_layer, forward_view3) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -90,7 +90,7 @@ TEST(test_layer, forward_view4) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
@@ -118,7 +118,7 @@ TEST(test_layer, forward_view5) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -145,7 +145,8 @@ TEST(test_layer, forward_view6) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
+
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -172,7 +173,7 @@ TEST(test_layer, forward_view7) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -201,7 +202,8 @@ TEST(test_layer, forward_view8) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
+
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -229,7 +231,7 @@ TEST(test_layer, forward_view9) {
   inputs.push_back(input);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 2);
@@ -256,7 +258,8 @@ TEST(test_layer, forward_view10) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   const auto status = view_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
@@ -289,7 +292,8 @@ TEST(test_layer, forward_view11) {
   input->Fill(values);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
@@ -317,7 +321,7 @@ TEST(test_layer, forward_view12) {
   input->Fill(values);
   inputs.push_back(input);
 
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   layer.Forward(inputs, outputs);
 
   for (int s = 0; s < outputs.size(); ++s) {

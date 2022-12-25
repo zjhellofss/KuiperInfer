@@ -20,7 +20,11 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     LOG(ERROR) << "The input feature map of average pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
-  CHECK(inputs.size() == outputs.size());
+
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
 
   const uint32_t batch = inputs.size();
   const uint32_t pooling_h = pooling_size_h_;
@@ -50,6 +54,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
     std::shared_ptr<Tensor<float>> input_data_;
+    CHECK(input_data == nullptr || !input_data->empty()) << "The input feature map of max pooling layer is empty";
 
     if (padding_h_ > 0 || padding_w_ > 0) {
       input_data_ = input_data->Clone();
@@ -57,17 +62,22 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     } else {
       input_data_ = input_data;
     }
+
     const uint32_t input_h = input_data_->rows();
     const uint32_t input_w = input_data_->cols();
     const uint32_t input_c = input_data_->channels();
-    const uint32_t output_c = input_c;
 
     const uint32_t output_h = uint32_t(std::floor((input_h - pooling_h) / stride_h_ + 1));
     const uint32_t output_w = uint32_t(std::floor((input_w - pooling_w) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
-    CHECK(output_data != nullptr);
-    CHECK(output_data->channels() == output_c && output_data->rows() == output_h && output_data->cols() == output_w);
+    if (output_data == nullptr || output_data->empty()) {
+      LOG(ERROR) << "The output size of maxpooling is error";
+      output_data = std::make_shared<Tensor<float>>(output_h, output_w, input_c);
+    }
+
+    CHECK(output_data->rows() == output_h && output_data->cols() == output_w
+              && output_data->channels() == input_c) << "The output size of maxpooling is error";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data_->at(ic);
@@ -89,6 +99,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         }
       }
     }
+    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }

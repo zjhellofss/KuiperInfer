@@ -13,7 +13,11 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     LOG(ERROR) << "The input feature map of batchnorm layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
-  CHECK(inputs.size() == outputs.size());
+
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
 
   const uint32_t mean_value_size = this->weights_.size();
   const uint32_t bias_value_size = this->bias_.size();
@@ -25,7 +29,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   const uint32_t batch_size = inputs.size();
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto &input = inputs.at(b);
-    if (input->empty()) {
+    if (input == nullptr || input->empty()) {
       LOG(ERROR) << "The input feature map of batchnorm layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
@@ -35,9 +39,13 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       return InferStatus::kInferFailedChannelParameterError;
     }
 
-    auto &output = outputs.at(b);
-    CHECK(output->rows() == input->rows() && output->cols() == input->cols() &&
-        output->channels() == input->channels());
+    std::shared_ptr<Tensor<float>> output = outputs.at(b);
+    if (output == nullptr || output->empty()) {
+      LOG(ERROR) << "The output size of batchnorm is empty";
+      output = std::make_shared<Tensor<float>>(input->rows(), input->cols(), input->channels());
+    }
+
+    CHECK(output->shapes() == input->shapes()) << "The output size of batchnorm is error";
 
     for (uint32_t i = 0; i < mean_value_size; ++i) {
       const float mean_value = weights_.at(i)->index(0);
@@ -52,6 +60,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       var_value_ = std::sqrt(var_value_);
       output->at(i) = (input->at(i) - mean_value) / var_value_;
     }
+    outputs.at(b) = output;
   }
   return InferStatus::kInferSuccess;
 }

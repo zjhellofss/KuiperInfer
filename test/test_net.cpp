@@ -94,7 +94,7 @@ TEST(test_net, forward_mobilenet2) {
 
   int repeat_size = 3;
   for (int i = 0; i < repeat_size; ++i) {
-    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
     ASSERT_EQ(outputs.size(), 1);
 
     const auto &output2 = CSVDataLoader::LoadData("tmp/mobilenet/3.csv");
@@ -106,3 +106,4 @@ TEST(test_net, forward_mobilenet2) {
     }
   }
 }
+

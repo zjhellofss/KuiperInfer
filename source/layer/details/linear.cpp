@@ -26,6 +26,11 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     return InferStatus::kInferFailedInputEmpty;
   }
 
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
+
   if (this->weights_.empty()) {
     LOG(ERROR) << "The weight parameters is empty";
     return InferStatus::kInferFailedWeightParameterError;

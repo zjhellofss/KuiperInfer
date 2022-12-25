@@ -86,9 +86,9 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
       for (int j = 0; j < batch; ++j) {
         if (shapes.size() == 4) {
           output_operand->datas.push_back(
-              std::make_shared < Tensor < float >> (shapes.at(1), shapes.at(2), shapes.at(3)));
+              std::make_shared<Tensor<float >>(shapes.at(1), shapes.at(2), shapes.at(3)));
         } else {
-          output_operand->datas.push_back(std::make_shared < Tensor < float >> (1, shapes.at(1), 1));
+          output_operand->datas.push_back(std::make_shared<Tensor<float >>(1, shapes.at(1), 1));
         }
       }
       runtime_op->output_operands = output_operand;
@@ -363,6 +363,10 @@ void RuntimeGraph::InitInputOperators(const std::vector<pnnx::Operand *> &inputs
     switch (input->type) {
       case 1: {
         runtime_operand->type = RuntimeDataType::kTypeFloat32;
+        break;
+      }
+      case 0: {
+        runtime_operand->type = RuntimeDataType::kTypeUnknown;
         break;
       }
       default: {

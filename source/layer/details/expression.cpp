@@ -14,6 +14,11 @@ ExpressionLayer::ExpressionLayer(const std::string &statement)
 
 InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+  if (inputs.empty()) {
+    LOG(ERROR) << "The input feature map of flatten layer is empty";
+    return InferStatus::kInferFailedInputEmpty;
+  }
+
   const uint32_t size = inputs.size();
   CHECK(size % 2 == 0);
   if (!size) {
@@ -27,6 +32,10 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   const auto &expression = expressions.front();
 
   const uint32_t batch_size = outputs.size();
+  if (batch_size == 0) {
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
+
   for (uint32_t i = 0; i < batch_size; ++i) {
     outputs.at(i)->Fill(0.f);
   }

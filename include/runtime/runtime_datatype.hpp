@@ -5,7 +5,7 @@
 #define KUIPER_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_
 /// 计算节点属性中的权重类型
 enum class RuntimeDataType {
-  kTypeUnknown = -1,
+  kTypeUnknown = 0,
   kTypeFloat32 = 1,
   kTypeFloat64 = 2,
   kTypeFloat16 = 3,

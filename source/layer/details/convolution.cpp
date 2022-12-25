@@ -32,9 +32,14 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
 
 InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
-  if (inputs.empty() || inputs.size() != outputs.size()) {
+  if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
+  }
+
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
   if (weights_.empty()) {
@@ -56,9 +61,9 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
 
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
+    CHECK(input != nullptr && !input->empty()) << "The input feature map of conv layer is empty";
 
     std::shared_ptr<Tensor<float>> input_;
     if (padding_h_ > 0 || padding_w_ > 0) {
@@ -73,7 +78,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     const uint32_t input_c = input_->channels();
 
     const uint32_t kernel_count = this->weights_.size();
-    std::shared_ptr<Tensor<float>> output_data;
 
     uint32_t kernel_h = this->weights_.at(0)->rows();
     uint32_t kernel_w = this->weights_.at(0)->cols();
@@ -136,15 +140,20 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
       }
 
-      CHECK(output_tensor != nullptr);
-      CHECK(output_tensor->channels() == kernel_count &&
-          output_tensor->rows() == output_h && output_tensor->cols() == output_w);
+      std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
+      if (output_tensor == nullptr || output_tensor->empty()) {
+        LOG(ERROR) << "The output size of convolution is empty";
+        output_tensor = std::make_shared<Tensor<float>>(output_h, output_w, input_c);
+      }
+
+      CHECK(output_tensor->rows() == output_h && output_tensor->cols() == output_w
+                && output_tensor->channels() == kernel_count) << "The output size of convolution is error";
 
       std::vector<arma::fmat> outputs_matrix(kernel_count_group);
       uint32_t thread_count = kernel_count_group < 32 ? kernel_count_group : 32;
 #pragma omp parallel for num_threads(thread_count)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        const arma::fmat& output = (kernel_matrix_arr.at(k)) * input_matrix;
+        const arma::fmat &output = (kernel_matrix_arr.at(k)) * input_matrix;
         outputs_matrix.at(k) = output;
       }
 
@@ -163,6 +172,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         }
         output_tensor->at(k + g * kernel_count_group) = std::move(output);
       }
+      outputs.at(i) = output_tensor;
     }
   }
   return InferStatus::kInferSuccess;

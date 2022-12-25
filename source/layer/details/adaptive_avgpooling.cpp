@@ -19,18 +19,21 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
     return InferStatus::kInferFailedInputEmpty;
   }
 
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
+
   if (output_w_ <= 0 || output_h_ <= 0) {
     LOG(ERROR) << "The size of the output feature map is less than zero";
     return InferStatus::kInferFailedOutputSizeError;
   }
-  CHECK(inputs.size() == outputs.size());
 
-  // 通过自适应方法中计算stride和pool size
   const uint32_t batch = inputs.size();
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
-    CHECK(!input_data->empty()) << "The input feature map of average pooling layer is empty";
+    CHECK(input_data == nullptr || !input_data->empty()) << "The input feature map of average pooling layer is empty";
 
     const uint32_t input_h = input_data->rows();
     const uint32_t input_w = input_data->cols();
@@ -41,10 +44,17 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
 
     const uint32_t pooling_h = input_h - (output_h_ - 1) * stride_h;
     const uint32_t pooling_w = input_w - (output_w_ - 1) * stride_w;
+    CHECK(pooling_w > 0 && pooling_h > 0)
+            << "The pooling parameter is set incorrectly. It must always be greater than 0";
 
-    const std::shared_ptr<Tensor<float>> &output_data = outputs.at(i);
-    CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_
-              && output_data->channels() == input_c) << "The output size of adaptive pooling is error";
+    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
+    if (output_data == nullptr || output_data->empty()) {
+      LOG(ERROR) << "The output size of adaptive pooling is empty";
+      output_data = std::make_shared<Tensor<float>>(output_h_, output_w_, input_c);
+    }
+
+    CHECK (output_data->rows() == output_h_ && output_data->cols() == output_w_
+               && output_data->channels() == input_c) << "The output size of adaptive pooling is error";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data->at(ic);
@@ -65,6 +75,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
         }
       }
     }
+    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }
@@ -89,6 +100,7 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::sha
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kAdaptiveAdaAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
+LayerRegistererWrapper
+    kAdaptiveAdaAvgpoolingGetInstance("nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
 
 }

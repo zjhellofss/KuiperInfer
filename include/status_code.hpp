@@ -26,6 +26,7 @@ enum class InferStatus {
   kInferFailedStrideParameterError = 4,
   kInferFailedDimensionParameterError = 5,
   kInferFailedChannelParameterError = 6,
+  kInferFailedInputOutSizeAdaptingError = 6,
 
   kInferFailedOutputSizeError = 7,
   kInferFailedOperationUnknown = 8,

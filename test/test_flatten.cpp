@@ -64,7 +64,8 @@ TEST(test_layer, forward_flatten_layer1) {
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, 3);
@@ -98,7 +99,8 @@ TEST(test_layer, forward_flatten_layer2) {
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, -1); // 1 3 -> 0 2
@@ -134,7 +136,8 @@ TEST(test_layer, forward_flatten_layer3) {
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, 2); // 0 1
@@ -170,7 +173,8 @@ TEST(test_layer, forward_flatten_layer4) {
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(1, -2); // 0 1
@@ -207,7 +211,8 @@ TEST(test_layer, forward_flatten_layer5) {
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
   inputs.push_back(input);
 
   FlattenLayer flatten_layer(2, 3); // 1 2

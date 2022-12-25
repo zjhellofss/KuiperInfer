@@ -14,20 +14,24 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     LOG(ERROR) << "The input feature map of flatten layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
-  CHECK(!shapes_.empty());
+
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR) << "The size of input and output feature map is not adapting!";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
+
+  CHECK(!shapes_.empty()) << "The shape parameter is empty!";
   const uint32_t batch_size = inputs.size();
-  CHECK(shapes_.front() != -1 && shapes_.front() == batch_size);
+  CHECK(shapes_.front() != -1 && shapes_.front() == batch_size) << "The shape parameter is wrong!";
 
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
-    if (input_data->empty()) {
-      LOG(ERROR) << "The input feature map of flatten layer is empty";
-      return InferStatus::kInferFailedInputEmpty;
-    }
+    CHECK(input_data != nullptr && !input_data->empty()) << "The input feature map of view layer is empty";
+
     // 检查形状中-1的数量
+    int zero_index = -1;
     uint32_t total_size = input_data->size();
     uint32_t current_size = 1;
-    int zero_index = -1;
 
     std::vector<uint32_t> shapes;
     for (int j = 1; j < shapes_.size(); ++j) {
@@ -49,11 +53,7 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     }
     std::shared_ptr<Tensor<float>> output_data = input_data->Clone();
     output_data->ReRawshape(shapes);
-    if (outputs.size() > i) {
-      outputs.at(i) = output_data;
-    } else {
-      outputs.push_back(output_data);
-    }
+    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }
