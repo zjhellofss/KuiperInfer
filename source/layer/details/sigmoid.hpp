@@ -8,7 +8,7 @@
 namespace kuiper_infer {
 class SigmoidLayer : public Layer {
  public:
-  SigmoidLayer(): Layer("Sigmoid"){
+  explicit SigmoidLayer(): Layer("Sigmoid"){
 
   }
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,

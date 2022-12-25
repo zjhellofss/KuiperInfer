@@ -178,3 +178,47 @@ TEST(test_layer, forward_sigmoid7) {
   ASSERT_LE(std::abs(outputs.front()->index(2) - 0.9999999999999953f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(3) - 1.0f), 1e-6);
 }
+
+TEST(test_layer, forward_sigmoid8) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 32, 32);
+  input->Rand();
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
+  SigmoidLayer sigmoid_layer;
+  const auto status = sigmoid_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  for (int i = 0; i < inputs.size(); ++i) {
+    std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
+    std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
+    CHECK(input_->size() == output_->size());
+    uint32_t size = input_->size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_EQ(output_->index(j), 1.f / (1 + std::exp(-input_->index(j))));
+    }
+  }
+}
+
+TEST(test_layer, forward_sigmoid9) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(320, 132, 322);
+  input->Rand();
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
+  SigmoidLayer sigmoid_layer;
+  const auto status = sigmoid_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  for (int i = 0; i < inputs.size(); ++i) {
+    std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
+    std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
+    CHECK(input_->size() == output_->size());
+    uint32_t size = input_->size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_EQ(output_->index(j), 1.f / (1 + std::exp(-input_->index(j))));
+    }
+  }
+}

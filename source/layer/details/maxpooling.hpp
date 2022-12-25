@@ -8,7 +8,7 @@
 namespace kuiper_infer {
 class MaxPoolingLayer : public Layer {
  public:
-  MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
+  explicit MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
                   uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w);
 
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,

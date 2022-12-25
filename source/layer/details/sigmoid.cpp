@@ -35,7 +35,7 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     CHECK (output->shapes() == input->shapes()) << "The output size of sigmoid is error";
 
     output->set_data(input->data());
-    arma::fcube &output_data_cube = outputs.at(i)->data();
+    arma::fcube &output_data_cube = output->data();
     output_data_cube = 1 / (1 + arma::exp(-output_data_cube));
     outputs.at(i) = output;
   }
