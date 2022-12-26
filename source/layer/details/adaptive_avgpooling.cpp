@@ -89,11 +89,13 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::sha
   }
   const auto &output_hw = dynamic_cast<RuntimeParameterIntArray *>(params.at("output_size"));
   if (!output_hw) {
+    LOG(ERROR) << "Can not find the output size parameter";
     return ParseParameterAttrStatus::kParameterMissingOutHW;
   }
 
   const auto &output_hw_arr = output_hw->value;
   if (output_hw_arr.size() != 2) {
+    LOG(ERROR) << "Can not find the output size parameter";
     return ParseParameterAttrStatus::kParameterMissingOutHW;
   }
 

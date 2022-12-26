@@ -70,17 +70,20 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(const std::shared_ptr<Runtim
   const auto &params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
   if (params.find("scale_factor") == params.end()) {
+    LOG(ERROR) << "Can not find the scale factor parameter";
     return ParseParameterAttrStatus::kParameterMissingScale;
   }
 
   const auto &scale_param = params.at("scale_factor");
   const auto &scales = dynamic_cast<RuntimeParameterFloatArray *>(params.at("scale_factor"));
   if (scales == nullptr) {
+    LOG(ERROR) << "Can not find the scale factor parameter";
     return ParseParameterAttrStatus::kParameterMissingScale;
   }
   CHECK(scales->value.size() == 2) << "Scale factor need two dimension";
 
   if (params.find("mode") == params.end()) {
+    LOG(ERROR) << "Can not find the mode parameter";
     return ParseParameterAttrStatus::kParameterMissingResizeMode;
   }
 

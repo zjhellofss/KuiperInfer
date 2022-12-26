@@ -91,20 +91,24 @@ ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeO
   CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto &params = op->params;
   if (params.find("bias") == params.end()) {
+    LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
   const auto &use_bias_param = dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
   if (use_bias_param == nullptr) {
+    LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
 
   const auto &attr = op->attribute;
   if (attr.find("weight") == attr.end()) {
+    LOG(ERROR) << "Can not find the weight parameter";
     return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 
   if (use_bias_param->value) {
     if (attr.find("bias") == attr.end()) {
+      LOG(ERROR) << "Can not find the bias parameter";
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
   }

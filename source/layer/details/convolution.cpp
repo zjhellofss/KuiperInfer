@@ -276,7 +276,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
     const auto &bias = attrs.at("bias");
     const std::vector<int> &bias_shape = bias->shape;
     if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
-      LOG(ERROR) << "Bias shape is wrong";
+      LOG(ERROR) << "The attribute of bias shape is wrong";
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
 
@@ -292,7 +292,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const auto &weight = attrs.at("weight");
   const std::vector<int> &weight_shape = weight->shape;
   if (weight_shape.empty()) {
-    LOG(ERROR) << "Weight shape is empty";
+    LOG(ERROR) << "The attribute of weight shape is wrong";
     return ParseParameterAttrStatus::kAttrMissingWeight;
   }
 

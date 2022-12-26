@@ -69,9 +69,11 @@ ParseParameterAttrStatus FlattenLayer::GetInstance(const std::shared_ptr<Runtime
   CHECK(op != nullptr) << "Flatten operator is nullptr";
   const auto &params = op->params;
   if (params.find("end_dim") == params.end()) {
+    LOG(ERROR) << "Can not find the dimension parameter";
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
   if (params.find("start_dim") == params.end()) {
+    LOG(ERROR) << "Can not find the dimension parameter";
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
   const auto &start_dim = dynamic_cast<RuntimeParameterInt *>(params.at("start_dim"));
