@@ -58,6 +58,10 @@ enum class ParseParameterAttrStatus {
   kAttrMissingRunningMean = 23,
   kAttrMissingRunningVar = 24,
   kAttrMissingOutFeatures = 25,
+  kAttrMissingYoloStrides= 26,
+  kAttrMissingYoloAnchorGrides= 27,
+  kAttrMissingYoloGrides= 28,
+
   kParameterAttrParseSuccess = 0
 };
 }

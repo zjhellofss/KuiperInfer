@@ -256,9 +256,20 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(const std::shared_ptr<Run
   const std::vector<int> &kernels = kernel->value;
   const std::vector<int> &paddings = padding->value;
   const std::vector<int> &strides = stride->value;
-  CHECK(kernels.size() == dims);
-  CHECK(strides.size() == dims);
-  CHECK(paddings.size() == dims);
+  if (paddings.size() != dims) {
+    LOG(ERROR) << "Can not find the right padding parameter";
+    return ParseParameterAttrStatus::kParameterMissingPadding;
+  }
+
+  if (strides.size() != dims) {
+    LOG(ERROR) << "Can not find the right stride parameter";
+    return ParseParameterAttrStatus::kParameterMissingStride;
+  }
+
+  if (kernels.size() != dims) {
+    LOG(ERROR) << "Can not find the right kernel size parameter";
+    return ParseParameterAttrStatus::kParameterMissingKernel;
+  }
 
   // kernel的方向是倒置的
   conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value,

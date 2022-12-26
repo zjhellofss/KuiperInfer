@@ -145,9 +145,21 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(const std::shared_ptr<Runt
   const auto &stride_values = stride->value;
   const auto &kernel_values = kernel_size->value;
 
-  CHECK(padding_values.size() == 2);
-  CHECK(stride_values.size() == 2);
-  CHECK(kernel_values.size() == 2);
+  const uint32_t dims = 2;
+  if (padding_values.size() != dims) {
+    LOG(ERROR) << "Can not find the right padding parameter";
+    return ParseParameterAttrStatus::kParameterMissingPadding;
+  }
+
+  if (stride_values.size() != dims) {
+    LOG(ERROR) << "Can not find the right stride parameter";
+    return ParseParameterAttrStatus::kParameterMissingStride;
+  }
+
+  if (kernel_values.size() != dims) {
+    LOG(ERROR) << "Can not find the right kernel size parameter";
+    return ParseParameterAttrStatus::kParameterMissingKernel;
+  }
 
   max_layer = std::make_shared<MaxPoolingLayer>(padding_values.at(0), padding_values.at(1),
                                                 kernel_values.at(0), kernel_values.at(1),
