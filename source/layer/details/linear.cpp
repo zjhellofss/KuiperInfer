@@ -76,7 +76,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, out_features_, 1);
     }
-    CHECK(output->channels() == 1);
+    CHECK(output->channels() == 1 && output->rows() == out_features_ && output->cols() == 1);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
     CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == 1);

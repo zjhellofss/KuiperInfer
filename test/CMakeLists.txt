@@ -16,6 +16,7 @@ set(link_lib glog::glog pthread GTest::gtest)
 set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
 
 add_executable(test_kuiper ${DIR_TEST} ${DIR_DATA} ${DIR_PARSER} ${DIR_BINOCULAR_LAYER} ${DIR_MONOCULAR_LAYER} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_SHAPE} test_cat.cpp)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
 
 target_link_libraries(test_kuiper ${link_lib} ${link_math_lib})
 target_link_libraries(test_kuiper OpenMP::OpenMP_CXX)

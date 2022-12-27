@@ -42,7 +42,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
       LOG(ERROR) << "The output size of batchnorm is empty";
-      output = std::make_shared<Tensor<float>>(input->rows(), input->cols(), input->channels());
+      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
     }
 
     CHECK(output->shapes() == input->shapes()) << "The output size of batchnorm is error";

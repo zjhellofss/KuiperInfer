@@ -73,7 +73,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
       LOG(ERROR) << "The output size of maxpooling is error";
-      output_data = std::make_shared<Tensor<float>>(output_h, output_w, input_c);
+      output_data = std::make_shared<Tensor<float>>(input_c, output_h, output_w);
     }
 
     CHECK(output_data->rows() == output_h && output_data->cols() == output_w

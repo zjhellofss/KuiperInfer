@@ -99,7 +99,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     }
 
     uint32_t row_len = kernel_w * kernel_h;
-    uint32_t col_len = ((input_w - kernel_w + 1) / stride_w_) * ((input_h - kernel_w + 1) / stride_h_);
+    uint32_t col_len = output_h * output_w;
     if (!col_len) {
       col_len = 1;
     }
@@ -143,7 +143,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
         LOG(ERROR) << "The output size of convolution is empty";
-        output_tensor = std::make_shared<Tensor<float>>(output_h, output_w, input_c);
+        output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
       }
 
       CHECK(output_tensor->rows() == output_h && output_tensor->cols() == output_w

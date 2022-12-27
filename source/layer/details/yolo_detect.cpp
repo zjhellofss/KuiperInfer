@@ -21,6 +21,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   if (inputs.empty()) {
     return InferStatus::kInferFailedInputEmpty;
   }
+
   const uint32_t input_size = inputs.size(); // 12
   const uint32_t batch_size = outputs.size(); // 4
   CHECK(input_size % batch_size == 0);
@@ -41,6 +42,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   CHECK(tensor_numbers == input_size);
+  std::vector<std::shared_ptr<Tensor<float>>> z(stages);
   for (uint32_t stage = 0; stage < stages; ++stage) {
     // conv
     const std::vector<std::shared_ptr<Tensor<float>>> &stage_input = batches.at(stage);
@@ -52,6 +54,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     CHECK(stage_output.size() == batch_size);
     std::shared_ptr<Tensor<float>> x_stages_tensor;
+    // stage_output: 4 255 80 80
     for (uint32_t b = 0; b < batch_size; ++b) {
       // 255 80 80
       std::shared_ptr<Tensor<float>> input = stage_output.at(b);
@@ -62,15 +65,31 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
       }
 
-      // 255 80 80 ---> 3 85 80 * 80
+      // 255, 80, 80 ---> 3, 85, 6400
       input->ReRawshape({stages, uint32_t(num_classes_ + 5), ny * nx});
-      // x_stages 19200 85
-      arma::fmat &x_stages = x_stages_tensor->at(b);
+      // x_stages: 19200 85
+      arma::fmat x_stages = x_stages_tensor->at(b);
+
       for (uint32_t s = 0; s < stages; ++s) {
+        // 85, 6400 ---> 6400, 85
         x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1, num_classes_ + 5 - 1) = input->at(s).t();
       }
+
+      x_stages.transform([](float value) {
+        return 1 / (1 + std::exp(-value));
+      });
+
+      arma::fmat xy = x_stages.submat(0, 0, x_stages.n_rows, 1);
+      arma::fmat wh = x_stages.submat(0, 2, x_stages.n_rows, 3);
+
+      xy = xy * 2 + grids_[stage] * strides_[stage];
+      wh = arma::pow((wh * 2), 2) % anchor_grids_[stage];
+      x_stages.submat(0, 0, x_stages.n_rows, 1) = xy;
+      x_stages.submat(0, 2, x_stages.n_rows, 3) = wh;
     }
+    z.at(stage) = x_stages_tensor;
   }
+  return InferStatus::kInferSuccess;
 }
 
 ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
@@ -116,9 +135,9 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const std::vector<float> &weights = conv_attr->get<float>();
     conv_layers.at(i)->set_weights(weights);
 
-    const std::string &bias_name = "m" + std::to_string(i) + ".bias";
+    const std::string &bias_name = "m." + std::to_string(i) + ".bias";
     if (attrs.find(bias_name) == attrs.end()) {
-      return ParseParameterAttrStatus::kAttrMissingWeight;
+      return ParseParameterAttrStatus::kAttrMissingBias;
     }
     const auto &bias_attr = attrs.at(bias_name);
     const std::vector<float> &bias = bias_attr->get<float>();
@@ -135,9 +154,11 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const auto &anchor_grid = anchor_grid_attr->second;
     const auto &anchor_shapes = anchor_grid->shape;
     const std::vector<float> &anchor_weight_data = anchor_grid->get<float>();
-    CHECK(anchor_shapes.size() == 4 && anchor_shapes.front() == 1);
-    const uint32_t anchor_rows = anchor_shapes.at(1) * anchor_shapes.at(2);
-    const uint32_t anchor_cols = anchor_shapes.at(3);
+    CHECK(anchor_shapes.size() == 5 && anchor_shapes.front() == 1);
+    const uint32_t anchor_rows = anchor_shapes.at(1) * anchor_shapes.at(2) * anchor_shapes.at(3);
+    const uint32_t anchor_cols = anchor_shapes.at(4);
+    CHECK(anchor_weight_data.size() == anchor_cols * anchor_rows);
+
     arma::fmat anchor_grid_matrix(anchor_weight_data.data(), anchor_cols, anchor_rows);
     anchor_grids.emplace_back(anchor_grid_matrix.t());
   }
@@ -152,13 +173,13 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     }
     const auto &grid = grid_attr->second;
     const auto &shapes = grid->shape;
-    const std::vector<float> &anchor_weight_data = grid->get<float>();
-    CHECK(shapes.size() == 4 && shapes.front() == 1);
-    const uint32_t grid_rows = shapes.at(1) * shapes.at(2);
-    const uint32_t grid_cols = shapes.at(3);
-    CHECK(anchor_weight_data.size() == grid_cols * grid_rows);
+    const std::vector<float> &weight_data = grid->get<float>();
+    CHECK(shapes.size() == 5 && shapes.front() == 1);
+    const uint32_t grid_rows = shapes.at(1) * shapes.at(2) * shapes.at(3);
+    const uint32_t grid_cols = shapes.at(4);
+    CHECK(weight_data.size() == grid_cols * grid_rows);
 
-    arma::fmat matrix(anchor_weight_data.data(), grid_cols, grid_rows);
+    arma::fmat matrix(weight_data.data(), grid_cols, grid_rows);
     grids.emplace_back(matrix.t());
   }
   yolo_detect_layer =

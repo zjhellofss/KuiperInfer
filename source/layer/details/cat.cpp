@@ -25,30 +25,25 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
   CHECK(inputs.size() % outputs.size() == 0);
   const uint32_t packet_size = inputs.size() / outputs.size();
 
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const uint32_t pos_index = i * packet_size;
-    uint32_t total_channels = 0;
-    const uint32_t rows = inputs.at(pos_index)->rows();
-    const uint32_t cols = inputs.at(pos_index)->cols();
-
-    for (uint32_t j = 0; j < packet_size; ++j) {
-      total_channels += inputs.at(j + pos_index)->channels();
-      CHECK(rows == inputs.at(j + pos_index)->rows());
-      CHECK(cols == inputs.at(j + pos_index)->cols());
-    }
-
+  for (uint32_t i = 0; i < outputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
-    if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(total_channels, rows, cols);
-    }
+    uint32_t start_channel = 0;
+    uint32_t rows = inputs.front()->rows();
+    uint32_t cols = inputs.front()->cols();
 
-    CHECK(output->channels() == total_channels && output->rows() == rows && output->cols() == cols);
-    for (uint32_t j = 0; j < packet_size; ++j) {
-      const std::shared_ptr<Tensor<float>> &input = inputs.at(j + pos_index);
-      const uint32_t channels = input->channels();
-      for (uint32_t c = 0; c < channels; ++c) {
-        output->at(j * channels + c) = input->at(c);
+    for (uint32_t j = i; j < inputs.size(); j += batch_size) {
+      const std::shared_ptr<Tensor<float>> &input = inputs.at(j);
+      const uint32_t in_channels = input->channels();
+      CHECK(rows == input->rows() && cols == input->cols());
+
+      if (output == nullptr || output->empty()) {
+        output = std::make_shared<Tensor<float>>(in_channels * packet_size, rows, cols);
       }
+      CHECK(output->channels() == in_channels * packet_size && output->rows() == rows && output->cols() == cols);
+      for (uint32_t c = 0; c < in_channels; ++c) {
+        output->at(start_channel + c) = input->at(c);
+      }
+      start_channel += input->channels();
     }
     outputs.at(i) = output;
   }
@@ -76,5 +71,4 @@ ParseParameterAttrStatus CatLayer::GetInstance(const std::shared_ptr<RuntimeOper
 }
 
 LayerRegistererWrapper kCatGetInstance("torch.cat", CatLayer::GetInstance);
-
 }

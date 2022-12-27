@@ -28,7 +28,8 @@ void RuntimeGraphShape::InitOperatorInputTensor(const std::vector<std::shared_pt
 
         const int32_t batch = shapes.at(0);
         CHECK(batch >= 0) << "Dynamic batch size is not supported!";
-        CHECK(shapes.size() == 2 || shapes.size() == 4) << "Unsupported shape sizes: " << shapes.size();
+        CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
+                << "Unsupported shape sizes: " << shapes.size();
 
         if (!input_datas.empty()) {
           CHECK(input_datas.size() == batch) << "Batch size is wrong!";
@@ -38,8 +39,11 @@ void RuntimeGraphShape::InitOperatorInputTensor(const std::vector<std::shared_pt
             if (current_shape.size() == 4) {
               CHECK(origin_shape.at(0) == current_shape.at(1) &&
                   origin_shape.at(1) == current_shape.at(2) && origin_shape.at(2) == current_shape.at(3));
-            } else {
+            } else if (current_shape.size() == 2) {
               CHECK(origin_shape.at(1) == current_shape.at(1) && origin_shape.at(0) == 1 && origin_shape.at(2) == 1);
+            } else {
+              CHECK(origin_shape.at(1) == current_shape.at(1) && origin_shape.at(0) == 1
+                        && origin_shape.at(2) == current_shape.at(2));
             }
           }
         } else {
@@ -47,8 +51,10 @@ void RuntimeGraphShape::InitOperatorInputTensor(const std::vector<std::shared_pt
           for (int32_t i = 0; i < batch; ++i) {
             if (shapes.size() == 4) {
               input_datas.at(i) = std::make_shared<Tensor<float>>(shapes.at(1), shapes.at(2), shapes.at(3));
-            } else {
+            } else if (shapes.size() == 2) {
               input_datas.at(i) = std::make_shared<Tensor<float>>(1, shapes.at(1), 1);
+            } else {
+              input_datas.at(i) = std::make_shared<Tensor<float>>(1, shapes.at(1), shapes.at(2));
             }
           }
         }
@@ -76,7 +82,8 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
 
     const int32_t batch = shapes.at(0);
     CHECK(batch >= 0) << "Dynamic batch size is not supported!";
-    CHECK(shapes.size() == 2 || shapes.size() == 4) << "Unsupported shape sizes: " << shapes.size();
+    CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
+            << "Unsupported shape sizes: " << shapes.size();
 
     if (!output_tensors) {
       std::shared_ptr<RuntimeOperand> output_operand = std::make_shared<RuntimeOperand>();
@@ -87,8 +94,10 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
         if (shapes.size() == 4) {
           output_operand->datas.push_back(
               std::make_shared<Tensor<float >>(shapes.at(1), shapes.at(2), shapes.at(3)));
-        } else {
+        } else if (shapes.size() == 2) {
           output_operand->datas.push_back(std::make_shared<Tensor<float >>(1, shapes.at(1), 1));
+        } else {
+          output_operand->datas.push_back(std::make_shared<Tensor<float >>(1, shapes.at(1), shapes.at(2)));
         }
       }
       runtime_op->output_operands = output_operand;
@@ -103,8 +112,10 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
         if (shapes.size() == 4) {
           CHECK(tensor_shapes.at(1) == shapes.at(1)
                     && tensor_shapes.at(2) == shapes.at(2) && tensor_shapes.at(3) == shapes.at(3));
-        } else {
+        } else if (shapes.size() == 2) {
           CHECK(tensor_shapes.at(0) == 1 && tensor_shapes.at(1) == shapes.at(1) && tensor_shapes.at(2) == 1);
+        } else {
+          CHECK(tensor_shapes.at(0) == 1 && tensor_shapes.at(1) == shapes.at(1) && tensor_shapes.at(2) == shapes.at(2));
         }
       }
     }
@@ -264,7 +275,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   operator_queue.push_back(input_op);
 
   while (!operator_queue.empty()) {
-
     std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
     operator_queue.pop_front();
 
@@ -279,7 +289,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas = inputs;
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
-      const std::string &current_op_name = current_op->name;
+      std::string current_op_name = current_op->name;
 
       bool has_ready = CheckOperatorReady(current_op);
       if (!has_ready) {
@@ -306,17 +316,12 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       if (debug) {
         const double duration =
             std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
+        std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
         LOG(INFO) << current_op_name << " " << duration << "s";
       }
 
       CHECK(status == InferStatus::kInferSuccess)
               << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
-
-//      if (debug) {
-//        for (const auto &output_data : layer_output_datas) {
-//          LOG(INFO) << "\n" << output_data->data().slice(0);
-//        }
-//      }
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     }
   }

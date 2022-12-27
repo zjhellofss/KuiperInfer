@@ -32,6 +32,7 @@ InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
     }
 
     CHECK(output->shapes() == input->shapes())<<"The output size of hardswish is error";
+
     output->set_data(input->data());
     output->Transform([](float val) {
       if (val <= -3.f) {
