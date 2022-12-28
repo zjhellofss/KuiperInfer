@@ -15,7 +15,7 @@ TEST(test_net, forward_yolo1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 640, 640);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 64, 64);
     input->Ones();
     inputs.push_back(input);
   }

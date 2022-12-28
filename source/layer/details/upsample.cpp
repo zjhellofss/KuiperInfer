@@ -23,6 +23,7 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
   LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest) << "Unsupported upsample mode: " << int(mode_);
 
   const uint32_t batch_size = inputs.size();
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube &input_data = inputs.at(i)->data();
     auto &output = outputs.at(i);

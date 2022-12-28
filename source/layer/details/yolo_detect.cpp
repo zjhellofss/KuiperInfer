@@ -22,6 +22,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     return InferStatus::kInferFailedInputEmpty;
   }
 
+  const uint32_t classes_info = num_classes_ + 5;
   const uint32_t input_size = inputs.size(); // 12
   const uint32_t batch_size = outputs.size(); // 4
   CHECK(input_size % batch_size == 0);
@@ -42,9 +43,10 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   CHECK(tensor_numbers == input_size);
-  std::vector<std::shared_ptr<Tensor<float>>> z(stages);
+  std::vector<std::shared_ptr<Tensor<float>>> zs(stages);
+
+  uint32_t total_rows = 0;
   for (uint32_t stage = 0; stage < stages; ++stage) {
-    // conv
     const std::vector<std::shared_ptr<Tensor<float>>> &stage_input = batches.at(stage);
     CHECK(stage_input.size() == batch_size);
 
@@ -54,40 +56,56 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     CHECK(stage_output.size() == batch_size);
     std::shared_ptr<Tensor<float>> x_stages_tensor;
-    // stage_output: 4 255 80 80
     for (uint32_t b = 0; b < batch_size; ++b) {
-      // 255 80 80
       std::shared_ptr<Tensor<float>> input = stage_output.at(b);
       const uint32_t nx = input->cols();
       const uint32_t ny = input->rows();
       if (x_stages_tensor == nullptr || x_stages_tensor->empty()) {
-        // 4 19200 85
-        x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
+        x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(classes_info));
       }
 
-      // 255, 80, 80 ---> 3, 85, 6400
-      input->ReRawshape({stages, uint32_t(num_classes_ + 5), ny * nx});
-      // x_stages: 19200 85
-      arma::fmat x_stages = x_stages_tensor->at(b);
+      std::shared_ptr<Tensor<float>> input_ = std::make_shared<Tensor<float>>(stages, uint32_t(classes_info), ny * nx);
 
+      for (uint32_t c = 0; c < input->channels(); ++c) {
+        for (uint32_t r = 0; r < input->rows(); ++r) {
+          for (uint32_t c_ = 0; c_ < input->cols(); ++c_) {
+            const uint32_t ch = c / classes_info;
+            const uint32_t row = c - ch * classes_info;
+            const uint32_t col = r * ny + c_;
+            const float value = input->at(c, r, c_);
+            input_->at(ch, row, col) = 1 / (1 + std::exp(-value));
+          }
+        }
+      }
+
+      arma::fmat &x_stages = x_stages_tensor->at(b);
       for (uint32_t s = 0; s < stages; ++s) {
-        // 85, 6400 ---> 6400, 85
-        x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1, num_classes_ + 5 - 1) = input->at(s).t();
+        x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1, classes_info - 1) = input_->at(s).t();
       }
 
-      x_stages.transform([](float value) {
-        return 1 / (1 + std::exp(-value));
-      });
+      const arma::fmat &xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
+      const arma::fmat &wh = x_stages.submat(0, 2, x_stages.n_rows - 1, 3);
 
-      arma::fmat xy = x_stages.submat(0, 0, x_stages.n_rows, 1);
-      arma::fmat wh = x_stages.submat(0, 2, x_stages.n_rows, 3);
-
-      xy = xy * 2 + grids_[stage] * strides_[stage];
-      wh = arma::pow((wh * 2), 2) % anchor_grids_[stage];
-      x_stages.submat(0, 0, x_stages.n_rows, 1) = xy;
-      x_stages.submat(0, 2, x_stages.n_rows, 3) = wh;
+      x_stages.submat(0, 0, x_stages.n_rows - 1, 1) = (xy * 2 + grids_[stage]) * strides_[stage];
+      x_stages.submat(0, 2, x_stages.n_rows - 1, 3) = arma::pow((wh * 2), 2) % anchor_grids_[stage];
     }
-    z.at(stage) = x_stages_tensor;
+    total_rows += x_stages_tensor->rows();
+    zs.at(stage) = x_stages_tensor;
+  }
+
+  arma::fcube f1(total_rows, classes_info, batch_size);
+  uint32_t current_rows = 0;
+  for (const auto &z : zs) {
+    f1.subcube(current_rows, 0, 0, current_rows + z->rows() - 1, classes_info - 1, batch_size - 1) = z->data();
+    current_rows += z->rows();
+  }
+
+  for (int i = 0; i < f1.n_slices; ++i) {
+    auto &output = outputs.at(i);
+    if (output == nullptr || output->empty()) {
+      output = std::make_shared<Tensor<float>>(1, total_rows, classes_info);
+    }
+    output->at(0) = f1.slice(i);
   }
   return InferStatus::kInferSuccess;
 }
