@@ -65,7 +65,7 @@ bool Tensor<float>::empty() const {
 }
 
 float Tensor<float>::index(uint32_t offset) const {
-  CHECK(offset < this->data_.size())<< "Tensor capacity is not enough!";
+  CHECK(offset < this->data_.size()) << "Tensor capacity is not enough!";
   return this->data_.at(offset);
 }
 

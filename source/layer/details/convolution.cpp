@@ -142,7 +142,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
-        LOG(ERROR) << "The output size of convolution is empty";
         output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
       }
 

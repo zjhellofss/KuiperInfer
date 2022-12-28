@@ -182,6 +182,7 @@ class Tensor<float> {
    */
   void ReRawshape(const std::vector<uint32_t> &shapes);
 
+
   /**
    * 张量相加
    * @param tensor1 输入张量1

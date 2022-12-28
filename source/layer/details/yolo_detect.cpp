@@ -46,6 +46,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   std::vector<std::shared_ptr<Tensor<float>>> zs(stages);
 
   uint32_t total_rows = 0;
+#pragma omp parallel for num_threads(stages) reduction(+:total_rows)
   for (uint32_t stage = 0; stage < stages; ++stage) {
     const std::vector<std::shared_ptr<Tensor<float>>> &stage_input = batches.at(stage);
     CHECK(stage_input.size() == batch_size);
@@ -65,7 +66,6 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       }
 
       std::shared_ptr<Tensor<float>> input_ = std::make_shared<Tensor<float>>(stages, uint32_t(classes_info), ny * nx);
-
       for (uint32_t c = 0; c < input->channels(); ++c) {
         for (uint32_t r = 0; r < input->rows(); ++r) {
           for (uint32_t c_ = 0; c_ < input->cols(); ++c_) {

@@ -318,7 +318,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
             std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
         std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
         LOG(INFO) << current_op_name << " " << duration << "s";
-//        LOG(INFO) << "\n" << layer_output_datas.at(0)->at(0);
       }
 
       CHECK(status == InferStatus::kInferSuccess)
