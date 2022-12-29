@@ -1,6 +1,8 @@
 
 #include "runtime/runtime_ir.hpp"
 #include <memory>
+#include <iostream>
+#include <iomanip>
 #include <queue>
 #include <deque>
 #include <utility>
@@ -274,6 +276,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
   operator_queue.push_back(input_op);
 
+  if (debug) {
+    std::cout << std::fixed;
+    std::cout << std::setprecision(6);
+  }
+
   while (!operator_queue.empty()) {
     std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
     operator_queue.pop_front();
@@ -314,9 +321,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       if (debug) {
+        std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
         const double duration =
             std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
-        std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
         LOG(INFO) << current_op_name << " " << duration << "s";
       }
 

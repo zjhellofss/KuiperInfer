@@ -58,7 +58,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     if (padding_h_ > 0 || padding_w_ > 0) {
       input_data_ = input_data->Clone();
-      input_data_->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, 0);
+      input_data_->Padding({padding_h_, padding_h_, padding_w_, padding_w_}, std::numeric_limits<float>::lowest());
     } else {
       input_data_ = input_data;
     }
@@ -81,13 +81,12 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data_->at(ic);
-
       arma::fmat &output_channel = output_data->at(ic);
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w_) {
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h_) {
 
           float *output_channel_ptr = output_channel.colptr(int(c / stride_w_));
-          float max_value = -std::numeric_limits<float>::max();
+          float max_value = std::numeric_limits<float>::lowest();
           for (uint32_t w = 0; w < pooling_w; ++w) {
             const float *col_ptr = input_channel.colptr(c + w) + r;
             for (uint32_t h = 0; h < pooling_h; ++h) {

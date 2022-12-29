@@ -17,7 +17,7 @@ TEST(test_net, forward_yolo1) {
 
   for (int i = 0; i < batch_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 320, 320);
-    input->Ones();
+    input->Fill(127.f);
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
@@ -29,7 +29,7 @@ TEST(test_net, forward_yolo1) {
     ASSERT_EQ(output1.size(), output2->size());
     for (int r = 0; r < output1.n_rows; ++r) {
       for (int c = 0; c < output1.n_cols; ++c) {
-        CHECK(std::abs(output1.at(r, c) - output2->at(0, r, c)) < 0.55);
+        ASSERT_LE(std::abs(output1.at(r, c) - output2->at(0, r, c)), 0.05) << " row: " << r << " col: " << c;
       }
     }
   }
