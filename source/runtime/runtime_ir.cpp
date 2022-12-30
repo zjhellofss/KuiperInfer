@@ -341,9 +341,12 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
     TOCK(Forward)
     LOG(INFO) << "--------------------------------------------------" << "\n";
     LOG(INFO) << "Run duration information";
+    double duration_all = 0.;
     for (const auto &run_info : run_duration_infos) {
       LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.second << " s";
+      duration_all += run_info.second;
     }
+    LOG(INFO) << "All time cost: " << duration_all << " s";
   }
   return output_operand->datas;
 }

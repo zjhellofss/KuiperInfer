@@ -296,4 +296,48 @@ void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {
 const std::vector<uint32_t> &Tensor<float>::raw_shapes() const {
   return this->raw_shapes_;
 }
+
+void Tensor<float>::ReRawView(const std::vector<uint32_t> &shapes) {
+  CHECK(!shapes.empty());
+  const uint32_t origin_size = this->size();
+  uint32_t current_size = 1;
+  for (uint32_t s : shapes) {
+    current_size *= s;
+  }
+  CHECK(shapes.size() <= 3);
+  CHECK(current_size == origin_size);
+  std::vector<uint32_t> target_shapes; // channel row col
+  if (shapes.size() == 3) {
+    target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
+  } else if (shapes.size() == 2) {
+    target_shapes = {1, shapes.at(0), shapes.at(1)};
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
+  } else {
+    target_shapes = {1, shapes.at(0), 1};
+    this->raw_shapes_ = {shapes.at(0)};
+  }
+  this->ReView(target_shapes);
+}
+
+void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
+  const uint32_t target_channels = shapes.at(0);
+  const uint32_t target_rows = shapes.at(1);
+  const uint32_t target_cols = shapes.at(2);
+  arma::fcube new_data(target_rows, target_cols, target_channels);
+
+  const uint32_t plane_size = target_rows * target_cols;
+  for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
+    for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
+      for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
+        const uint32_t pos_index = c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
+        const uint32_t ch = pos_index / plane_size;          // 249 / 60 => 4
+        const uint32_t row = (pos_index - ch * plane_size) / target_cols;   // 255 -
+        const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
+        new_data.at(row, col, ch) = this->data_.at(r, c_, c);
+      }
+    }
+  }
+  this->data_ = new_data;
+}
 }

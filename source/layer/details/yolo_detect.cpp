@@ -62,22 +62,14 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(classes_info));
       }
 
-      std::shared_ptr<Tensor<float>> input_ = std::make_shared<Tensor<float>>(stages, uint32_t(classes_info), ny * nx);
-      for (uint32_t c = 0; c < input->channels(); ++c) {
-        for (uint32_t r = 0; r < input->rows(); ++r) {
-          for (uint32_t c_ = 0; c_ < input->cols(); ++c_) {
-            const uint32_t ch = c / classes_info;
-            const uint32_t row = c - ch * classes_info;
-            const uint32_t col = r * ny + c_;
-            const float value = input->at(c, r, c_);
-            input_->at(ch, row, col) = 1 / (1 + std::exp(-value));
-          }
-        }
-      }
+      input->ReRawView({stages, uint32_t(classes_info), ny * nx});
+      input->Transform([](const float f) {
+        return 1 / (1 + std::exp(-f));
+      });
 
       arma::fmat &x_stages = x_stages_tensor->at(b);
       for (uint32_t s = 0; s < stages; ++s) {
-        x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1, classes_info - 1) = input_->at(s).t();
+        x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1, classes_info - 1) = input->at(s).t();
       }
 
       const arma::fmat &xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);

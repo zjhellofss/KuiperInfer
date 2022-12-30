@@ -182,6 +182,11 @@ class Tensor<float> {
    */
   void ReRawshape(const std::vector<uint32_t> &shapes);
 
+  /**
+   * 张量的实际尺寸大小的Reshape pytorch兼容
+   * @param shapes 张量的实际尺寸大小
+   */
+  void ReRawView(const std::vector<uint32_t> &shapes);
 
   /**
    * 张量相加
@@ -219,6 +224,7 @@ class Tensor<float> {
   std::shared_ptr<Tensor> Clone();
 
  private:
+  void ReView(const std::vector<uint32_t> &shapes);
   std::vector<uint32_t> raw_shapes_; // 张量数据的实际尺寸大小
   arma::fcube data_; // 张量数据
 };

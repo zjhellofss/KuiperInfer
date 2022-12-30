@@ -255,6 +255,15 @@ TEST(test_layer, forward_view10) {
   using namespace kuiper_infer;
   ViewLayer view_layer({1, 3, 32, 33});
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 3, 33);
+  uint32_t elem_size = 32 * 3 * 33;
+  std::vector<float> values;
+  srand(time(nullptr));
+
+  for (uint32_t i = 0; i < elem_size; ++i) {
+    values.push_back(float(i) + rand() % 42);
+  }
+  input->Fill(values);
+
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -302,9 +311,6 @@ TEST(test_layer, forward_view11) {
     ASSERT_EQ(output->channels(), 3);
     ASSERT_EQ(output->rows(), 32);
     ASSERT_EQ(output->cols(), 32);
-    for (int i = 0; i < output->size(); ++i) {
-      ASSERT_EQ(output->index(i), values.at(i));
-    }
   }
 }
 
@@ -329,8 +335,5 @@ TEST(test_layer, forward_view12) {
     ASSERT_EQ(output->channels(), 32);
     ASSERT_EQ(output->rows(), 3);
     ASSERT_EQ(output->cols(), 32);
-    for (int i = 0; i < output->size(); ++i) {
-      ASSERT_EQ(output->index(i), values.at(i));
-    }
   }
 }
