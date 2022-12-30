@@ -23,12 +23,11 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   const uint32_t classes_info = num_classes_ + 5;
-  const uint32_t input_size = inputs.size(); // 12
-  const uint32_t batch_size = outputs.size(); // 4
-  CHECK(input_size % batch_size == 0);
+  const uint32_t input_size = inputs.size();
+  const uint32_t batch_size = outputs.size();
 
-  const uint32_t stages = input_size / batch_size; // 3
-  CHECK(stages == stages_);
+  const uint32_t stages = stages_;
+  CHECK(input_size / batch_size == stages_ && input_size % batch_size == 0);
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages);
 
   std::vector<std::vector<std::shared_ptr<Tensor<float>>>> batches(stages);
@@ -37,16 +36,10 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     batches.at(index).push_back(inputs.at(i));
   }
 
-  uint32_t tensor_numbers = 0;
-  for (uint32_t i = 0; i < batches.size(); ++i) {
-    tensor_numbers += batches.at(i).size();
-  }
-
-  CHECK(tensor_numbers == input_size);
+  uint32_t concat_rows = 0;
   std::vector<std::shared_ptr<Tensor<float>>> zs(stages);
 
-  uint32_t total_rows = 0;
-#pragma omp parallel for num_threads(stages) reduction(+:total_rows)
+#pragma omp parallel for num_threads(stages) reduction(+:concat_rows)
   for (uint32_t stage = 0; stage < stages; ++stage) {
     const std::vector<std::shared_ptr<Tensor<float>>> &stage_input = batches.at(stage);
     CHECK(stage_input.size() == batch_size);
@@ -59,8 +52,8 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     std::shared_ptr<Tensor<float>> x_stages_tensor;
     for (uint32_t b = 0; b < batch_size; ++b) {
       std::shared_ptr<Tensor<float>> input = stage_output.at(b);
-      const uint32_t nx = input->cols();
-      const uint32_t ny = input->rows();
+      const uint32_t nx = input->rows();
+      const uint32_t ny = input->cols();
       if (x_stages_tensor == nullptr || x_stages_tensor->empty()) {
         x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(classes_info));
       }
@@ -89,11 +82,11 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       x_stages.submat(0, 0, x_stages.n_rows - 1, 1) = (xy * 2 + grids_[stage]) * strides_[stage];
       x_stages.submat(0, 2, x_stages.n_rows - 1, 3) = arma::pow((wh * 2), 2) % anchor_grids_[stage];
     }
-    total_rows += x_stages_tensor->rows();
+    concat_rows += x_stages_tensor->rows();
     zs.at(stage) = x_stages_tensor;
   }
 
-  arma::fcube f1(total_rows, classes_info, batch_size);
+  arma::fcube f1(concat_rows, classes_info, batch_size);
   uint32_t current_rows = 0;
   for (const auto &z : zs) {
     f1.subcube(current_rows, 0, 0, current_rows + z->rows() - 1, classes_info - 1, batch_size - 1) = z->data();
@@ -103,7 +96,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   for (int i = 0; i < f1.n_slices; ++i) {
     auto &output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(1, total_rows, classes_info);
+      output = std::make_shared<Tensor<float>>(1, concat_rows, classes_info);
     }
     output->at(0) = f1.slice(i);
   }
@@ -114,8 +107,9 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
                                                       std::shared_ptr<Layer> &yolo_detect_layer) {
 
   CHECK(op != nullptr) << "Yolo detect operator is nullptr";
+
   const auto &attrs = op->attribute;
-  CHECK(!attrs.empty());
+  CHECK(!attrs.empty()) << "Operator attributes is empty!";
   if (attrs.find("pnnx_5") == attrs.end()) {
     return ParseParameterAttrStatus::kAttrMissingYoloStrides;
   }
@@ -124,9 +118,11 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
   if (stages_attr->shape.empty()) {
     return ParseParameterAttrStatus::kAttrMissingYoloStrides;
   }
+
   int stages_number = stages_attr->shape.at(0);
   CHECK(stages_number == 3) << "Only support three stages yolo detect head";
   const std::vector<float> &strides = stages_attr->get<float>();
+  CHECK(strides.size() == stages_number) << "Stride number is not equal to strides";
 
   std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers(stages_number);
   int32_t num_classes = -1;
@@ -139,11 +135,13 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const auto &conv_attr = attrs.at(weight_name);
     const auto &out_shapes = conv_attr->shape;
     CHECK(out_shapes.size() == 4);
+
     const int out_channels = out_shapes.at(0);
     if (num_classes == -1) {
-      CHECK(out_channels % stages_number == 0);
+      CHECK(out_channels % stages_number == 0)
+              << "The number of output channel is wrong, it should divisible by stages number";
       num_classes = out_channels / stages_number - 5;
-      CHECK(num_classes > 0);
+      CHECK(num_classes > 0) << "The number of object classes must greater than zero";
     }
     const int in_channels = out_shapes.at(1);
     const int kernel_h = out_shapes.at(2);
@@ -172,7 +170,8 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const auto &anchor_grid = anchor_grid_attr->second;
     const auto &anchor_shapes = anchor_grid->shape;
     const std::vector<float> &anchor_weight_data = anchor_grid->get<float>();
-    CHECK(anchor_shapes.size() == 5 && anchor_shapes.front() == 1);
+    CHECK(!anchor_shapes.empty() && anchor_shapes.size() == 5 && anchor_shapes.front() == 1);
+
     const uint32_t anchor_rows = anchor_shapes.at(1) * anchor_shapes.at(2) * anchor_shapes.at(3);
     const uint32_t anchor_cols = anchor_shapes.at(4);
     CHECK(anchor_weight_data.size() == anchor_cols * anchor_rows);
@@ -192,7 +191,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const auto &grid = grid_attr->second;
     const auto &shapes = grid->shape;
     const std::vector<float> &weight_data = grid->get<float>();
-    CHECK(shapes.size() == 5 && shapes.front() == 1);
+    CHECK(!shapes.empty() && shapes.size() == 5 && shapes.front() == 1);
     const uint32_t grid_rows = shapes.at(1) * shapes.at(2) * shapes.at(3);
     const uint32_t grid_cols = shapes.at(4);
     CHECK(weight_data.size() == grid_cols * grid_rows);

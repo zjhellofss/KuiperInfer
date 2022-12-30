@@ -22,8 +22,8 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
   }
 
   const uint32_t batch_size = outputs.size();
-  CHECK(inputs.size() % outputs.size() == 0);
-  const uint32_t packet_size = inputs.size() / outputs.size();
+  CHECK(inputs.size() % batch_size == 0);
+  const uint32_t packet_size = inputs.size() / batch_size;
 
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);

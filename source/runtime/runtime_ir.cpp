@@ -275,11 +275,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
   operator_queue.push_back(input_op);
-
-  if (debug) {
-    std::cout << std::fixed;
-    std::cout << std::setprecision(6);
-  }
+  std::map<std::string, double> run_duration_infos;
 
   while (!operator_queue.empty()) {
     std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
@@ -297,7 +293,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
       std::string current_op_name = current_op->name;
-
       bool has_ready = CheckOperatorReady(current_op);
       if (!has_ready) {
         operator_queue.push_back(current_op);
@@ -305,7 +300,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       }
 
       const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas = current_op->input_operands_seq;
-
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (const auto &input_operand_data : input_operand_datas) {
         for (const auto &input_data : input_operand_data->datas) {
@@ -314,17 +308,20 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       }
 
       CHECK(!layer_input_datas.empty());
-
       CHECK(current_op->output_operands != nullptr);
       std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas = current_op->output_operands->datas;
-      const auto &start = std::chrono::steady_clock::now();
 
+      const auto &start = std::chrono::steady_clock::now();
       InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
       if (debug) {
         std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
         const double duration =
             std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
-        LOG(INFO) << current_op_name << " " << duration << "s";
+        if (run_duration_infos.find(current_op->type) == run_duration_infos.end()) {
+          run_duration_infos.insert({current_op->type, duration});
+        } else {
+          run_duration_infos.at(current_op->type) += duration;
+        }
       }
 
       CHECK(status == InferStatus::kInferSuccess)
@@ -342,6 +339,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   const auto &output_operand = output_op_input_operand->second;
   if (debug) {
     TOCK(Forward)
+    LOG(INFO) << "--------------------------------------------------" << "\n";
+    LOG(INFO) << "Run duration information";
+    for (const auto &run_info : run_duration_infos) {
+      LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.second << " s";
+    }
   }
   return output_operand->datas;
 }
