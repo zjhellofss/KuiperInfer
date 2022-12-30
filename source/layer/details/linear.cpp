@@ -101,6 +101,8 @@ ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeO
   }
 
   const auto &attr = op->attribute;
+  CHECK(!attr.empty()) << "Operator attributes is empty";
+
   if (attr.find("weight") == attr.end()) {
     LOG(ERROR) << "Can not find the weight parameter";
     return ParseParameterAttrStatus::kAttrMissingWeight;

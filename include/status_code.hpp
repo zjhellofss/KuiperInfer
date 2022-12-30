@@ -30,6 +30,8 @@ enum class InferStatus {
 
   kInferFailedOutputSizeError = 7,
   kInferFailedOperationUnknown = 8,
+  kInferFailedYoloStageNumberError = 9,
+
   kInferSuccess = 0,
 };
 
@@ -52,15 +54,14 @@ enum class ParseParameterAttrStatus {
   kParameterMissingScale = 14,
   kParameterMissingResizeMode = 15,
 
-
   kAttrMissingBias = 21,
   kAttrMissingWeight = 22,
   kAttrMissingRunningMean = 23,
   kAttrMissingRunningVar = 24,
   kAttrMissingOutFeatures = 25,
-  kAttrMissingYoloStrides= 26,
-  kAttrMissingYoloAnchorGrides= 27,
-  kAttrMissingYoloGrides= 28,
+  kAttrMissingYoloStrides = 26,
+  kAttrMissingYoloAnchorGrides = 27,
+  kAttrMissingYoloGrides = 28,
 
   kParameterAttrParseSuccess = 0
 };

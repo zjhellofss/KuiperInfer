@@ -70,6 +70,8 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
 
   const auto &params = op->params;
+  CHECK(!params.empty()) << "Operator parameter is empty";
+
   if (params.find("eps") == params.end()) {
     LOG(ERROR) << "Can not find the eps parameter";
     return ParseParameterAttrStatus::kParameterMissingEps;
@@ -96,23 +98,24 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
 
   // load weights
   const auto &attrs = op->attribute;
+  CHECK(!attrs.empty()) << "Operator attributes is empty";
+
   if (attrs.find("running_mean") == attrs.end()) {
     LOG(ERROR) << "Can not find the running mean attribute";
     return ParseParameterAttrStatus::kAttrMissingRunningMean;
   }
 
   const auto &mean_attr = attrs.at("running_mean");
-  std::vector<float> mean = mean_attr->get<float>();
+  const std::vector<float> &mean = mean_attr->get<float>();
   batch_layer->set_weights(mean);
 
-  const auto &var_attr_iter = attrs.find("running_var");
-  if (var_attr_iter == attrs.end()) {
+  if (attrs.find("running_var") == attrs.end()) {
     LOG(ERROR) << "Can not find the running var attribute";
     return ParseParameterAttrStatus::kAttrMissingRunningVar;
   }
 
-  const auto &var_attr = var_attr_iter->second;
-  std::vector<float> var = var_attr->get<float>();;
+  const auto &var_attr = attrs.at("running_var");
+  const std::vector<float> &var = var_attr->get<float>();
   batch_layer->set_bias(var);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }

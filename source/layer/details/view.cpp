@@ -8,6 +8,7 @@
 
 namespace kuiper_infer {
 
+// todo view实现是有问题的, 问题的来源很大一部分是armadillo自身的限制
 InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {

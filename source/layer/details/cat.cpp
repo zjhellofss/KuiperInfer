@@ -11,13 +11,17 @@ CatLayer::CatLayer(int dim) : Layer("cat"), dim_(dim) {
 InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                               std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
+    LOG(ERROR) << "The input feature map of cat layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() == outputs.size()) {
+    LOG(ERROR) << "The input and output size is not adapting";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
+
   if (dim_ != 1 && dim_ != -3) {
+    LOG(ERROR) << "The dimension of cat layer is error";
     return InferStatus::kInferFailedDimensionParameterError;
   }
 

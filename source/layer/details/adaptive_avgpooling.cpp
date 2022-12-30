@@ -84,9 +84,8 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(const std::sha
                                                                   std::shared_ptr<Layer> &avg_layer) {
   CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
   const auto &params = op->params;
-  if (params.empty()) {
-    return ParseParameterAttrStatus::kParameterMissingOutHW;
-  }
+  CHECK(!params.empty()) << "Operator parameter is empty";
+
   const auto &output_hw = dynamic_cast<RuntimeParameterIntArray *>(params.at("output_size"));
   if (!output_hw) {
     LOG(ERROR) << "Can not find the output size parameter";

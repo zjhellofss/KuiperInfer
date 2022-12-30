@@ -19,17 +19,21 @@ YoloDetectLayer::YoloDetectLayer(int32_t stages,
 InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
+    LOG(ERROR) << "The input feature map of yolo detect layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
+  const uint32_t stages = stages_;
   const uint32_t classes_info = num_classes_ + 5;
   const uint32_t input_size = inputs.size();
   const uint32_t batch_size = outputs.size();
 
-  const uint32_t stages = stages_;
-  CHECK(input_size / batch_size == stages_ && input_size % batch_size == 0);
-  CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages);
+  if (input_size / batch_size != stages_ || input_size % batch_size != 0) {
+    LOG(ERROR) << "The input and output number of yolo detect layer is wrong";
+    return InferStatus::kInferFailedYoloStageNumberError;
+  }
 
+  CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages);
   std::vector<std::vector<std::shared_ptr<Tensor<float>>>> batches(stages);
   for (uint32_t i = 0; i < input_size; ++i) {
     const uint32_t index = i / batch_size;
@@ -86,8 +90,8 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     zs.at(stage) = x_stages_tensor;
   }
 
-  arma::fcube f1(concat_rows, classes_info, batch_size);
   uint32_t current_rows = 0;
+  arma::fcube f1(concat_rows, classes_info, batch_size);
   for (const auto &z : zs) {
     f1.subcube(current_rows, 0, 0, current_rows + z->rows() - 1, classes_info - 1, batch_size - 1) = z->data();
     current_rows += z->rows();
@@ -111,11 +115,13 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
   const auto &attrs = op->attribute;
   CHECK(!attrs.empty()) << "Operator attributes is empty!";
   if (attrs.find("pnnx_5") == attrs.end()) {
+    LOG(ERROR) << "Can not find the in yolo strides attribute";
     return ParseParameterAttrStatus::kAttrMissingYoloStrides;
   }
 
   const auto &stages_attr = attrs.at("pnnx_5");
   if (stages_attr->shape.empty()) {
+    LOG(ERROR) << "Can not find the in yolo strides attribute";
     return ParseParameterAttrStatus::kAttrMissingYoloStrides;
   }
 
@@ -129,6 +135,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
   for (int i = 0; i < stages_number; ++i) {
     const std::string &weight_name = "m." + std::to_string(i) + ".weight";
     if (attrs.find(weight_name) == attrs.end()) {
+      LOG(ERROR) << "Can not find the in weight attribute";
       return ParseParameterAttrStatus::kAttrMissingWeight;
     }
 
@@ -153,6 +160,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
 
     const std::string &bias_name = "m." + std::to_string(i) + ".bias";
     if (attrs.find(bias_name) == attrs.end()) {
+      LOG(ERROR) << "Can not find the in bias attribute";
       return ParseParameterAttrStatus::kAttrMissingBias;
     }
     const auto &bias_attr = attrs.at(bias_name);
@@ -165,6 +173,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const std::string &pnnx_name = "pnnx_" + std::to_string(i);
     const auto &anchor_grid_attr = attrs.find(pnnx_name);
     if (anchor_grid_attr == attrs.end()) {
+      LOG(ERROR) << "Can not find the in yolo anchor grides attribute";
       return ParseParameterAttrStatus::kAttrMissingYoloAnchorGrides;
     }
     const auto &anchor_grid = anchor_grid_attr->second;
@@ -186,6 +195,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
     const std::string &pnnx_name = "pnnx_" + std::to_string(grid_index);
     const auto &grid_attr = attrs.find(pnnx_name);
     if (grid_attr == attrs.end()) {
+      LOG(ERROR) << "Can not find the in yolo grides attribute";
       return ParseParameterAttrStatus::kAttrMissingYoloGrides;
     }
     const auto &grid = grid_attr->second;
