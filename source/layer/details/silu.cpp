@@ -38,7 +38,7 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     CHECK (output->shapes() == input->shapes()) << "The output size of silu is error";
     output->set_data(input->data());
     output->Transform([](const float value) {
-      return value / (1 + std::exp(-value));
+      return value / (1.f + std::exp(-value));
     });
     outputs.at(i) = output;
   }

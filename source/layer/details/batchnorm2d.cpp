@@ -26,18 +26,18 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     return InferStatus::kInferFailedWeightParameterError;
   }
 
+  if (this->affine_bias_.size() != this->affine_weight_.size()) {
+    LOG(ERROR) << "BatchNorm2d layer do not have the same affine weight and bias values";
+    return InferStatus::kInferFailedWeightParameterError;
+  }
+
   const uint32_t batch_size = inputs.size();
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto &input = inputs.at(b);
-    if (input == nullptr || input->empty()) {
-      LOG(ERROR) << "The input feature map of batchnorm layer is empty";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-
-    if (input->channels() != mean_value_size) {
-      LOG(ERROR) << "The channel of of input and mean value mat is not equal";
-      return InferStatus::kInferFailedChannelParameterError;
-    }
+    CHECK(input != nullptr && !input->empty()) << "The input feature map of batchnorm layer is empty";
+    CHECK(input->channels() == mean_value_size) << "The channel of of input and mean value mat is not equal";
+    CHECK(input->channels() == affine_weight_.size()) << "The channel of input and affine weight is not equal";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
@@ -50,15 +50,10 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     for (uint32_t i = 0; i < mean_value_size; ++i) {
       const float mean_value = weights_.at(i)->index(0);
       const float var_value = bias_.at(i)->index(0);
+      CHECK(input->channels() >= i) << "The channel of the input feature maps and mean values is not adapting";
 
-      if (input->channels() < i) {
-        LOG(ERROR) << "The channel of the input feature maps and mean values is not adapting";
-        return InferStatus::kInferFailedChannelParameterError;
-      }
-
-      float var_value_ = var_value + eps_;
-      var_value_ = std::sqrt(var_value_);
-      output->at(i) = (input->at(i) - mean_value) / var_value_;
+      float var_value_ = std::sqrt(var_value + eps_);
+      output->at(i) = ((input->at(i) - mean_value) / var_value_) * affine_weight_.at(i) + affine_bias_.at(i);
     }
     outputs.at(b) = output;
   }
@@ -94,7 +89,6 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;
   }
 
-  batch_layer = std::make_shared<BatchNorm2dLayer>(num_features->value, eps->value);
 
   // load weights
   const auto &attrs = op->attribute;
@@ -104,6 +98,19 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
     LOG(ERROR) << "Can not find the running mean attribute";
     return ParseParameterAttrStatus::kAttrMissingRunningMean;
   }
+
+  if (attrs.find("weight") == attrs.end()) {
+    LOG(ERROR) << "Can not find the affine weight attribute";
+    return ParseParameterAttrStatus::kAttrMissingWeight;
+  }
+  if (attrs.find("bias") == attrs.end()) {
+    LOG(ERROR) << "Can not find the affine bias attribute";
+    return ParseParameterAttrStatus::kAttrMissingBias;
+  }
+
+  const std::vector<float> &affine_weight = attrs.at("weight")->get<float>();
+  const std::vector<float> &affine_bias = attrs.at("bias")->get<float>();
+  batch_layer = std::make_shared<BatchNorm2dLayer>(num_features->value, eps->value, affine_weight, affine_bias);
 
   const auto &mean_attr = attrs.at("running_mean");
   const std::vector<float> &mean = mean_attr->get<float>();
@@ -120,8 +127,9 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(const std::shared_ptr<Run
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps)
-    : ParamLayer("Batchnorm"), num_features_(num_features), eps_(eps) {
+BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
+                                   const std::vector<float> &affine_weight, const std::vector<float> &affine_bias)
+    : ParamLayer("Batchnorm"), affine_weight_(affine_weight), affine_bias_(affine_bias), eps_(eps) {
   for (uint32_t i = 0; i < num_features; ++i) {
     std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(1, 1, 1);
     this->weights_.push_back(weight);

@@ -12,7 +12,9 @@ namespace kuiper_infer {
 
 class BatchNorm2dLayer : public ParamLayer {
  public:
-  explicit BatchNorm2dLayer(uint32_t num_features, float eps);
+  explicit BatchNorm2dLayer(uint32_t num_features, float eps,
+                            const std::vector<float> &affine_weight,
+                            const std::vector<float> &affine_bias);
 
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
@@ -20,8 +22,9 @@ class BatchNorm2dLayer : public ParamLayer {
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &batch_layer);
  private:
-  uint32_t num_features_ = 0;
   float eps_ = 1e-5;
+  std::vector<float> affine_weight_;
+  std::vector<float> affine_bias_;
 };
 }
 
