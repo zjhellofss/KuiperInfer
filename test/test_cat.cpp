@@ -22,38 +22,24 @@ TEST(test_layer, cat1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
   CatLayer cat_layer(1);
   const auto status = cat_layer.Forward(inputs, outputs);
-  // 4 6 --> 2 12
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     ASSERT_EQ(outputs.at(i)->channels(), output_channels);
   }
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(0), outputs.at(0)->at(0), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(1), outputs.at(0)->at(1), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(2), outputs.at(0)->at(2), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(3), outputs.at(0)->at(3), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(4), outputs.at(0)->at(4), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(0)->at(5), outputs.at(0)->at(5), "absdiff", 0.01f));
 
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(0), outputs.at(0)->at(6), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(1), outputs.at(0)->at(7), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(2), outputs.at(0)->at(8), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(3), outputs.at(0)->at(9), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(4), outputs.at(0)->at(10), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(2)->at(5), outputs.at(0)->at(11), "absdiff", 0.01f));
+  for (int i = 0; i < 2; ++i) {
+    for (int input_channel = 0; input_channel < input_channels; ++input_channel) {
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel),
+                                     outputs.at(i)->at(input_channel), "absdiff", 0.01f));
+    }
+  }
 
+  for (int i = 2; i < 4; ++i) {
+    for (int input_channel = input_channels; input_channel < input_channels * 2; ++input_channel) {
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel - input_channels),
+                                     outputs.at(i - 2)->at(input_channel), "absdiff", 0.01f));
+    }
+  }
 
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(0), outputs.at(1)->at(0), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(1), outputs.at(1)->at(1), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(2), outputs.at(1)->at(2), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(3), outputs.at(1)->at(3), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(4), outputs.at(1)->at(4), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(1)->at(5), outputs.at(1)->at(5), "absdiff", 0.01f));
-
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(0), outputs.at(1)->at(6), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(1), outputs.at(1)->at(7), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(2), outputs.at(1)->at(8), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(3), outputs.at(1)->at(9), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(4), outputs.at(1)->at(10), "absdiff", 0.01f));
-  ASSERT_TRUE(arma::approx_equal(inputs.at(3)->at(5), outputs.at(1)->at(11), "absdiff", 0.01f));
 }
 

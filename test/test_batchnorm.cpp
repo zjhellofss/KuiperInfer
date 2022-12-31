@@ -14,7 +14,7 @@ TEST(test_layer, forward_batchnorm) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
-  BatchNorm2dLayer layer(3, 0.f, {1, 1, 1}, {0, 0, 0});
+  BatchNorm2dLayer layer(3, 1e-5f, {1, 1, 1}, {0, 0, 0});
   layer.set_weights(std::vector<float>{0, 0, 0});
   layer.set_bias(std::vector<float>{1, 1, 1});
 
