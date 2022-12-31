@@ -25,9 +25,9 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
     return InferStatus::kInferFailedDimensionParameterError;
   }
 
-  const uint32_t batch_size = outputs.size();
-  CHECK(inputs.size() % batch_size == 0);
-  const uint32_t packet_size = inputs.size() / batch_size;
+  const uint32_t output_size = outputs.size();
+  CHECK(inputs.size() % output_size == 0);
+  const uint32_t packet_size = inputs.size() / output_size;
 
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
@@ -35,7 +35,7 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
     uint32_t rows = inputs.front()->rows();
     uint32_t cols = inputs.front()->cols();
 
-    for (uint32_t j = i; j < inputs.size(); j += batch_size) {
+    for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>> &input = inputs.at(j);
       const uint32_t in_channels = input->channels();
       CHECK(rows == input->rows() && cols == input->cols());

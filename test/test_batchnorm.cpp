@@ -32,6 +32,5 @@ TEST(test_layer, forward_batchnorm) {
     ASSERT_NEAR(mean / size, 0.f, 0.01f);
     ASSERT_NEAR(var / size, 1.f, 0.01f);
   }
-
 }
 
