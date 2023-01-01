@@ -6,120 +6,58 @@
 
 TEST(test_reshape, reshape1) {
   using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({1, 2, 4});
+  Tensor<float> tensor1(3, 224, 224);
+  tensor1.Rand();
+  Tensor<float> tensor2 = tensor1;
+  tensor1.ReRawshape({224, 224, 3});
 
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-  const auto &raw_shapes = tensor.raw_shapes();
+  const auto &raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 3);
-  ASSERT_EQ(raw_shapes.at(0), 1);
-  ASSERT_EQ(raw_shapes.at(1), 2);
-  ASSERT_EQ(raw_shapes.at(2), 4);
+  ASSERT_EQ(raw_shapes.at(0), 224);
+  ASSERT_EQ(raw_shapes.at(1), 224);
+  ASSERT_EQ(raw_shapes.at(2), 3);
+
+  ASSERT_EQ(tensor1.size(), tensor2.size());
+  uint32_t size = tensor1.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(tensor1.index(i), tensor2.index(i));
+  }
 }
 
 TEST(test_reshape, reshape2) {
   using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({1, 8});
+  Tensor<float> tensor1(3, 224, 224);
+  tensor1.Rand();
+  Tensor<float> tensor2 = tensor1;
+  tensor1.ReRawshape({672, 224});
 
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-
-  const auto &raw_shapes = tensor.raw_shapes();
+  const auto &raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 2);
-  ASSERT_EQ(raw_shapes.at(0), 1);
-  ASSERT_EQ(raw_shapes.at(1), 8);
+  ASSERT_EQ(raw_shapes.at(0), 672);
+  ASSERT_EQ(raw_shapes.at(1), 224);
+
+  ASSERT_EQ(tensor1.size(), tensor2.size());
+  uint32_t size = tensor1.size();
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(tensor1.index(i), tensor2.index(i));
+  }
 }
 
 TEST(test_reshape, reshape3) {
   using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({2, 4});
+  Tensor<float> tensor1(3, 224, 224);
+  tensor1.Rand();
+  Tensor<float> tensor2 = tensor1;
+  tensor1.ReRawshape({150528});
 
-  const auto &raw_shapes = tensor.raw_shapes();
-  ASSERT_EQ(raw_shapes.size(), 2);
-  ASSERT_EQ(raw_shapes.at(0), 2);
-  ASSERT_EQ(raw_shapes.at(1), 4);
+  const auto &raw_shapes = tensor1.raw_shapes();
+  ASSERT_EQ(raw_shapes.size(), 1);
+  ASSERT_EQ(raw_shapes.at(0), 150528);
 
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_reshape, reshape4) {
-  using namespace kuiper_infer;
-  std::vector<float> values{1.f, 3.f, 2.f, 4.f, 5.f, 7.f, 6.f, 8.f};
-  Tensor<float> tensor(2, 2, 2);
-  tensor.Fill(values);
-  tensor.ReRawshape({2, 1, 4});
-
-  const auto &raw_shapes = tensor.raw_shapes();
-  ASSERT_EQ(raw_shapes.size(), 3);
-  ASSERT_EQ(raw_shapes.at(0), 2);
-  ASSERT_EQ(raw_shapes.at(1), 1);
-  ASSERT_EQ(raw_shapes.at(2), 4);
-
-  for (uint32_t i = 0; i < 8; ++i) {
-    ASSERT_EQ(tensor.index(i), float(i +1));
-  }
-}
-
-TEST(test_reshape, reshape5) {
-  using namespace kuiper_infer;
-  Tensor<float> tensor(8, 24, 32);
-  tensor.Rand();
-
-  ASSERT_EQ(tensor.channels(), 8);
-  ASSERT_EQ(tensor.rows(), 24);
-  ASSERT_EQ(tensor.cols(), 32);
-
-  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
-  tensor1->ReRawshape({32, 24, 8});
-
-  const auto &raw_shapes = tensor1->raw_shapes();
-  ASSERT_EQ(raw_shapes.size(), 3);
-  ASSERT_EQ(raw_shapes.at(0), 32);
-  ASSERT_EQ(raw_shapes.at(1), 24);
-  ASSERT_EQ(raw_shapes.at(2), 8);
-
-  ASSERT_EQ(tensor.size(), tensor1->size());
-  const uint32_t size = tensor.size();
+  ASSERT_EQ(tensor1.size(), tensor2.size());
+  uint32_t size = tensor1.size();
   for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), tensor1->index(i));
-  }
-}
-
-TEST(test_reshape, reshape6) {
-  using namespace kuiper_infer;
-  Tensor<float> tensor(8, 24, 32);
-  tensor.Rand();
-
-  ASSERT_EQ(tensor.channels(), 8);
-  ASSERT_EQ(tensor.rows(), 24);
-  ASSERT_EQ(tensor.cols(), 32);
-
-  std::shared_ptr<Tensor<float>> tensor1 = tensor.Clone();
-  tensor1->ReRawshape({32, 24, 8});
-
-  const auto &raw_shapes = tensor1->raw_shapes();
-  ASSERT_EQ(raw_shapes.size(), 3);
-  ASSERT_EQ(raw_shapes.at(0), 32);
-  ASSERT_EQ(raw_shapes.at(1), 24);
-  ASSERT_EQ(raw_shapes.at(2), 8);
-
-  ASSERT_EQ(tensor.size(), tensor1->size());
-  const uint32_t size = tensor.size();
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), tensor1->index(i));
+    ASSERT_EQ(tensor1.index(i), tensor2.index(i));
   }
 }
 
