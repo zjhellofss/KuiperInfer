@@ -20,7 +20,7 @@ TEST(test_net, forward_yolo1) {
     input->Fill(127.f);
     inputs.push_back(input);
   }
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
   for (int i = 0; i < batch_size; ++i) {
     std::string file_path = "tmp/yolo/" + std::to_string(i + 1) + ".csv";
     const auto &output1 = CSVDataLoader::LoadData(file_path);
@@ -49,7 +49,7 @@ TEST(test_net, forward_yolo2) {
     input->Fill(42.f);
     inputs.push_back(input);
   }
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
   for (int i = 0; i < batch_size; ++i) {
     std::string file_path = "tmp/yolo/" + std::to_string((i + 1) * 10 + 1) + ".csv";
     const auto &output1 = CSVDataLoader::LoadData(file_path);

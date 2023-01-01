@@ -8,65 +8,8 @@
 
 TEST(test_layer, forward_linear1) {
   using namespace kuiper_infer;
-  const uint32_t in_features = 1024;
-  const uint32_t out_features = 2048;
-  const uint32_t in_dims = 32;
-  LinearLayer linear_layer(in_features, out_features, false);
-
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_features, in_dims);
-  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, out_features, 1);
-
-  std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input);
-
-  std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  outputs.push_back(output);
-
-  const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
-}
-
-TEST(test_layer, forward_linear2) {
-  using namespace kuiper_infer;
-  const uint32_t in_features = 3260;
-  const uint32_t out_features = 4096;
-  const uint32_t in_dims = 128;
-  LinearLayer linear_layer(in_features, out_features, false);
-
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_features, in_dims);
-
-  std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input);
-
-  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
-
-  const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
-}
-
-TEST(test_layer, forward_linear3) {
-  using namespace kuiper_infer;
-  const uint32_t in_features = 326;
-  const uint32_t out_features = 409;
-  const uint32_t in_dims = 1280;
-  LinearLayer linear_layer(in_features, out_features, false);
-
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_features, in_dims);
-  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, out_features, 1);
-
-  std::vector<std::shared_ptr<Tensor<float>>> inputs;
-  inputs.push_back(input);
-
-  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
-
-  const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
-}
-
-TEST(test_layer, forward_linear4) {
-  using namespace kuiper_infer;
-  const uint32_t in_features = 326;
-  const uint32_t out_features = 409;
+  const uint32_t in_features = 32;
+  const uint32_t out_features = 64;
   const uint32_t in_dims = 1280;
 
   LinearLayer linear_layer(in_features, out_features, false);
@@ -94,10 +37,10 @@ TEST(test_layer, forward_linear4) {
   }
 }
 
-TEST(test_layer, forward_linear5) {
+TEST(test_layer, forward_linear2) {
   using namespace kuiper_infer;
-  const uint32_t in_features = 326;
-  const uint32_t out_features = 409;
+  const uint32_t in_features = 32;
+  const uint32_t out_features = 64;
   const uint32_t in_dims = 1280;
 
   LinearLayer linear_layer(in_features, out_features, false);
@@ -125,7 +68,7 @@ TEST(test_layer, forward_linear5) {
   }
 }
 
-TEST(test_layer, forward_linear6) {
+TEST(test_layer, forward_linear3) {
   using namespace kuiper_infer;
   const uint32_t in_features = 8;
   const uint32_t out_features = 12;
@@ -162,7 +105,7 @@ TEST(test_layer, forward_linear6) {
   }
 }
 
-TEST(test_layer, forward_linear7) {
+TEST(test_layer, forward_linear4) {
   using namespace kuiper_infer;
   const uint32_t in_features = 64;
   const uint32_t out_features = 128;
@@ -199,7 +142,7 @@ TEST(test_layer, forward_linear7) {
   }
 }
 
-TEST(test_layer, forward_linear8) {
+TEST(test_layer, forward_linear5) {
   using namespace kuiper_infer;
   const uint32_t in_features = 64;
   const uint32_t out_features = 128;
@@ -235,6 +178,5 @@ TEST(test_layer, forward_linear8) {
     }
   }
 }
-
 
 

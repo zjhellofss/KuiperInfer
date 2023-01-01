@@ -32,7 +32,6 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
-      LOG(ERROR) << "The output size of silu is empty";
     }
 
     CHECK (output->shapes() == input->shapes()) << "The output size of silu is error";
