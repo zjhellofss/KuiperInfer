@@ -253,7 +253,6 @@ void RuntimeGraph::Build(const std::string &input_name, const std::string &outpu
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                                                   bool debug) {
-  TICK(Forward);
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
@@ -338,7 +337,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   const auto &output_op_input_operand = output_op->input_operands.begin();
   const auto &output_operand = output_op_input_operand->second;
   if (debug) {
-    TOCK(Forward)
     LOG(INFO) << "--------------------------------------------------" << "\n";
     LOG(INFO) << "Run duration information";
     double duration_all = 0.;

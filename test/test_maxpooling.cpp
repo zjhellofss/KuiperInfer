@@ -147,3 +147,115 @@ TEST(test_layer, forward_max_pooling_s33_k55) {
     }
   }
 }
+
+
+TEST(test_layer, forward_max_pooling_s33_k77) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  const uint32_t input_h = 224;
+  const uint32_t input_w = 224;
+  const uint32_t kernel_h = 7;
+  const uint32_t kernel_w = 7;
+
+  const uint32_t stride_h = 3;
+  const uint32_t stride_w = 3;
+  const uint32_t input_size = 3;
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+  std::vector<std::shared_ptr<Tensor<float>>> outputs1;
+  MaxPooling(inputs, outputs1, stride_w, stride_h, kernel_h, kernel_w);
+  ASSERT_EQ(outputs1.size(), input_size);
+  MaxPoolingLayer max_layer(0, 0, kernel_h, kernel_w, stride_h, stride_w);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs2(input_size);
+  max_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs2.size(), input_size);
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    const auto &output1 = outputs1.at(i);
+    const auto &output2 = outputs2.at(i);
+    ASSERT_EQ(output1->channels(), output2->channels());
+    uint32_t channels = output1->channels();
+    for (int c = 0; c < channels; ++c) {
+      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+    }
+  }
+}
+
+TEST(test_layer, forward_max_pooling_s55_k77) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  const uint32_t input_h = 224;
+  const uint32_t input_w = 224;
+  const uint32_t kernel_h = 7;
+  const uint32_t kernel_w = 7;
+
+  const uint32_t stride_h = 5;
+  const uint32_t stride_w = 5;
+  const uint32_t input_size = 3;
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+  std::vector<std::shared_ptr<Tensor<float>>> outputs1;
+  MaxPooling(inputs, outputs1, stride_w, stride_h, kernel_h, kernel_w);
+  ASSERT_EQ(outputs1.size(), input_size);
+  MaxPoolingLayer max_layer(0, 0, kernel_h, kernel_w, stride_h, stride_w);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs2(input_size);
+  max_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs2.size(), input_size);
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    const auto &output1 = outputs1.at(i);
+    const auto &output2 = outputs2.at(i);
+    ASSERT_EQ(output1->channels(), output2->channels());
+    uint32_t channels = output1->channels();
+    for (int c = 0; c < channels; ++c) {
+      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+    }
+  }
+}
+
+TEST(test_layer, forward_max_pooling_s77_k77) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  const uint32_t input_h = 224;
+  const uint32_t input_w = 224;
+  const uint32_t kernel_h = 7;
+  const uint32_t kernel_w = 7;
+
+  const uint32_t stride_h = 7;
+  const uint32_t stride_w = 7;
+  const uint32_t input_size = 3;
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+  std::vector<std::shared_ptr<Tensor<float>>> outputs1;
+  MaxPooling(inputs, outputs1, stride_w, stride_h, kernel_h, kernel_w);
+  ASSERT_EQ(outputs1.size(), input_size);
+  MaxPoolingLayer max_layer(0, 0, kernel_h, kernel_w, stride_h, stride_w);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs2(input_size);
+  max_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs2.size(), input_size);
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    const auto &output1 = outputs1.at(i);
+    const auto &output2 = outputs2.at(i);
+    ASSERT_EQ(output1->channels(), output2->channels());
+    uint32_t channels = output1->channels();
+    for (int c = 0; c < channels; ++c) {
+      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+    }
+  }
+}
