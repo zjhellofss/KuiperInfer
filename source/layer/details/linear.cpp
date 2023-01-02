@@ -10,7 +10,7 @@ namespace kuiper_infer {
 
 LinearLayer::LinearLayer(int32_t in_features, int32_t out_features, bool use_bias)
     : ParamLayer("Linear"), use_bias_(use_bias), in_features_(in_features), out_features_(out_features) {
-  std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(in_features, out_features, 1);
+  std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(1, out_features, in_features);
   this->weights_.push_back(weight);
   if (use_bias) {
     std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1, out_features, 1);
@@ -54,12 +54,13 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     const std::vector<uint32_t> &raw_shapes = input->raw_shapes();
     CHECK(raw_shapes.size() == 2);
     const uint32_t feature_dims = raw_shapes.at(0);
-    arma::fmat weight_data(weight->data().memptr(), in_features_, out_features_);
-    CHECK(weight_data.n_cols == out_features_);
-    CHECK(weight_data.n_rows == feature_dims && feature_dims == in_features_);
+    arma::fmat weight_data(weight->data().memptr(), out_features_, in_features_);
+    CHECK(weight_data.n_rows == out_features_);
+    CHECK(weight_data.n_cols == feature_dims && feature_dims == in_features_);
+    const uint32_t input_dim = raw_shapes.at(1);
 
-    arma::fmat col_vec(input->data().memptr(), 1, in_features_);
-    arma::fmat result = (col_vec * weight_data).t();
+    arma::fmat col_vec(input->data().memptr(), in_features_, input_dim);
+    arma::fmat result = (weight_data * col_vec);
 
     if (use_bias_) {
       CHECK(!this->bias_.empty());
@@ -74,12 +75,12 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
     auto &output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(1, out_features_, 1);
+      output = std::make_shared<Tensor<float>>(1, out_features_, input_dim);
     }
-    CHECK(output->channels() == 1 && output->rows() == out_features_ && output->cols() == 1);
+    CHECK(output->channels() == 1 && output->rows() == out_features_ && output->cols() == input_dim);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
-    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == 1);
+    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == input_dim);
     output->at(0) = std::move(result);
     outputs.at(i) = output;
   }
