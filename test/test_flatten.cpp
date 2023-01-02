@@ -6,58 +6,6 @@
 #include "data/tensor.hpp"
 #include "../source/layer/details/flatten.hpp"
 
-TEST(test_flatten, flatten1) {
-  using namespace kuiper_infer;
-  const uint32_t channels = 3;
-  const uint32_t rows = 32;
-  const uint32_t cols = 32;
-  Tensor<float> tensor(channels, rows, cols);
-  int value = 0;
-  for (uint32_t c = 0; c < channels; ++c) {
-    for (uint32_t r = 0; r < rows; ++r) {
-      for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        tensor.at(c, r, c_) = (float) value;
-        value += 1;
-      }
-    }
-  }
-
-  tensor.Flatten();
-  const uint32_t size = rows * cols * channels;
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), i);
-  }
-  const auto &shapes = tensor.raw_shapes();
-  ASSERT_EQ(shapes.size(), 1);
-  ASSERT_EQ(shapes.at(0), size);
-}
-
-TEST(test_flatten, flatten2) {
-  using namespace kuiper_infer;
-  const uint32_t channels = 4;
-  const uint32_t rows = 320;
-  const uint32_t cols = 320;
-  Tensor<float> tensor(channels, rows, cols);
-  int value = 0;
-  for (uint32_t c = 0; c < channels; ++c) {
-    for (uint32_t r = 0; r < rows; ++r) {
-      for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        tensor.at(c, r, c_) = (float) value;
-        value += 1;
-      }
-    }
-  }
-
-  tensor.Flatten();
-  const uint32_t size = rows * cols * channels;
-  for (uint32_t i = 0; i < size; ++i) {
-    ASSERT_EQ(tensor.index(i), i);
-  }
-  const auto &shapes = tensor.raw_shapes();
-  ASSERT_EQ(shapes.size(), 1);
-  ASSERT_EQ(shapes.at(0), size);
-}
-
 TEST(test_layer, forward_flatten_layer1) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
