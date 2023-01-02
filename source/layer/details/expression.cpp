@@ -20,7 +20,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   const uint32_t size = inputs.size();
-  CHECK(size % 2 == 0);
+//  CHECK(size % 2 == 0);
   if (!size) {
     LOG(ERROR) << "The input feature map of add layer is null";
     return InferStatus::kInferFailedInputEmpty;
@@ -37,6 +37,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
+    CHECK(outputs.at(i) != nullptr && !outputs.at(i)->empty());
     outputs.at(i)->Fill(0.f);
   }
 
@@ -48,6 +49,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       uint32_t start_pos = token_node->num_index * batch_size;
       std::vector<std::shared_ptr<Tensor<float>>> input_token_nodes;
       for (uint32_t i = 0; i < batch_size; ++i) {
+        CHECK(i + start_pos < inputs.size());
         input_token_nodes.push_back(inputs.at(i + start_pos));
       }
       op_stack.push(input_token_nodes);
@@ -86,6 +88,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   std::vector<std::shared_ptr<Tensor<float>>> output_node = op_stack.top();
   op_stack.pop();
   for (int i = 0; i < batch_size; ++i) {
+    CHECK(outputs.at(i) != nullptr && !outputs.at(i)->empty());
     outputs.at(i) = output_node.at(i);
   }
   return InferStatus::kInferSuccess;
