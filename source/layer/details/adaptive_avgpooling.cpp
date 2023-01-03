@@ -71,7 +71,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
               mean_value = mean_value + current_value;
             }
           }
-          *(output_channel_ptr + int(r / stride_h)) = mean_value / (pooling_h * pooling_w);
+          *(output_channel_ptr + int(r / stride_h)) = mean_value / float(pooling_h * pooling_w);
         }
       }
     }
