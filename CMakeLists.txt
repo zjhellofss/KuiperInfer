@@ -3,6 +3,13 @@ project(kuiper_infer)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(./include)
 
+option(BUILD_DEMOS "Build Demo Project" OFF)
+set(BUILD_DEMO ON)
+if (BUILD_DEMO)
+    MESSAGE(STATUS "Build Demo Project")
+    add_subdirectory(demos)
+endif ()
+
 enable_testing()
 add_subdirectory(bench)
 add_subdirectory(test)
