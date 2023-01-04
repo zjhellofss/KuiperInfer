@@ -1,7 +1,7 @@
 # KuiperInfer
 自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 
-
+![](./imgs/KuiperInfer.png)
 ## 使用的技术和开发环境
 开发语言：C++ 17
 
@@ -38,10 +38,13 @@
 6. Sigmoid 
 7. HardSigmoid 
 8. HardSwish 
-9. Relu 
+9. ReLU
 10. Linear(矩阵相乘，只支持二维Tensor相乘，其他维度用到再开发)
 11. Softmax 
 12. BatchNorm
+13. Upsample
+14. SiLU
+15. Concat
 
 ## 目录
 1. source是源码目录
@@ -57,17 +60,17 @@
 ## 课程计划
 我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
 
-| 课程节数    | 主要内容                   | 进度  |课程链接|
-|---------|------------------------|-----|---------------------|
-| 第一次课    | 整体框架解读和开发环境配置          | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/|
-| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/|
-| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/?spm_id_from=333.999.0.0|
-| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 未完成 | |
-| 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 | |
-| 第六次课    | 照猫画虎，完成MaxPooling算子    | 未完成 | |
-| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 | |
-| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 | |
-| 第二季课程待叙 | ...                    | ... | |
+| 课程节数    | 主要内容                   | 进度  | 课程链接                                         |
+|---------|------------------------|-----|----------------------------------------------|
+| 第一次课    | 整体框架解读和开发环境配置          | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 |                                              |
+| 第六次课    | 照猫画虎，完成MaxPooling算子    | 未完成 |                                              |
+| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 |                                              |
+| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |                                              |
+| 第二季课程待叙 | ...                    | ... |                                              |
 
 先列前八次(第一季)的课程，课程目录可能会发生变化。
 后续课程会在第八次课程讲完后发布。
