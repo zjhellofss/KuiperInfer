@@ -127,7 +127,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(const std::shared_ptr<Runt
   for (int i = 0; i < stages_number; ++i) {
     const std::string &weight_name = "m." + std::to_string(i) + ".weight";
     if (attrs.find(weight_name) == attrs.end()) {
-      LOG(ERROR) << "Can not find the in weight attribute";
+      LOG(ERROR) << "Can not find the in weight attribute " << weight_name;
       return ParseParameterAttrStatus::kAttrMissingWeight;
     }
 

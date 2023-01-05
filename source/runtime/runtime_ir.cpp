@@ -282,7 +282,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
     if (!current_op || current_op == output_op) {
       if (debug) {
-        LOG(INFO) << "Model inference end";
+        LOG(INFO) << "Model Inference End";
       }
       break;
     }
@@ -338,7 +338,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   const auto &output_operand = output_op_input_operand->second;
   if (debug) {
     LOG(INFO) << "--------------------------------------------------" << "\n";
-    LOG(INFO) << "Run duration information";
+    LOG(INFO) << "Model Running Information, Time Cost:";
     double duration_all = 0.;
     for (const auto &run_info : run_duration_infos) {
       LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.second << " s";
