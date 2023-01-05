@@ -223,6 +223,8 @@ class Tensor<float> {
    */
   std::shared_ptr<Tensor> Clone();
 
+  const float *RawPtr() const;
+
  private:
   void ReView(const std::vector<uint32_t> &shapes);
   std::vector<uint32_t> raw_shapes_; // 张量数据的实际尺寸大小
