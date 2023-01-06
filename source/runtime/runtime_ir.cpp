@@ -339,6 +339,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   if (debug) {
     LOG(INFO) << "--------------------------------------------------" << "\n";
     LOG(INFO) << "Model Running Information, Time Cost:";
+    LOG(INFO) << "Batch Size:" << inputs.size();
+    for (int i = 0; i < inputs.size(); ++i) {
+      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows() << " Cols: " << inputs.at(i)->cols() << " Channels: "
+                << inputs.at(i)->channels();
+    }
     double duration_all = 0.;
     for (const auto &run_info : run_duration_infos) {
       LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.second << " s";

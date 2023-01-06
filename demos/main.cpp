@@ -11,38 +11,11 @@
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
 
-struct Detection {
-  cv::Rect box;
-  float conf = 0.f;
-  int class_id = -1;
-};
-
-template<typename T>
-T clip(const T &n, const T &lower, const T &upper) {
-  return std::max(lower, std::min(n, upper));
-}
-
-void ScaleCoords(const cv::Size &img_shape, cv::Rect &coords, const cv::Size &img_origin_shape) {
-  float gain = std::min((float) img_shape.height / (float) img_origin_shape.height,
-                        (float) img_shape.width / (float) img_origin_shape.width);
-
-  int pad[2] = {(int) (((float) img_shape.width - (float) img_origin_shape.width * gain) / 2.0f),
-                (int) (((float) img_shape.height - (float) img_origin_shape.height * gain) / 2.0f)};
-
-  coords.x = (int) std::round(((float) (coords.x - pad[0]) / gain));
-  coords.y = (int) std::round(((float) (coords.y - pad[1]) / gain));
-
-  coords.width = (int) std::round(((float) coords.width / gain));
-  coords.height = (int) std::round(((float) coords.height / gain));
-
-  coords.x = clip(coords.x, 0, img_origin_shape.width);
-  coords.y = clip(coords.y, 0, img_origin_shape.height);
-  coords.width = clip(coords.width, 0, img_origin_shape.width);
-  coords.height = clip(coords.height, 0, img_origin_shape.height);
-}
-
-void SingleImageYoloInfer(const std::string &image_path,
-                          const float conf_thresh = 0.25f, const float iou_thresh = 0.25f) {
+void SingleImageYoloInferNano(const std::string &image_path,
+                              const std::string &param_path,
+                              const std::string &weight_path,
+                              const float conf_thresh = 0.25f,
+                              const float iou_thresh = 0.25f) {
   assert(!image_path.empty());
 
   using namespace kuiper_infer;
@@ -50,8 +23,7 @@ void SingleImageYoloInfer(const std::string &image_path,
   const int32_t input_h = 640;
   const int32_t input_w = 640;
 
-  RuntimeGraph graph("tmp/yolo/test/yolov5n.pnnx.param",
-                     "tmp/yolo/test/yolov5n.pnnx.bin");
+  RuntimeGraph graph(param_path, weight_path);
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
@@ -60,8 +32,9 @@ void SingleImageYoloInfer(const std::string &image_path,
   const int32_t origin_input_h = image.size().height;
   const int32_t origin_input_w = image.size().width;
 
+  int stride = 32;
   cv::Mat out_image;
-  Letterbox(image, out_image, {input_h, input_w}, 32, {114, 114, 114}, true);
+  Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114}, true);
 
   cv::Mat rgb_image;
   cv::cvtColor(out_image, rgb_image, cv::COLOR_BGR2RGB);
@@ -69,7 +42,6 @@ void SingleImageYoloInfer(const std::string &image_path,
   cv::Mat normalize_image;
   rgb_image.convertTo(normalize_image, CV_32FC3, 1. / 255.);
 
-  int offset = 0;
   std::vector<cv::Mat> split_images;
   cv::split(normalize_image, split_images);
   assert(split_images.size() == input_c);
@@ -79,6 +51,7 @@ void SingleImageYoloInfer(const std::string &image_path,
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   int index = 0;
+  int offset = 0;
   for (const auto &split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
     const cv::Mat &split_image_t = split_image.t();
@@ -103,7 +76,6 @@ void SingleImageYoloInfer(const std::string &image_path,
   assert(batch == 1);
   const uint32_t elements = shapes.at(1);
   const uint32_t num_info = shapes.at(2);
-  const uint32_t num_classes = shapes.at(2) - 5;
   std::vector<Detection> detections;
 
   std::vector<cv::Rect> boxes;
@@ -163,7 +135,9 @@ void SingleImageYoloInfer(const std::string &image_path,
 }
 
 int main() {
-  const std::string &image_path = "imgs/bus.jpg";
-  SingleImageYoloInfer(image_path);
+  const std::string &image_path = "imgs/25.jpg";
+  const std::string &param_path = "tmp/yolo/demo/yolov5s.pnnx.param";
+  const std::string &weight_path = "tmp/yolo/demo/yolov5s.pnnx.bin";
+  SingleImageYoloInferNano(image_path, param_path, weight_path);
   return 0;
 }
