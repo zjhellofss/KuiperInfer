@@ -12,11 +12,11 @@ namespace kuiper_infer {
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
   if (channels == 1 && rows == 1) {
-    this->raw_shapes_ = std::vector < uint32_t > {cols};
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
   } else if (channels == 1) {
-    this->raw_shapes_ = std::vector < uint32_t > {rows, cols};
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
   } else {
-    this->raw_shapes_ = std::vector < uint32_t > {channels, rows, cols};
+    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
   }
 }
 
@@ -194,11 +194,10 @@ void Tensor<float>::Flatten() {
   }
   CHECK_EQ(index, size);
   this->data_ = linear_cube;
-  this->raw_shapes_ = std::vector < uint32_t > {size};
+  this->raw_shapes_ = std::vector<uint32_t>{size};
 }
 
-std::shared_ptr<Tensor<float>>
-Tensor<float>::Clone() {
+std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
   return std::make_shared<Tensor>(*this);
 }
 
@@ -217,7 +216,7 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementAdd(const std::shared_ptr<T
   CHECK(!tensor1->empty() && !tensor2->empty());
   CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
   std::shared_ptr<Tensor<float>>
-      output_tensor = std::make_shared < Tensor < float >> (tensor1->channels(), tensor1->rows(), tensor1->cols());
+      output_tensor = std::make_shared<Tensor<float >>(tensor1->channels(), tensor1->rows(), tensor1->cols());
   output_tensor->data_ = tensor1->data_ + tensor2->data_;
   return output_tensor;
 }
@@ -227,7 +226,7 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_
   CHECK(!tensor1->empty() && !tensor2->empty());
   if (tensor1->shapes() == tensor2->shapes()) {
     std::shared_ptr<Tensor<float>> output_tensor =
-        std::make_shared < Tensor < float >> (tensor1->channels(), tensor1->rows(), tensor1->cols());
+        std::make_shared<Tensor<float >>(tensor1->channels(), tensor1->rows(), tensor1->cols());
     output_tensor->data_ = tensor1->data_ % tensor2->data_;
     return output_tensor;
   } else {
@@ -246,19 +245,13 @@ std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_
       LOG(FATAL) << "Tensors shape are not adapting";
     }
 
-    std::vector<float> channel_values;
+    const std::shared_ptr<Tensor<float>>
+        input_tensor2_ = std::make_shared<Tensor<float>>(channels, tensor1_->rows(), tensor1_->cols());
     for (uint32_t c = 0; c < channels; ++c) {
-      float value = tensor2_->index(c);
-      channel_values.push_back(value);
-    }
-    const std::shared_ptr<Tensor<float>> input_tensor2_ = tensor2_->Clone();
-    input_tensor2_->data_.reshape(tensor1_->rows(), tensor1_->cols(), channels);
-    for (uint32_t c = 0; c < channels; ++c) {
-      input_tensor2_->data_.slice(c).fill(channel_values.at(c));
+      input_tensor2_->data_.slice(c).fill(tensor2_->index(c));
     }
     std::shared_ptr<Tensor<float>> output_tensor =
-        std::make_shared < Tensor
-            < float >> (input_tensor2_->rows(), input_tensor2_->cols(), input_tensor2_->channels());
+        std::make_shared<Tensor<float>>(input_tensor2_->rows(), input_tensor2_->cols(), input_tensor2_->channels());
     output_tensor->data_ = tensor1_->data_ % input_tensor2_->data_;
     return output_tensor;
   }
