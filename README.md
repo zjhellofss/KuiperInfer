@@ -2,29 +2,41 @@
 自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 
 ![](./imgs/KuiperInfer.png)
+
+## 课程计划
+我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
+
+| 课程节数    | 主要内容                   | 进度 | 课程链接                                         |
+|---------|------------------------|----|----------------------------------------------|
+| 第一次课    | 整体框架解读和开发环境配置          | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成 | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 |                                              |
+| 第六次课    | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
+| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 |                                              |
+| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |                                              |
+| 第二季课程待叙 | ...                    | ... |                                              |
+
+先列前八次(第一季)的课程，课程目录可能会发生变化。
+后续课程会在第八次课程讲完后发布。
+
 ## 使用的技术和开发环境
-开发语言：C++ 17
+* 开发语言：C++ 17
+* 数学库：Armadillo+OpenBlas
+* 加速库：OpenMP
+* 单元测试：GTest
+* 性能测试：Google Benchmark
 
-数学库：Armadillo+OpenBlas
-
-加速库：OpenMP
-
-单元测试：GTest
-
-性能测试：Google Benchmark
-
-## 安装过程
-1. sudo apt install cmake libopenblas-dev liblapack-dev libarpack2-dev libsuperlu-dev
-
-2. git clone --recursive https://github.com/zjhellofss/KuiperInfer.git
-
-3. cd KuiperInfer
-
-4. mkdir build
-
-5. cmake ..
-
-6. make -j8
+## 安装过程(已提供docker环境)
+1. docker pull registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest
+2. sudo docker run -t -i registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest /bin/bash
+3. cd code
+4. cd KuiperInfer
+5. git pull (可选的命令)
+5. mkdir build
+6. cmake ..
+7. make -j16
 
 ## 已经支持的算子
 **总体秉承算子用到再开发的理念；**
@@ -57,23 +69,7 @@
 
 
 
-## 课程计划
-我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
 
-| 课程节数    | 主要内容                   | 进度  | 课程链接                                         |
-|---------|------------------------|-----|----------------------------------------------|
-| 第一次课    | 整体框架解读和开发环境配置          | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
-| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
-| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
-| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
-| 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 |                                              |
-| 第六次课    | 照猫画虎，完成MaxPooling算子    | 未完成 |                                              |
-| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 |                                              |
-| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |                                              |
-| 第二季课程待叙 | ...                    | ... |                                              |
-
-先列前八次(第一季)的课程，课程目录可能会发生变化。
-后续课程会在第八次课程讲完后发布。
 
 ## 性能
 ### 测试环境
