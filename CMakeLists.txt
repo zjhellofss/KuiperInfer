@@ -3,8 +3,11 @@ project(kuiper_infer)
 set(CMAKE_CXX_STANDARD 17)
 include_directories(./include)
 
-set(USE_CUDA "Support Cuda Backend" ON)
-set(BUILD_DEMO "Build The Demo Project" ON)
+option(USE_CUDA "Support Cuda Backend")
+option(BUILD_DEMO "Build The Demo Project" )
+
+set(USE_CUDA ON)
+set(BUILD_DEMO ON)
 
 if (BUILD_DEMO)
     MESSAGE(STATUS "Build Demo Project")
@@ -32,7 +35,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(link_lib glog::glog pthread)
 set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
 
-add_library(kuiper SHARED  ${DIR_DATA} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} )
+add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER})
 target_link_libraries(kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(kuiper PUBLIC ${benchmark_INCLUDE_DIRS})
