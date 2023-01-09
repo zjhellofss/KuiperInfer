@@ -35,6 +35,7 @@
 4. cd KuiperInfer
 5. git pull (可选的命令)
 5. mkdir build
+6. cd build
 6. cmake ..
 7. make -j16
 
