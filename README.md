@@ -38,6 +38,8 @@
 6. cd build
 6. cmake ..
 7. make -j16
+## 效果图
+![](https://i.imgur.com/JkZ9KiE.jpg)
 
 ## 已经支持的算子
 **总体秉承算子用到再开发的理念；**
