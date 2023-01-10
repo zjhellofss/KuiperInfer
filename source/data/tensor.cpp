@@ -175,26 +175,7 @@ void Tensor<float>::Show() {
 void Tensor<float>::Flatten() {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
-  arma::fcube linear_cube(size, 1, 1);
-
-  uint32_t channel = this->channels();
-  uint32_t rows = this->rows();
-  uint32_t cols = this->cols();
-  uint32_t index = 0;
-
-  for (uint32_t c = 0; c < channel; ++c) {
-    const arma::fmat &matrix = this->data_.slice(c);
-
-    for (uint32_t r = 0; r < rows; ++r) {
-      for (uint32_t c_ = 0; c_ < cols; ++c_) {
-        linear_cube.at(index, 0, 0) = matrix.at(r, c_);
-        index += 1;
-      }
-    }
-  }
-  CHECK_EQ(index, size);
-  this->data_ = linear_cube;
-  this->raw_shapes_ = std::vector<uint32_t>{size};
+  this->ReRawshape({size});
 }
 
 std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
