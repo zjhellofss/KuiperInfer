@@ -3,6 +3,10 @@
 //
 #include "yolo_detect.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#if __SSE2__
+#include <emmintrin.h>
+#include "sse_mathfun.hpp"
+#endif
 namespace kuiper_infer {
 
 YoloDetectLayer::YoloDetectLayer(int32_t stages,
@@ -63,9 +67,31 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       }
 
       input->ReRawView({stages, uint32_t(classes_info), ny * nx});
-      input->Transform([](const float f) {
-        return 1 / (1 + std::exp(-f));
-      });
+      const uint32_t size = input->size();
+
+      if (!(size % 4)) {
+#if __SSE2__
+        float *ptr = const_cast<float *>(input->RawPtr());
+        __m128 _one1 = _mm_set1_ps(1.f);
+        __m128 _one2 = _mm_set1_ps(1.f);
+        __m128 _zero = _mm_setzero_ps();
+        const uint32_t packet_size = 4;
+        for (uint32_t j = 0; j + (packet_size - 1) < size; j += packet_size) {
+          __m128 _p = _mm_load_ps(ptr);
+          _p = _mm_div_ps(_one1, _mm_add_ps(_one2, exp_ps(_mm_sub_ps(_zero, _p))));
+          _mm_store_ps(ptr, _p);
+          ptr += packet_size;
+        }
+#elif
+        input->Transform([](const float value) {
+          return  1.f / (1.f + std::exp(-value));
+        });
+#endif
+      } else {
+        input->Transform([](const float value) {
+          return 1.f / (1.f + std::exp(-value));
+        });
+      }
 
       arma::fmat &x_stages = x_stages_tensor->at(b);
       for (uint32_t s = 0; s < stages; ++s) {

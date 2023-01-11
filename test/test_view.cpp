@@ -337,3 +337,58 @@ TEST(test_layer, forward_view12) {
     ASSERT_EQ(output->cols(), 32);
   }
 }
+
+TEST(test_layer, forward_view13) {
+  using namespace kuiper_infer;
+  kuiper_infer::ViewLayer layer({1, 1, 32 * 3, 32});
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 32);
+  input->Rand();
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+  layer.Forward(inputs, outputs);
+
+  for (int s = 0; s < outputs.size(); ++s) {
+    const auto &output = outputs.at(s);
+
+    const auto &input_ = inputs.at(s);
+    const auto &slice_input = input_->data().slice(0);
+    const auto &slice_output = output->data().slice(0);
+
+    for (int i = 0; i < 32; ++i) {
+      for (int j = 0; j < 32; ++j) {
+        ASSERT_EQ(slice_input.at(i, j), slice_output.at(i, j));
+      }
+    }
+  }
+}
+
+TEST(test_layer, forward_view14) {
+  using namespace kuiper_infer;
+  kuiper_infer::ViewLayer layer({2, 1, 77 * 3, 32});
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  for (int i = 0; i < 2; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 77, 32);
+    input->Rand();
+    inputs.push_back(input);
+  }
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
+  layer.Forward(inputs, outputs);
+
+  for (int s = 0; s < outputs.size(); ++s) {
+    const auto &output = outputs.at(s);
+
+    const auto &input_ = inputs.at(s);
+    const auto &slice_input = input_->data().slice(0);
+    const auto &slice_output = output->data().slice(0);
+
+    for (int i = 0; i < 77; ++i) {
+      for (int j = 0; j < 32; ++j) {
+        ASSERT_EQ(slice_input.at(i, j), slice_output.at(i, j));
+      }
+    }
+  }
+}

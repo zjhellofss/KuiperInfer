@@ -85,7 +85,6 @@ TEST(test_layer, forward_linear3) {
   }
 
   linear_layer.set_weights(weights_raw);
-  LOG(INFO) << "\n" << linear_layer.weights().front()->data();
   input->Fill(1.f);
 
   std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, out_features, in_dims);

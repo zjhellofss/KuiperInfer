@@ -89,6 +89,8 @@ Ubuntu 22.04, Intel(R) Core(TM) i7-11800H @ 2.30GHz, 32G Memory
 
 
 ## 致谢
+推理框架NCNN，已经在借鉴的代码中保留了NCNN的BSD协议 https://github.com/Tencent/ncnn
+
 优秀的数学库Openblas: https://github.com/xianyi/OpenBLAS
 
 优秀的数学库Armadillo: https://arma.sourceforge.net/docs.html

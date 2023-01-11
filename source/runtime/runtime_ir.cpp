@@ -276,6 +276,16 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   operator_queue.push_back(input_op);
   std::map<std::string, double> run_duration_infos;
 
+  if (debug) {
+    LOG(INFO) << "Batch Size:" << inputs.size();
+    for (int i = 0; i < inputs.size(); ++i) {
+      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows() << " Cols: " << inputs.at(i)->cols() << " Channels: "
+                << inputs.at(i)->channels();
+    }
+    LOG(INFO) << "Inference starting...";
+    LOG(INFO) << "--------------------------------------------------" << "\n";
+  }
+
   while (!operator_queue.empty()) {
     std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
     operator_queue.pop_front();
@@ -337,13 +347,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   const auto &output_op_input_operand = output_op->input_operands.begin();
   const auto &output_operand = output_op_input_operand->second;
   if (debug) {
-    LOG(INFO) << "--------------------------------------------------" << "\n";
     LOG(INFO) << "Model Running Information, Time Cost:";
-    LOG(INFO) << "Batch Size:" << inputs.size();
-    for (int i = 0; i < inputs.size(); ++i) {
-      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows() << " Cols: " << inputs.at(i)->cols() << " Channels: "
-                << inputs.at(i)->channels();
-    }
     double duration_all = 0.;
     for (const auto &run_info : run_duration_infos) {
       LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.second << " s";

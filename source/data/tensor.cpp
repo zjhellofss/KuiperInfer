@@ -306,8 +306,8 @@ void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
     for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
       for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
         const uint32_t pos_index = c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
-        const uint32_t ch = pos_index / plane_size;          // 249 / 60 => 4
-        const uint32_t row = (pos_index - ch * plane_size) / target_cols;   // 255 -
+        const uint32_t ch = pos_index / plane_size;
+        const uint32_t row = (pos_index - ch * plane_size) / target_cols;
         const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
         new_data.at(row, col, ch) = this->data_.at(r, c_, c);
       }

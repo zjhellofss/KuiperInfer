@@ -4,6 +4,10 @@
 
 #include "silu.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#if __SSE2__
+#include <emmintrin.h>
+#include "sse_mathfun.hpp"
+#endif
 namespace kuiper_infer {
 
 SiLULayer::SiLULayer() : Layer("SiLU") {
@@ -35,9 +39,29 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
 
     CHECK (output->shapes() == input->shapes()) << "The output size of silu is error";
     output->set_data(input->data());
-    output->Transform([](const float value) {
+    uint32_t size = output->size();
+    if (!(size % 4)) {
+#if __SSE2__
+      float *ptr = const_cast<float *>(output->RawPtr());
+      __m128 _one = _mm_set1_ps(1.f);
+      __m128 _zero = _mm_setzero_ps();
+      const uint32_t packet_size = 4;
+      for (uint32_t j = 0; j + (packet_size - 1) < size; j += packet_size) {
+        __m128 _p = _mm_load_ps(ptr);
+        _p = _mm_div_ps(_p, _mm_add_ps(_one, exp_ps(_mm_sub_ps(_zero, _p))));
+        _mm_store_ps(ptr, _p);
+        ptr += packet_size;
+      }
+#elif
+      output->Transform([](const float value) {
       return value / (1.f + std::exp(-value));
     });
+#endif
+    } else {
+      output->Transform([](const float value) {
+        return value / (1.f + std::exp(-value));
+      });
+    }
     outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;

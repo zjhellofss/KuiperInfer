@@ -127,12 +127,16 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
 
         uint32_t offset_index = 0;
-        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              const float *region_ptr = input_channel.colptr(c + kw) + r;
-              memcpy(input_matrix_c_ptr + offset_index * kernel_h, region_ptr, kernel_h * sizeof(float));
-              offset_index += 1;
+        if (kernel_w == 1 && kernel_h == 1 && stride_h_ == 1 && stride_w_ == 1) {
+          memcpy(input_matrix_c_ptr, input_channel.memptr(), sizeof(float) * row_len * col_len);
+        } else {
+          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+            for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+              for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+                const float *region_ptr = input_channel.colptr(c + kw) + r;
+                memcpy(input_matrix_c_ptr + offset_index * kernel_h, region_ptr, kernel_h * sizeof(float));
+                offset_index += 1;
+              }
             }
           }
         }
