@@ -20,8 +20,8 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     LOG(ERROR) << "The size of input and output feature map is not adapting!";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
-
   CHECK(!shapes_.empty()) << "The shape parameter is empty!";
+
   const uint32_t batch_size = inputs.size();
   CHECK(shapes_.front() != -1 && shapes_.front() == batch_size) << "The shape parameter is wrong!";
 
@@ -33,7 +33,6 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     int zero_index = -1;
     uint32_t total_size = input_data->size();
     uint32_t current_size = 1;
-
     std::vector<uint32_t> shapes;
     for (int j = 1; j < shapes_.size(); ++j) {
       CHECK(shapes_.at(j) == -1 || shapes_.at(j) > 0);
@@ -52,14 +51,9 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
     }
-    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
-    if (output_data == nullptr || output_data->empty()) {
-      output_data = std::make_shared<Tensor<float>>(input_data->shapes());
-      outputs.at(i) = output_data;
-    }
-
-    output_data->set_data(input_data->data());
+    std::shared_ptr<Tensor<float>> output_data = input_data->Clone();
     output_data->ReRawView(shapes);
+    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }
