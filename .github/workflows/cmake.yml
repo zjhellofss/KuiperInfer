@@ -6,8 +6,15 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
 env:
   BUILD_TYPE: Release
+
 
 jobs:
   build:
@@ -16,18 +23,28 @@ jobs:
       image: hellofss/kuiperinfer:latest
 
     steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: 'true'
+      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
+      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - run: echo "🍏 This job's status is ${{ job.status }}."
 
-    - name: Configure CMake
-      run: echo ${{github.workspace}} && cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
 
-    - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 3
+      - name: Configure CMake
+        run: echo ${{github.workspace}} && cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 3
 
 
-    - name: Test
-      working-directory: ${{github.workspace}}
-      run:  ${{github.workspace}}/build/test/test_kuiper
+      - name: Test
+        working-directory: ${{github.workspace}}
+        run: ${{github.workspace}}/build/test/test_kuiper
 
