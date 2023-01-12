@@ -52,9 +52,14 @@ InferStatus ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
     }
-    std::shared_ptr<Tensor<float>> output_data = input_data->Clone();
+    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
+    if (output_data == nullptr || output_data->empty()) {
+      output_data = std::make_shared<Tensor<float>>(input_data->shapes());
+      outputs.at(i) = output_data;
+    }
+
+    output_data->set_data(input_data->data());
     output_data->ReRawView(shapes);
-    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }

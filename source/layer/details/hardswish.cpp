@@ -29,10 +29,10 @@ InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
     if (output == nullptr || output->empty()) {
       LOG(ERROR) << "The output size of hardswish is empty";
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
+      outputs.at(i) = output;
     }
 
     CHECK(output->shapes() == input->shapes()) << "The output size of hardswish is error";
-
     output->set_data(input->data());
     output->Transform([](float val) {
       if (val <= -3.f) {
@@ -43,7 +43,6 @@ InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         return val * (val + 3) / 6;
       }
     });
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

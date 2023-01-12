@@ -30,21 +30,20 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
+      output = std::make_shared<Tensor<float>>(input->shapes());
       LOG(ERROR) << "The output size of softmax is empty" << "The output size of softmax is error";
+      outputs.at(i) = output;
     }
 
     CHECK(input->shapes() == output->shapes()) << "The output size of softmax is error";
 
     const arma::fcube &input_data = input->data();
     arma::fcube &output_data = output->data();
-
     const float max = input_data.max();
     const float sum = arma::accu(arma::exp(input_data - max));
     const float offset = max + logf(sum);
 
     output_data = arma::exp(input_data - offset);
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

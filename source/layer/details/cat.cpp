@@ -42,6 +42,7 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
 
       if (output == nullptr || output->empty()) {
         output = std::make_shared<Tensor<float>>(in_channels * packet_size, rows, cols);
+        outputs.at(i) = output;
       }
       CHECK(output->channels() == in_channels * packet_size && output->rows() == rows && output->cols() == cols);
       for (uint32_t c = 0; c < in_channels; ++c) {
@@ -49,7 +50,6 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
       }
       start_channel += input->channels();
     }
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

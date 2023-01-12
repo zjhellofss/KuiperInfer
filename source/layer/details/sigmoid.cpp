@@ -28,15 +28,15 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
+      output = std::make_shared<Tensor<float>>(input->shapes());
+      outputs.at(i) = output;
     }
 
     CHECK (output->shapes() == input->shapes()) << "The output size of sigmoid is error";
-
     output->set_data(input->data());
-    arma::fcube &output_data_cube = output->data();
-    output_data_cube = 1 / (1 + arma::exp(-output_data_cube));
-    outputs.at(i) = output;
+    output->Transform([](const float value) {
+      return 1.f / (1 + expf(-value));
+    });
   }
   return InferStatus::kInferSuccess;
 }

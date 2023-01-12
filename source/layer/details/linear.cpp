@@ -63,7 +63,7 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     arma::fmat result = (weight_data * col_vec);
 
     if (use_bias_) {
-      CHECK(!this->bias_.empty());
+      CHECK(!this->bias_.empty() && this->bias_.size() == 1);
       const auto &bias_cube = this->bias_.front();
       CHECK(!bias_cube->empty());
 
@@ -73,16 +73,16 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       result += bias_data.slice(0);
     }
 
-    auto &output = outputs.at(i);
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, out_features_, input_dim);
+      outputs.at(i) = output;
     }
     CHECK(output->channels() == 1 && output->rows() == out_features_ && output->cols() == input_dim);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
     CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == input_dim);
     output->at(0) = std::move(result);
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

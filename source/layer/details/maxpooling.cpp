@@ -73,6 +73,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
       output_data = std::make_shared<Tensor<float>>(input_c, output_h, output_w);
+      outputs.at(i) = output_data;
     }
 
     CHECK(output_data->rows() == output_h && output_data->cols() == output_w
@@ -97,7 +98,6 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         }
       }
     }
-    outputs.at(i) = output_data;
   }
   return InferStatus::kInferSuccess;
 }

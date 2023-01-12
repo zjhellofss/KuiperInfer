@@ -42,7 +42,8 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
       LOG(ERROR) << "The output size of batchnorm is empty";
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
+      output = std::make_shared<Tensor<float>>(input->shapes());
+      outputs.at(b) = output;
     }
 
     CHECK(output->shapes() == input->shapes()) << "The output size of batchnorm is error";
@@ -55,7 +56,6 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       float var_value_ = std::sqrt(var_value + eps_);
       output->at(i) = ((input->at(i) - mean_value) / var_value_) * affine_weight_.at(i) + affine_bias_.at(i);
     }
-    outputs.at(b) = output;
   }
   return InferStatus::kInferSuccess;
 }

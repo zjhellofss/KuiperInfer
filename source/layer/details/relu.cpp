@@ -24,14 +24,14 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       LOG(ERROR) << "The output size of relu is error";
-      output = input->Clone();
+      output = std::make_shared<Tensor<float>>(input->shapes());
+      outputs.at(i) = output;
     }
-    CHECK(output->shapes()== input->shapes()) << "The output size of relu is error";
+    CHECK(output->shapes() == input->shapes()) << "The output size of relu is error";
     output->set_data(input->data());
     output->Transform([](float val) {
       return val > 0. ? val : 0.;
     });
-    outputs.at(i) = output;
   }
 
   return InferStatus::kInferSuccess;

@@ -31,10 +31,10 @@ InferStatus HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>
     if (output == nullptr || output->empty()) {
       LOG(ERROR) << "The output size of hardsigmoid is empty";
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
+      outputs.at(i) = output;
     }
 
     CHECK(output->shapes() == input->shapes()) << "The output size of hardsigmoid is error";
-
     output->set_data(input->data());
     output->Transform([](float val) {
       if (val <= -3.f) {
@@ -45,7 +45,6 @@ InferStatus HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>
         return val / 6.f + 0.5f;
       }
     });
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

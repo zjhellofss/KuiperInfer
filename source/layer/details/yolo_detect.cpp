@@ -57,15 +57,17 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     CHECK(status == InferStatus::kInferSuccess);
 
     CHECK(stage_output.size() == batch_size);
+    const uint32_t nx_ = stage_output.front()->rows();
+    const uint32_t ny_ = stage_output.front()->cols();
+
     std::shared_ptr<Tensor<float>> x_stages_tensor;
+    x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx_ * ny_, uint32_t(classes_info));
+
+#pragma omp parallel for num_threads(batch_size)
     for (uint32_t b = 0; b < batch_size; ++b) {
       std::shared_ptr<Tensor<float>> input = stage_output.at(b);
       const uint32_t nx = input->rows();
       const uint32_t ny = input->cols();
-      if (x_stages_tensor == nullptr || x_stages_tensor->empty()) {
-        x_stages_tensor = std::make_shared<Tensor<float>>(batch_size, stages * nx * ny, uint32_t(classes_info));
-      }
-
       input->ReRawView({stages, uint32_t(classes_info), ny * nx});
       const uint32_t size = input->size();
 
@@ -116,9 +118,10 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   for (int i = 0; i < f1.n_slices; ++i) {
-    auto &output = outputs.at(i);
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, concat_rows, classes_info);
+      outputs.at(i) = output;
     }
     output->at(0) = f1.slice(i);
   }

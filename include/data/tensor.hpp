@@ -32,6 +32,8 @@ class Tensor<float> {
    */
   explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
+  explicit Tensor(const std::vector<uint32_t> &shapes);
+
   Tensor(const Tensor &tensor);
 
   Tensor<float> &operator=(const Tensor &tensor);

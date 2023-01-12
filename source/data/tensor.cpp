@@ -20,6 +20,22 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
+Tensor<float>::Tensor(const std::vector<uint32_t> &shapes) {
+  CHECK(shapes.size() == 3);
+  uint32_t channels = shapes.at(0);
+  uint32_t rows = shapes.at(1);
+  uint32_t cols = shapes.at(2);
+
+  data_ = arma::fcube(rows, cols, channels);
+  if (channels == 1 && rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else if (channels == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  }
+}
+
 Tensor<float>::Tensor(const Tensor &tensor) {
   this->data_ = tensor.data_;
   this->raw_shapes_ = tensor.raw_shapes_;

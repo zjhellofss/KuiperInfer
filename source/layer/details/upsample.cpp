@@ -26,11 +26,12 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube &input_data = inputs.at(i)->data();
-    auto &output = outputs.at(i);
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(input_data.n_slices,
                                                uint32_t(input_data.n_rows * scale_h_),
                                                uint32_t(input_data.n_cols * scale_w_));
+      outputs.at(i) = output;
     }
     auto &output_data = output->data();
     CHECK(output_data.n_rows == input_data.n_rows * scale_h_) << "The height of the feature map is not adapting!";
@@ -59,7 +60,6 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
         }
       }
     }
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

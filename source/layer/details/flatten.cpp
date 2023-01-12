@@ -47,7 +47,13 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     for (int s = start_dim; s <= end_dim; ++s) {
       elements_size *= shapes.at(s);
     }
-    std::shared_ptr<Tensor<float>> output = input->Clone();
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
+    if (output == nullptr || output->empty()) {
+      output = std::make_shared<Tensor<float>>(input->shapes());
+      outputs.at(i) = output;
+    }
+
+    output->set_data(input->data());
     if (start_dim == 0 && end_dim == 2) {
       output->ReRawshape({elements_size});
     } else if (start_dim == 1 && end_dim == 2) {
@@ -59,7 +65,6 @@ InferStatus FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     } else {
       LOG(FATAL) << "Wrong flatten dim: " << "start dim: " << start_dim << " end dim: " << end_dim;
     }
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }

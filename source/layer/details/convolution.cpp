@@ -126,7 +126,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         float *input_matrix_c_ptr = input_matrix_c.memptr();
         const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
 
-        uint32_t offset_index = 0;
         if (kernel_w == 1 && kernel_h == 1 && stride_h_ == 1 && stride_w_ == 1) {
           memcpy(input_matrix_c_ptr, input_channel.memptr(), sizeof(float) * row_len * col_len);
         } else {
@@ -134,8 +133,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
             for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
               for (uint32_t kw = 0; kw < kernel_w; ++kw) {
                 const float *region_ptr = input_channel.colptr(c + kw) + r;
-                memcpy(input_matrix_c_ptr + offset_index * kernel_h, region_ptr, kernel_h * sizeof(float));
-                offset_index += 1;
+                memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
+                input_matrix_c_ptr += kernel_h;
               }
             }
           }
@@ -146,6 +145,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
         output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+        outputs.at(i) = output_tensor;
       }
 
       CHECK(output_tensor->rows() == output_h && output_tensor->cols() == output_w
@@ -174,7 +174,6 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         }
         output_tensor->at(k + g * kernel_count_group) = std::move(output);
       }
-      outputs.at(i) = output_tensor;
     }
   }
   return InferStatus::kInferSuccess;
