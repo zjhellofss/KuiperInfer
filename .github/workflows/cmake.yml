@@ -29,5 +29,5 @@ jobs:
 
     - name: Test
       working-directory: ${{github.workspace}}
-      run:  /home/runner/work/KuiperInfer/KuiperInfer/build/test/test_kuiper
+      run:  ${{github.workspace}}/build/test/test_kuiper
 
