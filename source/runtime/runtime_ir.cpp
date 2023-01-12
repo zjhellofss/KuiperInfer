@@ -368,8 +368,14 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
 void RuntimeGraph::SetOpInputData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
                                   const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
   CHECK(src.size() == dest.size()) << "src size: " << src.size() << " dest size: " << dest.size();
+
   for (uint32_t i = 0; i < src.size(); ++i) {
-    dest.at(i)->set_data(src.at(i)->data());
+    uint32_t copy_size = src.at(i)->size();
+    uint32_t dest_size = dest.at(i)->size();
+    CHECK(copy_size == dest_size);
+    float *dest_ptr = (float *) dest.at(i)->RawPtr();
+    float *src_ptr = (float *) src.at(i)->RawPtr();
+    memcpy(dest_ptr, src_ptr, sizeof(float) * copy_size);
   }
 }
 

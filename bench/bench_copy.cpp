@@ -77,7 +77,9 @@ static void BM_CopyTensor1OMP(benchmark::State &state) {
   for (auto _ : state) {
 #pragma omp parallel for num_threads(batch_size)
     for (int i = 0; i < batch_size; ++i) {
-      outputs.at(i)->set_data(inputs.at(i)->data());
+      uint32_t copy_size = inputs.at(i)->size();
+      uint32_t dest_size = outputs.at(i)->size();
+      memcpy((float *) outputs.at(i)->RawPtr(), (float *) inputs.at(i)->RawPtr(), sizeof(float) * copy_size);
     }
   }
 }
@@ -103,15 +105,13 @@ static void BM_CopyTensor2OMP(benchmark::State &state) {
       float *desc_ptr = (float *) outputs.at(i)->RawPtr();
       float *src_ptr = (float *) inputs.at(i)->RawPtr();
       uint32_t size = outputs.at(i)->size();
-      for (int j = 0; j < size - 3; j += 16) {
+#if __SSE2__
+      for (int j = 0; j < size - 3; j += 4) {
         _mm_store_ps(desc_ptr, _mm_load_ps(src_ptr));
-        _mm_store_ps(desc_ptr + 4, _mm_load_ps(src_ptr + 4));
-        _mm_store_ps(desc_ptr + 8, _mm_load_ps(src_ptr + 8));
-        _mm_store_ps(desc_ptr + 12, _mm_load_ps(src_ptr + 12));
-
-        src_ptr += 16;
-        desc_ptr += 16;
+        src_ptr += 4;
+        desc_ptr += 4;
       }
+#endif
     }
   }
 }
