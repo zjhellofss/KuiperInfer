@@ -3,7 +3,7 @@ aux_source_directory(../bench DIR_BENCH)
 
 set(link_lib benchmark::benchmark benchmark::benchmark_main)
 
-add_executable(bench_kuiper ${DIR_BENCH} bench_silu.cpp)
+add_executable(bench_kuiper ${DIR_BENCH})
 target_link_directories(bench_kuiper PUBLIC ${PROJECT_SOURCE_DIR}/lib)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fopenmp -march=native")
 

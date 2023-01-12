@@ -104,10 +104,10 @@ static void BM_Yolov5s(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_Resnet18)->Iterations(kIterationNum);
-BENCHMARK(BM_Resnet18_Batch16)->Iterations(kIterationNum);
-BENCHMARK(BM_MobilenetV3)->Iterations(kIterationNum);
-BENCHMARK(BM_Yolov5nano)->Iterations(kIterationNum);
-BENCHMARK(BM_Yolov5s)->Iterations(kIterationNum);
+//BENCHMARK(BM_Resnet18)->Iterations(kIterationNum);
+//BENCHMARK(BM_Resnet18_Batch16)->Iterations(kIterationNum);
+//BENCHMARK(BM_MobilenetV3)->Iterations(kIterationNum);
+//BENCHMARK(BM_Yolov5nano)->Iterations(kIterationNum);
+//BENCHMARK(BM_Yolov5s)->Iterations(kIterationNum);
 
 BENCHMARK_MAIN();
