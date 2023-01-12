@@ -25,10 +25,8 @@ jobs:
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 3
 
-    - name : Show
-      run: ls
 
     - name: Test
       working-directory: ${{github.workspace}}
-      run: cd .. && /home/runner/work/KuiperInfer/KuiperInfer/build/test/test_kuiper
+      run:  /home/runner/work/KuiperInfer/KuiperInfer/build/test/test_kuiper
 
