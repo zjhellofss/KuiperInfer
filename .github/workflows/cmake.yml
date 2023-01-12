@@ -9,8 +9,6 @@ on:
 concurrency:
   group: linux-${{ github.ref }}
   cancel-in-progress: true
-permissions:
-  contents: read
 
 env:
   BUILD_TYPE: Release
