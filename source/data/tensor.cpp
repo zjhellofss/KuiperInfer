@@ -146,14 +146,14 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
     arma::fmat padded_mat(sub_mat.n_rows + pad_rows1 + pad_rows2,
                           sub_mat.n_cols + pad_cols1 + pad_cols2);
 
-    padded_mat.fill((float) padding_value);
+    padded_mat.fill(padding_value);
     padded_mat.submat(pad_rows1, pad_cols1, pad_rows1 + sub_mat.n_rows - 1,
                       pad_cols1 + sub_mat.n_cols - 1) = sub_mat;
 
     if (padded_cube.empty()) {
       padded_cube = arma::fcube(padded_mat.n_rows, padded_mat.n_cols, channels);
     }
-    padded_cube.slice(i) = padded_mat;
+    padded_cube.slice(i) = std::move(padded_mat);
   }
   CHECK(!padded_cube.empty());
   this->data_ = padded_cube;

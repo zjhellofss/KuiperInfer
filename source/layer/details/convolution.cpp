@@ -4,6 +4,7 @@
 
 #include "convolution.hpp"
 #include <glog/logging.h>
+#include "tick.hpp"
 
 #include "runtime/runtime_ir.hpp"
 #include "layer/abstract/layer_factory.hpp"
@@ -139,7 +140,14 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
             }
           }
         }
-        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
+
+        input_matrix_c_ptr = input_matrix_c.memptr();
+        for (uint32_t c = 0; c < col_len; c += 1) {
+          float *input_matrix_ptr = input_matrix.colptr(c) + ic * row_len;
+          memcpy(input_matrix_ptr, input_matrix_c_ptr, sizeof(float) * row_len);
+          input_matrix_c_ptr += row_len;
+        }
+//        input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1) = input_matrix_c;
       }
 
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
