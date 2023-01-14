@@ -319,13 +319,15 @@ void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
 
   const uint32_t plane_size = target_rows * target_cols;
   for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
-    for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
-      for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
+    const arma::fmat &channel = this->data_.slice(c);
+    for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
+      const float *colptr = channel.colptr(c_);
+      for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
         const uint32_t pos_index = c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
         const uint32_t ch = pos_index / plane_size;
         const uint32_t row = (pos_index - ch * plane_size) / target_cols;
         const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
-        new_data.at(row, col, ch) = this->data_.at(r, c_, c);
+        new_data.at(row, col, ch) = *(colptr + r);
       }
     }
   }
