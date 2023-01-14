@@ -41,9 +41,14 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
     }
   }
 
-  CHECK(weights_.size() == 1);
-  if (use_bias_) {
-    CHECK(bias_.size() == 1);
+  if (weights_.size() != 1) {
+    LOG(ERROR) << "The size of weight parameters is not one";
+    return InferStatus::kInferFailedWeightParameterError;
+  }
+
+  if (use_bias_ && this->bias_.size() != 1) {
+    LOG(ERROR) << "The size of bias parameters is not one";
+    return InferStatus::kInferFailedBiasParameterError;
   }
   uint32_t batch = inputs.size();
   const std::shared_ptr<Tensor<float>> &weight = weights_.front();

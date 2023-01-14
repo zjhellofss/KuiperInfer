@@ -272,6 +272,8 @@ int main() {
   const std::string &image_path = "imgs/car.jpg";
   const std::string &param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
   const std::string &weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
-  MultiImageYoloInferNano(image_path, param_path, weight_path);
+  for (int i = 0; i < 32; ++i) {
+    MultiImageYoloInferNano(image_path, param_path, weight_path);
+  }
   return 0;
 }
