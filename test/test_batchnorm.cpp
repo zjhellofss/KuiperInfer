@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "runtime/runtime_ir.hpp"
+#include "data/load_data.hpp"
 #include "../source/layer/details/batchnorm2d.hpp"
 
 TEST(test_layer, forward_batchnorm1) {
@@ -143,5 +144,57 @@ TEST(test_layer, forward_batchnorm5) {
     }
     ASSERT_NEAR(mean / size, 0.f, 0.01f);
     ASSERT_NEAR(var / size, 1.f, 0.01f);
+  }
+}
+
+TEST(test_layer, forward_batchnorm6) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  int batch_size = 8;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 16, 16);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  RuntimeGraph graph("tmp/batchnorm/bn1.pnnx.param",
+                     "tmp/batchnorm/bn1.pnnx.bin");
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  const std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs);
+  ASSERT_EQ(outputs.size(), 8);
+  const auto &output_ = outputs.at(0);
+  ASSERT_EQ(output_->channels(), 32);
+  for (int i = 0; i < 32; ++i) {
+    const std::string &path = "tmp/batchnorm/bn_" + std::to_string(i) + ".csv";
+    const auto &output_data1 = CSVDataLoader::LoadData(path);
+    const auto &output_data2 = output_->at(i);
+    ASSERT_TRUE(arma::approx_equal(output_data1, output_data2, "absdiff", 1e-6));
+  }
+}
+
+TEST(test_layer, forward_batchnorm7) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  int batch_size = 8;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 16, 16);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  RuntimeGraph graph("tmp/batchnorm/bn2.pnnx.param",
+                     "tmp/batchnorm/bn2.pnnx.bin");
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  const std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs);
+  ASSERT_EQ(outputs.size(), 8);
+  const auto &output_ = outputs.at(0);
+  ASSERT_EQ(output_->channels(), 32);
+  for (int i = 0; i < 32; ++i) {
+    const std::string &path = "tmp/batchnorm/bn2_" + std::to_string(i) + ".csv";
+    const auto &output_data1 = CSVDataLoader::LoadData(path);
+    const auto &output_data2 = output_->at(i);
+    ASSERT_TRUE(arma::approx_equal(output_data1, output_data2, "absdiff", 1e-4));
   }
 }
