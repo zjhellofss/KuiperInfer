@@ -1,6 +1,7 @@
 # KuiperInfer
-自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
+![](https://github.com/zjhellofss/kuiperinfer/actions/workflows/cmake.yml/badge.svg)
 
+自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 ![](./imgs/KuiperInfer.png)
 
 ## 课程计划
@@ -14,7 +15,7 @@
 | 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
 | 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 |                                              |
 | 第六次课    | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
-| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 未完成 |                                              |
+| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
 | 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |                                              |
 | 第二季课程待叙 | ...                    | ... |                                              |
 
