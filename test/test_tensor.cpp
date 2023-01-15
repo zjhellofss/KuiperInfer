@@ -133,7 +133,7 @@ TEST(test_tensor, fill_at2) {
 TEST(test_tensor, add1) {
   using namespace kuiper_infer;
   const auto &f1 = std::make_shared<Tensor<float>>(3, 224, 224);
-  f1->data();
+  f1->Fill(1.f);
   const auto &f2 = std::make_shared<Tensor<float>>(3, 224, 224);
   f2->Fill(2.f);
   const auto &f3 = Tensor<float>::ElementAdd(f2, f1);
