@@ -71,7 +71,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
       CHECK(input_node1.size() == input_node2.size());
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(batch_size);
-#pragma omp parallel for num_threads(batch_size)
+//#pragma omp parallel for num_threads(batch_size)
       for (uint32_t i = 0; i < batch_size; ++i) {
         if (op == -int(TokenType::TokenAdd)) {
           output_token_nodes.at(i) = Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i));
