@@ -37,8 +37,10 @@ Tensor<float>::Tensor(const std::vector<uint32_t> &shapes) {
 }
 
 Tensor<float>::Tensor(const Tensor &tensor) {
-  this->data_ = tensor.data_;
-  this->raw_shapes_ = tensor.raw_shapes_;
+  if (this != &tensor) {
+    this->data_ = tensor.data_;
+    this->raw_shapes_ = tensor.raw_shapes_;
+  }
 }
 
 Tensor<float> &Tensor<float>::operator=(const Tensor &tensor) {
