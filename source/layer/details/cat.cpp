@@ -28,7 +28,6 @@ InferStatus CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> 
   const uint32_t output_size = outputs.size();
   CHECK(inputs.size() % output_size == 0);
   const uint32_t packet_size = inputs.size() / output_size;
-//#pragma omp parallel for num_threads(outputs.size())
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     uint32_t start_channel = 0;
