@@ -20,7 +20,6 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   const uint32_t size = inputs.size();
-//  CHECK(size % 2 == 0);
   if (!size) {
     LOG(ERROR) << "The input feature map of add layer is null";
     return InferStatus::kInferFailedInputEmpty;
@@ -33,11 +32,15 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
   const uint32_t batch_size = outputs.size();
   if (batch_size == 0) {
+    LOG(ERROR) << "Output of the expression layer is empty";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
-    CHECK(outputs.at(i) != nullptr && !outputs.at(i)->empty());
+    if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
+      LOG(ERROR) << "Output of the expression layer is empty";
+      return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    }
     outputs.at(i)->Fill(0.f);
   }
 
@@ -67,18 +70,16 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       op_stack.pop();
 
       CHECK(input_node1.size() == input_node2.size());
-      std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes;
-      if (op == -int(TokenType::TokenAdd)) {
-        for (uint32_t i = 0; i < batch_size; ++i) {
-          output_token_nodes.push_back(Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i)));
+      std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(batch_size);
+#pragma omp parallel for num_threads(batch_size)
+      for (uint32_t i = 0; i < batch_size; ++i) {
+        if (op == -int(TokenType::TokenAdd)) {
+          output_token_nodes.at(i) = Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i));
+        } else if (op == -int(TokenType::TokenMul)) {
+          output_token_nodes.at(i) = Tensor<float>::ElementMultiply(input_node1.at(i), input_node2.at(i));
+        } else {
+          LOG(FATAL) << "Unknown operator type: " << op;
         }
-      } else if (op == -int(TokenType::TokenMul)) {
-        for (uint32_t i = 0; i < batch_size; ++i) {
-          output_token_nodes.push_back(Tensor<float>::ElementMultiply(input_node1.at(i), input_node2.at(i)));
-        }
-      } else {
-        LOG(ERROR) << "Unknown operation type: " << op;
-        return InferStatus::kInferFailedOperationUnknown;
       }
       op_stack.push(output_token_nodes);
     }

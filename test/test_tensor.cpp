@@ -230,13 +230,12 @@ TEST(test_tensor, padding) {
   ASSERT_EQ(tensor.rows(), 4);
   ASSERT_EQ(tensor.cols(), 5);
 
-  tensor.Fill(1.f); // 填充为1
-  tensor.Padding({1, 1, 1, 1}, 0); // 边缘填充为0
+  tensor.Fill(1.f);
+  tensor.Padding({1, 1, 1, 1}, 0);
   ASSERT_EQ(tensor.rows(), 6);
   ASSERT_EQ(tensor.cols(), 7);
 
   int index = 0;
-  // 检查一下边缘被填充的行、列是否都是0
   for (int c = 0; c < tensor.channels(); ++c) {
     for (int r = 0; r < tensor.rows(); ++r) {
       for (int c_ = 0; c_ < tensor.cols(); ++c_) {
@@ -247,7 +246,6 @@ TEST(test_tensor, padding) {
       }
     }
   }
-  LOG(INFO) << "Test2 passed!";
 }
 
 TEST(test_tensor, review) {
