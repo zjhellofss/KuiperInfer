@@ -81,6 +81,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
     uint32_t kernel_h = this->weights_.at(0)->rows();
     uint32_t kernel_w = this->weights_.at(0)->cols();
+    CHECK(kernel_h > 0 && kernel_w > 0) << "The size of kernel size is less than zero";
 
     uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
     uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
