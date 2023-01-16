@@ -124,20 +124,15 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       arma::fmat input_matrix(input_c_group * row_len, col_len);
       for (uint32_t ic = 0; ic < input_c_group; ++ic) {
         const arma::fmat &input_channel = input_->at(ic + g * input_c_group);
-        if (kernel_h == 1 && kernel_w == 1 && stride_w_ == 1 && stride_h_ == 1) {
-          memcpy(input_matrix.submat(ic * row_len, 0, ((ic + 1) * row_len) - 1, col_len - 1).eval().memptr(),
-                 input_channel.memptr(), sizeof(float) * row_len * col_len);
-        } else {
-          int current_col = 0;
-          for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-            for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-              float *input_matrix_c_ptr = input_matrix.colptr(current_col) + ic * row_len;
-              current_col += 1;
-              for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-                const float *region_ptr = input_channel.colptr(c + kw) + r;
-                memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
-                input_matrix_c_ptr += kernel_h;
-              }
+        int current_col = 0;
+        for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
+          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+            float *input_matrix_c_ptr = input_matrix.colptr(current_col) + ic * row_len;
+            current_col += 1;
+            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+              const float *region_ptr = input_channel.colptr(c + kw) + r;
+              memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
+              input_matrix_c_ptr += kernel_h;
             }
           }
         }
