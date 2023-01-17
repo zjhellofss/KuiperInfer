@@ -21,7 +21,7 @@ TEST(test_tensor, tensor_init2) {
   ASSERT_EQ(f1.channels(), 12);
   ASSERT_EQ(f1.rows(), 384);
   ASSERT_EQ(f1.cols(), 224);
-  ASSERT_EQ(f1.size(), 224 * 224 * 12);
+  ASSERT_EQ(f1.size(), 224 * 384 * 12);
 }
 
 TEST(test_tensor, set_data) {
