@@ -2,20 +2,36 @@ find_package(GTest REQUIRED)
 find_package(OpenMP REQUIRED)
 find_package(glog REQUIRED)
 find_package(Armadillo REQUIRED)
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
 
 aux_source_directory(../test DIR_TEST)
 
-set(link_lib glog::glog pthread GTest::gtest)
-set(link_math_lib ${ARMADILLO_LIBRARIES} blas lapack)
+set(link_lib glog::glog GTest::gtest)
+if(!WIN32)
+    set(link_lib "${link_lib} pthread")
+endif()
+set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 add_executable(test_kuiper ${DIR_TEST})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O0 /openmp:llvm")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
+endif()
 
 target_link_libraries(test_kuiper ${link_lib} ${link_math_lib})
 target_link_libraries(test_kuiper OpenMP::OpenMP_CXX)
 
 target_link_directories(test_kuiper PUBLIC ${PROJECT_SOURCE_DIR}/lib)
 target_link_libraries(test_kuiper kuiper)
+
+if (MSVC)
+    add_custom_command(TARGET test_kuiper POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:kuiper>/kuiper.dll"
+            $<TARGET_FILE_DIR:test_kuiper>)
+endif()
 
 target_include_directories(test_kuiper PUBLIC ${glog_INCLUDE_DIR})
 target_include_directories(test_kuiper PUBLIC ${GTest_INCLUDE_DIR})
