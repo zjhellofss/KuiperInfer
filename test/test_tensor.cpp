@@ -12,14 +12,16 @@ TEST(test_tensor, tensor_init1) {
   ASSERT_EQ(f1.channels(), 3);
   ASSERT_EQ(f1.rows(), 224);
   ASSERT_EQ(f1.cols(), 224);
+  ASSERT_EQ(f1.size(), 224 * 224 * 3);
 }
 
 TEST(test_tensor, tensor_init2) {
   using namespace kuiper_infer;
-  Tensor<float> f1(std::vector<uint32_t>{3, 224, 224});
-  ASSERT_EQ(f1.channels(), 3);
-  ASSERT_EQ(f1.rows(), 224);
+  Tensor<float> f1(std::vector<uint32_t>{12, 384, 224});
+  ASSERT_EQ(f1.channels(), 12);
+  ASSERT_EQ(f1.rows(), 384);
   ASSERT_EQ(f1.cols(), 224);
+  ASSERT_EQ(f1.size(), 224 * 224 * 12);
 }
 
 TEST(test_tensor, set_data) {
@@ -73,10 +75,28 @@ TEST(test_tensor, clone) {
   f3.Rand();
 
   const auto &f4 = f3.Clone();
+  assert(f4->data().memptr() != f3.data().memptr());
   ASSERT_EQ(f4->size(), f3.size());
   for (int i = 0; i < f3.size(); ++i) {
     ASSERT_EQ(f3.index(i), f4->index(i));
   }
+}
+
+TEST(test_tensor, index1) {
+  using namespace kuiper_infer;
+  Tensor<float> f3(3, 3, 3);
+  ASSERT_EQ(f3.empty(), false);
+  std::vector<float> values;
+  for (int i = 0; i < 27; ++i) {
+    values.push_back(1);
+  }
+  f3.Fill(values);
+  for (int i = 0; i < 27; ++i) {
+    ASSERT_EQ(f3.index(i), 1);
+  }
+
+  f3.index(3) = 4;
+  ASSERT_EQ(f3.index(3), 4);
 }
 
 TEST(test_tensor, flatten) {
@@ -267,4 +287,31 @@ TEST(test_tensor, review) {
       index += 1;
     }
   }
+}
+
+TEST(test_tensor, ones) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(3, 4, 5);
+  tensor.Ones();
+  for (int i = 0; i < tensor.size(); ++i) {
+    ASSERT_EQ(tensor.index(i), 1.f);
+  }
+}
+
+TEST(test_tensor, get_data) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(3, 4, 5);
+  ASSERT_EQ(tensor.channels(), 3);
+  arma::fmat in2(4, 5);
+  const arma::fmat &in1 = tensor.at(0);
+  tensor.at(0) = in2;
+  const arma::fmat &in3 = tensor.at(0);
+  ASSERT_EQ(in1.memptr(), in3.memptr());
+}
+
+TEST(test_tensor, index2) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(3, 4, 5);
+  tensor.at(0, 1, 2) = 2;
+  ASSERT_EQ(tensor.at(0, 1, 2), 2);
 }
