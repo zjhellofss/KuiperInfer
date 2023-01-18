@@ -43,6 +43,21 @@ Tensor<float>::Tensor(const Tensor &tensor) {
   }
 }
 
+Tensor<float>::Tensor(Tensor<float> &&tensor) noexcept {
+  if (this != &tensor) {
+    this->data_ = std::move(tensor.data_);
+    this->raw_shapes_ = tensor.raw_shapes_;
+  }
+}
+
+Tensor<float> &Tensor<float>::operator=(Tensor<float> &&tensor)  noexcept {
+  if (this != &tensor) {
+    this->data_ = std::move(tensor.data_);
+    this->raw_shapes_ = tensor.raw_shapes_;
+  }
+  return *this;
+}
+
 Tensor<float> &Tensor<float>::operator=(const Tensor &tensor) {
   if (this != &tensor) {
     this->data_ = tensor.data_;
@@ -336,7 +351,7 @@ void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
   this->data_ = new_data;
 }
 
-const float *Tensor<float>::RawPtr() const {
+const float *Tensor<float>::raw_ptr() const {
   CHECK(!this->data_.empty());
   return this->data_.memptr();
 }

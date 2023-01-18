@@ -15,6 +15,52 @@ TEST(test_tensor, tensor_init1) {
   ASSERT_EQ(f1.size(), 224 * 224 * 3);
 }
 
+TEST(test_tensor, copy_construct1) {
+  using namespace kuiper_infer;
+  Tensor<float> f1(3, 224, 224);
+  Tensor<float> f2(f1);
+  ASSERT_EQ(f2.channels(), 3);
+  ASSERT_EQ(f2.rows(), 224);
+  ASSERT_EQ(f2.cols(), 224);
+
+  ASSERT_TRUE(arma::approx_equal(f2.data(), f1.data(), "absdiff", 1e-4));
+}
+
+TEST(test_tensor, copy_construct2) {
+  using namespace kuiper_infer;
+  Tensor<float> f1(3, 2, 1);
+  Tensor<float> f2(3, 224, 224);
+  f1 = f2;
+  ASSERT_EQ(f1.channels(), 3);
+  ASSERT_EQ(f1.rows(), 224);
+  ASSERT_EQ(f1.cols(), 224);
+
+  ASSERT_TRUE(arma::approx_equal(f2.data(), f1.data(), "absdiff", 1e-4));
+}
+
+TEST(test_tensor, move_construct1) {
+  using namespace kuiper_infer;
+  Tensor<float> f1(3, 2, 1);
+  Tensor<float> f2(3, 224, 224);
+  f1 = std::move(f2);
+  ASSERT_EQ(f1.channels(), 3);
+  ASSERT_EQ(f1.rows(), 224);
+  ASSERT_EQ(f1.cols(), 224);
+
+  ASSERT_EQ(f2.data().memptr(), nullptr);
+}
+
+TEST(test_tensor, move_construct2) {
+  using namespace kuiper_infer;
+  Tensor<float> f2(3, 224, 224);
+  Tensor<float> f1(std::move(f2));
+  ASSERT_EQ(f1.channels(), 3);
+  ASSERT_EQ(f1.rows(), 224);
+  ASSERT_EQ(f1.cols(), 224);
+
+  ASSERT_EQ(f2.data().memptr(), nullptr);
+}
+
 TEST(test_tensor, tensor_init2) {
   using namespace kuiper_infer;
   Tensor<float> f1(std::vector<uint32_t>{12, 384, 224});
@@ -82,6 +128,13 @@ TEST(test_tensor, clone) {
   }
 }
 
+TEST(test_tensor, raw_ptr) {
+  using namespace kuiper_infer;
+
+  Tensor<float> f3(3, 3, 3);
+  ASSERT_EQ(f3.raw_ptr(), f3.data().mem);
+}
+
 TEST(test_tensor, index1) {
   using namespace kuiper_infer;
   Tensor<float> f3(3, 3, 3);
@@ -94,7 +147,11 @@ TEST(test_tensor, index1) {
   for (int i = 0; i < 27; ++i) {
     ASSERT_EQ(f3.index(i), 1);
   }
+}
 
+TEST(test_tensor, index2) {
+  using namespace kuiper_infer;
+  Tensor<float> f3(3, 3, 3);
   f3.index(3) = 4;
   ASSERT_EQ(f3.index(3), 4);
 }
@@ -114,7 +171,7 @@ TEST(test_tensor, flatten) {
   ASSERT_EQ(f3.cols(), 1);
 }
 
-TEST(test_tensor, fill_at1) {
+TEST(test_tensor, fill1) {
   using namespace kuiper_infer;
 
   Tensor<float> f3(3, 3, 3);
@@ -134,7 +191,7 @@ TEST(test_tensor, fill_at1) {
   }
 }
 
-TEST(test_tensor, fill_at2) {
+TEST(test_tensor, fill2) {
   using namespace kuiper_infer;
 
   Tensor<float> f3(3, 3, 3);
@@ -309,9 +366,18 @@ TEST(test_tensor, get_data) {
   ASSERT_EQ(in1.memptr(), in3.memptr());
 }
 
-TEST(test_tensor, index2) {
+TEST(test_tensor, at1) {
   using namespace kuiper_infer;
   Tensor<float> tensor(3, 4, 5);
   tensor.at(0, 1, 2) = 2;
   ASSERT_EQ(tensor.at(0, 1, 2), 2);
+}
+
+TEST(test_tensor, at2) {
+  using namespace kuiper_infer;
+  Tensor<float> tensor(3, 4, 5);
+  arma::fmat f(4, 5);
+  f.fill(1.f);
+  tensor.at(0) = f;
+  ASSERT_TRUE(arma::approx_equal(f, tensor.at(0), "absdiff", 1e-4));
 }

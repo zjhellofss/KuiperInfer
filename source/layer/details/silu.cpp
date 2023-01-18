@@ -43,8 +43,8 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     uint32_t size = output->size();
     if (!(size % 4)) {
 #if __SSE2__
-      float *in_ptr = const_cast<float *>(input->RawPtr());
-      float *out_ptr = const_cast<float *>(output->RawPtr());
+      float *in_ptr = const_cast<float *>(input->raw_ptr());
+      float *out_ptr = const_cast<float *>(output->raw_ptr());
       __m128 _one = _mm_set1_ps(1.f);
       __m128 _zero = _mm_setzero_ps();
       const uint32_t packet_size = 4;

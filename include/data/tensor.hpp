@@ -36,6 +36,10 @@ class Tensor<float> {
 
   Tensor(const Tensor &tensor);
 
+  Tensor(Tensor &&tensor) noexcept;
+
+  Tensor<float> &operator=(Tensor &&tensor) noexcept;
+
   Tensor<float> &operator=(const Tensor &tensor);
 
   /**
@@ -225,7 +229,7 @@ class Tensor<float> {
    */
   std::shared_ptr<Tensor> Clone();
 
-  const float *RawPtr() const;
+  const float *raw_ptr() const;
 
  private:
   void ReView(const std::vector<uint32_t> &shapes);

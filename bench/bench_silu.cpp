@@ -33,7 +33,7 @@ static void BM_SiLuSimd(benchmark::State &state) {
   for (auto _ : state) {
     std::shared_ptr<Tensor<float>> output = input->Clone();
     uint32_t size = output->size();
-    float *ptr = const_cast<float *>(output->RawPtr());
+    float *ptr = const_cast<float *>(output->raw_ptr());
 
     for (uint32_t j = 0; j + 3 < size; j += 4) {
       __m128 _p = _mm_load_ps(ptr);
@@ -54,7 +54,7 @@ static void BM_SiLuSimdOMP(benchmark::State &state) {
   for (auto _ : state) {
     std::shared_ptr<Tensor<float>> output = input->Clone();
     uint32_t size = output->size();
-    float *ptr = const_cast<float *>(output->RawPtr());
+    float *ptr = const_cast<float *>(output->raw_ptr());
 
     int thread_count = 4;
 #pragma omp parallel for num_threads(thread_count)

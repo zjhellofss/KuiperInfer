@@ -1,6 +1,11 @@
 # KuiperInfer
 ![](https://github.com/zjhellofss/kuiperinfer/actions/workflows/cmake.yml/badge.svg)
 
+## 项目贡献者
+@zjhellofss 
+@liuxubit
+@Azusachan
+
 自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
 ![](./imgs/KuiperInfer.png)
 

@@ -73,7 +73,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
       if (!(size % 4)) {
 #if __SSE2__
-        float *ptr = const_cast<float *>(input->RawPtr());
+        float *ptr = const_cast<float *>(input->raw_ptr());
         __m128 _one1 = _mm_set1_ps(1.f);
         __m128 _one2 = _mm_set1_ps(1.f);
         __m128 _zero = _mm_setzero_ps();

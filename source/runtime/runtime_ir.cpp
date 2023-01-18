@@ -31,7 +31,7 @@ void RuntimeGraphShape::InitOperatorInputTensor(const std::vector<std::shared_pt
         const int32_t batch = shapes.at(0);
         CHECK(batch >= 0) << "Dynamic batch size is not supported!";
         CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
-                << "Unsupported shape sizes: " << shapes.size();
+                << "Unsupported tensor shape sizes: " << shapes.size();
 
         if (!input_datas.empty()) {
           CHECK(input_datas.size() == batch) << "Batch size is wrong!";
@@ -102,7 +102,7 @@ void RuntimeGraphShape::InitOperatorOutputTensor(const std::vector<pnnx::Operato
           output_operand->datas.push_back(std::make_shared<Tensor<float >>(1, shapes.at(1), shapes.at(2)));
         }
       }
-      runtime_op->output_operands = output_operand;
+      runtime_op->output_operands = std::move(output_operand);
     } else {
       CHECK(batch == output_tensors->datas.size());
       //output_tensors empty
@@ -373,8 +373,8 @@ void RuntimeGraph::SetOpInputData(const std::vector<std::shared_ptr<Tensor<float
     uint32_t copy_size = src.at(i)->size();
     uint32_t dest_size = dest.at(i)->size();
     CHECK(copy_size == dest_size);
-    float *dest_ptr = (float *) dest.at(i)->RawPtr();
-    float *src_ptr = (float *) src.at(i)->RawPtr();
+    float *dest_ptr = (float *) dest.at(i)->raw_ptr();
+    float *src_ptr = (float *) src.at(i)->raw_ptr();
     memcpy(dest_ptr, src_ptr, sizeof(float) * copy_size);
   }
 }

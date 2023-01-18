@@ -46,8 +46,8 @@ static void BM_CopyTensor2(benchmark::State &state) {
 
   for (auto _ : state) {
     for (int i = 0; i < batch_size; ++i) {
-      float *desc_ptr = (float *) outputs.at(i)->RawPtr();
-      float *src_ptr = (float *) inputs.at(i)->RawPtr();
+      float *desc_ptr = (float *) outputs.at(i)->raw_ptr();
+      float *src_ptr = (float *) inputs.at(i)->raw_ptr();
       uint32_t size = outputs.at(i)->size();
       for (int j = 0; j < size - 3; j += 4) {
         __m128 p = _mm_load_ps(src_ptr);
@@ -79,7 +79,7 @@ static void BM_CopyTensor1OMP(benchmark::State &state) {
     for (int i = 0; i < batch_size; ++i) {
       uint32_t copy_size = inputs.at(i)->size();
       uint32_t dest_size = outputs.at(i)->size();
-      memcpy((float *) outputs.at(i)->RawPtr(), (float *) inputs.at(i)->RawPtr(), sizeof(float) * copy_size);
+      memcpy((float *) outputs.at(i)->raw_ptr(), (float *) inputs.at(i)->raw_ptr(), sizeof(float) * copy_size);
     }
   }
 }
@@ -102,8 +102,8 @@ static void BM_CopyTensor2OMP(benchmark::State &state) {
   for (auto _ : state) {
 #pragma omp parallel for num_threads(4)
     for (int i = 0; i < batch_size; ++i) {
-      float *desc_ptr = (float *) outputs.at(i)->RawPtr();
-      float *src_ptr = (float *) inputs.at(i)->RawPtr();
+      float *desc_ptr = (float *) outputs.at(i)->raw_ptr();
+      float *src_ptr = (float *) inputs.at(i)->raw_ptr();
       uint32_t size = outputs.at(i)->size();
 #if __SSE2__
       for (int j = 0; j < size - 3; j += 4) {
