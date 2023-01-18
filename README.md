@@ -1,15 +1,22 @@
 # KuiperInfer
 ![](https://github.com/zjhellofss/kuiperinfer/actions/workflows/cmake.yml/badge.svg)
 
-## 项目贡献者
-@zjhellofss 
-@liuxubit
-@Azusachan
 
-自制的一款推理框架，项目整体风格和结构借鉴了Caffe，仅用作学习参考。
-![](./imgs/KuiperInfer.png)
+从零自制深度学习推理框架，学会深度学习框架背后的知识，学会怎么上手一个中等规模的C++项目。对于以后的面试和求职都是一个不错的项目哦！
+
+项目整体风格和结构借鉴了Caffe，仅用作学习参考。 视频课程链接：[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
+
+![](./imgs/logo.jpg)
+
+## 项目贡献者
+- [zjhellofss](https://github.com/zjhellofss)
+
+- [liuxubit](https://github.com/liuxubit)
+
+- [Azusachan](https://github.com/Azusachan)
 
 ## 课程计划
+
 我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
 
 | 课程节数    | 主要内容                   | 进度 | 课程链接                                         |
@@ -21,7 +28,7 @@
 | 第五次课    | Im2col的原理和卷积算子的实现      | 未完成 |                                              |
 | 第六次课    | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
 | 第七次课    | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |                                              |
+| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
 | 第二季课程待叙 | ...                    | ... |                                              |
 
 先列前八次(第一季)的课程，课程目录可能会发生变化。
