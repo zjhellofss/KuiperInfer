@@ -148,5 +148,6 @@ TEST(test_load, load_large_data) {
 TEST(test_load, load_empty_data) {
   using namespace kuiper_infer;
   const arma::fmat &data = CSVDataLoader::LoadData("./tmp/data_loader/notexists.csv", ',');
+  ASSERT_EQ(data.size(), 0);
   ASSERT_EQ(data.empty(), true);
 }

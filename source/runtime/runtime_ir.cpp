@@ -2,7 +2,6 @@
 #include "runtime/runtime_ir.hpp"
 #include <memory>
 #include <iostream>
-#include <iomanip>
 #include <queue>
 #include <deque>
 #include <utility>
@@ -287,55 +286,71 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   }
 
   while (!operator_queue.empty()) {
-    std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
+    std::shared_ptr<RuntimeOperator> op = operator_queue.front();
     operator_queue.pop_front();
 
-    if (!current_op || current_op == output_op) {
+    if (!op || op == output_op) {
       if (debug) {
         LOG(INFO) << "Model Inference End";
       }
       break;
     }
 
-    if (current_op == input_op) {
+    if (op == input_op) {
       const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas = inputs;
-      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      ProbeNextLayer(op, operator_queue, layer_output_datas);
     } else {
-      std::string current_op_name = current_op->name;
-      bool has_ready = CheckOperatorReady(current_op);
-      if (!has_ready) {
-        operator_queue.push_back(current_op);
-        continue;
-      }
-
-      const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas = current_op->input_operands_seq;
-      std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
-      for (const auto &input_operand_data : input_operand_datas) {
-        for (const auto &input_data : input_operand_data->datas) {
-          layer_input_datas.push_back(input_data);
-        }
-      }
-
-      CHECK(!layer_input_datas.empty());
-      CHECK(current_op->output_operands != nullptr);
-      std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas = current_op->output_operands->datas;
-
-      const auto &start = std::chrono::steady_clock::now();
-      InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
-      if (debug) {
-        std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
-        const double duration =
-            std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now() - start).count();
-        if (run_duration_infos.find(current_op->type) == run_duration_infos.end()) {
-          run_duration_infos.insert({current_op->type, duration});
+      std::vector<std::shared_ptr<RuntimeOperator>> ready_ops;
+      std::vector<std::shared_ptr<RuntimeOperator>> no_ready_ops;
+      ready_ops.push_back(op);
+      while (!operator_queue.empty()) {
+        std::shared_ptr<RuntimeOperator> current_op_ = operator_queue.front();
+        operator_queue.pop_front();
+        bool has_ready = CheckOperatorReady(current_op_);
+        if (has_ready) {
+          ready_ops.push_back(current_op_);
         } else {
-          run_duration_infos.at(current_op->type) += duration;
+          no_ready_ops.push_back(current_op_);
         }
       }
 
-      CHECK(status == InferStatus::kInferSuccess)
-              << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
-      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      for (const auto &no_ready_op : no_ready_ops) {
+        operator_queue.push_back(no_ready_op);
+      }
+#pragma omp parallel for num_threads(2)
+      for (const auto &current_op : ready_ops) {
+        std::string current_op_name = current_op->name;
+
+        const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas = current_op->input_operands_seq;
+        std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
+        for (const auto &input_operand_data : input_operand_datas) {
+          for (const auto &input_data : input_operand_data->datas) {
+            layer_input_datas.push_back(input_data);
+          }
+        }
+
+        CHECK(!layer_input_datas.empty());
+        CHECK(current_op->output_operands != nullptr);
+        std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas = current_op->output_operands->datas;
+
+        const auto &start = std::chrono::steady_clock::now();
+        InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
+        if (debug) {
+          std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
+          const double duration =
+              std::chrono::duration_cast<std::chrono::duration<double>>(
+                  std::chrono::steady_clock::now() - start).count();
+          if (run_duration_infos.find(current_op->type) == run_duration_infos.end()) {
+            run_duration_infos.insert({current_op->type, duration});
+          } else {
+            run_duration_infos.at(current_op->type) += duration;
+          }
+        }
+
+        CHECK(status == InferStatus::kInferSuccess)
+                << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
+        ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      }
     }
   }
 
@@ -519,6 +534,8 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
   }
 }
 
+std::mutex gMutex;
+
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                                   std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
                                   const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
@@ -530,12 +547,14 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
       SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       const auto &iter = next_input_operands.find(current_op->name);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
+        const std::lock_guard<std::mutex> lock(gMutex);
         next_rt_operator->meet_num += 1;
         if (CheckOperatorReady(next_rt_operator)) {
           operator_queue.push_back(next_rt_operator);
         }
         next_rt_operator->meet_num -= 1;
       }
+      const std::lock_guard<std::mutex> lock(gMutex);
       next_rt_operator->meet_num += 1;
     }
   }

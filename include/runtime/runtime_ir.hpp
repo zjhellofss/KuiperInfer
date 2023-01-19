@@ -158,6 +158,7 @@ class RuntimeGraph {
     Complete = 0,
   };
   GraphState graph_state_ = GraphState::NeedInit;
+  std::mutex forward_lock_;
   std::string input_name_; /// 计算图输入节点的名称
   std::string output_name_; /// 计算图输出节点的名称
   std::string param_path_; /// 计算图的结构文件
