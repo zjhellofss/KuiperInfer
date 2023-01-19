@@ -11,11 +11,17 @@
 namespace kuiper_infer {
 
 arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char split_char) {
-  CHECK(!file_path.empty()) << "File path is empty!";
-  std::ifstream in(file_path);
-  CHECK(in.is_open() && in.good()) << "File open failed! " << file_path;
-
   arma::fmat data;
+  if (file_path.empty()) {
+    LOG(ERROR) << "CSV file path is empty: " << file_path;
+    return data;
+  }
+
+  std::ifstream in(file_path);
+  if (!in.is_open() || !in.good()) {
+    LOG(ERROR) << "File open failed: " << file_path;
+  }
+
   std::string line_str;
   std::stringstream line_stream;
 
@@ -52,7 +58,6 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   }
   return data;
 }
-
 
 std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &file, char split_char) {
   bool load_ok = file.good();
