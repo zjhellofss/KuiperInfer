@@ -317,6 +317,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
       for (const auto &no_ready_op : no_ready_ops) {
         operator_queue.push_back(no_ready_op);
       }
+
 #pragma omp parallel for num_threads(2)
       for (const auto &current_op : ready_ops) {
         std::string current_op_name = current_op->name;
@@ -335,21 +336,23 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
 
         const auto &start = std::chrono::steady_clock::now();
         InferStatus status = current_op->layer->Forward(layer_input_datas, layer_output_datas);
-        if (debug) {
-          std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
-          const double duration =
-              std::chrono::duration_cast<std::chrono::duration<double>>(
-                  std::chrono::steady_clock::now() - start).count();
-          if (run_duration_infos.find(current_op->type) == run_duration_infos.end()) {
-            run_duration_infos.insert({current_op->type, duration});
-          } else {
-            run_duration_infos.at(current_op->type) += duration;
-          }
-        }
-
         CHECK(status == InferStatus::kInferSuccess)
                 << current_op->layer->layer_name() << " layer forward failed, error code: " << int(status);
-        ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+
+#pragma omp critical
+        {
+          if (debug) {
+            std::replace_if(current_op_name.begin(), current_op_name.end(), [](char c) { return c == '.'; }, '_');
+            const double duration = std::chrono::duration_cast<std::chrono::duration<double>>
+                (std::chrono::steady_clock::now() - start).count();
+            if (run_duration_infos.find(current_op->type) == run_duration_infos.end()) {
+              run_duration_infos.insert({current_op->type, duration});
+            } else {
+              run_duration_infos.at(current_op->type) += duration;
+            }
+          }
+          ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+        }
       }
     }
   }
@@ -534,8 +537,6 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
   }
 }
 
-std::mutex gMutex;
-
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                                   std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
                                   const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
@@ -547,14 +548,12 @@ void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &curren
       SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
       const auto &iter = next_input_operands.find(current_op->name);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
-        const std::lock_guard<std::mutex> lock(gMutex);
         next_rt_operator->meet_num += 1;
         if (CheckOperatorReady(next_rt_operator)) {
           operator_queue.push_back(next_rt_operator);
         }
         next_rt_operator->meet_num -= 1;
       }
-      const std::lock_guard<std::mutex> lock(gMutex);
       next_rt_operator->meet_num += 1;
     }
   }
