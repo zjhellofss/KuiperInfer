@@ -34,6 +34,8 @@ class Tensor<float> {
 
   explicit Tensor(const std::vector<uint32_t> &shapes);
 
+  static std::shared_ptr<Tensor<float>> Create(uint32_t channels, uint32_t rows, uint32_t cols);
+
   Tensor(const Tensor &tensor);
 
   Tensor(Tensor &&tensor) noexcept;
@@ -237,6 +239,7 @@ class Tensor<float> {
   arma::fcube data_; // 张量数据
 };
 
+using ftensor = Tensor<float>;
 }
 
 #endif //KUIPER_COURSE_DATA_BLOB_HPP_

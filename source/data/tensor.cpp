@@ -20,6 +20,10 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
+std::shared_ptr<Tensor<float>> Tensor<float>::Create(uint32_t channels, uint32_t rows, uint32_t cols) {
+  return std::make_shared<Tensor<float>>(channels, rows, cols);
+}
+
 Tensor<float>::Tensor(const std::vector<uint32_t> &shapes) {
   CHECK(shapes.size() == 3);
   uint32_t channels = shapes.at(0);
@@ -50,7 +54,7 @@ Tensor<float>::Tensor(Tensor<float> &&tensor) noexcept {
   }
 }
 
-Tensor<float> &Tensor<float>::operator=(Tensor<float> &&tensor)  noexcept {
+Tensor<float> &Tensor<float>::operator=(Tensor<float> &&tensor) noexcept {
   if (this != &tensor) {
     this->data_ = std::move(tensor.data_);
     this->raw_shapes_ = tensor.raw_shapes_;
@@ -152,28 +156,13 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   uint32_t pad_cols1 = pads.at(2);  // left
   uint32_t pad_cols2 = pads.at(3);  // right
 
-  arma::fcube padded_cube;
-  uint32_t channels = this->channels();
-  CHECK_GT(channels, 0);
+  arma::fcube new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
+                       this->data_.n_cols + pad_cols1 + pad_cols2, this->data_.n_slices);
+  new_data.fill(padding_value);
 
-  for (uint32_t i = 0; i < channels; ++i) {
-    const arma::fmat &sub_mat = this->data_.slice(i);
-    CHECK(!sub_mat.empty());
-
-    arma::fmat padded_mat(sub_mat.n_rows + pad_rows1 + pad_rows2,
-                          sub_mat.n_cols + pad_cols1 + pad_cols2);
-
-    padded_mat.fill(padding_value);
-    padded_mat.submat(pad_rows1, pad_cols1, pad_rows1 + sub_mat.n_rows - 1,
-                      pad_cols1 + sub_mat.n_cols - 1) = sub_mat;
-
-    if (padded_cube.empty()) {
-      padded_cube = arma::fcube(padded_mat.n_rows, padded_mat.n_cols, channels);
-    }
-    padded_cube.slice(i) = std::move(padded_mat);
-  }
-  CHECK(!padded_cube.empty());
-  this->data_ = padded_cube;
+  new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows1 - 1,
+                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) = this->data_;
+  this->data_ = std::move(new_data);
 }
 
 void Tensor<float>::Fill(float value) {

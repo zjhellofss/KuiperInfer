@@ -191,6 +191,15 @@ TEST(test_tensor, fill1) {
   }
 }
 
+TEST(test_tensor, create) {
+  using namespace kuiper_infer;
+  const std::shared_ptr<ftensor> &tensor_ptr = Tensor<float>::Create(3, 32, 32);
+  ASSERT_EQ(tensor_ptr->empty(), false);
+  ASSERT_EQ(tensor_ptr->channels(), 3);
+  ASSERT_EQ(tensor_ptr->rows(), 32);
+  ASSERT_EQ(tensor_ptr->cols(), 32);
+}
+
 TEST(test_tensor, fill2) {
   using namespace kuiper_infer;
 
