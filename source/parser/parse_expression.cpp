@@ -168,9 +168,6 @@ std::vector<std::shared_ptr<TokenNode> > ExpressionParser::Generate() {
   // 转逆波兰式,之后转移到expression中
   std::vector<std::shared_ptr<TokenNode>> reverse_polish;
   ReversePolish(root, reverse_polish);
-//  for (const auto &node : reverse_polish) {
-//    LOG(INFO) << node->num_index;
-//  }
 
   return reverse_polish;
 }

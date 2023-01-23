@@ -148,7 +148,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
                 && output_tensor->channels() == kernel_count) << "The output size of convolution is error";
 
       std::vector<arma::fmat> outputs_matrix(kernel_count_group);
-#pragma omp parallel for schedule(static)
+#pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         const arma::fmat &output = kernel_matrix_arr.at(k) * input_matrix;
         outputs_matrix.at(k) = output;

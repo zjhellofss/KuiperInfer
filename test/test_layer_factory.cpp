@@ -4,8 +4,6 @@
 
 #include <gtest/gtest.h>
 #include "layer/abstract/layer_factory.hpp"
-#include "layer/abstract/layer.hpp"
-#include "../source/layer/details/relu.hpp"
 
 using namespace kuiper_infer;
 ParseParameterAttrStatus TestCreateLayer(const std::shared_ptr<RuntimeOperator> &op,
