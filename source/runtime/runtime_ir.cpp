@@ -28,6 +28,7 @@ void RuntimeGraphShape::InitOperatorInputTensor(const std::vector<std::shared_pt
         const auto &shapes = input_operand->shapes;
         auto &input_datas = input_operand->datas;
 
+        CHECK(!shapes.empty());
         const int32_t batch = shapes.at(0);
         CHECK(batch >= 0) << "Dynamic batch size is not supported!";
         CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
