@@ -160,7 +160,7 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
                        this->data_.n_cols + pad_cols1 + pad_cols2, this->data_.n_slices);
   new_data.fill(padding_value);
 
-  new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows1 - 1,
+  new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows2 - 1,
                    new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) = this->data_;
   this->data_ = std::move(new_data);
 }
