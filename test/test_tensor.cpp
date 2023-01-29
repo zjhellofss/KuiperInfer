@@ -317,9 +317,9 @@ TEST(test_tensor, padding1) {
   ASSERT_EQ(tensor.cols(), 5);
 
   tensor.Fill(1.f);
-  tensor.Padding({1, 1, 1, 1}, 0);
-  ASSERT_EQ(tensor.rows(), 6);
-  ASSERT_EQ(tensor.cols(), 7);
+  tensor.Padding({1, 2, 3, 4}, 0);
+  ASSERT_EQ(tensor.rows(), 7);
+  ASSERT_EQ(tensor.cols(), 12);
 
   int index = 0;
   for (int c = 0; c < tensor.channels(); ++c) {
