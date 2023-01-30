@@ -440,7 +440,6 @@ TEST(test_layer, forward_linear12) {
   linear_layer.set_weights(weights_raw);
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_features, in_dims);
   input->Fill(input_raw);
-
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
