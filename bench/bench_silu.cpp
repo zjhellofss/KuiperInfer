@@ -11,7 +11,7 @@
 
 static void BM_SiLuArma(benchmark::State &state) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(16, 320, 320);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 320, 320);
   input->Rand();
 
   for (auto _ : state) {
@@ -27,19 +27,21 @@ static void BM_SiLuSimd(benchmark::State &state) {
   using namespace kuiper_infer;
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(16, 320, 320);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 320, 320);
   input->Rand();
 
   for (auto _ : state) {
     std::shared_ptr<Tensor<float>> output = input->Clone();
     uint32_t size = output->size();
-    float *ptr = const_cast<float *>(output->raw_ptr());
+    float *input_ptr = const_cast<float *>(input->raw_ptr());
+    float *output_ptr = const_cast<float *>(output->raw_ptr());
 
     for (uint32_t j = 0; j + 3 < size; j += 4) {
-      __m128 _p = _mm_load_ps(ptr);
+      __m128 _p = _mm_load_ps(input_ptr);
       _p = _mm_div_ps(_p, _mm_add_ps(_one, exp_ps(_mm_sub_ps(_zero, _p))));
-      _mm_store_ps(ptr, _p);
-      ptr += 4;
+      _mm_store_ps(output_ptr, _p);
+      input_ptr += 4;
+      output_ptr += 4;
     }
   }
 }
