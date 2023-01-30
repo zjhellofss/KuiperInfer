@@ -28,6 +28,21 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
 
   const uint32_t batch_size = inputs.size();
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    const std::shared_ptr<ftensor> &input_data = inputs.at(i);
+    const std::shared_ptr<ftensor> &output_data = outputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of silu layer is empty";
+      return InferStatus::kInferFailedInputEmpty;
+    }
+    if (output_data != nullptr && !output_data->empty()) {
+      if (input_data->shapes() != output_data->shapes()) {
+        LOG(ERROR) << "The size of the output feature map is less than zero";
+        return InferStatus::kInferFailedOutputSizeError;
+      }
+    }
+  }
+
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
