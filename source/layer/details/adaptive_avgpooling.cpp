@@ -30,6 +30,21 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(const std::vector<std::shared_p
   }
 
   const uint32_t batch = inputs.size();
+  for (uint32_t i = 0; i < batch; ++i) {
+    const std::shared_ptr<ftensor> &input_data = inputs.at(i);
+    const std::shared_ptr<ftensor> &output_data = outputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of average pooling layer is empty";
+      return InferStatus::kInferFailedInputEmpty;
+    }
+    if (output_data != nullptr && !output_data->empty()) {
+      if (output_data->rows() != output_h_ || output_data->cols() != output_w_) {
+        LOG(ERROR) << "The size of the output feature map is less than zero";
+        return InferStatus::kInferFailedOutputSizeError;
+      }
+    }
+  }
+
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);

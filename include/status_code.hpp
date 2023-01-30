@@ -25,12 +25,10 @@ enum class InferStatus {
   kInferFailedBiasParameterError = 3,
   kInferFailedStrideParameterError = 4,
   kInferFailedDimensionParameterError = 5,
-  kInferFailedChannelParameterError = 6,
   kInferFailedInputOutSizeAdaptingError = 6,
 
   kInferFailedOutputSizeError = 7,
-  kInferFailedOperationUnknown = 8,
-  kInferFailedYoloStageNumberError = 9,
+  kInferFailedYoloStageNumberError = 8,
 
   kInferSuccess = 0,
 };

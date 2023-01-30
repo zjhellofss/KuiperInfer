@@ -35,8 +35,9 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Tensor<float>> &input_data = inputs.at(i);
-    if (input_data->empty()) {
+    const std::shared_ptr<ftensor> &input_data = inputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of max pooling layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     } else {
       uint32_t input_h = input_data->rows();
@@ -46,6 +47,14 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       if (!output_w || !output_h) {
         LOG(ERROR) << "The size of the output feature map is less than zero";
         return InferStatus::kInferFailedOutputSizeError;
+      } else {
+        const std::shared_ptr<ftensor> &output_data = outputs.at(i);
+        if(output_data != nullptr && !output_data->empty())  {
+          if (output_data->rows() != output_h || output_data->cols() != output_w) {
+            LOG(ERROR) << "The size of the output feature map is less than zero";
+            return InferStatus::kInferFailedOutputSizeError;
+          }
+        }
       }
     }
   }
