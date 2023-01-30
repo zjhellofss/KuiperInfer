@@ -40,7 +40,22 @@ TEST(test_runtime_ir, runtime_graph_input_init1) {
     ASSERT_EQ(shape2.at(1), 64);
     ASSERT_EQ(shape2.at(2), 64);
   }
-  RuntimeGraphShape::InitOperatorInputTensor(operators);;
+  RuntimeGraphShape::InitOperatorInputTensor(operators);
+  for (uint32_t i = 0; i < operators.size(); ++i) {
+    const auto &op = operators.at(i);
+    ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
+    const auto &shape1 = op->input_operands["size1"]->datas.front()->shapes();
+    ASSERT_EQ(shape1.size(), 3);
+    ASSERT_EQ(shape1.at(0), 1);
+    ASSERT_EQ(shape1.at(1), 32);
+    ASSERT_EQ(shape1.at(2), 32);
+
+    const auto &shape2 = op->input_operands["size2"]->datas.front()->shapes();
+    ASSERT_EQ(shape2.size(), 3);
+    ASSERT_EQ(shape2.at(0), 1);
+    ASSERT_EQ(shape2.at(1), 64);
+    ASSERT_EQ(shape2.at(2), 64);
+  }
 }
 
 TEST(test_runtime_ir, runtime_graph_input_init2) {
@@ -80,6 +95,21 @@ TEST(test_runtime_ir, runtime_graph_input_init2) {
     ASSERT_EQ(shape2.at(2), 64);
   }
   RuntimeGraphShape::InitOperatorInputTensor(operators);
+  for (uint32_t i = 0; i < operators.size(); ++i) {
+    const auto &op = operators.at(i);
+    ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
+    const auto &shape1 = op->input_operands["size1"]->datas.front()->shapes();
+    ASSERT_EQ(shape1.size(), 3);
+    ASSERT_EQ(shape1.at(0), 3);
+    ASSERT_EQ(shape1.at(1), 32);
+    ASSERT_EQ(shape1.at(2), 32);
+
+    const auto &shape2 = op->input_operands["size2"]->datas.front()->shapes();
+    ASSERT_EQ(shape2.size(), 3);
+    ASSERT_EQ(shape2.at(0), 3);
+    ASSERT_EQ(shape2.at(1), 64);
+    ASSERT_EQ(shape2.at(2), 64);
+  }
 }
 
 TEST(test_runtime_ir, runtime_graph_input_init3) {
@@ -119,4 +149,19 @@ TEST(test_runtime_ir, runtime_graph_input_init3) {
     ASSERT_EQ(shape2.at(2), 1);
   }
   RuntimeGraphShape::InitOperatorInputTensor(operators);
+  for (uint32_t i = 0; i < operators.size(); ++i) {
+    const auto &op = operators.at(i);
+    ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
+    const auto &shape1 = op->input_operands["size1"]->datas.front()->shapes();
+    ASSERT_EQ(shape1.size(), 3);
+    ASSERT_EQ(shape1.at(0), 1);
+    ASSERT_EQ(shape1.at(1), 99);
+    ASSERT_EQ(shape1.at(2), 1);
+
+    const auto &shape2 = op->input_operands["size2"]->datas.front()->shapes();
+    ASSERT_EQ(shape2.size(), 3);
+    ASSERT_EQ(shape2.at(0), 1);
+    ASSERT_EQ(shape2.at(1), 97);
+    ASSERT_EQ(shape2.at(2), 1);
+  }
 }
