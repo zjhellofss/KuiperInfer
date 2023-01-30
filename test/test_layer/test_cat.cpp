@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "data/tensor.hpp"
-#include "../source/layer/details/cat.hpp"
+#include "../../source/layer/details/cat.hpp"
 
 TEST(test_layer, cat1) {
   using namespace kuiper_infer;

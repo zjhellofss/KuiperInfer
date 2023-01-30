@@ -6,7 +6,7 @@
 #include <glog/logging.h>
 
 #include "data/tensor.hpp"
-#include "../source/layer/details/sigmoid.hpp"
+#include "../../source/layer/details/sigmoid.hpp"
 
 TEST(test_layer, forward_sigmoid1) {
   using namespace kuiper_infer;

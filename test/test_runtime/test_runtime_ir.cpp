@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include "runtime/runtime_ir.hpp"
 
-TEST(test_runtime_ir, runtime_graph_input_init1) {
+TEST(test_runtime, runtime_graph_input_init1) {
   using namespace kuiper_infer;
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;
@@ -58,7 +58,7 @@ TEST(test_runtime_ir, runtime_graph_input_init1) {
   }
 }
 
-TEST(test_runtime_ir, runtime_graph_input_init2) {
+TEST(test_runtime, runtime_graph_input_init2) {
   using namespace kuiper_infer;
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;
@@ -112,7 +112,7 @@ TEST(test_runtime_ir, runtime_graph_input_init2) {
   }
 }
 
-TEST(test_runtime_ir, runtime_graph_input_init3) {
+TEST(test_runtime, runtime_graph_input_init3) {
   using namespace kuiper_infer;
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;

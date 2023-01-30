@@ -3,7 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include <glog/logging.h>
-#include "../source/layer/details/upsample.hpp"
+#include "../../source/layer/details/upsample.hpp"
 
 TEST(test_layer, forward_upsample1) {
   using namespace kuiper_infer;

@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "data/tensor.hpp"
-#include "../source/layer/details/flatten.hpp"
+#include "../../source/layer/details/flatten.hpp"
 
 TEST(test_layer, forward_flatten_layer1) {
   using namespace kuiper_infer;

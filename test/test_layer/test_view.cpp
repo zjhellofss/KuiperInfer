@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "runtime/runtime_ir.hpp"
-#include "../source/layer/details/view.hpp"
+#include "../../source/layer/details/view.hpp"
 
 TEST(test_layer, forward_view1) {
   using namespace kuiper_infer;

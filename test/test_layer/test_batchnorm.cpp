@@ -5,7 +5,7 @@
 #include <glog/logging.h>
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
-#include "../source/layer/details/batchnorm2d.hpp"
+#include "../../source/layer/details/batchnorm2d.hpp"
 
 TEST(test_layer, forward_batchnorm1) {
   using namespace kuiper_infer;

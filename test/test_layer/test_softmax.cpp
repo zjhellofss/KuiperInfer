@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 
-#include "../source/layer/details/softmax.hpp"
+#include "../../source/layer/details/softmax.hpp"
 
 TEST(test_layer, forward_softmax1) {
   using namespace kuiper_infer;

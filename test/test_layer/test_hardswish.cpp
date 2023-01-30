@@ -5,7 +5,7 @@
 #include <glog/logging.h>
 
 #include "data/tensor.hpp"
-#include "../source/layer/details/hardswish.hpp"
+#include "../../source/layer/details/hardswish.hpp"
 
 TEST(test_layer, forward_hardswish1) {
   using namespace kuiper_infer;

@@ -5,7 +5,7 @@
 #include "parser/parse_expression.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "data/load_data.hpp"
-#include "../source/layer/details/expression.hpp"
+#include "../../source/layer/details/expression.hpp"
 
 TEST(test_expression, add1) {
   using namespace kuiper_infer;

@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "data/tensor.hpp"
-#include "../source/layer/details/maxpooling.hpp"
+#include "../../source/layer/details/maxpooling.hpp"
 
 void MaxPooling(const std::vector<std::shared_ptr<kuiper_infer::Tensor<float>>> &inputs,
                 std::vector<std::shared_ptr<kuiper_infer::Tensor<float>>> &outputs,

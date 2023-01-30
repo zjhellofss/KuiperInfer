@@ -4,7 +4,7 @@
 #include <gtest/gtest.h>
 #include <glog/logging.h>
 #include "data/tensor.hpp"
-#include "../source/layer/details/linear.hpp"
+#include "../../source/layer/details/linear.hpp"
 
 TEST(test_layer, forward_linear1) {
   using namespace kuiper_infer;

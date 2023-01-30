@@ -4,7 +4,7 @@
 #include "runtime/runtime_attr.hpp"
 #include <gtest/gtest.h>
 
-TEST(test_attr, weight_data1) {
+TEST(test_attr, attr_weight_data1) {
   using namespace kuiper_infer;
   RuntimeAttribute runtime_attr;
   std::vector<char> weight_data;
@@ -20,7 +20,7 @@ TEST(test_attr, weight_data1) {
   }
 }
 
-TEST(test_attr, weight_data2) {
+TEST(test_attr, attr_weight_data2) {
   using namespace kuiper_infer;
   RuntimeAttribute runtime_attr;
   runtime_attr.type = RuntimeDataType::kTypeFloat32;
@@ -38,7 +38,7 @@ TEST(test_attr, weight_data2) {
   }
 }
 
-TEST(test_attr, shape) {
+TEST(test_runtime, attr_shape) {
   using namespace kuiper_infer;
   RuntimeAttribute runtime_attr;
   runtime_attr.type = RuntimeDataType::kTypeFloat32;
