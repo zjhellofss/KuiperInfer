@@ -23,7 +23,7 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR) << "The input and output size of silu layer is not adapting";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
@@ -37,7 +37,7 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     }
     if (output_data != nullptr && !output_data->empty()) {
       if (input_data->shapes() != output_data->shapes()) {
-        LOG(ERROR) << "The size of the output feature map is less than zero";
+        LOG(ERROR) << "The output size of silu layer is not adapting";
         return InferStatus::kInferFailedOutputSizeError;
       }
     }
@@ -54,7 +54,7 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       outputs.at(i) = output;
     }
 
-    CHECK(output->shapes() == input->shapes()) << "The output size of silu is error";
+    CHECK(output->shapes() == input->shapes()) << "The output size of silu layer is error";
     uint32_t size = output->size();
     if (!(size % 4)) {
 #if __SSE2__

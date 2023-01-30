@@ -17,12 +17,12 @@ MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_
 InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of average pooling layer is empty";
+    LOG(ERROR) << "The input feature map of max pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR) << "The input and output size of max pooling layer is not adapting";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
@@ -45,13 +45,13 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       uint32_t output_h = uint32_t(std::floor((input_h - pooling_h + 2 * padding_h_) / stride_h_ + 1));
       uint32_t output_w = uint32_t(std::floor((input_w - pooling_w + 2 * padding_w_) / stride_w_ + 1));
       if (!output_w || !output_h) {
-        LOG(ERROR) << "The size of the output feature map is less than zero";
+        LOG(ERROR) << "The output size of max pooling layer is less than zero";
         return InferStatus::kInferFailedOutputSizeError;
       } else {
         const std::shared_ptr<ftensor> &output_data = outputs.at(i);
         if(output_data != nullptr && !output_data->empty())  {
           if (output_data->rows() != output_h || output_data->cols() != output_w) {
-            LOG(ERROR) << "The size of the output feature map is less than zero";
+            LOG(ERROR) << "The output size of max pooling layer is not adapting";
             return InferStatus::kInferFailedOutputSizeError;
           }
         }
@@ -86,7 +86,7 @@ InferStatus MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     }
 
     CHECK(output_data->rows() == output_h && output_data->cols() == output_w
-              && output_data->channels() == input_c) << "The output size of maxpooling is error";
+              && output_data->channels() == input_c) << "The output size of max pooling layer is error";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat &input_channel = input_data_->at(ic);
