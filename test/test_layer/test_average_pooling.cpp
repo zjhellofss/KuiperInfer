@@ -111,6 +111,41 @@ TEST(test_layer, forward_average_pooling_out3x3) {
   }
 }
 
+TEST(test_layer, forward_average_pooling_out3x3p1) {
+  using namespace kuiper_infer;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  const uint32_t input_h = 226;
+  const uint32_t input_w = 226;
+  const uint32_t output_h = 3;
+  const uint32_t output_w = 3;
+
+  const uint32_t input_size = 3;
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+  std::vector<std::shared_ptr<Tensor<float>>> outputs1;
+  AveragePooling(inputs, outputs1, output_h, output_w);
+  ASSERT_EQ(outputs1.size(), input_size);
+  AdaptiveAveragePoolingLayer average_layer(output_h, output_w);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs2(input_size);
+  average_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs2.size(), input_size);
+
+  for (uint32_t i = 0; i < input_size; ++i) {
+    const auto &output1 = outputs1.at(i);
+    const auto &output2 = outputs2.at(i);
+    ASSERT_EQ(output1->channels(), output2->channels());
+    ASSERT_EQ(output1->shapes(), output2->shapes());
+    uint32_t channels = output1->channels();
+    for (int c = 0; c < channels; ++c) {
+      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+    }
+  }
+}
+
 TEST(test_layer, forward_average_pooling_out5x5) {
   using namespace kuiper_infer;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;

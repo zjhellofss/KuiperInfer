@@ -240,6 +240,8 @@ class Tensor<float> {
 };
 
 using ftensor = Tensor<float>;
+using sftensor = std::shared_ptr<Tensor<float>>;
+
 }
 
 #endif //KUIPER_COURSE_DATA_BLOB_HPP_

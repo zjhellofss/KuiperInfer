@@ -44,7 +44,6 @@ TEST(test_runtime, attr_shape) {
   runtime_attr.type = RuntimeDataType::kTypeFloat32;
   runtime_attr.shape = std::vector<int>{3, 32, 32};
   ASSERT_EQ(runtime_attr.shape.at(0), 3);
-
   ASSERT_EQ(runtime_attr.shape.at(1), 32);
   ASSERT_EQ(runtime_attr.shape.at(2), 32);
 }

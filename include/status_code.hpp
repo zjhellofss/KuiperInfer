@@ -20,6 +20,8 @@ enum class RuntimeParameterType {
 
 enum class InferStatus {
   kInferUnknown = -1,
+  kInferSuccess = 0,
+
   kInferFailedInputEmpty = 1,
   kInferFailedWeightParameterError = 2,
   kInferFailedBiasParameterError = 3,
@@ -29,8 +31,9 @@ enum class InferStatus {
 
   kInferFailedOutputSizeError = 7,
   kInferFailedYoloStageNumberError = 8,
+  kInferFailedShapeParameterError = 9,
+  kInferFailedChannelParameterError = 10,
 
-  kInferSuccess = 0,
 };
 
 enum class ParseParameterAttrStatus {
