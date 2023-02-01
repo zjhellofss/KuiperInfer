@@ -32,6 +32,21 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   }
 
   const uint32_t batch_size = inputs.size();
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    const auto &input_data = inputs.at(i);
+    const auto &output_data = outputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of batchNorm2d layer is empty";
+      return InferStatus::kInferFailedInputEmpty;
+    }
+    if (output_data != nullptr && !output_data->empty()) {
+      if (input_data->shapes() != output_data->shapes()) {
+        LOG(ERROR) << "The input and output size is not adapting";
+        return InferStatus::kInferFailedInputOutSizeAdaptingError;
+      }
+    }
+  }
+
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto &input = inputs.at(b);
@@ -53,7 +68,7 @@ InferStatus BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
       const float var_value = bias_.at(i)->index(0);
       CHECK(input->channels() >= i) << "The channel of the input feature maps and mean values is not adapting";
 
-      float var_value_ = std::sqrt(var_value + eps_);
+      const float var_value_ = std::sqrt(var_value + eps_);
       output->at(i) = ((input->at(i) - mean_value) / var_value_) * affine_weight_.at(i) + affine_bias_.at(i);
     }
   }

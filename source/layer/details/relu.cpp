@@ -16,6 +16,21 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
   }
 
   const uint32_t batch_size = inputs.size();
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    const sftensor &input_data = inputs.at(i);
+    const sftensor &output_data = outputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of relu layer is empty";
+      return InferStatus::kInferFailedInputEmpty;
+    }
+    if (output_data != nullptr && !output_data->empty()) {
+      if (input_data->shapes() != output_data->shapes()) {
+        LOG(ERROR) << "The input and output size is not adapting";
+        return InferStatus::kInferFailedInputOutSizeAdaptingError;
+      }
+    }
+  }
+
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
