@@ -21,8 +21,11 @@ class Layer;
 struct RuntimeOperator {
   int32_t meet_num = 0; /// 计算节点被相连接节点访问到的次数
   ~RuntimeOperator() {
-    for (const auto &param : this->params) {
-      delete param.second;
+    for (auto &param : this->params) {
+      if (param.second != nullptr) {
+        delete param.second;
+        param.second = nullptr;
+      }
     }
   }
   std::string name; /// 计算节点的名称

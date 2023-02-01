@@ -78,6 +78,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     const uint32_t input_h = input_->rows();
     const uint32_t input_c = input_->channels();
     const uint32_t kernel_count = this->weights_.size();
+    CHECK(kernel_count > 0) << "kernel count must greater than zero";
 
     uint32_t kernel_h = this->weights_.at(0)->rows();
     uint32_t kernel_w = this->weights_.at(0)->cols();

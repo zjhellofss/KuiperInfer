@@ -20,6 +20,14 @@ InferStatus UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
+  for (uint32_t i = 0; i < inputs.size(); ++i) {
+    const sftensor &input_data = inputs.at(i);
+    if (input_data == nullptr || input_data->empty()) {
+      LOG(ERROR) << "The input feature map of upsample layer is empty";
+      return InferStatus::kInferFailedInputEmpty;
+    }
+  }
+
   LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest) << "Unsupported upsample mode: " << int(mode_);
 
   const uint32_t batch_size = inputs.size();
