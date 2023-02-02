@@ -167,6 +167,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
 
   const auto &attrs = op->attribute;
   CHECK(!attrs.empty()) << "Operator attributes is empty!";
+
   if (attrs.find("pnnx_5") == attrs.end()) {
     LOG(ERROR) << "Can not find the in yolo strides attribute";
     return ParseParameterAttrStatus::kAttrMissingYoloStrides;
@@ -195,7 +196,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
 
     const auto &conv_attr = attrs.at(weight_name);
     const auto &out_shapes = conv_attr->shape;
-    CHECK(out_shapes.size() == 4);
+    CHECK(out_shapes.size() == 4) << "Stage output shape must equal to four";
 
     const int out_channels = out_shapes.at(0);
     if (num_classes == -1) {
@@ -236,12 +237,14 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const auto &anchor_shapes = anchor_grid->shape;
     const std::vector<float> &anchor_weight_data = anchor_grid->get<float>();
     CHECK(!anchor_shapes.empty() && anchor_shapes.size() == 5 &&
-          anchor_shapes.front() == 1);
+          anchor_shapes.front() == 1)
+        << "Anchor shape has a wrong size";
 
     const uint32_t anchor_rows =
         anchor_shapes.at(1) * anchor_shapes.at(2) * anchor_shapes.at(3);
     const uint32_t anchor_cols = anchor_shapes.at(4);
-    CHECK(anchor_weight_data.size() == anchor_cols * anchor_rows);
+    CHECK(anchor_weight_data.size() == anchor_cols * anchor_rows)
+        << "Anchor weight has a wrong size";
 
     arma::fmat anchor_grid_matrix(anchor_weight_data.data(), anchor_cols,
                                   anchor_rows);
@@ -257,13 +260,17 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
       LOG(ERROR) << "Can not find the in yolo grides attribute";
       return ParseParameterAttrStatus::kAttrMissingYoloGrides;
     }
+    
     const auto &grid = grid_attr->second;
     const auto &shapes = grid->shape;
     const std::vector<float> &weight_data = grid->get<float>();
-    CHECK(!shapes.empty() && shapes.size() == 5 && shapes.front() == 1);
+    CHECK(!shapes.empty() && shapes.size() == 5 && shapes.front() == 1)
+        << "Grid shape has a wrong size";
+
     const uint32_t grid_rows = shapes.at(1) * shapes.at(2) * shapes.at(3);
     const uint32_t grid_cols = shapes.at(4);
-    CHECK(weight_data.size() == grid_cols * grid_rows);
+    CHECK(weight_data.size() == grid_cols * grid_rows)
+        << "Grid weight has a wrong size";
 
     arma::fmat matrix(weight_data.data(), grid_cols, grid_rows);
     grids.emplace_back(matrix.t());

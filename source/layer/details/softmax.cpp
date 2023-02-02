@@ -31,7 +31,6 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(input->shapes());
-      LOG(ERROR) << "The output size of softmax is empty" << "The output size of softmax is error";
       outputs.at(i) = output;
     }
 

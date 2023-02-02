@@ -269,7 +269,7 @@ void MultiImageYoloInferNano(const std::string &image_path,
 }
 
 int main() {
-  const std::string &image_path = "imgs/31.jpg";
+  const std::string &image_path = "imgs/car.jpg";
   const std::string &param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
   const std::string &weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
   for (int i = 0; i < 128; ++i) {
