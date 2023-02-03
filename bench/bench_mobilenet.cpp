@@ -3,9 +3,8 @@
 //
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
-const static int kIterationNum = 5;
 
-static void BM_MobilenetV3_Batch8(benchmark::State &state) {
+static void BM_MobilenetV3_Batch8_224x224(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/mobilenet/mobile_batch8.pnnx.param",
                      "tmp/mobilenet/mobile_batch8.bin");
@@ -25,5 +24,5 @@ static void BM_MobilenetV3_Batch8(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_MobilenetV3_Batch8)->Iterations(kIterationNum);
+BENCHMARK(BM_MobilenetV3_Batch8_224x224);
 

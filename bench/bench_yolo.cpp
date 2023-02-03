@@ -5,7 +5,7 @@
 #include "runtime/runtime_ir.hpp"
 const static int kIterationNum = 5;
 
-static void BM_Yolov5nano_Batch4(benchmark::State &state) {
+static void BM_Yolov5nano_Batch4_320x320(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/yolo/yolov5n_small.pnnx.param",
                      "tmp/yolo/yolov5n_small.pnnx.bin");
@@ -25,7 +25,7 @@ static void BM_Yolov5nano_Batch4(benchmark::State &state) {
   }
 }
 
-static void BM_Yolov5s_Batch4(benchmark::State &state) {
+static void BM_Yolov5s_Batch4_640x640(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/yolo/demo/yolov5s_batch4.pnnx.param",
                      "tmp/yolo/demo/yolov5s_batch4.pnnx.bin");
@@ -45,7 +45,7 @@ static void BM_Yolov5s_Batch4(benchmark::State &state) {
   }
 }
 
-static void BM_Yolov5s_Batch8(benchmark::State &state) {
+static void BM_Yolov5s_Batch8_640x640(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/yolo/demo/yolov5s_batch8.pnnx.param",
                      "tmp/yolo/demo/yolov5s_batch8.pnnx.bin");
@@ -65,6 +65,6 @@ static void BM_Yolov5s_Batch8(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_Yolov5nano_Batch4)->Iterations(kIterationNum);
-BENCHMARK(BM_Yolov5s_Batch4)->Iterations(kIterationNum);
-BENCHMARK(BM_Yolov5s_Batch8)->Iterations(kIterationNum);
+BENCHMARK(BM_Yolov5nano_Batch4_320x320)->Iterations(kIterationNum);
+BENCHMARK(BM_Yolov5s_Batch4_640x640)->Iterations(kIterationNum);
+BENCHMARK(BM_Yolov5s_Batch8_640x640)->Iterations(kIterationNum);

@@ -6,7 +6,7 @@
 
 const static int kIterationNum = 5;
 
-static void BM_Resnet18_Batch8(benchmark::State &state) {
+static void BM_Resnet18_Batch8_224x224(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/resnet/resnet18_batch8.pnnx.param",
                      "tmp/resnet/resnet18_batch8.pnnx.bin");
@@ -26,7 +26,7 @@ static void BM_Resnet18_Batch8(benchmark::State &state) {
   }
 }
 
-static void BM_Resnet18_Batch16(benchmark::State &state) {
+static void BM_Resnet18_Batch16_224x224(benchmark::State &state) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/resnet/resnet18_batch16.pnnx.param",
                      "tmp/resnet/resnet18_batch16.pnnx.bin");
@@ -45,5 +45,5 @@ static void BM_Resnet18_Batch16(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_Resnet18_Batch8)->Iterations(kIterationNum);
-BENCHMARK(BM_Resnet18_Batch16)->Iterations(kIterationNum);
+BENCHMARK(BM_Resnet18_Batch8_224x224);
+BENCHMARK(BM_Resnet18_Batch16_224x224);
