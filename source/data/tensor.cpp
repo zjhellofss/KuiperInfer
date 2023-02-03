@@ -278,6 +278,10 @@ void Tensor<float>::ReRawshape(const std::vector<uint32_t> &shapes) {
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
+  if (this->raw_shapes_ == shapes) {
+    return;
+  }
+
   if (shapes.size() == 3) {
     this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
     this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};

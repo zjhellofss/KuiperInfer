@@ -3,6 +3,11 @@
 //
 #include "relu.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#if __SSE2__
+#include <emmintrin.h>
+#include "sse_mathfun.hpp"
+#endif
+
 namespace kuiper_infer {
 InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                                std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
@@ -43,12 +48,24 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
       outputs.at(i) = output;
     }
     CHECK(output->shapes() == input->shapes()) << "The output size of relu is error";
+#if __SSE2__
+    const uint32_t size = input->size();
+    __m128 _zero = _mm_setzero_ps();
+    for (; i + 3 < size; i += 4) {
+      float *ptr = (float *) input->raw_ptr();
+      float *dest = (float *) output->raw_ptr();
+      __m128 _p = _mm_load_ps(ptr);
+      _mm_store_ps(dest, _mm_max_ps(_zero, _p));
+      ptr += 4;
+      dest += 4;
+    }
+#else
     output->set_data(input->data());
     output->Transform([](float val) {
       return val > 0. ? val : 0.;
     });
+#endif
   }
-
   return InferStatus::kInferSuccess;
 }
 ParseParameterAttrStatus ReluLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,

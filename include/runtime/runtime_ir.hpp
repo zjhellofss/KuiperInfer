@@ -124,8 +124,8 @@ class RuntimeGraph {
    * @param src 上一个节点的输出操作数
    * @param dest 下一个节点的输入操作数
    */
-  static void SetOpInputData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
-                             const std::vector<std::shared_ptr<Tensor<float>>> &dest);
+  static void SetOpInputData(std::vector<std::shared_ptr<Tensor<float>>> &src,
+                             std::vector<std::shared_ptr<Tensor<float>>> &dest);
 
   /**
    * 根据计算图中的计算节点来返回Layer
@@ -149,7 +149,7 @@ class RuntimeGraph {
    */
   static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                              std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                             const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_data);
+                             std::vector<std::shared_ptr<Tensor<float>>> layer_output_data);
 
  private:
   enum class GraphState {

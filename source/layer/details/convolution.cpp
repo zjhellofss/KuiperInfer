@@ -93,10 +93,8 @@ InferStatus ConvolutionLayer::Forward(
     CHECK(kernel_h > 0 && kernel_w > 0)
             << "The size of kernel size is less than zero";
 
-    uint32_t output_h =
-        uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
-    uint32_t output_w =
-        uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
+    uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+    uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
     CHECK(output_h > 0 && output_w > 0)
             << "The size of the output feature map is less than zero";
 
@@ -163,7 +161,6 @@ InferStatus ConvolutionLayer::Forward(
           output_tensor->cols() == output_w &&
           output_tensor->channels() == kernel_count)
               << "The output size of convolution is error";
-
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output = kernel_matrix_arr.at(k) * input_matrix;
@@ -177,7 +174,6 @@ InferStatus ConvolutionLayer::Forward(
           float bias_value = bias->index(0);
           output += bias_value;
         }
-
         mempcpy(output_tensor->at(k + g * kernel_count_group).memptr(),
                 output.memptr(), sizeof(float) * output_h * output_w);
       }
@@ -296,14 +292,12 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   }
 
   // kernel的方向是倒置的
-  conv_layer = std::make_shared<ConvolutionLayer>(
-      out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
-      paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
-      groups->value, use_bias->value);
+  conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
+                                                  paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
+                                                  groups->value, use_bias->value);
 
   // load weights
-  const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs =
-      op->attribute;
+  const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
   if (use_bias->value) {
     if (attrs.find("bias") == attrs.end()) {
       LOG(ERROR) << "Can not find the bias attribute";

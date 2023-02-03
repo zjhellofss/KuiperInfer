@@ -366,17 +366,11 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(const std::shared_ptr<RuntimeOp
   return layer;
 }
 
-void RuntimeGraph::SetOpInputData(const std::vector<std::shared_ptr<Tensor<float>>> &src,
-                                  const std::vector<std::shared_ptr<Tensor<float>>> &dest) {
+void RuntimeGraph::SetOpInputData(std::vector<std::shared_ptr<Tensor<float>>> &src,
+                                  std::vector<std::shared_ptr<Tensor<float>>> &dest) {
   CHECK(src.size() == dest.size()) << "src size: " << src.size() << " dest size: " << dest.size();
-
   for (uint32_t i = 0; i < src.size(); ++i) {
-    uint32_t copy_size = src.at(i)->size();
-    uint32_t dest_size = dest.at(i)->size();
-    CHECK(copy_size == dest_size);
-    float *dest_ptr = (float *) dest.at(i)->raw_ptr();
-    float *src_ptr = (float *) src.at(i)->raw_ptr();
-    memcpy(dest_ptr, src_ptr, sizeof(float) * copy_size);
+    dest.at(i)->set_data(src.at(i)->data());
   }
 }
 
@@ -522,13 +516,16 @@ bool RuntimeGraph::CheckOperatorReady(const std::shared_ptr<RuntimeOperator> &op
 
 void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator> &current_op,
                                   std::deque<std::shared_ptr<RuntimeOperator>> &operator_queue,
-                                  const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas) {
+                                  std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas) {
   const auto &next_ops = current_op->output_operators;
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;
     const auto &next_input_operands = next_rt_operator->input_operands;
+
     if (next_input_operands.find(current_op->name) != next_input_operands.end()) {
-      SetOpInputData(layer_output_datas, next_input_operands.at(current_op->name)->datas);
+      std::vector<std::shared_ptr<ftensor >> next_input_datas = next_input_operands.at(current_op->name)->datas;
+      SetOpInputData(layer_output_datas, next_input_datas);
+
       const auto &iter = next_input_operands.find(current_op->name);
       if (std::find(operator_queue.begin(), operator_queue.end(), next_rt_operator) == operator_queue.end()) {
         next_rt_operator->meet_num += 1;

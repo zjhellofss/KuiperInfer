@@ -1,14 +1,14 @@
 //
 // Created by fss on 23-2-2.
 //
-#include <opencv2/opencv.hpp>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <opencv2/opencv.hpp>
 
-#include "tick.hpp"
+#include "../source/layer/details/softmax.hpp"
 #include "data/tensor.hpp"
 #include "runtime/runtime_ir.hpp"
-#include "../source/layer/details/softmax.hpp"
+#include "tick.hpp"
 
 // python ref https://pytorch.org/hub/pytorch_vision_resnet/
 cv::Mat PreProcessImage(const cv::Mat &image) {
@@ -28,7 +28,6 @@ cv::Mat PreProcessImage(const cv::Mat &image) {
   float var_g = 0.224f;
   float var_b = 0.225f;
 
-
   /**
    * 图像归一化
    */
@@ -38,19 +37,22 @@ cv::Mat PreProcessImage(const cv::Mat &image) {
   /**
    * 图像调整均值和方差
    */
-  std::transform(rgb_image.begin<cv::Vec3f>(),
-                 rgb_image.end<cv::Vec3f>(),
-                 normalize_image.begin<cv::Vec3f>(),
-                 [mean_r, mean_g, mean_b, var_r, var_g, var_b](const cv::Vec3f &pixel) {
-                   return cv::Vec3f((pixel[0] - mean_r) / var_r,
-                                    (pixel[1] - mean_g) / var_g,
-                                    (pixel[2] - mean_b) / var_b);
-                 });
+  std::transform(
+      rgb_image.begin<cv::Vec3f>(), rgb_image.end<cv::Vec3f>(),
+      normalize_image.begin<cv::Vec3f>(),
+      [mean_r, mean_g, mean_b, var_r, var_g, var_b](const cv::Vec3f &pixel) {
+        return cv::Vec3f((pixel[0] - mean_r) / var_r,
+                         (pixel[1] - mean_g) / var_g,
+                         (pixel[2] - mean_b) / var_b);
+      });
   return normalize_image;
 }
 
 int main(int argc, char *argv[]) {
-  assert(argc == 2);
+  if (argc != 2) {
+    printf("usage: ./resnet_test [image path]\n");
+    exit(-1);
+  }
   using namespace kuiper_infer;
 
   const std::string &path = argv[1];
@@ -73,11 +75,12 @@ int main(int argc, char *argv[]) {
 
     int index = 0;
     int offset = 0;
-    //rgbrgb --> rrrgggbbb
+    // rgbrgb --> rrrgggbbb
     for (const auto &split_image : split_images) {
       assert(split_image.total() == input_w * input_h);
       const cv::Mat &split_image_t = split_image.t();
-      memcpy(input->at(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
+      memcpy(input->at(index).memptr(), split_image_t.data,
+             sizeof(float) * split_image.total());
       index += 1;
       offset += split_image.total();
     }
@@ -91,7 +94,7 @@ int main(int argc, char *argv[]) {
 
   // 推理
   TICK(forward)
-  const std::vector<sftensor> outputs = graph.Forward(inputs);
+  const std::vector<sftensor> outputs = graph.Forward(inputs,true);
   TOCK(forward)
   assert(outputs.size() == batch_size);
 
