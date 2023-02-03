@@ -51,16 +51,15 @@ InferStatus ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
 #if __SSE2__
     const uint32_t size = input->size();
     __m128 _zero = _mm_setzero_ps();
+    float *ptr = const_cast<float *>(input->raw_ptr());
+    float *dest = const_cast<float *>(output->raw_ptr());
     for (; i + 3 < size; i += 4) {
-      float *ptr = (float *) input->raw_ptr();
-      float *dest = (float *) output->raw_ptr();
       __m128 _p = _mm_load_ps(ptr);
       _mm_store_ps(dest, _mm_max_ps(_zero, _p));
       ptr += 4;
       dest += 4;
     }
 #else
-    output->set_data(input->data());
     output->Transform([](float val) {
       return val > 0. ? val : 0.;
     });
