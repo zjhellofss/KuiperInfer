@@ -15,11 +15,10 @@ cv::Mat PreProcessImage(const cv::Mat &image) {
   assert(!image.empty());
   // 调整输入大小
   cv::Mat resize_image;
-  cv::resize(image, resize_image, cv::Size(224, 224));
+  cv::resize(image, resize_image, cv::Size(256, 256));
 
   // 调整颜色顺序
-  cv::Mat rgb_image;
-  cv::cvtColor(resize_image, rgb_image, cv::COLOR_BGR2RGB);
+
   float mean_r = 0.485f;
   float mean_g = 0.456f;
   float mean_b = 0.406f;
@@ -31,21 +30,24 @@ cv::Mat PreProcessImage(const cv::Mat &image) {
   /**
    * 图像归一化
    */
-  rgb_image.convertTo(rgb_image, CV_32FC3, 1. / 255.);
-  cv::Mat normalize_image = rgb_image.clone();
+  resize_image.convertTo(resize_image, CV_32FC3, 1. / 255.);
+  cv::Mat normalize_image = resize_image.clone();
 
   /**
    * 图像调整均值和方差
    */
   std::transform(
-      rgb_image.begin<cv::Vec3f>(), rgb_image.end<cv::Vec3f>(),
+      normalize_image.begin<cv::Vec3f>(), normalize_image.end<cv::Vec3f>(),
       normalize_image.begin<cv::Vec3f>(),
       [mean_r, mean_g, mean_b, var_r, var_g, var_b](const cv::Vec3f &pixel) {
         return cv::Vec3f((pixel[0] - mean_r) / var_r,
                          (pixel[1] - mean_g) / var_g,
                          (pixel[2] - mean_b) / var_b);
       });
-  return normalize_image;
+
+  cv::Mat rgb_image;
+  cv::cvtColor(normalize_image, rgb_image, cv::COLOR_BGR2RGB);
+  return rgb_image;
 }
 
 int main(int argc, char *argv[]) {
@@ -56,23 +58,22 @@ int main(int argc, char *argv[]) {
   using namespace kuiper_infer;
 
   const std::string &path = argv[1];
-  cv::Mat image = cv::imread(path);
-  // 图像预处理
-  cv::Mat normalize_image = PreProcessImage(image);
 
-  std::vector<cv::Mat> split_images;
-  cv::split(normalize_image, split_images);
-  const uint32_t input_c = 3;
-  const uint32_t input_w = 224;
-  const uint32_t input_h = 224;
-  assert(split_images.size() == input_c);
-
-  const uint32_t batch_size = 8;
+  const uint32_t batch_size = 2;
   std::vector<sftensor> inputs;
   for (uint32_t i = 0; i < batch_size; ++i) {
-    sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-    input->Fill(0.f);
+    cv::Mat image = cv::imread(path);
+    // 图像预处理
+    cv::Mat normalize_image = PreProcessImage(image);
 
+    std::vector<cv::Mat> split_images;
+    cv::split(normalize_image, split_images);
+    const uint32_t input_c = 3;
+    const uint32_t input_w = 256;
+    const uint32_t input_h = 256;
+    assert(split_images.size() == input_c);
+
+    sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
     int index = 0;
     int offset = 0;
     // rgbrgb --> rrrgggbbb
@@ -87,6 +88,8 @@ int main(int argc, char *argv[]) {
     inputs.push_back(input);
   }
 
+  printf("input is same:%d\n", is_same_tensor(inputs.at(0), inputs.at(1)));
+
   const std::string &param_path = "tmp/resnet/demo/resnet18_hub.pnnx.param";
   const std::string &weight_path = "tmp/resnet/demo/resnet18_hub.pnnx.bin";
   RuntimeGraph graph(param_path, weight_path);
@@ -94,7 +97,7 @@ int main(int argc, char *argv[]) {
 
   // 推理
   TICK(forward)
-  const std::vector<sftensor> outputs = graph.Forward(inputs,true);
+  const std::vector<sftensor> outputs = graph.Forward(inputs, true);
   TOCK(forward)
   assert(outputs.size() == batch_size);
 
@@ -106,8 +109,9 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < outputs_softmax.size(); ++i) {
     const sftensor &output_tensor = outputs_softmax.at(i);
+    LOG(INFO) << output_tensor;
     assert(output_tensor->size() == 1 * 1000);
-    // 找到类别概率最大的坐标
+    // 找到类别概率最大的种类
     float max_prob = -1;
     int max_index = -1;
     for (int j = 0; j < output_tensor->size(); ++j) {

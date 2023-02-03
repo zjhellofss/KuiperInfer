@@ -45,6 +45,13 @@ class Tensor<float> {
   Tensor<float> &operator=(const Tensor &tensor);
 
   /**
+   * 判断两个张量数据是否相同
+   * @param a 一个张量
+   * @param b 另一个张量
+   * @return 数据是否相同
+   */
+
+  /**
    * 返回张量的行数
    * @return 张量的行数
    */
@@ -242,6 +249,7 @@ class Tensor<float> {
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
+bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a, const std::shared_ptr<Tensor<float>> &b);
 }
 
 #endif //KUIPER_COURSE_DATA_BLOB_HPP_

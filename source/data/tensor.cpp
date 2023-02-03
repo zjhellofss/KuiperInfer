@@ -348,4 +348,11 @@ const float *Tensor<float>::raw_ptr() const {
   CHECK(!this->data_.empty());
   return this->data_.memptr();
 }
+
+bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a, const std::shared_ptr<Tensor<float>> &b) {
+  CHECK(a != nullptr);
+  CHECK(b != nullptr);
+  bool is_same = arma::approx_equal(a->data(), b->data(), "absdiff", 1e-5);
+  return is_same;
+}
 }
