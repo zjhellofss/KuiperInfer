@@ -9,15 +9,19 @@
 namespace kuiper_infer {
 class ConvolutionLayer : public ParamLayer {
  public:
-  explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
-                            uint32_t kernel_w, uint32_t padding_h, uint32_t padding_w,
-                            uint32_t stride_h, uint32_t stride_w, uint32_t groups, bool use_bias = true);
+  explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
+                            uint32_t kernel_h, uint32_t kernel_w,
+                            uint32_t padding_h, uint32_t padding_w,
+                            uint32_t stride_h, uint32_t stride_w,
+                            uint32_t groups, bool use_bias = true);
 
-  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                              std::shared_ptr<Layer> &conv_layer);
+  static ParseParameterAttrStatus GetInstance(
+      const std::shared_ptr<RuntimeOperator>& op,
+      std::shared_ptr<Layer>& conv_layer);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
+  InferStatus Forward(
+      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
  private:
   bool use_bias_ = false;
@@ -28,6 +32,6 @@ class ConvolutionLayer : public ParamLayer {
   uint32_t stride_w_ = 1;
 };
 
-}
+}  // namespace kuiper_infer
 
-#endif //KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
+#endif  // KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_

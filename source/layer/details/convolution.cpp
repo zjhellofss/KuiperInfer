@@ -53,14 +53,29 @@ InferStatus ConvolutionLayer::Forward(
     return InferStatus::kInferFailedBiasParameterError;
   }
 
-  const uint32_t batch_size = inputs.size();
-
   if (!stride_h_ || !stride_w_) {
     LOG(ERROR) << "The stride parameter is set incorrectly. It must always be "
                   "greater than 0";
     return InferStatus::kInferFailedStrideParameterError;
   }
 
+  const uint32_t kernel_count = this->weights_.size();
+  CHECK(kernel_count > 0) << "kernel count must greater than zero";
+  const uint32_t kernel_h = this->weights_.at(0)->rows();
+  const uint32_t kernel_w = this->weights_.at(0)->cols();
+  const uint32_t kernel_c = this->weights_.at(0)->channels();
+  const uint32_t row_len = kernel_h * kernel_w;
+  CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
+      << "The size of kernel size is less than zero";
+
+  for (uint32_t k = 0; k < kernel_count; ++k) {
+    const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
+    CHECK(kernel->rows() == kernel_h);
+    CHECK(kernel->cols() == kernel_w);
+    CHECK(kernel->channels() == kernel_c);
+  }
+  const uint32_t kernel_count_group = kernel_count / groups_;
+  const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
@@ -78,17 +93,10 @@ InferStatus ConvolutionLayer::Forward(
     const uint32_t input_w = input_->cols();
     const uint32_t input_h = input_->rows();
     const uint32_t input_c = input_->channels();
-    const uint32_t kernel_count = this->weights_.size();
-    CHECK(kernel_count > 0) << "kernel count must greater than zero";
 
-    uint32_t kernel_h = this->weights_.at(0)->rows();
-    uint32_t kernel_w = this->weights_.at(0)->cols();
-    CHECK(kernel_h > 0 && kernel_w > 0)
-        << "The size of kernel size is less than zero";
-
-    uint32_t output_h =
+    const uint32_t output_h =
         uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
-    uint32_t output_w =
+    const uint32_t output_w =
         uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output feature map is less than zero";
@@ -98,30 +106,19 @@ InferStatus ConvolutionLayer::Forward(
       CHECK(input_c % groups_ == 0);
     }
 
-    for (uint32_t k = 0; k < kernel_count; ++k) {
-      const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
-      CHECK(kernel->rows() == kernel_h);
-      CHECK(kernel->cols() == kernel_w);
-      CHECK(kernel->channels() == input_c / groups_);
-    }
-
-    uint32_t row_len = kernel_w * kernel_h;
     uint32_t col_len = output_h * output_w;
-    if (!col_len) {
-      col_len = 1;
-    }
+    CHECK(col_len > 0) << "The col len of the input matrix is less than zero";
 
     uint32_t input_c_group = input_c / groups_;
-    uint32_t kernel_count_group = kernel_count / groups_;
-
+    CHECK(input_c_group == kernel_c)
+        << "The channel of the kernel and input feature do not equal";
+    std::vector<arma::fmat> kernel_matrix_arr(kernel_count_group);
+    arma::fmat kernel_matrix_c(1, row_len * kernel_c);
     for (uint32_t g = 0; g < groups_; ++g) {
-      std::vector<arma::fmat> kernel_matrix_arr(kernel_count_group);
-      arma::fmat kernel_matrix_c(1, row_len * input_c_group);
-
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         const std::shared_ptr<Tensor<float>>& kernel =
             this->weights_.at(k + g * kernel_count_group);
-        for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+        for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
           memcpy(kernel_matrix_c.memptr() + row_len * ic,
                  kernel->at(ic).memptr(), row_len * sizeof(float));
         }
