@@ -18,12 +18,6 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::Create(uint32_t channels,
-                                                     uint32_t rows,
-                                                     uint32_t cols) {
-  return std::make_shared<Tensor<float>>(channels, rows, cols);
-}
-
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
   CHECK(shapes.size() == 3);
   uint32_t channels = shapes.at(0);
@@ -305,10 +299,13 @@ const float* Tensor<float>::raw_ptr() const {
   return this->data_.memptr();
 }
 
-bool is_same_tensor(const std::shared_ptr<Tensor<float>>& a,
-                    const std::shared_ptr<Tensor<float>>& b) {
+bool TensorIsSame(const std::shared_ptr<Tensor<float>>& a,
+                  const std::shared_ptr<Tensor<float>>& b) {
   CHECK(a != nullptr);
   CHECK(b != nullptr);
+  if (a->shapes() != b->shapes()) {
+    return false;
+  }
   bool is_same = arma::approx_equal(a->data(), b->data(), "absdiff", 1e-5);
   return is_same;
 }
@@ -367,4 +364,10 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
     return output_tensor;
   }
 }
+
+std::shared_ptr<Tensor<float>> TensorCreate(uint32_t channels, uint32_t rows,
+                                            uint32_t cols) {
+  return std::make_shared<Tensor<float>>(channels, rows, cols);
+}
+
 }  // namespace kuiper_infer

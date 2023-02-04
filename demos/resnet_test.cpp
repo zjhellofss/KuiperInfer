@@ -88,7 +88,7 @@ int main(int argc, char *argv[]) {
     inputs.push_back(input);
   }
 
-  printf("input is same:%d\n", is_same_tensor(inputs.at(0), inputs.at(1)));
+  printf("input is same:%d\n", TensorIsSame(inputs.at(0), inputs.at(1)));
 
   const std::string &param_path = "tmp/resnet/demo/resnet18_hub.pnnx.param";
   const std::string &weight_path = "tmp/resnet/demo/resnet18_hub.pnnx.bin";
