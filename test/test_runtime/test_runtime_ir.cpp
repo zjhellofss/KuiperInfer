@@ -207,14 +207,16 @@ TEST(test_runtime, runtime_graph_input_init3) {
 TEST(test_runtime, runtime_graph_output_init1) {
   using namespace kuiper_infer;
   std::vector<pnnx::Operator*> pnnx_operators;
-  pnnx::Operator* pnnx_op = new pnnx::Operator;
-  pnnx::Operand* pnnx_number = new pnnx::Operand;
-  pnnx_number->shape = std::vector<int>{8, 3, 32, 32};
-  pnnx_op->outputs.push_back(pnnx_number);
-  pnnx_operators.push_back(pnnx_op);
-
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
-  run_ops.push_back(std::make_shared<RuntimeOperator>());
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{8, 3, 32, 32};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
@@ -246,14 +248,16 @@ TEST(test_runtime, runtime_graph_output_init1) {
 TEST(test_runtime, runtime_graph_output_init2) {
   using namespace kuiper_infer;
   std::vector<pnnx::Operator*> pnnx_operators;
-  pnnx::Operator* pnnx_op = new pnnx::Operator;
-  pnnx::Operand* pnnx_number = new pnnx::Operand;
-  pnnx_number->shape = std::vector<int>{8, 64};
-  pnnx_op->outputs.push_back(pnnx_number);
-  pnnx_operators.push_back(pnnx_op);
-
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
-  run_ops.push_back(std::make_shared<RuntimeOperator>());
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{8, 64};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
   for (auto const& run_op : run_ops) {
@@ -287,14 +291,16 @@ TEST(test_runtime, runtime_graph_output_init2) {
 TEST(test_runtime, runtime_graph_output_init3) {
   using namespace kuiper_infer;
   std::vector<pnnx::Operator*> pnnx_operators;
-  pnnx::Operator* pnnx_op = new pnnx::Operator;
-  pnnx::Operand* pnnx_number = new pnnx::Operand;
-  pnnx_number->shape = std::vector<int>{8, 32, 32};
-  pnnx_op->outputs.push_back(pnnx_number);
-  pnnx_operators.push_back(pnnx_op);
-
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
-  run_ops.push_back(std::make_shared<RuntimeOperator>());
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{8, 32, 32};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
   for (auto const& run_op : run_ops) {
