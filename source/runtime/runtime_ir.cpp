@@ -343,7 +343,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(const std::vec
   for (const auto &op : this->operators_) {
     op->meet_num = 0;
   }
-
+  
   CHECK(output_op->input_operands.size() == 1) << "The graph only support one path to the output node yet!";
   const auto &output_op_input_operand = output_op->input_operands.begin();
   const auto &output_operand = output_op_input_operand->second;

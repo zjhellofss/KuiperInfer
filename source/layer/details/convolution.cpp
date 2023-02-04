@@ -27,19 +27,24 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
   if (groups != 1) {
     in_channel /= groups;
   }
-
-  for (uint32_t i = 0; i < output_channel; ++i) {
-    std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(in_channel, kernel_h, kernel_w);
-    this->weights_.push_back(weight);
-    if (use_bias_) {
-      std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1, 1, 1);
-      this->bias_.push_back(bias);
-    }
+  this->InitWeightParam(output_channel, in_channel, kernel_h, kernel_w);
+  if (use_bias_) {
+    this->InitBiasParam(output_channel, 1, 1, 1);
   }
+  // for (uint32_t i = 0; i < output_channel; ++i) {
+  //   std::shared_ptr<Tensor<float>> weight =
+  //   std::make_shared<Tensor<float>>(in_channel, kernel_h, kernel_w);
+  //   this->weights_.push_back(weight);
+  //   if (use_bias_) {
+  //     std::shared_ptr<Tensor<float>> bias =
+  //     std::make_shared<Tensor<float>>(1, 1, 1); this->bias_.push_back(bias);
+  //   }
+  // }
 }
 
-InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+InferStatus ConvolutionLayer::Forward(
+    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -72,7 +77,7 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-            << "The input feature map of conv layer is empty";
+        << "The input feature map of conv layer is empty";
 
     std::shared_ptr<Tensor<float>> input_;
     if (padding_h_ > 0 || padding_w_ > 0) {
@@ -91,12 +96,14 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
     uint32_t kernel_h = this->weights_.at(0)->rows();
     uint32_t kernel_w = this->weights_.at(0)->cols();
     CHECK(kernel_h > 0 && kernel_w > 0)
-            << "The size of kernel size is less than zero";
+        << "The size of kernel size is less than zero";
 
-    uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
-    uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
+    uint32_t output_h =
+        uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+    uint32_t output_w =
+        uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
     CHECK(output_h > 0 && output_w > 0)
-            << "The size of the output feature map is less than zero";
+        << "The size of the output feature map is less than zero";
 
     if (groups_ != 1) {
       CHECK(kernel_count % groups_ == 0);
@@ -139,7 +146,8 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
         int current_col = 0;
         for (uint32_t w = 0; w < input_w - kernel_w + 1; w += stride_w_) {
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-            float *input_matrix_c_ptr = input_matrix.colptr(current_col) + ic * row_len;
+            float *input_matrix_c_ptr =
+                input_matrix.colptr(current_col) + ic * row_len;
             current_col += 1;
 
             for (uint32_t kw = 0; kw < kernel_w; ++kw) {
@@ -153,14 +161,15 @@ InferStatus ConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tensor<f
 
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
-        output_tensor = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+        output_tensor =
+            std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
         outputs.at(i) = output_tensor;
       }
 
       CHECK(output_tensor->rows() == output_h &&
-          output_tensor->cols() == output_w &&
-          output_tensor->channels() == kernel_count)
-              << "The output size of convolution is error";
+            output_tensor->cols() == output_w &&
+            output_tensor->channels() == kernel_count)
+          << "The output size of convolution is error";
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output = kernel_matrix_arr.at(k) * input_matrix;
@@ -193,7 +202,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingDilation;
   }
 
-  const auto &dilation_param = dynamic_cast<RuntimeParameterIntArray *>(params.at("dilation"));
+  const auto &dilation_param =
+      dynamic_cast<RuntimeParameterIntArray *>(params.at("dilation"));
 
   if (dilation_param == nullptr || dilation_param->value.size() != 2) {
     LOG(ERROR) << "Can not find the dilation parameter";
@@ -201,13 +211,14 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   }
 
   CHECK(dilation_param->value.at(0) != 1 || dilation_param->value.at(1))
-          << "Only support dilation value equals to one!";
+      << "Only support dilation value equals to one!";
 
   if (params.find("in_channels") == params.end()) {
     LOG(ERROR) << "Can not find the in channel parameter";
     return ParseParameterAttrStatus::kParameterMissingInChannel;
   }
-  const auto &in_channel = dynamic_cast<RuntimeParameterInt *>(params.at("in_channels"));
+  const auto &in_channel =
+      dynamic_cast<RuntimeParameterInt *>(params.at("in_channels"));
   if (!in_channel) {
     LOG(ERROR) << "Can not find the in channel parameter";
     return ParseParameterAttrStatus::kParameterMissingInChannel;
@@ -230,7 +241,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingPadding;
   }
 
-  const auto &padding = dynamic_cast<RuntimeParameterIntArray *>(params.at("padding"));
+  const auto &padding =
+      dynamic_cast<RuntimeParameterIntArray *>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
     return ParseParameterAttrStatus::kParameterMissingPadding;
@@ -240,7 +252,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  const auto &use_bias = dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
+  const auto &use_bias =
+      dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
   if (!use_bias) {
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
@@ -250,7 +263,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
   }
-  const auto &stride = dynamic_cast<RuntimeParameterIntArray *>(params.at("stride"));
+  const auto &stride =
+      dynamic_cast<RuntimeParameterIntArray *>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
@@ -260,7 +274,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
-  const auto &kernel = dynamic_cast<RuntimeParameterIntArray *>(params.at("kernel_size"));
+  const auto &kernel =
+      dynamic_cast<RuntimeParameterIntArray *>(params.at("kernel_size"));
   if (!kernel) {
     LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
@@ -292,12 +307,14 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   }
 
   // kernel的方向是倒置的
-  conv_layer = std::make_shared<ConvolutionLayer>(out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
-                                                  paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
-                                                  groups->value, use_bias->value);
+  conv_layer = std::make_shared<ConvolutionLayer>(
+      out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
+      paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
+      groups->value, use_bias->value);
 
   // load weights
-  const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs = op->attribute;
+  const std::map<std::string, std::shared_ptr<RuntimeAttribute>> &attrs =
+      op->attribute;
   if (use_bias->value) {
     if (attrs.find("bias") == attrs.end()) {
       LOG(ERROR) << "Can not find the bias attribute";
@@ -331,6 +348,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kConvGetInstance("nn.Conv2d", ConvolutionLayer::GetInstance);
+LayerRegistererWrapper kConvGetInstance("nn.Conv2d",
+                                        ConvolutionLayer::GetInstance);
 
 }  // namespace kuiper_infer

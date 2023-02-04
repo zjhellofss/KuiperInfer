@@ -6,20 +6,19 @@
 #define KUIPER_COURSE_DATA_BLOB_HPP_
 #include <memory>
 #include <vector>
+
 #include "armadillo"
 
 namespace kuiper_infer {
-template<typename T>
-class Tensor {
+template <typename T>
+class Tensor {};
 
-};
-
-template<>
+template <>
 class Tensor<uint8_t> {
   // 待实现
 };
 
-template<>
+template <>
 class Tensor<float> {
  public:
   explicit Tensor() = default;
@@ -34,7 +33,8 @@ class Tensor<float> {
 
   explicit Tensor(const std::vector<uint32_t> &shapes);
 
-  static std::shared_ptr<Tensor<float>> Create(uint32_t channels, uint32_t rows, uint32_t cols);
+  static std::shared_ptr<Tensor<float>> Create(uint32_t channels, uint32_t rows,
+                                               uint32_t cols);
 
   Tensor(const Tensor &tensor);
 
@@ -204,24 +204,6 @@ class Tensor<float> {
   void ReRawView(const std::vector<uint32_t> &shapes);
 
   /**
-   * 张量相加
-   * @param tensor1 输入张量1
-   * @param tensor2 输入张量2
-   * @return 张量相加的结果
-   */
-  static std::shared_ptr<Tensor<float>> ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                   const std::shared_ptr<Tensor<float>> &tensor2);
-
-  /**
-   * 张量相乘
-   * @param tensor1 输入张量1
-   * @param tensor2 输入张量2
-   * @return 张量相乘的结果
-   */
-  static std::shared_ptr<Tensor<float>> ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                        const std::shared_ptr<Tensor<float>> &tensor2);
-
-  /**
    * 展开张量
    */
   void Flatten();
@@ -242,14 +224,36 @@ class Tensor<float> {
 
  private:
   void ReView(const std::vector<uint32_t> &shapes);
-  std::vector<uint32_t> raw_shapes_; // 张量数据的实际尺寸大小
-  arma::fcube data_; // 张量数据
+  std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
+  arma::fcube data_;                  // 张量数据
 };
 
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
-bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a, const std::shared_ptr<Tensor<float>> &b);
-}
+bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a,
+                    const std::shared_ptr<Tensor<float>> &b);
 
-#endif //KUIPER_COURSE_DATA_BLOB_HPP_
+/**
+ * 张量相加
+ * @param tensor1 输入张量1
+ * @param tensor2 输入张量2
+ * @return 张量相加的结果
+ */
+std::shared_ptr<Tensor<float>> TensorElementAdd(
+    const std::shared_ptr<Tensor<float>> &tensor1,
+    const std::shared_ptr<Tensor<float>> &tensor2);
+
+/**
+ * 张量相乘
+ * @param tensor1 输入张量1
+ * @param tensor2 输入张量2
+ * @return 张量相乘的结果
+ */
+std::shared_ptr<Tensor<float>> TensorElementMultiply(
+    const std::shared_ptr<Tensor<float>> &tensor1,
+    const std::shared_ptr<Tensor<float>> &tensor2);
+
+}  // namespace kuiper_infer
+
+#endif  // KUIPER_COURSE_DATA_BLOB_HPP_

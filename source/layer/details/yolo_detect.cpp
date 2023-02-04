@@ -24,8 +24,9 @@ YoloDetectLayer::YoloDetectLayer(
       grids_(grids),
       conv_layers_(conv_layers) {}
 
-InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                                     std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+InferStatus YoloDetectLayer::Forward(
+    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of yolo detect layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -42,8 +43,8 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
 
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages)
-          << "The convolution layers in yolo detection layer is empty or do not "
-             "have a correct number";
+      << "The convolution layers in yolo detection layer is empty or do not "
+         "have a correct number";
 
   std::vector<std::vector<std::shared_ptr<Tensor<float>>>> batches(stages);
   for (uint32_t i = 0; i < input_size; ++i) {
@@ -53,6 +54,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       LOG(ERROR) << "The input feature map of yolo detect layer is empty";
       return InferStatus::kInferFailedInputEmpty;
     }
+    CHECK(index <= batches.size());
     batches.at(index).push_back(input_data);
   }
 
@@ -63,16 +65,16 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
         batches.at(stage);
 
     CHECK(stage_input.size() == batch_size)
-            << "The number of stage do not equal to batch size";
+        << "The number of stage do not equal to batch size";
 
     std::vector<std::shared_ptr<Tensor<float>>> stage_output(batch_size);
     const auto status =
         this->conv_layers_.at(stage)->Forward(stage_input, stage_output);
 
     CHECK(status == InferStatus::kInferSuccess)
-            << "Infer failed, error code: " << int(status);
+        << "Infer failed, error code: " << int(status);
     CHECK(stage_output.size() == batch_size)
-            << "The number of stage output do not equal to batch size";
+        << "The number of stage output do not equal to batch size";
     stage_outputs.at(stage) = stage_output;
   }
 
@@ -84,7 +86,7 @@ InferStatus YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     const uint32_t ny_ = stage_output.front()->cols();
     for (uint32_t i = 0; i < stage_output.size(); ++i) {
       CHECK(stage_output.at(i)->rows() == nx_ &&
-          stage_output.at(i)->cols() == ny_);
+            stage_output.at(i)->cols() == ny_);
     }
 
     std::shared_ptr<Tensor<float>> x_stages_tensor;
@@ -182,7 +184,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   CHECK(stages_number == 3) << "Only support three stages yolo detect head";
   const std::vector<float> &strides = stages_attr->get<float>();
   CHECK(strides.size() == stages_number)
-          << "Stride number is not equal to strides";
+      << "Stride number is not equal to strides";
 
   std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers(stages_number);
   int32_t num_classes = -1;
@@ -200,10 +202,11 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const int out_channels = out_shapes.at(0);
     if (num_classes == -1) {
       CHECK(out_channels % stages_number == 0)
-              << "The number of output channel is wrong, it should divisible by stages number";
+          << "The number of output channel is wrong, it should divisible by "
+             "stages number";
       num_classes = out_channels / stages_number - 5;
       CHECK(num_classes > 0)
-              << "The number of object classes must greater than zero";
+          << "The number of object classes must greater than zero";
     }
     const int in_channels = out_shapes.at(1);
     const int kernel_h = out_shapes.at(2);
@@ -234,14 +237,15 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const auto &anchor_grid = anchor_grid_attr->second;
     const auto &anchor_shapes = anchor_grid->shape;
     const std::vector<float> &anchor_weight_data = anchor_grid->get<float>();
-    CHECK(!anchor_shapes.empty() && anchor_shapes.size() == 5 && anchor_shapes.front() == 1)
-            << "Anchor shape has a wrong size";
+    CHECK(!anchor_shapes.empty() && anchor_shapes.size() == 5 &&
+          anchor_shapes.front() == 1)
+        << "Anchor shape has a wrong size";
 
     const uint32_t anchor_rows =
         anchor_shapes.at(1) * anchor_shapes.at(2) * anchor_shapes.at(3);
     const uint32_t anchor_cols = anchor_shapes.at(4);
     CHECK(anchor_weight_data.size() == anchor_cols * anchor_rows)
-            << "Anchor weight has a wrong size";
+        << "Anchor weight has a wrong size";
 
     arma::fmat anchor_grid_matrix(anchor_weight_data.data(), anchor_cols,
                                   anchor_rows);
@@ -262,21 +266,22 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const auto &shapes = grid->shape;
     const std::vector<float> &weight_data = grid->get<float>();
     CHECK(!shapes.empty() && shapes.size() == 5 && shapes.front() == 1)
-            << "Grid shape has a wrong size";
+        << "Grid shape has a wrong size";
 
     const uint32_t grid_rows = shapes.at(1) * shapes.at(2) * shapes.at(3);
     const uint32_t grid_cols = shapes.at(4);
     CHECK(weight_data.size() == grid_cols * grid_rows)
-            << "Grid weight has a wrong size";
+        << "Grid weight has a wrong size";
 
     arma::fmat matrix(weight_data.data(), grid_cols, grid_rows);
     grids.emplace_back(matrix.t());
   }
-  yolo_detect_layer = std::make_shared<YoloDetectLayer>(stages_number, num_classes,
-                                                        strides, anchor_grids, grids, conv_layers);
+  yolo_detect_layer = std::make_shared<YoloDetectLayer>(
+      stages_number, num_classes, strides, anchor_grids, grids, conv_layers);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kYoloGetInstance("models.yolo.Detect", YoloDetectLayer::GetInstance);
+LayerRegistererWrapper kYoloGetInstance("models.yolo.Detect",
+                                        YoloDetectLayer::GetInstance);
 
 }  // namespace kuiper_infer

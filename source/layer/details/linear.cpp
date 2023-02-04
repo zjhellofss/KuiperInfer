@@ -3,24 +3,37 @@
 //
 
 #include "linear.hpp"
-#include "layer/abstract/layer_factory.hpp"
+
 #include <glog/logging.h>
+
+#include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
 
-LinearLayer::LinearLayer(int32_t in_features, int32_t out_features, bool use_bias)
-    : ParamLayer("Linear"), use_bias_(use_bias), in_features_(in_features), out_features_(out_features) {
-  std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(1, out_features, in_features);
-  this->weights_.push_back(weight);
+LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
+                         bool use_bias)
+    : ParamLayer("Linear"),
+      use_bias_(use_bias),
+      in_features_(in_features),
+      out_features_(out_features) {
+  this->InitWeightParam(1, 1, out_features, in_features);
   if (use_bias) {
-    std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1, out_features, 1);
-    bias->ReRawshape(std::vector<uint32_t>{(uint32_t) (out_features)});
-    this->bias_.push_back(bias);
+    this->InitBiasParam(1, 1, out_features, 1);
   }
+  // std::shared_ptr<Tensor<float>> weight =
+  //     std::make_shared<Tensor<float>>(1, out_features, in_features);
+  // this->weights_.push_back(weight);
+  // if (use_bias) {
+  //   std::shared_ptr<Tensor<float>> bias =
+  //       std::make_shared<Tensor<float>>(1, out_features, 1);
+  //   bias->ReRawshape(std::vector<uint32_t>{(uint32_t)(out_features)});
+  //   this->bias_.push_back(bias);
+  // }
 }
 
-InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                                 std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+InferStatus LinearLayer::Forward(
+    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of linear layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -56,18 +69,20 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
-    CHECK(input != nullptr && !input->empty()) << "The input feature map of linear layer is empty";
+    CHECK(input != nullptr && !input->empty())
+        << "The input feature map of linear layer is empty";
     const std::vector<uint32_t> &raw_shapes = input->raw_shapes();
     CHECK(raw_shapes.size() == 2);
     const uint32_t feature_dims = raw_shapes.at(0);
-    arma::fmat weight_data(weight->data().memptr(), out_features_, in_features_);
+    arma::fmat weight_data(weight->data().memptr(), out_features_,
+                           in_features_);
     CHECK(weight_data.n_rows == out_features_);
     CHECK(weight_data.n_cols == feature_dims && feature_dims == in_features_);
     const uint32_t input_dim = raw_shapes.at(1);
 
     arma::fmat col_vec(input->data().memptr(), in_features_, input_dim);
-    arma::fmat result = (weight_data * col_vec);
 
+    arma::fmat result = (weight_data * col_vec);
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1);
       const auto &bias_cube = this->bias_.front();
@@ -84,24 +99,28 @@ InferStatus LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
       output = std::make_shared<Tensor<float>>(1, out_features_, input_dim);
       outputs.at(i) = output;
     }
-    CHECK(output->channels() == 1 && output->rows() == out_features_ && output->cols() == input_dim);
+    CHECK(output->channels() == 1 && output->rows() == out_features_ &&
+          output->cols() == input_dim);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
-    CHECK(output_raw_shapes.at(0) == out_features_ && output_raw_shapes.at(1) == input_dim);
+    CHECK(output_raw_shapes.at(0) == out_features_ &&
+          output_raw_shapes.at(1) == input_dim);
     output->at(0) = std::move(result);
   }
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                                  std::shared_ptr<Layer> &linear_layer) {
+ParseParameterAttrStatus LinearLayer::GetInstance(
+    const std::shared_ptr<RuntimeOperator> &op,
+    std::shared_ptr<Layer> &linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto &params = op->params;
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  const auto &use_bias_param = dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
+  const auto &use_bias_param =
+      dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
@@ -125,13 +144,15 @@ ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeO
   const auto &weight = attr.at("weight");
   const auto &bias = attr.at("bias");
   const auto &shapes = weight->shape;
-  CHECK(shapes.size() == 2) << "The graph only support two dimension matrix multiply";
+  CHECK(shapes.size() == 2)
+      << "The graph only support two dimension matrix multiply";
 
   int32_t out_features = shapes.at(0);
   int32_t in_features = shapes.at(1);
   const bool use_bias = use_bias_param->value;
 
-  linear_layer = std::make_shared<LinearLayer>(in_features, out_features, use_bias);
+  linear_layer =
+      std::make_shared<LinearLayer>(in_features, out_features, use_bias);
   if (use_bias) {
     linear_layer->set_bias(bias->get<float>());
   }
@@ -141,6 +162,7 @@ ParseParameterAttrStatus LinearLayer::GetInstance(const std::shared_ptr<RuntimeO
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kLinearGetInstance("nn.Linear", LinearLayer::GetInstance);
+LayerRegistererWrapper kLinearGetInstance("nn.Linear",
+                                          LinearLayer::GetInstance);
 
-}
+}  // namespace kuiper_infer

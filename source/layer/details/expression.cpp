@@ -77,9 +77,9 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       for (uint32_t i = 0; i < batch_size; ++i) {
         // do execution
         if (op == -int(TokenType::TokenAdd)) {
-          output_token_nodes.at(i) = Tensor<float>::ElementAdd(input_node1.at(i), input_node2.at(i));
+          output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
         } else if (op == -int(TokenType::TokenMul)) {
-          output_token_nodes.at(i) = Tensor<float>::ElementMultiply(input_node1.at(i), input_node2.at(i));
+          output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         } else {
           LOG(FATAL) << "Unknown operator type: " << op;
         }

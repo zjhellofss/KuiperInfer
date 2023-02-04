@@ -3,6 +3,7 @@
 //
 
 #include "data/tensor.hpp"
+
 #include <glog/logging.h>
 
 #include <memory>
@@ -20,7 +21,9 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::Create(uint32_t channels, uint32_t rows, uint32_t cols) {
+std::shared_ptr<Tensor<float>> Tensor<float>::Create(uint32_t channels,
+                                                     uint32_t rows,
+                                                     uint32_t cols) {
   return std::make_shared<Tensor<float>>(channels, rows, cols);
 }
 
@@ -91,15 +94,16 @@ uint32_t Tensor<float>::size() const {
 }
 
 void Tensor<float>::set_data(const arma::fcube &data) {
-  CHECK(data.n_rows == this->data_.n_rows) << data.n_rows << " != " << this->data_.n_rows;
-  CHECK(data.n_cols == this->data_.n_cols) << data.n_cols << " != " << this->data_.n_cols;
-  CHECK(data.n_slices == this->data_.n_slices) << data.n_slices << " != " << this->data_.n_slices;
+  CHECK(data.n_rows == this->data_.n_rows)
+      << data.n_rows << " != " << this->data_.n_rows;
+  CHECK(data.n_cols == this->data_.n_cols)
+      << data.n_cols << " != " << this->data_.n_cols;
+  CHECK(data.n_slices == this->data_.n_slices)
+      << data.n_slices << " != " << this->data_.n_slices;
   this->data_ = data;
 }
 
-bool Tensor<float>::empty() const {
-  return this->data_.empty();
-}
+bool Tensor<float>::empty() const { return this->data_.empty(); }
 
 float Tensor<float>::index(uint32_t offset) const {
   CHECK(offset < this->data_.size()) << "Tensor capacity is not enough!";
@@ -116,13 +120,9 @@ std::vector<uint32_t> Tensor<float>::shapes() const {
   return {this->channels(), this->rows(), this->cols()};
 }
 
-arma::fcube &Tensor<float>::data() {
-  return this->data_;
-}
+arma::fcube &Tensor<float>::data() { return this->data_; }
 
-const arma::fcube &Tensor<float>::data() const {
-  return this->data_;
-}
+const arma::fcube &Tensor<float>::data() const { return this->data_; }
 
 arma::fmat &Tensor<float>::at(uint32_t channel) {
   CHECK_LT(channel, this->channels());
@@ -148,7 +148,8 @@ float &Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) {
   return this->data_.at(row, col, channel);
 }
 
-void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_value) {
+void Tensor<float>::Padding(const std::vector<uint32_t> &pads,
+                            float padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
   uint32_t pad_rows1 = pads.at(0);  // up
@@ -157,11 +158,13 @@ void Tensor<float>::Padding(const std::vector<uint32_t> &pads, float padding_val
   uint32_t pad_cols2 = pads.at(3);  // right
 
   arma::fcube new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
-                       this->data_.n_cols + pad_cols1 + pad_cols2, this->data_.n_slices);
+                       this->data_.n_cols + pad_cols1 + pad_cols2,
+                       this->data_.n_slices);
   new_data.fill(padding_value);
 
   new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows2 - 1,
-                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) = this->data_;
+                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) =
+      this->data_;
   this->data_ = std::move(new_data);
 }
 
@@ -182,7 +185,8 @@ void Tensor<float>::Fill(const std::vector<float> &values) {
 
   for (uint32_t i = 0; i < channels; ++i) {
     auto &channel_data = this->data_.slice(i);
-    const arma::fmat &channel_data_t = arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+    const arma::fmat &channel_data_t =
+        arma::fmat(values.data() + i * planes, this->cols(), this->rows());
     channel_data = channel_data_t.t();
   }
 }
@@ -212,52 +216,6 @@ void Tensor<float>::Rand() {
 void Tensor<float>::Ones() {
   CHECK(!this->data_.empty());
   this->data_.fill(1.);
-}
-
-std::shared_ptr<Tensor<float>> Tensor<float>::ElementAdd(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                         const std::shared_ptr<Tensor<float>> &tensor2) {
-  CHECK(!tensor1->empty() && !tensor2->empty());
-  CHECK(tensor1->shapes() == tensor2->shapes()) << "Tensors shape are not adapting";
-  std::shared_ptr<Tensor<float>>
-      output_tensor = std::make_shared<Tensor<float >>(tensor1->channels(), tensor1->rows(), tensor1->cols());
-  output_tensor->data_ = tensor1->data_ + tensor2->data_;
-  return output_tensor;
-}
-
-std::shared_ptr<Tensor<float>> Tensor<float>::ElementMultiply(const std::shared_ptr<Tensor<float>> &tensor1,
-                                                              const std::shared_ptr<Tensor<float>> &tensor2) {
-  CHECK(!tensor1->empty() && !tensor2->empty());
-  if (tensor1->shapes() == tensor2->shapes()) {
-    std::shared_ptr<Tensor<float>> output_tensor =
-        std::make_shared<Tensor<float >>(tensor1->channels(), tensor1->rows(), tensor1->cols());
-    output_tensor->data_ = tensor1->data_ % tensor2->data_;
-    return output_tensor;
-  } else {
-    CHECK(tensor1->channels() == tensor2->channels()) << "Tensors shape are not adapting";
-    uint32_t channels = tensor1->channels();
-    std::shared_ptr<Tensor<float>> tensor1_;
-    std::shared_ptr<Tensor<float>> tensor2_;
-
-    if (tensor2->rows() == 1 && tensor2->cols() == 1) {
-      tensor1_ = tensor1;
-      tensor2_ = tensor2;
-    } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
-      tensor1_ = tensor2;
-      tensor2_ = tensor1;
-    } else {
-      LOG(FATAL) << "Tensors shape are not adapting";
-    }
-
-    const std::shared_ptr<Tensor<float>>
-        input_tensor2_ = std::make_shared<Tensor<float>>(channels, tensor1_->rows(), tensor1_->cols());
-    for (uint32_t c = 0; c < channels; ++c) {
-      input_tensor2_->data_.slice(c).fill(tensor2_->index(c));
-    }
-    std::shared_ptr<Tensor<float>> output_tensor =
-        std::make_shared<Tensor<float>>(input_tensor2_->rows(), input_tensor2_->cols(), input_tensor2_->channels());
-    output_tensor->data_ = tensor1_->data_ % input_tensor2_->data_;
-    return output_tensor;
-  }
 }
 
 void Tensor<float>::Transform(const std::function<float(float)> &filter) {
@@ -307,7 +265,7 @@ void Tensor<float>::ReRawView(const std::vector<uint32_t> &shapes) {
   }
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
-  std::vector<uint32_t> target_shapes; // channel row col
+  std::vector<uint32_t> target_shapes;  // channel row col
   if (shapes.size() == 3) {
     target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
     this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
@@ -333,7 +291,8 @@ void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
     for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
       const float *colptr = channel.colptr(c_);
       for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
-        const uint32_t pos_index = c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
+        const uint32_t pos_index =
+            c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
         const uint32_t ch = pos_index / plane_size;
         const uint32_t row = (pos_index - ch * plane_size) / target_cols;
         const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
@@ -349,10 +308,66 @@ const float *Tensor<float>::raw_ptr() const {
   return this->data_.memptr();
 }
 
-bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a, const std::shared_ptr<Tensor<float>> &b) {
+bool is_same_tensor(const std::shared_ptr<Tensor<float>> &a,
+                    const std::shared_ptr<Tensor<float>> &b) {
   CHECK(a != nullptr);
   CHECK(b != nullptr);
   bool is_same = arma::approx_equal(a->data(), b->data(), "absdiff", 1e-5);
   return is_same;
 }
+
+std::shared_ptr<Tensor<float>> TensorElementAdd(
+    const std::shared_ptr<Tensor<float>> &tensor1,
+    const std::shared_ptr<Tensor<float>> &tensor2) {
+  CHECK(!tensor1->empty() && !tensor2->empty());
+  CHECK(tensor1->shapes() == tensor2->shapes())
+      << "Tensors shape are not adapting";
+  std::shared_ptr<Tensor<float>> output_tensor =
+      std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(),
+                                      tensor1->cols());
+  output_tensor->data() = tensor1->data() + tensor2->data();
+  return output_tensor;
 }
+
+std::shared_ptr<Tensor<float>> TensorElementMultiply(
+    const std::shared_ptr<Tensor<float>> &tensor1,
+    const std::shared_ptr<Tensor<float>> &tensor2) {
+  CHECK(!tensor1->empty() && !tensor2->empty());
+  if (tensor1->shapes() == tensor2->shapes()) {
+    std::shared_ptr<Tensor<float>> output_tensor =
+        std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(),
+                                        tensor1->cols());
+    output_tensor->data() = tensor1->data() % tensor2->data();
+    return output_tensor;
+  } else {
+    CHECK(tensor1->channels() == tensor2->channels())
+        << "Tensors shape are not adapting";
+    uint32_t channels = tensor1->channels();
+    std::shared_ptr<Tensor<float>> tensor1_;
+    std::shared_ptr<Tensor<float>> tensor2_;
+
+    if (tensor2->rows() == 1 && tensor2->cols() == 1) {
+      tensor1_ = tensor1;
+      tensor2_ = tensor2;
+    } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
+      tensor1_ = tensor2;
+      tensor2_ = tensor1;
+    } else {
+      LOG(FATAL) << "Tensors shape are not adapting";
+    }
+
+    const std::shared_ptr<Tensor<float>> input_tensor2_ =
+        std::make_shared<Tensor<float>>(channels, tensor1_->rows(),
+                                        tensor1_->cols());
+    for (uint32_t c = 0; c < channels; ++c) {
+      input_tensor2_->data().slice(c).fill(tensor2_->index(c));
+    }
+    std::shared_ptr<Tensor<float>> output_tensor =
+        std::make_shared<Tensor<float>>(input_tensor2_->rows(),
+                                        input_tensor2_->cols(),
+                                        input_tensor2_->channels());
+    output_tensor->data() = tensor1_->data() % input_tensor2_->data();
+    return output_tensor;
+  }
+}
+}  // namespace kuiper_infer

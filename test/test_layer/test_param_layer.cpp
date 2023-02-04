@@ -2,13 +2,14 @@
 // Created by fss on 23-1-23.
 //
 #include <gtest/gtest.h>
+
 #include "layer/abstract/param_layer.hpp"
 
 TEST(test_param_layer, set_weight1) {
   using namespace kuiper_infer;
   ParamLayer param_layer("param");
   uint32_t weight_count = 4;
-  std::vector<std::shared_ptr<ftensor >> weights;
+  std::vector<std::shared_ptr<ftensor>> weights;
   for (uint32_t w = 0; w < weight_count; ++w) {
     std::shared_ptr<ftensor> weight = std::make_shared<ftensor>(3, 32, 32);
     weights.push_back(weight);
@@ -31,7 +32,7 @@ TEST(test_param_layer, set_bias1) {
   using namespace kuiper_infer;
   ParamLayer param_layer("param");
   uint32_t bias_count = 4;
-  std::vector<std::shared_ptr<ftensor >> biases;
+  std::vector<std::shared_ptr<ftensor>> biases;
   for (uint32_t w = 0; w < bias_count; ++w) {
     std::shared_ptr<ftensor> bias = std::make_shared<ftensor>(1, 32, 1);
     biases.push_back(bias);
@@ -58,7 +59,7 @@ TEST(test_param_layer, set_weight2) {
   for (int i = 0; i < weight_count; ++i) {
     weights.push_back(float(i));
   }
-  std::vector<std::shared_ptr<ftensor >> weights_;
+  std::vector<std::shared_ptr<ftensor>> weights_;
   std::shared_ptr<ftensor> weight = std::make_shared<ftensor>(1, 3, 3);
   weights_.push_back(weight);
   param_layer.set_weights(weights_);
@@ -85,7 +86,7 @@ TEST(test_param_layer, set_bias2) {
   for (int i = 0; i < weight_count; ++i) {
     biases.push_back(float(i));
   }
-  std::vector<std::shared_ptr<ftensor >> biases_;
+  std::vector<std::shared_ptr<ftensor>> biases_;
   std::shared_ptr<ftensor> bias = std::make_shared<ftensor>(1, 9, 1);
   biases_.push_back(bias);
   param_layer.set_bias(biases_);
@@ -99,5 +100,32 @@ TEST(test_param_layer, set_bias2) {
       ASSERT_EQ(bias_->at(0, r, 0), index);
       index += 1;
     }
+  }
+}
+
+TEST(test_param_layer, init_bias) {
+  using namespace kuiper_infer;
+  ParamLayer param_layer("param");
+  param_layer.InitBiasParam(3, 64, 1, 1);
+  const std::vector<sftensor> bias = param_layer.bias();
+  ASSERT_EQ(bias.size(), 3);
+  for (uint32_t i = 0; i < bias.size(); ++i) {
+    ASSERT_EQ(bias.at(i)->channels(), 64);
+    ASSERT_EQ(bias.at(i)->rows(), 1);
+    ASSERT_EQ(bias.at(i)->cols(), 1);
+  }
+}
+
+
+TEST(test_param_layer, init_weight) {
+  using namespace kuiper_infer;
+  ParamLayer param_layer("param");
+  param_layer.InitWeightParam(3, 64, 32, 32);
+  const std::vector<sftensor> weight = param_layer.weights();
+  ASSERT_EQ(weight.size(), 3);
+  for (uint32_t i = 0; i < weight.size(); ++i) {
+    ASSERT_EQ(weight.at(i)->channels(), 64);
+    ASSERT_EQ(weight.at(i)->rows(), 32);
+    ASSERT_EQ(weight.at(i)->cols(), 32);
   }
 }

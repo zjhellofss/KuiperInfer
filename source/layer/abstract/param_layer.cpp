@@ -2,12 +2,33 @@
 // Created by fss on 22-11-13.
 //
 
-#include <glog/logging.h>
 #include "layer/abstract/param_layer.hpp"
 
-namespace kuiper_infer {
-ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {
+#include <glog/logging.h>
 
+namespace kuiper_infer {
+ParamLayer::ParamLayer(const std::string &layer_name) : Layer(layer_name) {}
+
+void ParamLayer::InitBiasParam(const uint32_t param_count,
+                               const uint32_t param_channel,
+                               const uint32_t param_height,
+                               const uint32_t param_width) {
+  this->bias_ = std::vector<sftensor>(param_count);
+  for (uint32_t i = 0; i < param_count; ++i) {
+    this->bias_.at(i) =
+        std::make_shared<ftensor>(param_channel, param_height, param_width);
+  }
+}
+
+void ParamLayer::InitWeightParam(const uint32_t param_count,
+                                 const uint32_t param_channel,
+                                 const uint32_t param_height,
+                                 const uint32_t param_width) {
+  this->weights_ = std::vector<sftensor>(param_count);
+  for (uint32_t i = 0; i < param_count; ++i) {
+    this->weights_.at(i) =
+        std::make_shared<ftensor>(param_channel, param_height, param_width);
+  }
 }
 
 const std::vector<std::shared_ptr<Tensor<float>>> &ParamLayer::weights() const {
@@ -18,11 +39,31 @@ const std::vector<std::shared_ptr<Tensor<float>>> &ParamLayer::bias() const {
   return this->bias_;
 }
 
-void ParamLayer::set_weights(const std::vector<std::shared_ptr<Tensor<float>>> &weights) {
+void ParamLayer::set_weights(
+    const std::vector<std::shared_ptr<Tensor<float>>> &weights) {
+  if (!this->bias_.empty()) {
+    CHECK(weights.size() == weights_.size());
+    for (uint32_t i = 0; i < weights.size(); ++i) {
+      CHECK(this->weights_.at(i) != nullptr);
+      CHECK(this->weights_.at(i)->rows() == weights.at(i)->rows());
+      CHECK(this->weights_.at(i)->cols() == weights.at(i)->cols());
+      CHECK(this->weights_.at(i)->channels() == weights.at(i)->channels());
+    }
+  }
   this->weights_ = weights;
 }
 
-void ParamLayer::set_bias(const std::vector<std::shared_ptr<Tensor<float>>> &bias) {
+void ParamLayer::set_bias(
+    const std::vector<std::shared_ptr<Tensor<float>>> &bias) {
+  if (!this->bias_.empty()) {
+    CHECK(bias.size() == bias_.size());
+    for (uint32_t i = 0; i < bias.size(); ++i) {
+      CHECK(this->bias_.at(i) != nullptr);
+      CHECK(this->bias_.at(i)->rows() == bias.at(i)->rows());
+      CHECK(this->bias_.at(i)->cols() == bias.at(i)->cols());
+      CHECK(this->bias_.at(i)->channels() == bias.at(i)->channels());
+    }
+  }
   this->bias_ = bias;
 }
 
@@ -36,7 +77,7 @@ void ParamLayer::set_weights(const std::vector<float> &weights) {
   }
 
   CHECK_EQ(weight_size, elem_size);
-
+  CHECK_EQ(elem_size % batch_size, 0);
   const uint32_t blob_size = elem_size / batch_size;
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
     const uint32_t start_offset = idx * blob_size;
@@ -57,6 +98,8 @@ void ParamLayer::set_bias(const std::vector<float> &bias) {
   }
 
   CHECK_EQ(bias_size, elem_size);
+  CHECK_EQ(elem_size % batch_size, 0);
+
   const uint32_t blob_size = elem_size / batch_size;
   for (uint32_t idx = 0; idx < batch_size; ++idx) {
     const uint32_t start_offset = idx * blob_size;
@@ -67,4 +110,4 @@ void ParamLayer::set_bias(const std::vector<float> &bias) {
   }
 }
 
-}
+}  // namespace kuiper_infer

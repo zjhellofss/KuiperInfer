@@ -222,7 +222,7 @@ TEST(test_tensor, add1) {
   f1->Fill(1.f);
   const auto &f2 = std::make_shared<Tensor<float>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto &f3 = Tensor<float>::ElementAdd(f2, f1);
+  const auto &f3 = TensorElementAdd(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 3.f);
   }
@@ -234,7 +234,7 @@ TEST(test_tensor, mul1) {
   f1->Fill(3.f);
   const auto &f2 = std::make_shared<Tensor<float>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto &f3 = Tensor<float>::ElementMultiply(f2, f1);
+  const auto &f3 = TensorElementMultiply(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
   }
