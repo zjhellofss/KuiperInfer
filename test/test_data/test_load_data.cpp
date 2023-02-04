@@ -11,7 +11,6 @@ TEST(test_load, load_csv_data) {
   ASSERT_NE(data.empty(), true);
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 4);
-
   const uint32_t rows = data.n_rows;
   const uint32_t cols = data.n_cols;
   for (uint32_t i = 0; i < rows; ++i) {

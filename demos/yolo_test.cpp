@@ -11,9 +11,9 @@
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
 
-void SingleImageYoloInferNano(const std::string &image_path,
-                              const std::string &param_path,
-                              const std::string &weight_path,
+void SingleImageYoloInferNano(const std::string& image_path,
+                              const std::string& param_path,
+                              const std::string& weight_path,
                               const float conf_thresh = 0.25f,
                               const float iou_thresh = 0.25f) {
   assert(!image_path.empty());
@@ -34,7 +34,8 @@ void SingleImageYoloInferNano(const std::string &image_path,
 
   int stride = 32;
   cv::Mat out_image;
-  Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114}, true);
+  Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114},
+            true);
 
   cv::Mat rgb_image;
   cv::cvtColor(out_image, rgb_image, cv::COLOR_BGR2RGB);
@@ -46,15 +47,17 @@ void SingleImageYoloInferNano(const std::string &image_path,
   cv::split(normalize_image, split_images);
   assert(split_images.size() == input_c);
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
+      input_c, input_h, input_w);
   input->Fill(0.f);
 
   int index = 0;
   int offset = 0;
-  for (const auto &split_image : split_images) {
+  for (const auto& split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
-    const cv::Mat &split_image_t = split_image.t();
-    memcpy(input->at(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
+    const cv::Mat& split_image_t = split_image.t();
+    memcpy(input->at(index).memptr(), split_image_t.data,
+           sizeof(float) * split_image.total());
     index += 1;
     offset += split_image.total();
   }
@@ -64,13 +67,14 @@ void SingleImageYoloInferNano(const std::string &image_path,
 
   for (int r = 0; r < repeat_time; ++r) {
     TICK(FORWARD)
-    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(
+        inputs, true);
     TOCK(FORWARD);
 
     assert(outputs.size() == inputs.size());
     assert(outputs.size() == 1);
-    const auto &output = outputs.front();
-    const auto &shapes = output->shapes();
+    const auto& output = outputs.front();
+    const auto& shapes = output->shapes();
     assert(shapes.size() == 3);
 
     const uint32_t batch = shapes.at(0);
@@ -87,10 +91,10 @@ void SingleImageYoloInferNano(const std::string &image_path,
     for (uint32_t i = 0; i < elements; ++i) {
       float cls_conf = output->at(b, i, 4);
       if (cls_conf >= conf_thresh) {
-        int center_x = (int) (output->at(b, i, 0));
-        int center_y = (int) (output->at(b, i, 1));
-        int width = (int) (output->at(b, i, 2));
-        int height = (int) (output->at(b, i, 3));
+        int center_x = (int)(output->at(b, i, 0));
+        int center_y = (int)(output->at(b, i, 1));
+        int width = (int)(output->at(b, i, 2));
+        int height = (int)(output->at(b, i, 3));
         int left = center_x - width / 2;
         int top = center_y - height / 2;
 
@@ -127,10 +131,11 @@ void SingleImageYoloInferNano(const std::string &image_path,
     int font_face = cv::FONT_HERSHEY_COMPLEX;
     double font_scale = 2;
 
-    for (const auto &detection : detections) {
+    for (const auto& detection : detections) {
       cv::rectangle(image, detection.box, cv::Scalar(255, 255, 255), 4);
       cv::putText(image, std::to_string(detection.class_id),
-                  cv::Point(detection.box.x, detection.box.y), font_face, font_scale, cv::Scalar(255, 255, 0), 4);
+                  cv::Point(detection.box.x, detection.box.y), font_face,
+                  font_scale, cv::Scalar(255, 255, 0), 4);
     }
     if (r == 0) {
       cv::imwrite("output.jpg", image);
@@ -138,9 +143,9 @@ void SingleImageYoloInferNano(const std::string &image_path,
   }
 }
 
-void MultiImageYoloInferNano(const std::string &image_path,
-                             const std::string &param_path,
-                             const std::string &weight_path,
+void MultiImageYoloInferNano(const std::string& image_path,
+                             const std::string& param_path,
+                             const std::string& weight_path,
                              const float conf_thresh = 0.25f,
                              const float iou_thresh = 0.25f) {
 
@@ -163,7 +168,8 @@ void MultiImageYoloInferNano(const std::string &image_path,
 
     int stride = 32;
     cv::Mat out_image;
-    Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114}, true);
+    Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114},
+              true);
 
     cv::Mat rgb_image;
     cv::cvtColor(out_image, rgb_image, cv::COLOR_BGR2RGB);
@@ -175,15 +181,17 @@ void MultiImageYoloInferNano(const std::string &image_path,
     cv::split(normalize_image, split_images);
     assert(split_images.size() == input_c);
 
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
+        input_c, input_h, input_w);
     input->Fill(0.f);
 
     int index = 0;
     int offset = 0;
-    for (const auto &split_image : split_images) {
+    for (const auto& split_image : split_images) {
       assert(split_image.total() == input_w * input_h);
-      const cv::Mat &split_image_t = split_image.t();
-      memcpy(input->at(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
+      const cv::Mat& split_image_t = split_image.t();
+      memcpy(input->at(index).memptr(), split_image_t.data,
+             sizeof(float) * split_image.total());
       index += 1;
       offset += split_image.total();
     }
@@ -191,20 +199,21 @@ void MultiImageYoloInferNano(const std::string &image_path,
   }
 
   TICK(FORWARD)
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, true);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(
+      inputs, true);
   TOCK(FORWARD);
 
   assert(outputs.size() == inputs.size());
   assert(outputs.size() == batch_size);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &image = images.at(i);
+    const auto& image = images.at(i);
     const int32_t origin_input_h = image.size().height;
     const int32_t origin_input_w = image.size().width;
 
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     assert(!output->empty());
-    const auto &shapes = output->shapes();
+    const auto& shapes = output->shapes();
     assert(shapes.size() == 3);
 
     const uint32_t elements = shapes.at(1);
@@ -219,10 +228,10 @@ void MultiImageYoloInferNano(const std::string &image_path,
     for (uint32_t e = 0; e < elements; ++e) {
       float cls_conf = output->at(b, e, 4);
       if (cls_conf >= conf_thresh) {
-        int center_x = (int) (output->at(b, e, 0));
-        int center_y = (int) (output->at(b, e, 1));
-        int width = (int) (output->at(b, e, 2));
-        int height = (int) (output->at(b, e, 3));
+        int center_x = (int)(output->at(b, e, 0));
+        int center_y = (int)(output->at(b, e, 1));
+        int width = (int)(output->at(b, e, 2));
+        int height = (int)(output->at(b, e, 3));
         int left = center_x - width / 2;
         int top = center_y - height / 2;
 
@@ -259,19 +268,20 @@ void MultiImageYoloInferNano(const std::string &image_path,
     int font_face = cv::FONT_HERSHEY_COMPLEX;
     double font_scale = 2;
 
-    for (const auto &detection : detections) {
+    for (const auto& detection : detections) {
       cv::rectangle(image, detection.box, cv::Scalar(255, 255, 255), 4);
       cv::putText(image, std::to_string(detection.class_id),
-                  cv::Point(detection.box.x, detection.box.y), font_face, font_scale, cv::Scalar(255, 255, 0), 4);
+                  cv::Point(detection.box.x, detection.box.y), font_face,
+                  font_scale, cv::Scalar(255, 255, 0), 4);
     }
     cv::imwrite(std::string("output") + std::to_string(i) + ".jpg", image);
   }
 }
 
 int main() {
-  const std::string &image_path = "imgs/car.jpg";
-  const std::string &param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
-  const std::string &weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
+  const std::string& image_path = "imgs/car.jpg";
+  const std::string& param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
+  const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
   for (int i = 0; i < 128; ++i) {
     MultiImageYoloInferNano(image_path, param_path, weight_path);
   }
