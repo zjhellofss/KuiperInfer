@@ -3,9 +3,7 @@
 //
 
 #include "data/tensor.hpp"
-
 #include <glog/logging.h>
-
 #include <memory>
 
 namespace kuiper_infer {
@@ -21,8 +19,8 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
 }
 
 std::shared_ptr<Tensor<float>> Tensor<float>::Create(uint32_t channels,
-  uint32_t rows,
-  uint32_t cols) {
+                                                     uint32_t rows,
+                                                     uint32_t cols) {
   return std::make_shared<Tensor<float>>(channels, rows, cols);
 }
 
@@ -151,10 +149,10 @@ void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
                             float padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
-  uint32_t pad_rows1 = pads.at(0); // up
-  uint32_t pad_rows2 = pads.at(1); // bottom
-  uint32_t pad_cols1 = pads.at(2); // left
-  uint32_t pad_cols2 = pads.at(3); // right
+  uint32_t pad_rows1 = pads.at(0);  // up
+  uint32_t pad_rows2 = pads.at(1);  // bottom
+  uint32_t pad_cols1 = pads.at(2);  // left
+  uint32_t pad_cols2 = pads.at(3);  // right
 
   arma::fcube new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
                        this->data_.n_cols + pad_cols1 + pad_cols2,
@@ -264,7 +262,7 @@ void Tensor<float>::ReRawView(const std::vector<uint32_t>& shapes) {
   }
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
-  std::vector<uint32_t> target_shapes; // channel row col
+  std::vector<uint32_t> target_shapes;  // channel row col
   if (shapes.size() == 3) {
     target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
     this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
@@ -324,7 +322,7 @@ std::shared_ptr<Tensor<float>> TensorElementAdd(
   std::shared_ptr<Tensor<float>> output_tensor =
       std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(),
                                       tensor1->cols());
-  output_tensor->data() = tensor1->data() + tensor2->data();
+  output_tensor->set_data(tensor1->data() + tensor2->data());
   return output_tensor;
 }
 
@@ -336,7 +334,7 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
     std::shared_ptr<Tensor<float>> output_tensor =
         std::make_shared<Tensor<float>>(tensor1->channels(), tensor1->rows(),
                                         tensor1->cols());
-    output_tensor->data() = tensor1->data() % tensor2->data();
+    output_tensor->set_data(tensor1->data() % tensor2->data());
     return output_tensor;
   } else {
     CHECK(tensor1->channels() == tensor2->channels())
@@ -369,4 +367,4 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
     return output_tensor;
   }
 }
-} // namespace kuiper_infer
+}  // namespace kuiper_infer

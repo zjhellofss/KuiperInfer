@@ -3,9 +3,7 @@
 //
 
 #include "convolution.hpp"
-
 #include <glog/logging.h>
-
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
@@ -16,13 +14,13 @@ ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
                                    uint32_t padding_h, uint32_t padding_w,
                                    uint32_t stride_h, uint32_t stride_w,
                                    uint32_t groups, bool use_bias)
-  : ParamLayer("Convolution"),
-    use_bias_(use_bias),
-    groups_(groups),
-    padding_h_(padding_h),
-    padding_w_(padding_w),
-    stride_h_(stride_h),
-    stride_w_(stride_w) {
+    : ParamLayer("Convolution"),
+      use_bias_(use_bias),
+      groups_(groups),
+      padding_h_(padding_h),
+      padding_w_(padding_w),
+      stride_h_(stride_h),
+      stride_w_(stride_w) {
   if (groups != 1) {
     in_channel /= groups;
   }
@@ -59,7 +57,7 @@ InferStatus ConvolutionLayer::Forward(
 
   if (!stride_h_ || !stride_w_) {
     LOG(ERROR) << "The stride parameter is set incorrectly. It must always be "
-        "greater than 0";
+                  "greater than 0";
     return InferStatus::kInferFailedStrideParameterError;
   }
 
@@ -157,8 +155,8 @@ InferStatus ConvolutionLayer::Forward(
       }
 
       CHECK(output_tensor->rows() == output_h &&
-          output_tensor->cols() == output_w &&
-          output_tensor->channels() == kernel_count)
+            output_tensor->cols() == output_w &&
+            output_tensor->channels() == kernel_count)
           << "The output size of convolution is error";
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
@@ -242,8 +240,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  const auto& use_bias =
-      dynamic_cast<RuntimeParameterBool*>(params.at("bias"));
+  const auto& use_bias = dynamic_cast<RuntimeParameterBool*>(params.at("bias"));
   if (!use_bias) {
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
@@ -340,4 +337,4 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
 
 LayerRegistererWrapper kConvGetInstance("nn.Conv2d",
                                         ConvolutionLayer::GetInstance);
-} // namespace kuiper_infer
+}  // namespace kuiper_infer

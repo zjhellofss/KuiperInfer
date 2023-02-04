@@ -18,10 +18,10 @@ TEST(test_runtime, runtime_graph_input_init1) {
     runtime_operand2->shapes = {3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert({std::string("size1"),
-                                             runtime_operand1});
-    runtime_operator->input_operands.insert({std::string("size2"),
-                                             runtime_operand2});
+    runtime_operator->input_operands.insert(
+        {std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert(
+        {std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
@@ -29,10 +29,10 @@ TEST(test_runtime, runtime_graph_input_init1) {
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    auto const& op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 1);
       ASSERT_EQ(shape1.at(1), 32);
@@ -40,8 +40,8 @@ TEST(test_runtime, runtime_graph_input_init1) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 1);
       ASSERT_EQ(shape2.at(1), 64);
@@ -50,10 +50,10 @@ TEST(test_runtime, runtime_graph_input_init1) {
   }
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    auto const& op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 1);
       ASSERT_EQ(shape1.at(1), 32);
@@ -61,8 +61,8 @@ TEST(test_runtime, runtime_graph_input_init1) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 1);
       ASSERT_EQ(shape2.at(1), 64);
@@ -85,20 +85,20 @@ TEST(test_runtime, runtime_graph_input_init2) {
     runtime_operand2->shapes = {1, 3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert({std::string("size1"),
-                                             runtime_operand1});
-    runtime_operator->input_operands.insert({std::string("size2"),
-                                             runtime_operand2});
+    runtime_operator->input_operands.insert(
+        {std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert(
+        {std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    auto const& op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 3);
       ASSERT_EQ(shape1.at(1), 32);
@@ -106,8 +106,8 @@ TEST(test_runtime, runtime_graph_input_init2) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 3);
       ASSERT_EQ(shape2.at(1), 64);
@@ -116,10 +116,10 @@ TEST(test_runtime, runtime_graph_input_init2) {
   }
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    auto const& op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 3);
       ASSERT_EQ(shape1.at(1), 32);
@@ -127,8 +127,8 @@ TEST(test_runtime, runtime_graph_input_init2) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 3);
       ASSERT_EQ(shape2.at(1), 64);
@@ -151,10 +151,10 @@ TEST(test_runtime, runtime_graph_input_init3) {
     runtime_operand2->shapes = {1, 97};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert({std::string("size1"),
-                                             runtime_operand1});
-    runtime_operator->input_operands.insert({std::string("size2"),
-                                             runtime_operand2});
+    runtime_operator->input_operands.insert(
+        {std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert(
+        {std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
@@ -163,8 +163,8 @@ TEST(test_runtime, runtime_graph_input_init3) {
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 1);
       ASSERT_EQ(shape1.at(1), 99);
@@ -172,8 +172,8 @@ TEST(test_runtime, runtime_graph_input_init3) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 1);
       ASSERT_EQ(shape2.at(1), 97);
@@ -182,10 +182,10 @@ TEST(test_runtime, runtime_graph_input_init3) {
   }
   RuntimeGraphShape::InitOperatorInputTensor(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    auto const& op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size1"]->datas) {
-      auto const& shape1 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size1"]->datas) {
+      const auto& shape1 = input_datas->shapes();
       ASSERT_EQ(shape1.size(), 3);
       ASSERT_EQ(shape1.at(0), 1);
       ASSERT_EQ(shape1.at(1), 99);
@@ -193,8 +193,8 @@ TEST(test_runtime, runtime_graph_input_init3) {
     }
 
     ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (auto const& input_datas : op->input_operands["size2"]->datas) {
-      auto const& shape2 = input_datas->shapes();
+    for (const auto& input_datas : op->input_operands["size2"]->datas) {
+      const auto& shape2 = input_datas->shapes();
       ASSERT_EQ(shape2.size(), 3);
       ASSERT_EQ(shape2.at(0), 1);
       ASSERT_EQ(shape2.at(1), 97);
@@ -202,7 +202,6 @@ TEST(test_runtime, runtime_graph_input_init3) {
     }
   }
 }
-
 
 TEST(test_runtime, runtime_graph_output_init1) {
   using namespace kuiper_infer;
@@ -220,7 +219,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
@@ -232,18 +231,17 @@ TEST(test_runtime, runtime_graph_output_init1) {
 
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
-  for (auto const& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (auto const& output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 3);
     }
   }
 }
-
 
 TEST(test_runtime, runtime_graph_output_init2) {
   using namespace kuiper_infer;
@@ -260,12 +258,12 @@ TEST(test_runtime, runtime_graph_output_init2) {
 
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
-  for (auto const& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 2);
     ASSERT_EQ(output_datas->datas.size(), 8);
 
-    for (auto const& output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
@@ -274,19 +272,18 @@ TEST(test_runtime, runtime_graph_output_init2) {
 
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
-  for (auto const& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 2);
     ASSERT_EQ(output_datas->datas.size(), 8);
 
-    for (auto const& output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }
 }
-
 
 TEST(test_runtime, runtime_graph_output_init3) {
   using namespace kuiper_infer;
@@ -303,11 +300,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
 
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
-  for (auto const& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (auto const& output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -316,11 +313,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
 
   RuntimeGraphShape::InitOperatorOutputTensor(pnnx_operators, run_ops);
 
-  for (auto const& run_op : run_ops) {
-    auto const& output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (auto const& output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);

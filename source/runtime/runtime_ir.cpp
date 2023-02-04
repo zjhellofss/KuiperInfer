@@ -1,11 +1,11 @@
 #include "runtime/runtime_ir.hpp"
-#include <memory>
-#include <iostream>
-#include <iomanip>
-#include <queue>
 #include <deque>
-#include <utility>
 #include <filesystem>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <queue>
+#include <utility>
 #include "layer/abstract/layer_factory.hpp"
 #include "tick.hpp"
 
@@ -25,8 +25,8 @@ void RuntimeGraphShape::InitOperatorInputTensor(
       for (const auto& input_operand_iter : input_operands_map) {
         const auto& input_operand = input_operand_iter.second;
         const auto& type = input_operand->type;
-        CHECK(type == RuntimeDataType::
-            kTypeFloat32) << "The graph only support float32 yet!";
+        CHECK(type == RuntimeDataType::kTypeFloat32)
+            << "The graph only support float32 yet!";
         const auto& input_operand_shape = input_operand->shapes;
         auto& input_datas = input_operand->datas;
 
@@ -34,8 +34,8 @@ void RuntimeGraphShape::InitOperatorInputTensor(
         const int32_t batch = input_operand_shape.at(0);
         CHECK(batch >= 0) << "Dynamic batch size is not supported!";
         CHECK(input_operand_shape.size() == 2 ||
-            input_operand_shape.size() == 4 ||
-            input_operand_shape.size() == 3)
+              input_operand_shape.size() == 4 ||
+              input_operand_shape.size() == 3)
             << "Unsupported tensor shape sizes: " << input_operand_shape.size();
 
         if (!input_datas.empty()) {
@@ -44,20 +44,20 @@ void RuntimeGraphShape::InitOperatorInputTensor(
             const std::vector<uint32_t>& input_data_shape =
                 input_datas.at(i)->shapes();
             CHECK(input_data_shape.size() == 3)
-                << "THe origin shape size of operator input data do not equals to three";
+                << "THe origin shape size of operator input data do not equals "
+                   "to three";
             if (input_operand_shape.size() == 4) {
               CHECK(input_data_shape.at(0) == input_operand_shape.at(1) &&
-                  input_data_shape.at(1) == input_operand_shape.at(2)
-                  && input_data_shape.at(2) == input_operand_shape.at(3));
+                    input_data_shape.at(1) == input_operand_shape.at(2) &&
+                    input_data_shape.at(2) == input_operand_shape.at(3));
             } else if (input_operand_shape.size() == 2) {
-              CHECK(input_data_shape.at(1) == input_operand_shape.at(1)
-                  && input_data_shape.at(0) == 1 && input_data_shape.at(2) ==
-                  1);
+              CHECK(input_data_shape.at(1) == input_operand_shape.at(1) &&
+                    input_data_shape.at(0) == 1 && input_data_shape.at(2) == 1);
             } else {
               // current shape size = 3
-              CHECK(input_data_shape.at(1) == input_operand_shape.at(1)
-                  && input_data_shape.at(0) == 1
-                  && input_data_shape.at(2) == input_operand_shape.at(2));
+              CHECK(input_data_shape.at(1) == input_operand_shape.at(1) &&
+                    input_data_shape.at(0) == 1 &&
+                    input_data_shape.at(2) == input_operand_shape.at(2));
             }
           }
         } else {
@@ -103,8 +103,8 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
     const int32_t batch = operand_shapes.at(0);
     CHECK(batch >= 0) << "Dynamic batch size is not supported!";
     CHECK(operand_shapes.size() == 2 || operand_shapes.size() == 4 ||
-        operand_shapes.size() == 3)
-            << "Unsupported shape sizes: " << operand_shapes.size();
+          operand_shapes.size() == 3)
+        << "Unsupported shape sizes: " << operand_shapes.size();
 
     if (!output_tensors) {
       std::shared_ptr<RuntimeOperand> output_operand =
@@ -114,28 +114,27 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
       output_operand->name = operand->name + "_output";
       for (int j = 0; j < batch; ++j) {
         if (operand_shapes.size() == 4) {
-          output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(operand_shapes.at(1),
-                                              operand_shapes.at(2),
-                                              operand_shapes.at(3)));
+          output_operand->datas.push_back(std::make_shared<Tensor<float>>(
+              operand_shapes.at(1), operand_shapes.at(2),
+              operand_shapes.at(3)));
         } else if (operand_shapes.size() == 2) {
           output_operand->datas.push_back(
               std::make_shared<Tensor<float>>(1, operand_shapes.at(1), 1));
         } else {
           // current shape is 3
-          output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(1, operand_shapes.at(1),
-                                              operand_shapes.at(2)));
+          output_operand->datas.push_back(std::make_shared<Tensor<float>>(
+              1, operand_shapes.at(1), operand_shapes.at(2)));
         }
       }
       runtime_op->output_operands = std::move(output_operand);
     } else {
       CHECK(batch == output_tensors->datas.size());
-      //output_tensors empty
+      // output_tensors empty
       CHECK(output_tensors->type == RuntimeDataType::kTypeFloat32);
       CHECK(output_tensors->shapes == operand_shapes);
-      for (uint32_t b = 0; b < batch;++b) {
-       const std::vector<uint32_t> & tensor_shapes = output_tensors->datas.at(b)->shapes();
+      for (uint32_t b = 0; b < batch; ++b) {
+        const std::vector<uint32_t>& tensor_shapes =
+            output_tensors->datas.at(b)->shapes();
         if (operand_shapes.size() == 4) {
           CHECK(tensor_shapes.at(0) == operand_shapes.at(1) &&
                 tensor_shapes.at(1) == operand_shapes.at(2) &&
@@ -156,8 +155,7 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
 }
 
 RuntimeGraph::RuntimeGraph(std::string param_path, std::string bin_path)
-  : param_path_(std::move(param_path)), bin_path_(std::move(bin_path)) {
-}
+    : param_path_(std::move(param_path)), bin_path_(std::move(bin_path)) {}
 
 void RuntimeGraph::set_bin_path(const std::string& bin_path) {
   this->bin_path_ = bin_path;
@@ -171,9 +169,7 @@ const std::string& RuntimeGraph::param_path() const {
   return this->param_path_;
 }
 
-const std::string& RuntimeGraph::bin_path() const {
-  return this->bin_path_;
-}
+const std::string& RuntimeGraph::bin_path() const { return this->bin_path_; }
 
 bool RuntimeGraph::Init() {
   if (this->bin_path_.empty() || this->param_path_.empty()) {
@@ -185,7 +181,7 @@ bool RuntimeGraph::Init() {
   int load_result = this->graph_->load(param_path_, bin_path_);
   if (load_result != 0) {
     LOG(ERROR) << "Load param path and bin path error: " << param_path_ << " "
-        << bin_path_;
+               << bin_path_;
     return false;
   }
 
@@ -201,8 +197,8 @@ bool RuntimeGraph::Init() {
       LOG(ERROR) << "Meet the empty node";
       continue;
     } else {
-      std::shared_ptr<RuntimeOperator> runtime_operator = std::make_shared<
-        RuntimeOperator>();
+      std::shared_ptr<RuntimeOperator> runtime_operator =
+          std::make_shared<RuntimeOperator>();
       // 初始化算子的名称
       runtime_operator->name = op->name;
       runtime_operator->type = op->type;
@@ -259,9 +255,10 @@ void RuntimeGraph::Build(const std::string& input_name,
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
   }
 
-  CHECK(graph_state_ >= GraphState::NeedBuild) <<
- "Graph status error, current state is " << int(graph_state_);
-  LOG_IF(FATAL, this->operators_.empty()) << "Graph operators is empty, may be no init";
+  CHECK(graph_state_ >= GraphState::NeedBuild)
+      << "Graph status error, current state is " << int(graph_state_);
+  LOG_IF(FATAL, this->operators_.empty())
+      << "Graph operators is empty, may be no init";
 
   this->input_operators_maps_.clear();
   this->output_operators_maps_.clear();
@@ -287,13 +284,12 @@ void RuntimeGraph::Build(const std::string& input_name,
 }
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    bool debug) {
+    const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
-  CHECK(graph_state_ == GraphState::Complete) <<
- "Graph status error, current state is " << int(graph_state_);
+  CHECK(graph_state_ == GraphState::Complete)
+      << "Graph status error, current state is " << int(graph_state_);
 
   std::shared_ptr<RuntimeOperator> input_op;
   if (input_operators_maps_.find(input_name_) == input_operators_maps_.end()) {
@@ -303,8 +299,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   }
 
   std::shared_ptr<RuntimeOperator> output_op;
-  if (output_operators_maps_.find(output_name_) == output_operators_maps_.
-      end()) {
+  if (output_operators_maps_.find(output_name_) ==
+      output_operators_maps_.end()) {
     LOG(FATAL) << "Can not find the output node: " << input_name_;
   } else {
     output_op = output_operators_maps_.at(output_name_);
@@ -317,12 +313,13 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   if (debug) {
     LOG(INFO) << "Batch Size:" << inputs.size();
     for (int i = 0; i < inputs.size(); ++i) {
-      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows() << " Cols: " << inputs
-          .at(i)->cols() << " Channels: "
-          << inputs.at(i)->channels();
+      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows()
+                << " Cols: " << inputs.at(i)->cols()
+                << " Channels: " << inputs.at(i)->channels();
     }
     LOG(INFO) << "Inference starting...";
-    LOG(INFO) << "--------------------------------------------------" << "\n";
+    LOG(INFO) << "--------------------------------------------------"
+              << "\n";
   }
 
   while (!operator_queue.empty()) {
@@ -363,16 +360,18 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
           current_op->output_operands->datas;
 
       const auto& start = std::chrono::steady_clock::now();
-      InferStatus status = current_op->layer->Forward(
-          layer_input_datas, layer_output_datas);
+      InferStatus status =
+          current_op->layer->Forward(layer_input_datas, layer_output_datas);
       if (debug) {
-        std::replace_if(current_op_name.begin(), current_op_name.end(),
-                        [](char c) { return c == '.'; }, '_');
+        std::replace_if(
+            current_op_name.begin(), current_op_name.end(),
+            [](char c) { return c == '.'; }, '_');
         const double duration =
             std::chrono::duration_cast<std::chrono::duration<double>>(
-                std::chrono::steady_clock::now() - start).count();
-        if (run_duration_infos.find(current_op->type) == run_duration_infos.
-            end()) {
+                std::chrono::steady_clock::now() - start)
+                .count();
+        if (run_duration_infos.find(current_op->type) ==
+            run_duration_infos.end()) {
           run_duration_infos.insert({current_op->type, duration});
         } else {
           run_duration_infos.at(current_op->type) += duration;
@@ -380,8 +379,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       }
 
       CHECK(status == InferStatus::kInferSuccess)
-              << current_op->layer->layer_name() <<
- " layer forward failed, error code: " << int(status);
+          << current_op->layer->layer_name()
+          << " layer forward failed, error code: " << int(status);
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     }
   }
@@ -390,16 +389,16 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     op->meet_num = 0;
   }
 
-  CHECK(output_op->input_operands.size() == 1) <<
- "The graph only support one path to the output node yet!";
+  CHECK(output_op->input_operands.size() == 1)
+      << "The graph only support one path to the output node yet!";
   const auto& output_op_input_operand = output_op->input_operands.begin();
   const auto& output_operand = output_op_input_operand->second;
   if (debug) {
     LOG(INFO) << "Model Running Information, Time Cost:";
     double duration_all = 0.;
     for (const auto& run_info : run_duration_infos) {
-      LOG(INFO) << "OP type: " << run_info.first << " duration: " << run_info.
-          second << " s";
+      LOG(INFO) << "OP type: " << run_info.first
+                << " duration: " << run_info.second << " s";
       duration_all += run_info.second;
     }
     LOG(INFO) << "All time cost: " << duration_all << " s";
@@ -418,23 +417,23 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
 void RuntimeGraph::SetOpInputData(
     std::vector<std::shared_ptr<Tensor<float>>>& src,
     std::vector<std::shared_ptr<Tensor<float>>>& dest) {
-  CHECK(src.size() == dest.size()) << "src size: " << src.size() <<
- " dest size: " << dest.size();
+  CHECK(src.size() == dest.size())
+      << "src size: " << src.size() << " dest size: " << dest.size();
   for (uint32_t i = 0; i < src.size(); ++i) {
     dest.at(i)->set_data(src.at(i)->data());
   }
 }
 
-void RuntimeGraph::InitInputOperators(const std::vector<pnnx::Operand*>& inputs,
-                                      const std::shared_ptr<RuntimeOperator>&
-                                      runtime_operator) {
+void RuntimeGraph::InitInputOperators(
+    const std::vector<pnnx::Operand*>& inputs,
+    const std::shared_ptr<RuntimeOperator>& runtime_operator) {
   for (const pnnx::Operand* input : inputs) {
     if (!input) {
       continue;
     }
     const pnnx::Operator* producer = input->producer;
-    std::shared_ptr<RuntimeOperand> runtime_operand = std::make_shared<
-      RuntimeOperand>();
+    std::shared_ptr<RuntimeOperand> runtime_operand =
+        std::make_shared<RuntimeOperand>();
     runtime_operand->name = producer->name;
     runtime_operand->shapes = input->shape;
 
@@ -513,23 +512,23 @@ void RuntimeGraph::InitGraphParams(
       }
 
       case int(RuntimeParameterType::kParameterIntArray): {
-        RuntimeParameterIntArray* runtime_parameter = new
-            RuntimeParameterIntArray;
+        RuntimeParameterIntArray* runtime_parameter =
+            new RuntimeParameterIntArray;
         runtime_parameter->value = parameter.ai;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterFloatArray): {
-        RuntimeParameterFloatArray* runtime_parameter = new
-            RuntimeParameterFloatArray;
+        RuntimeParameterFloatArray* runtime_parameter =
+            new RuntimeParameterFloatArray;
         runtime_parameter->value = parameter.af;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
       case int(RuntimeParameterType::kParameterStringArray): {
-        RuntimeParameterStringArray* runtime_parameter = new
-            RuntimeParameterStringArray;
+        RuntimeParameterStringArray* runtime_parameter =
+            new RuntimeParameterStringArray;
         runtime_parameter->value = parameter.as;
         runtime_operator->params.insert({name, runtime_parameter});
         break;
@@ -549,8 +548,8 @@ void RuntimeGraph::InitGraphAttrs(
     const pnnx::Attribute& attr = pair.second;
     switch (attr.type) {
       case 1: {
-        std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<
-          RuntimeAttribute>();
+        std::shared_ptr<RuntimeAttribute> runtime_attribute =
+            std::make_shared<RuntimeAttribute>();
         runtime_attribute->type = RuntimeDataType::kTypeFloat32;
         runtime_attribute->weight_data = attr.data;
         runtime_attribute->shape = attr.shape;
@@ -584,13 +583,12 @@ void RuntimeGraph::ProbeNextLayer(
     const auto& next_rt_operator = next_op.second;
     const auto& next_input_operands = next_rt_operator->input_operands;
 
-    if (next_input_operands.find(current_op->name) != next_input_operands.
-        end()) {
+    if (next_input_operands.find(current_op->name) !=
+        next_input_operands.end()) {
       std::vector<std::shared_ptr<ftensor>> next_input_datas =
           next_input_operands.at(current_op->name)->datas;
       SetOpInputData(layer_output_datas, next_input_datas);
 
-      const auto& iter = next_input_operands.find(current_op->name);
       if (std::find(operator_queue.begin(), operator_queue.end(),
                     next_rt_operator) == operator_queue.end()) {
         next_rt_operator->meet_num += 1;
@@ -603,4 +601,4 @@ void RuntimeGraph::ProbeNextLayer(
     }
   }
 }
-}
+}  // namespace kuiper_infer
