@@ -27,46 +27,53 @@ void RuntimeGraphShape::InitOperatorInputTensor(
         const auto& type = input_operand->type;
         CHECK(type == RuntimeDataType::
             kTypeFloat32) << "The graph only support float32 yet!";
-        const auto& shapes = input_operand->shapes;
+        const auto& input_operand_shape = input_operand->shapes;
         auto& input_datas = input_operand->datas;
 
-        CHECK(!shapes.empty());
-        const int32_t batch = shapes.at(0);
+        CHECK(!input_operand_shape.empty());
+        const int32_t batch = input_operand_shape.at(0);
         CHECK(batch >= 0) << "Dynamic batch size is not supported!";
-        CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
-                << "Unsupported tensor shape sizes: " << shapes.size();
+        CHECK(input_operand_shape.size() == 2 ||
+            input_operand_shape.size() == 4 ||
+            input_operand_shape.size() == 3)
+            << "Unsupported tensor shape sizes: " << input_operand_shape.size();
 
         if (!input_datas.empty()) {
           CHECK(input_datas.size() == batch) << "Batch size is wrong!";
           for (int32_t i = 0; i < batch; ++i) {
-            const std::vector<uint32_t>& origin_shape = input_datas.at(i)->
-                shapes();
-            const std::vector<int32_t>& current_shape = shapes;
-            if (current_shape.size() == 4) {
-              CHECK(origin_shape.at(0) == current_shape.at(1) &&
-                  origin_shape.at(1) == current_shape.at(2)
-                  && origin_shape.at(2) == current_shape.at(3));
-            } else if (current_shape.size() == 2) {
-              CHECK(origin_shape.at(1) == current_shape.at(1)
-                  && origin_shape.at(0) == 1 && origin_shape.at(2) == 1);
+            const std::vector<uint32_t>& input_data_shape =
+                input_datas.at(i)->shapes();
+            CHECK(input_data_shape.size() == 3)
+                << "THe origin shape size of operator input data do not equals to three";
+            if (input_operand_shape.size() == 4) {
+              CHECK(input_data_shape.at(0) == input_operand_shape.at(1) &&
+                  input_data_shape.at(1) == input_operand_shape.at(2)
+                  && input_data_shape.at(2) == input_operand_shape.at(3));
+            } else if (input_operand_shape.size() == 2) {
+              CHECK(input_data_shape.at(1) == input_operand_shape.at(1)
+                  && input_data_shape.at(0) == 1 && input_data_shape.at(2) ==
+                  1);
             } else {
-              CHECK(origin_shape.at(1) == current_shape.at(1)
-                  && origin_shape.at(0) == 1
-                  && origin_shape.at(2) == current_shape.at(2));
+              // current shape size = 3
+              CHECK(input_data_shape.at(1) == input_operand_shape.at(1)
+                  && input_data_shape.at(0) == 1
+                  && input_data_shape.at(2) == input_operand_shape.at(2));
             }
           }
         } else {
           input_datas.resize(batch);
           for (int32_t i = 0; i < batch; ++i) {
-            if (shapes.size() == 4) {
+            if (input_operand_shape.size() == 4) {
               input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  shapes.at(1), shapes.at(2), shapes.at(3));
-            } else if (shapes.size() == 2) {
+                  input_operand_shape.at(1), input_operand_shape.at(2),
+                  input_operand_shape.at(3));
+            } else if (input_operand_shape.size() == 2) {
               input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  1, shapes.at(1), 1);
+                  1, input_operand_shape.at(1), 1);
             } else {
+              // current shape is 3
               input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  1, shapes.at(1), shapes.at(2));
+                  1, input_operand_shape.at(1), input_operand_shape.at(2));
             }
           }
         }
@@ -86,55 +93,62 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
     if (operands.empty()) {
       continue;
     }
+    CHECK(operands.size() == 1) << "Only support one output in the KuiperInfer";
     pnnx::Operand* operand = operands.front();
     const auto& runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
-    const std::vector<int32_t>& shapes = operand->shape;
+    const std::vector<int32_t>& operand_shapes = operand->shape;
     const auto& output_tensors = runtime_op->output_operands;
 
-    const int32_t batch = shapes.at(0);
+    const int32_t batch = operand_shapes.at(0);
     CHECK(batch >= 0) << "Dynamic batch size is not supported!";
-    CHECK(shapes.size() == 2 || shapes.size() == 4 || shapes.size() == 3)
-            << "Unsupported shape sizes: " << shapes.size();
+    CHECK(operand_shapes.size() == 2 || operand_shapes.size() == 4 ||
+        operand_shapes.size() == 3)
+            << "Unsupported shape sizes: " << operand_shapes.size();
 
     if (!output_tensors) {
-      std::shared_ptr<RuntimeOperand> output_operand = std::make_shared<
-        RuntimeOperand>();
-      output_operand->shapes = shapes;
+      std::shared_ptr<RuntimeOperand> output_operand =
+          std::make_shared<RuntimeOperand>();
+      output_operand->shapes = operand_shapes;
       output_operand->type = RuntimeDataType::kTypeFloat32;
       output_operand->name = operand->name + "_output";
       for (int j = 0; j < batch; ++j) {
-        if (shapes.size() == 4) {
+        if (operand_shapes.size() == 4) {
           output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(shapes.at(1), shapes.at(2),
-                                              shapes.at(3)));
-        } else if (shapes.size() == 2) {
+              std::make_shared<Tensor<float>>(operand_shapes.at(1),
+                                              operand_shapes.at(2),
+                                              operand_shapes.at(3)));
+        } else if (operand_shapes.size() == 2) {
           output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(1, shapes.at(1), 1));
+              std::make_shared<Tensor<float>>(1, operand_shapes.at(1), 1));
         } else {
+          // current shape is 3
           output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(1, shapes.at(1), shapes.at(2)));
+              std::make_shared<Tensor<float>>(1, operand_shapes.at(1),
+                                              operand_shapes.at(2)));
         }
       }
       runtime_op->output_operands = std::move(output_operand);
     } else {
       CHECK(batch == output_tensors->datas.size());
       //output_tensors empty
-      const auto& output_tensors_datas = output_tensors->datas;
       CHECK(output_tensors->type == RuntimeDataType::kTypeFloat32);
-      CHECK(output_tensors->shapes == shapes);
-      for (const auto& output_tensors_data : output_tensors_datas) {
-        const auto& tensor_shapes = output_tensors->shapes;
-        if (shapes.size() == 4) {
-          CHECK(tensor_shapes.at(1) == shapes.at(1)
-              && tensor_shapes.at(2) == shapes.at(2) && tensor_shapes.at(3) ==
-              shapes.at(3));
-        } else if (shapes.size() == 2) {
-          CHECK(tensor_shapes.at(0) == 1 && tensor_shapes.at(1) == shapes.at(1)
-              && tensor_shapes.at(2) == 1);
+      CHECK(output_tensors->shapes == operand_shapes);
+      for (uint32_t b = 0; b < batch;++b) {
+       const std::vector<uint32_t> & tensor_shapes = output_tensors->datas.at(b)->shapes();
+        if (operand_shapes.size() == 4) {
+          CHECK(tensor_shapes.at(0) == operand_shapes.at(1) &&
+                tensor_shapes.at(1) == operand_shapes.at(2) &&
+                tensor_shapes.at(2) == operand_shapes.at(3));
+        } else if (operand_shapes.size() == 2) {
+          CHECK(tensor_shapes.at(0) == 1 &&
+                tensor_shapes.at(1) == operand_shapes.at(1) &&
+                tensor_shapes.at(2) == 1);
         } else {
-          CHECK(tensor_shapes.at(0) == 1 && tensor_shapes.at(1) == shapes.at(1)
-              && tensor_shapes.at(2) == shapes.at(2));
+          // current shape is 3
+          CHECK(tensor_shapes.at(0) == 1 &&
+                tensor_shapes.at(1) == operand_shapes.at(1) &&
+                tensor_shapes.at(2) == operand_shapes.at(2));
         }
       }
     }
