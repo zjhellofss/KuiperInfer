@@ -351,16 +351,14 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
     }
 
     const std::shared_ptr<Tensor<float>> input_tensor2_ =
-        std::make_shared<Tensor<float>>(channels, tensor1_->rows(),
-                                        tensor1_->cols());
+        TensorCreate(channels, tensor1_->rows(), tensor1_->cols());
     for (uint32_t c = 0; c < channels; ++c) {
-      input_tensor2_->data().slice(c).fill(tensor2_->index(c));
+      input_tensor2_->at(c).fill(tensor2_->index(c));
     }
     std::shared_ptr<Tensor<float>> output_tensor =
-        std::make_shared<Tensor<float>>(input_tensor2_->rows(),
-                                        input_tensor2_->cols(),
-                                        input_tensor2_->channels());
-    output_tensor->data() = tensor1_->data() % input_tensor2_->data();
+        TensorCreate(input_tensor2_->channels(), input_tensor2_->rows(),
+                     input_tensor2_->cols());
+    output_tensor->set_data(tensor1_->data() % input_tensor2_->data());
     return output_tensor;
   }
 }
