@@ -324,3 +324,19 @@ TEST(test_runtime, runtime_graph_output_init3) {
     }
   }
 }
+
+TEST(test_runtime, set_param_path) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("xx.param", "yy.bin");
+  ASSERT_EQ(graph.param_path(), "xx.param");
+  graph.set_param_path("yy.param");
+  ASSERT_EQ(graph.param_path(), "yy.param");
+}
+
+TEST(test_runtime, set_bin_path) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("xx.param", "yy.bin");
+  ASSERT_EQ(graph.bin_path(), "yy.bin");
+  graph.set_bin_path("yy.bin");
+  ASSERT_EQ(graph.bin_path(), "yy.bin");
+}
