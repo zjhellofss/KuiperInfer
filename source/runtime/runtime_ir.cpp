@@ -1,7 +1,5 @@
 #include "runtime/runtime_ir.hpp"
 #include <deque>
-#include <filesystem>
-#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <queue>
@@ -381,7 +379,19 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       CHECK(status == InferStatus::kInferSuccess)
           << current_op->layer->layer_name()
           << " layer forward failed, error code: " << int(status);
+      const auto copy_start = std::chrono::steady_clock::now();
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      const double duration =
+          std::chrono::duration_cast<std::chrono::duration<double>>(
+              std::chrono::steady_clock::now() - copy_start)
+              .count();
+      if (debug) {
+        if (run_duration_infos.find("Copy") == run_duration_infos.end()) {
+          run_duration_infos.insert({"Copy", duration});
+        } else {
+          run_duration_infos.at("Copy") += duration;
+        }
+      }
     }
   }
 
@@ -416,11 +426,14 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
 
 void RuntimeGraph::SetOpInputData(
     std::vector<std::shared_ptr<Tensor<float>>>& src,
-    std::vector<std::shared_ptr<Tensor<float>>>& dest) {
-  CHECK(src.size() == dest.size())
-      << "src size: " << src.size() << " dest size: " << dest.size();
-  for (uint32_t i = 0; i < src.size(); ++i) {
-    dest.at(i)->set_data(src.at(i)->data());
+    std::vector<std::vector<std::shared_ptr<Tensor<float>>>>& dest) {
+  CHECK(!src.empty() && !dest.empty()) << "Src or dest array is empty!";
+  for (uint32_t j = 0; j < src.size(); ++j) {
+    const auto& src_data = src.at(j)->data();
+    for (uint32_t i = 0; i < dest.size(); ++i) {
+      CHECK(!dest.empty() && dest.at(i).size() == src.size());
+      dest.at(i).at(j)->set_data(src_data);
+    }
   }
 }
 
@@ -579,6 +592,8 @@ void RuntimeGraph::ProbeNextLayer(
     std::deque<std::shared_ptr<RuntimeOperator>>& operator_queue,
     std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas) {
   const auto& next_ops = current_op->output_operators;
+
+  std::vector<std::vector<std::shared_ptr<ftensor>>> next_input_datas_arr;
   for (const auto& next_op : next_ops) {
     const auto& next_rt_operator = next_op.second;
     const auto& next_input_operands = next_rt_operator->input_operands;
@@ -587,8 +602,7 @@ void RuntimeGraph::ProbeNextLayer(
         next_input_operands.end()) {
       std::vector<std::shared_ptr<ftensor>> next_input_datas =
           next_input_operands.at(current_op->name)->datas;
-      SetOpInputData(layer_output_datas, next_input_datas);
-
+      next_input_datas_arr.push_back(next_input_datas);
       if (std::find(operator_queue.begin(), operator_queue.end(),
                     next_rt_operator) == operator_queue.end()) {
         next_rt_operator->meet_num += 1;
@@ -600,5 +614,6 @@ void RuntimeGraph::ProbeNextLayer(
       next_rt_operator->meet_num += 1;
     }
   }
+  SetOpInputData(layer_output_datas, next_input_datas_arr);
 }
 }  // namespace kuiper_infer

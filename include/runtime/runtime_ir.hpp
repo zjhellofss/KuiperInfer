@@ -125,7 +125,7 @@ class RuntimeGraph {
    * @param dest 下一个节点的输入操作数
    */
   static void SetOpInputData(std::vector<std::shared_ptr<Tensor<float>>> &src,
-                             std::vector<std::shared_ptr<Tensor<float>>> &dest);
+                             std::vector<std::vector<std::shared_ptr<Tensor<float>>>>& dest);
 
   /**
    * 根据计算图中的计算节点来返回Layer
