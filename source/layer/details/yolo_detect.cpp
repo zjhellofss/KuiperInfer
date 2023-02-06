@@ -88,8 +88,8 @@ InferStatus YoloDetectLayer::Forward(
     }
 
     std::shared_ptr<Tensor<float>> x_stages_tensor;
-    x_stages_tensor = std::make_shared<Tensor<float>>(
-        batch_size, stages * nx_ * ny_, uint32_t(classes_info));
+    x_stages_tensor =
+        TensorCreate(batch_size, stages * nx_ * ny_, uint32_t(classes_info));
 
 #pragma omp parallel for num_threads(batch_size)
     for (uint32_t b = 0; b < batch_size; ++b) {
