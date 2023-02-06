@@ -394,7 +394,7 @@ TEST(test_tensor, add5) {
   f2->Fill(2.f);
 
   const auto& f3 = std::make_shared<Tensor<float>>(3, 224, 224);
-  TensorElementMultiply(f1, f2, f3);
+  TensorElementAdd(f1, f2, f3);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 5.f);
   }
