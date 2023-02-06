@@ -2,15 +2,14 @@
 // Created by fss on 22-11-17.
 //
 #include "batchnorm2d.hpp"
-
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
 
 namespace kuiper_infer {
 
 InferStatus BatchNorm2dLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of batchnorm layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -37,8 +36,8 @@ InferStatus BatchNorm2dLayer::Forward(
 
   const uint32_t batch_size = inputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
-    const auto &input_data = inputs.at(i);
-    const auto &output_data = outputs.at(i);
+    const auto& input_data = inputs.at(i);
+    const auto& output_data = outputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
       LOG(ERROR) << "The input feature map of batchNorm2d layer is empty";
       return InferStatus::kInferFailedInputEmpty;
@@ -53,7 +52,7 @@ InferStatus BatchNorm2dLayer::Forward(
 
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t b = 0; b < batch_size; ++b) {
-    const auto &input = inputs.at(b);
+    const auto& input = inputs.at(b);
     CHECK(input != nullptr && !input->empty())
         << "The input feature map of batchnorm layer is empty";
     CHECK(input->channels() == mean_value_size)
@@ -72,6 +71,7 @@ InferStatus BatchNorm2dLayer::Forward(
         << "The output size of batchnorm is error";
 
     for (uint32_t i = 0; i < mean_value_size; ++i) {
+      CHECK(weights_.at(i)->size() == 1 && bias_.at(i)->size() == 1);
       const float mean_value = weights_.at(i)->index(0);
       const float var_value = bias_.at(i)->index(0);
       CHECK(input->channels() >= i) << "The channel of the input feature maps "
@@ -87,11 +87,11 @@ InferStatus BatchNorm2dLayer::Forward(
 }
 
 ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator> &op,
-    std::shared_ptr<Layer> &batch_layer) {
+    const std::shared_ptr<RuntimeOperator>& op,
+    std::shared_ptr<Layer>& batch_layer) {
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
 
-  const auto &params = op->params;
+  const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
 
   if (params.find("eps") == params.end()) {
@@ -99,7 +99,7 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingEps;
   }
 
-  const auto &eps = dynamic_cast<RuntimeParameterFloat *>(params.at("eps"));
+  const auto& eps = dynamic_cast<RuntimeParameterFloat*>(params.at("eps"));
   if (!eps) {
     LOG(ERROR) << "Can not find the eps parameter";
     return ParseParameterAttrStatus::kParameterMissingEps;
@@ -110,15 +110,15 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;
   }
 
-  const auto &num_features =
-      dynamic_cast<RuntimeParameterInt *>(params.at("num_features"));
+  const auto& num_features =
+      dynamic_cast<RuntimeParameterInt*>(params.at("num_features"));
   if (!num_features) {
     LOG(ERROR) << "Can not find the num features parameter";
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;
   }
 
   // load weights
-  const auto &attrs = op->attribute;
+  const auto& attrs = op->attribute;
   CHECK(!attrs.empty()) << "Operator attributes is empty";
 
   if (attrs.find("running_mean") == attrs.end()) {
@@ -135,13 +135,13 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kAttrMissingBias;
   }
 
-  const std::vector<float> &affine_weight = attrs.at("weight")->get<float>();
-  const std::vector<float> &affine_bias = attrs.at("bias")->get<float>();
+  const std::vector<float>& affine_weight = attrs.at("weight")->get<float>();
+  const std::vector<float>& affine_bias = attrs.at("bias")->get<float>();
   batch_layer = std::make_shared<BatchNorm2dLayer>(
       num_features->value, eps->value, affine_weight, affine_bias);
 
-  const auto &mean_attr = attrs.at("running_mean");
-  const std::vector<float> &mean = mean_attr->get<float>();
+  const auto& mean_attr = attrs.at("running_mean");
+  const std::vector<float>& mean = mean_attr->get<float>();
   batch_layer->set_weights(mean);
 
   if (attrs.find("running_var") == attrs.end()) {
@@ -149,20 +149,19 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kAttrMissingRunningVar;
   }
 
-  const auto &var_attr = attrs.at("running_var");
-  const std::vector<float> &var = var_attr->get<float>();
+  const auto& var_attr = attrs.at("running_var");
+  const std::vector<float>& var = var_attr->get<float>();
   batch_layer->set_bias(var);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
 BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
-                                   const std::vector<float> &affine_weight,
-                                   const std::vector<float> &affine_bias)
+                                   const std::vector<float>& affine_weight,
+                                   const std::vector<float>& affine_bias)
     : ParamLayer("Batchnorm"),
       affine_weight_(affine_weight),
       affine_bias_(affine_bias),
       eps_(eps) {
-        
   this->InitWeightParam(num_features, 1, 1, 1);
   this->InitBiasParam(num_features, 1, 1, 1);
   // for (uint32_t i = 0; i < num_features; ++i) {
