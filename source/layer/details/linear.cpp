@@ -70,9 +70,10 @@ InferStatus LinearLayer::Forward(
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input feature map of linear layer is empty";
+            << "The input feature map of linear layer is empty";
     const std::vector<uint32_t> &raw_shapes = input->raw_shapes();
-    CHECK(raw_shapes.size() == 2);
+    CHECK(raw_shapes.size() == 2 || (raw_shapes.size() == 3 && raw_shapes.front() == 1));
+
     const uint32_t feature_dims = raw_shapes.at(0);
     arma::fmat weight_data(weight->data().memptr(), out_features_,
                            in_features_);
@@ -100,11 +101,11 @@ InferStatus LinearLayer::Forward(
       outputs.at(i) = output;
     }
     CHECK(output->channels() == 1 && output->rows() == out_features_ &&
-          output->cols() == input_dim);
+        output->cols() == input_dim);
     const auto &output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
     CHECK(output_raw_shapes.at(0) == out_features_ &&
-          output_raw_shapes.at(1) == input_dim);
+        output_raw_shapes.at(1) == input_dim);
     output->at(0) = std::move(result);
   }
   return InferStatus::kInferSuccess;
@@ -145,7 +146,7 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
   const auto &bias = attr.at("bias");
   const auto &shapes = weight->shape;
   CHECK(shapes.size() == 2)
-      << "The graph only support two dimension matrix multiply";
+          << "The graph only support two dimension matrix multiply";
 
   int32_t out_features = shapes.at(0);
   int32_t in_features = shapes.at(1);
