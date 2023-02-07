@@ -27,7 +27,7 @@ InferStatus HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      LOG(ERROR) << "The output size of hardswish is empty";
+      DLOG(ERROR) << "The output size of hardswish is empty";
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
       outputs.at(i) = output;
     }

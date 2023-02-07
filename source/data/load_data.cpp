@@ -46,7 +46,7 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
         data.at(row, col) = std::stof(token);
       }
       catch (std::exception &e) {
-        LOG(ERROR) << "Parse CSV File meet error: " << e.what();
+        DLOG(ERROR) << "Parse CSV File meet error: " << e.what();
         continue;
       }
       col += 1;

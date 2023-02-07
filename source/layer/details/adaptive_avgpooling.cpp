@@ -72,7 +72,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
-      LOG(ERROR) << "The output size of adaptive pooling is empty";
+      DLOG(ERROR) << "The output size of adaptive pooling is empty";
       output_data =
           std::make_shared<Tensor<float>>(input_c, output_h_, output_w_);
       outputs.at(i) = output_data;

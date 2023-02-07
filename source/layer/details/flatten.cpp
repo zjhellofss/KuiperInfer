@@ -37,7 +37,7 @@ InferStatus FlattenLayer::Forward(
   start_dim -= 1;
   CHECK(end_dim > start_dim) << "End dim must greater than start dim";
   CHECK(end_dim <= 2 && start_dim >= 0)
-      << "end dim must less than two and start dim must greater than zero";
+          << "end dim must less than two and start dim must greater than zero";
 
   const uint32_t batch_size = inputs.size();
 
@@ -54,7 +54,14 @@ InferStatus FlattenLayer::Forward(
     for (int s = start_dim; s <= end_dim; ++s) {
       elements_size *= shapes.at(s);
     }
-    std::shared_ptr<Tensor<float>> output = input->Clone();
+
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
+    if (output == nullptr || output->empty()) {
+      output = input->Clone();
+    } else {
+      CHECK(output->size() == input->size());
+      memcpy(output->data().memptr(), input->data().memptr(), sizeof(float) * input->size());
+    }
     if (start_dim == 0 && end_dim == 2) {
       output->ReRawshape({elements_size});
     } else if (start_dim == 1 && end_dim == 2) {
@@ -67,7 +74,7 @@ InferStatus FlattenLayer::Forward(
       LOG(FATAL) << "Wrong flatten dim: "
                  << "start dim: " << start_dim << " end dim: " << end_dim;
     }
-    
+
     if (outputs.at(i) != nullptr)
       CHECK(outputs.at(i)->shapes() == output->shapes());
     outputs.at(i) = output;

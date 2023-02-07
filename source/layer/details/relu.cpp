@@ -41,7 +41,7 @@ InferStatus ReluLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      LOG(ERROR) << "The output size of relu is error";
+      DLOG(ERROR) << "The output size of relu is error";
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(i) = output;
     }
