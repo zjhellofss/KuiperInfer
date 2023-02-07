@@ -538,7 +538,7 @@ TEST(test_tensor, padding2) {
   }
 }
 
-TEST(test_tensor, review) {
+TEST(test_tensor, review1) {
   using namespace kuiper_infer;
   Tensor<float> tensor(3, 4, 5);
   std::vector<float> values;
@@ -556,6 +556,75 @@ TEST(test_tensor, review) {
       ASSERT_EQ(data.at(i, j), index);
       index += 1;
     }
+  }
+}
+
+TEST(test_tensor, review2) {
+  using namespace kuiper_infer;
+  arma::fmat f1 =
+      "1,2,3,4;"
+      "5,6,7,8";
+
+  arma::fmat f2 =
+      "1,2,3,4;"
+      "5,6,7,8";
+  sftensor data = TensorCreate(2, 2, 4);
+  data->at(0) = f1;
+  data->at(1) = f2;
+  data->ReRawView({16});
+  for (uint32_t i = 0; i < 8; ++i) {
+    ASSERT_EQ(data->index(i), i + 1);
+  }
+
+  for (uint32_t i = 8; i < 15; ++i) {
+    ASSERT_EQ(data->index(i - 8), i - 8 + 1);
+  }
+}
+
+TEST(test_tensor, reshape1) {
+  using namespace kuiper_infer;
+  arma::fmat f1 =
+      "1,3;"
+      "2,4";
+
+  arma::fmat f2 =
+      "1,3;"
+      "2,4";
+
+  sftensor data = TensorCreate(2, 2, 2);
+  data->at(0) = f1;
+  data->at(1) = f2;
+  data->ReRawshape({8});
+  for (uint32_t i = 0; i < 4; ++i) {
+    ASSERT_EQ(data->index(i), i + 1);
+  }
+
+  for (uint32_t i = 4; i < 8; ++i) {
+    ASSERT_EQ(data->index(i - 4), i - 4 + 1);
+  }
+}
+
+TEST(test_tensor, reshape2) {
+  using namespace kuiper_infer;
+  arma::fmat f1 =
+      "0,2;"
+      "1,3";
+
+  arma::fmat f2 =
+      "0,2;"
+      "1,3";
+
+  sftensor data = TensorCreate(2, 2, 2);
+  data->at(0) = f1;
+  data->at(1) = f2;
+  data->ReRawshape({2, 4});
+  LOG(INFO) << data->data();
+  for (uint32_t i = 0; i < 4; ++i) {
+    ASSERT_EQ(data->index(i), i);
+  }
+
+  for (uint32_t i = 4; i < 8; ++i) {
+    ASSERT_EQ(data->index(i), i - 4);
   }
 }
 
