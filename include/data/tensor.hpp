@@ -41,13 +41,6 @@ class Tensor<float> {
   Tensor<float>& operator=(const Tensor& tensor);
 
   /**
-   * 判断两个张量数据是否相同
-   * @param a 一个张量
-   * @param b 另一个张量
-   * @return 数据是否相同
-   */
-
-  /**
    * 返回张量的行数
    * @return 张量的行数
    */
@@ -216,6 +209,10 @@ class Tensor<float> {
    */
   std::shared_ptr<Tensor> Clone();
 
+  /**
+   * 返回数据的原始指针
+   * @return 返回数据的原始指针
+   */
   const float* raw_ptr() const;
 
  private:
@@ -227,9 +224,20 @@ class Tensor<float> {
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
-std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
-                                               const sftensor& s2);
+/**
+ * tensor的广播机制
+ * @param s1 输入张量1
+ * @param s2 输入张量2
+ * @return 利用广播机制将两个tensor调整到相同的大小
+ */
+std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor &s1, const sftensor &s2);
 
+/**
+ * 比较tensor的值是否相同
+ * @param a 输入张量1
+ * @param b 输入张量2
+ * @return 比较结果
+ */
 bool TensorIsSame(const std::shared_ptr<Tensor<float>>& a,
                   const std::shared_ptr<Tensor<float>>& b);
 
@@ -243,10 +251,22 @@ std::shared_ptr<Tensor<float>> TensorElementAdd(
     const std::shared_ptr<Tensor<float>>& tensor1,
     const std::shared_ptr<Tensor<float>>& tensor2);
 
+/**
+ * 张量相加
+ * @param tensor1 输入张量1
+ * @param tensor2 输入张量2
+ * @param output_tensor 输出张量
+ */
 void TensorElementAdd(const std::shared_ptr<Tensor<float>>& tensor1,
                       const std::shared_ptr<Tensor<float>>& tensor2,
                       const std::shared_ptr<Tensor<float>>& output_tensor);
 
+/**
+ * 矩阵点乘
+ * @param tensor1 输入张量1
+ * @param tensor2 输入张量2
+ * @param output_tensor 输出张量
+ */
 void TensorElementMultiply(const std::shared_ptr<Tensor<float>>& tensor1,
                       const std::shared_ptr<Tensor<float>>& tensor2,
                       const std::shared_ptr<Tensor<float>>& output_tensor);
@@ -262,15 +282,23 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
     const std::shared_ptr<Tensor<float>>& tensor1,
     const std::shared_ptr<Tensor<float>>& tensor2);
 
+/**
+ * 创建一个张量
+ * @param channels 通道数量
+ * @param rows 行数
+ * @param cols 列数
+ * @return 创建后的张量
+ */
 std::shared_ptr<Tensor<float>> TensorCreate(uint32_t channels, uint32_t rows,
                                             uint32_t cols);
 
+/**
+ * 创建一个张量
+ * @param shapes 张量的形状
+ * @return 创建后的张量
+ */
 std::shared_ptr<Tensor<float>> TensorCreate(
     const std::vector<uint32_t>& shapes);
-
-std::tuple<std::shared_ptr<Tensor<float>>, std::shared_ptr<Tensor<float>>>
-TensorBroadcast(std::shared_ptr<Tensor<float>>& tensor1,
-                std::shared_ptr<Tensor<float>>& tensor2);
 
 }  // namespace kuiper_infer
 
