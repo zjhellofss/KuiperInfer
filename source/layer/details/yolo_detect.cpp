@@ -154,6 +154,8 @@ InferStatus YoloDetectLayer::Forward(
       output = std::make_shared<Tensor<float>>(1, concat_rows, classes_info);
       outputs.at(i) = output;
     }
+    CHECK(output->rows() == f1.slice(i).n_rows);
+    CHECK(output->cols() == f1.slice(i).n_cols);
     output->at(0) = std::move(f1.slice(i));
   }
   return InferStatus::kInferSuccess;
