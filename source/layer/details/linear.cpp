@@ -65,6 +65,7 @@ InferStatus LinearLayer::Forward(
   }
   uint32_t batch = inputs.size();
   const std::shared_ptr<Tensor<float>> &weight = weights_.front();
+  arma::fmat weight_data(weight->data().memptr(), out_features_, in_features_);
 
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
@@ -75,8 +76,6 @@ InferStatus LinearLayer::Forward(
     CHECK(raw_shapes.size() == 2 || (raw_shapes.size() == 3 && raw_shapes.front() == 1));
 
     const uint32_t feature_dims = raw_shapes.at(0);
-    arma::fmat weight_data(weight->data().memptr(), out_features_,
-                           in_features_);
     CHECK(weight_data.n_rows == out_features_);
     CHECK(weight_data.n_cols == feature_dims && feature_dims == in_features_);
     const uint32_t input_dim = raw_shapes.at(1);
