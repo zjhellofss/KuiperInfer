@@ -618,7 +618,6 @@ TEST(test_tensor, reshape2) {
   data->at(0) = f1;
   data->at(1) = f2;
   data->ReRawshape({2, 4});
-  LOG(INFO) << data->data();
   for (uint32_t i = 0; i < 4; ++i) {
     ASSERT_EQ(data->index(i), i);
   }

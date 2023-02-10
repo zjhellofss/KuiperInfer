@@ -2,10 +2,9 @@
 // Created by fss on 23-1-4.
 //
 
+#include <glog/logging.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include <glog/logging.h>
-
 #include "data/tensor.hpp"
 #include "image_util.hpp"
 #include "runtime/runtime_ir.hpp"
@@ -47,8 +46,8 @@ void SingleImageYoloInferNano(const std::string& image_path,
   cv::split(normalize_image, split_images);
   assert(split_images.size() == input_c);
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
-      input_c, input_h, input_w);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(input_c, input_h, input_w);
   input->Fill(0.f);
 
   int index = 0;
@@ -67,8 +66,8 @@ void SingleImageYoloInferNano(const std::string& image_path,
 
   for (int r = 0; r < repeat_time; ++r) {
     TICK(FORWARD)
-    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(
-        inputs, true);
+    std::vector<std::shared_ptr<Tensor<float>>> outputs =
+        graph.Forward(inputs, true);
     TOCK(FORWARD);
 
     assert(outputs.size() == inputs.size());
@@ -119,8 +118,7 @@ void SingleImageYoloInferNano(const std::string& image_path,
     for (int idx : indices) {
       Detection det;
       det.box = cv::Rect(boxes[idx]);
-      ScaleCoords(cv::Size{input_w, input_h},
-                  det.box,
+      ScaleCoords(cv::Size{input_w, input_h}, det.box,
                   cv::Size{origin_input_w, origin_input_h});
 
       det.conf = confs[idx];
@@ -148,7 +146,6 @@ void MultiImageYoloInferNano(const std::string& image_path,
                              const std::string& weight_path,
                              const float conf_thresh = 0.25f,
                              const float iou_thresh = 0.25f) {
-
   using namespace kuiper_infer;
   const int32_t input_c = 3;
   const int32_t input_h = 640;
@@ -181,8 +178,8 @@ void MultiImageYoloInferNano(const std::string& image_path,
     cv::split(normalize_image, split_images);
     assert(split_images.size() == input_c);
 
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
-        input_c, input_h, input_w);
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(input_c, input_h, input_w);
     input->Fill(0.f);
 
     int index = 0;
@@ -199,8 +196,8 @@ void MultiImageYoloInferNano(const std::string& image_path,
   }
 
   TICK(FORWARD)
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(
-      inputs, true);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.Forward(inputs, true);
   TOCK(FORWARD);
 
   assert(outputs.size() == inputs.size());
@@ -256,8 +253,7 @@ void MultiImageYoloInferNano(const std::string& image_path,
     for (int idx : indices) {
       Detection det;
       det.box = cv::Rect(boxes[idx]);
-      ScaleCoords(cv::Size{input_w, input_h},
-                  det.box,
+      ScaleCoords(cv::Size{input_w, input_h}, det.box,
                   cv::Size{origin_input_w, origin_input_h});
 
       det.conf = confs[idx];
@@ -282,8 +278,6 @@ int main() {
   const std::string& image_path = "imgs/car.jpg";
   const std::string& param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
   const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
-  for (int i = 0; i < 128; ++i) {
-    MultiImageYoloInferNano(image_path, param_path, weight_path);
-  }
+  MultiImageYoloInferNano(image_path, param_path, weight_path);
   return 0;
 }

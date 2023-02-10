@@ -429,6 +429,41 @@ std::shared_ptr<Tensor<float>> TensorCreate(
   return TensorCreate(shapes.at(0), shapes.at(1), shapes.at(2));
 }
 
+std::shared_ptr<Tensor<float>> TensorPadding(
+    const std::shared_ptr<Tensor<float>>& tensor,
+    const std::vector<uint32_t>& pads, float padding_value) {
+  CHECK(tensor != nullptr && !tensor->empty());
+  CHECK(pads.size() == 4);
+  uint32_t pad_rows1 = pads.at(0);  // up
+  uint32_t pad_rows2 = pads.at(1);  // bottom
+  uint32_t pad_cols1 = pads.at(2);  // left
+  uint32_t pad_cols2 = pads.at(3);  // right
+
+  std::shared_ptr<ftensor> output = std::make_shared<ftensor>(
+      tensor->channels(), tensor->rows() + pad_rows1 + pad_rows2,
+      tensor->cols() + pad_cols1 + pad_cols2);
+
+  if (padding_value != 0.f) output->Fill(padding_value);
+
+  const uint32_t channels = tensor->channels();
+  for (uint32_t channel = 0; channel < channels; ++channel) {
+    const arma::fmat& in_channel = tensor->at(channel);
+    arma::fmat& output_channel = output->at(channel);
+    const uint32_t in_channel_width = in_channel.n_cols;
+    const uint32_t in_channel_height = in_channel.n_rows;
+    for (uint32_t w = 0; w < in_channel_width; ++w) {
+      float* output_channel_ptr =
+          const_cast<float*>(output_channel.colptr(w + pad_cols1));
+      const float* in_channel_ptr = in_channel.colptr(w);
+      for (uint32_t h = 0; h < in_channel_height; ++h) {
+        const float value = *(in_channel_ptr + h);
+        *(output_channel_ptr + h + pad_rows1) = value;
+      }
+    }
+  }
+  return output;
+}
+
 std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
                                                const sftensor& s2) {
   CHECK(s1 != nullptr && s2 != nullptr);
