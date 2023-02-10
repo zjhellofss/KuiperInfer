@@ -81,7 +81,7 @@
     * parser/ 是Pnnx表达式的解析类
     * runtime/ 是计算图结构，解析和运行时相关
 2. test是单元测试目录，由于是个人项目，不能做到单元测试全覆盖。
-3. bench是google benchmark, 包含对MobilenetV3和Resnet18的性能测试。
+3. bench是google benchmark测试框架, 包含对MobilenetV3和Resnet18的性能测试。
 
 
 
