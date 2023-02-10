@@ -7,8 +7,8 @@ const static int kIterationNum = 5;
 
 static void BM_Yolov5nano_Batch4_320x320(benchmark::State &state) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/yolo/demo/yolov5n_batch4.pnnx.param",
-                     "tmp/yolo/demo/yolov5n_batch4.pnnx.bin");
+  RuntimeGraph graph("tmp/yolo/demo/yolov5n_small.pnnx.param",
+                     "tmp/yolo/demo/yolov5n_small.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   const uint32_t batch_size = 4;
