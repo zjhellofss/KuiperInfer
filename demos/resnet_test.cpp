@@ -109,7 +109,6 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < outputs_softmax.size(); ++i) {
     const sftensor &output_tensor = outputs_softmax.at(i);
-    LOG(INFO) << output_tensor;
     assert(output_tensor->size() == 1 * 1000);
     // 找到类别概率最大的种类
     float max_prob = -1;

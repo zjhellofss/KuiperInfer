@@ -206,7 +206,7 @@ void Tensor<float>::Rand() {
 
 void Tensor<float>::Ones() {
   CHECK(!this->data_.empty());
-  this->data_.fill(1.);
+  this->Fill(1.f);
 }
 
 void Tensor<float>::Transform(const std::function<float(float)>& filter) {
@@ -451,6 +451,7 @@ std::shared_ptr<Tensor<float>> TensorPadding(
     arma::fmat& output_channel = output->at(channel);
     const uint32_t in_channel_width = in_channel.n_cols;
     const uint32_t in_channel_height = in_channel.n_rows;
+
     for (uint32_t w = 0; w < in_channel_width; ++w) {
       float* output_channel_ptr =
           const_cast<float*>(output_channel.colptr(w + pad_cols1));

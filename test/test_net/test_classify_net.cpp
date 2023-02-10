@@ -23,7 +23,7 @@ TEST(test_net, forward_resnet18) {
     std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
     ASSERT_EQ(outputs.size(), 1);
 
-    const auto &output2 = CSVDataLoader::LoadData("tmp/resnet/23.csv");
+    const auto &output2 = CSVDataLoader::LoadData("tmp/resnet/1.csv");
     const auto &output1 = outputs.front()->data().slice(0);
     ASSERT_EQ(output1.size(), output2.size());
     for (uint32_t s = 0; s < output1.size(); ++s) {

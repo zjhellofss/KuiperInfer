@@ -8,8 +8,8 @@
 
 TEST(test_net, forward_yolo1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/yolo/yolov5n_small.pnnx.param",
-                     "tmp/yolo/yolov5n_small.pnnx.bin");
+  RuntimeGraph graph("tmp/yolo/demo/yolov5n_batch4.pnnx.param",
+                     "tmp/yolo/demo/yolov5n_batch4.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   const uint32_t batch_size = 4;
@@ -37,8 +37,8 @@ TEST(test_net, forward_yolo1) {
 
 TEST(test_net, forward_yolo2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/yolo/yolov5n_small.pnnx.param",
-                     "tmp/yolo/yolov5n_small.pnnx.bin");
+  RuntimeGraph graph("tmp/yolo/demo/yolov5n_batch4.pnnx.param",
+                     "tmp/yolo/demo/yolov5n_batch4.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
   const uint32_t batch_size = 4;
