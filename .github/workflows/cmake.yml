@@ -31,7 +31,7 @@ jobs:
           submodules: 'true'
 
       - name: Configure CMake
-        run: echo ${{github.workspace}} && cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        run: echo ${{github.workspace}} && cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DDEVELOPMENT=ON
 
       - name: Build
         run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} -- -j 3
