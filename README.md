@@ -9,6 +9,9 @@
 ![](./imgs/logo.jpg)
 
 ## 项目贡献者
+
+**如何参与项目的贡献？提交代码增加新功能或修改bug；提出有用的建议；完善文档或增加单元测试。**
+
 - [zjhellofss](https://github.com/zjhellofss)
 
 - [liuxubit](https://github.com/liuxubit)
@@ -17,7 +20,7 @@
 - [wfs2010](https://github.com/wfs2010)
 ## 课程计划
 
-我在b站上开了一门教学课程，目前是课程的第一季，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注。
+我在b站上开了一门教学课程，目前是课程的前八次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。
 
 | 课程节数    | 主要内容                   | 进度 | 课程链接                                         |
 |---------|------------------------|----|----------------------------------------------|
@@ -28,79 +31,102 @@
 | 第五次课    | Im2col的原理和卷积算子的实现      | 完成 |      https://www.bilibili.com/video/BV1F841137Ct                                        |
 | 第六次课    | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
 | 第七次课    | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课    | 读取PNNX并构建自己的计算图        | 未完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
-| 第二季课程待叙 | ...                    | ... |                                              |
-
-先列前八次(第一季)的课程，课程目录可能会发生变化。
-后续课程会在第八次课程讲完后发布。
+| 第八次课    | 读取PNNX并构建自己的计算图        | 完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
+| 未完待续 | ......                 | ...... | ...... |
 
 ## 使用的技术和开发环境
 * 开发语言：C++ 17
-* 数学库：Armadillo+OpenBlas(或者更快的Intel MKL)
+* 数学库：Armadillo + OpenBlas(或者更快的Intel MKL)
 * 加速库：OpenMP
-* 单元测试：GTest
+* 单元测试：Google Test
 * 性能测试：Google Benchmark
 
-## 安装过程(已提供docker环境)
+## 安装过程(使用Docker)
 1. docker pull registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest
 2. sudo docker run -t -i registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest /bin/bash
-3. cd code
-4. cd KuiperInfer
-5. git pull (可选的命令)
+3. cd code 
+4. git clone  https://github.com/zjhellofss/KuiperInfer.git 
 5. mkdir build
 6. cd build
-6. cmake ..
-7. make -j16
+7. cmake ..
+8. make -j16
+
+**Tips:**
+
+1. **如果需要对KuiperInfer进行开发**，请使用 git clone  --recursive https://github.com/zjhellofss/KuiperInfer.git 同时下载子文件夹tmp, 并在cmake文件中打开`$DEVELOPMENT`
+2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git
+3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
+
+### 如何运行Yolov5的推理
+
+请在demos文件夹下的yolo_test.cpp文件夹中以下代码进行修改
+
+```cpp
+const std::string& image_path = "imgs/car.jpg";
+const std::string& param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
+const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
+```
+
+`image_path`指定图像目录，`param_path`为模型的参数文件，`weight_path`为模型的权重文件，请替换为自己本地的路径。
+
+下载地址如下： https://cowtransfer.com/s/9bc43e0905cb40 
+
 ## 效果图
 ![](https://i.imgur.com/JkZ9KiE.jpg)
 
 ## 已经支持的算子
-**总体秉承算子用到再开发的理念；**
-**对已经实现的算子不做过度设计，用到再进行匹配**
+**总体理念：逐步优化已经有的算子；有需要的时候再对未实现的算子进行开发**
 
-1. Convolution 
-2. AdaptivePooling 
-3. MaxPooling 
-4. Expression(抽象语法树)
-5. Flatten, View(只支持HW维度展平和变形,其他维度用到再开发)
-6. Sigmoid 
-7. HardSigmoid 
-8. HardSwish 
-9. ReLU
-10. Linear(矩阵相乘，只支持二维Tensor相乘，其他维度用到再开发)
-11. Softmax 
-12. BatchNorm
-13. Upsample
-14. SiLU
-15. Concat
+- Convolution 
+- AdaptivePooling 
+- MaxPooling 
+- Expression(抽象语法树)
+- Flatten, View(维度展平和变形)
+- Sigmoid 
+- HardSigmoid 
+- HardSwish 
+- ReLU
+- Linear(矩阵相乘)
+- Softmax 
+- BatchNorm
+- Upsample
+- SiLU
+- Concat
 
 ## 目录
-1. source是源码目录
-    * data/ 是张量类Tensor的实现和Tensor初始化方法
-    * layer/ 是算子的实现
-    * parser/ 是Pnnx表达式的解析类
-    * runtime/ 是计算图结构，解析和运行时相关
-2. test是单元测试目录，由于是个人项目，不能做到单元测试全覆盖。
-3. bench是google benchmark, 包含对MobilenetV3和Resnet18的性能测试。
+source是源码目录
 
+1. **data/** 是张量类Tensor的实现和Tensor初始化方法
+2. **layer/** 是算子的实现
+3. **parser/** 是Pnnx表达式的解析类
+4. **runtime/** 是计算图结构，解析和运行时相关
 
+**test**是单元测试目录，基本做到public方法单元测试权覆盖
 
-
+**bench**是google benchmark, 包含对MobilenetV3, Resnet18和yolov5s的性能测试。
 
 ## 性能
 ### 测试环境
-Ubuntu 22.04, Intel(R) Core(TM) i7-11800H @ 2.30GHz, 32G Memory
-### 模型运行速度
+#### 测试设备
 
-|  Benchmark  | Batch Size | Time   | Image Size |
-|  ----  |------------|--------|------------|
-| BM_MobilenetV3_Batch8_224x224  | 8          | 0.081s | 224 × 224  |
-| BM_Resnet18_Batch8_224x224  | 8          | 0.645s | 224 × 224  |
-| BM_Resnet18_Batch16_224x224   | 16         | 1.569s | 224 × 224  |
-| BM_Yolov5nano_Batch4_320x320  | 8          | 0.155s | 320 × 320  |
-| BM_Yolov5s_Batch4_640x640   | 4          | 2.045s | 640× 640   |
-| BM_Yolov5s_Batch8_640x640   | 8          | 4.740s | 640× 640   |
+15 核心的AMD EPYC 7543(霄龙) 32-Core Processor (Docker 容器，宿主机共有32核心)
+
+#### 编译环境：
+
+gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+
+### 性能结果
+
+| **input size**        | **模型名称**     | **计算设备**              | **耗时**         |
+| --------------------- | ---------------- | ------------------------- | ---------------- |
+| 224×224 batch = 8     | MobileNetV3Small | CPU(armadillo + openblas) | 9.34ms / image   |
+| 224×224 batch = 8     | ResNet18         | CPU(armadillo + openblas) | 24.88ms / image  |
+| 224×224 batch =16     | ResNet18         | CPU(armadillo + openblas) | 20.38ms / image  |
+| 320×320 batch = 8     | Yolov5nano       | CPU(armadillo + openblas) | 32.42ms / image  |
+| **640×640** batch = 8 | **Yolov5s**      | CPU(armadillo + openblas) | 318.15ms / image |
+
 ## 致谢
+
 推理框架NCNN，已经在借鉴的代码中保留了NCNN的BSD协议 https://github.com/Tencent/ncnn
 
 优秀的数学库Openblas: https://github.com/xianyi/OpenBLAS

@@ -19,7 +19,7 @@ if (MSVC)
     endif ()
 endif ()
 #option(USE_CUDA "Support Cuda Backend")
-option(BUILD_DEMO "Build THE DEMO PROJECT")
+option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 
 #if (!MSVC)
 #    set(USE_CUDA ON)
