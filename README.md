@@ -53,8 +53,8 @@
 
 **Tips:**
 
-1. **如果需要对KuiperInfer进行开发**，请使用 git clone  --recursive https://github.com/zjhellofss/KuiperInfer.git 同时下载子文件夹tmp, 并在cmake文件中打开`$DEVELOPMENT`
-2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git
+1. **如果需要对KuiperInfer进行开发**，请使用 git clone  --recursive https://github.com/zjhellofss/KuiperInfer.git 同时下载子文件夹tmp, 并在cmake文件中打开`$DEVELOPMENT`或者指定`-DDEVELOPMENT=ON`
+2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git 
 3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
 
 ### 如何运行Yolov5的推理
@@ -67,9 +67,11 @@ const std::string& param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
 const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 ```
 
-`image_path`指定图像目录，`param_path`为模型的参数文件，`weight_path`为模型的权重文件，请替换为自己本地的路径。
+- `image_path`指定图像目录，`param_path`为模型的参数文件，`weight_path`为模型的权重文件，请替换为自己本地的路径。
 
-下载地址如下： https://cowtransfer.com/s/9bc43e0905cb40 
+- 模型定义和权重下载地址如下： https://cowtransfer.com/s/9bc43e0905cb40 
+
+- 编译完成后，在项目目录调用 `./build/demos/yolo_test`
 
 ## 效果图
 ![](https://i.imgur.com/JkZ9KiE.jpg)
