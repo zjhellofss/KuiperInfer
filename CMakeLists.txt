@@ -27,7 +27,7 @@ option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 set(BUILD_DEMO ON)
 
 if (BUILD_DEMO)
-    MESSAGE(STATUS "Build DEMO PROJECT")
+    MESSAGE(STATUS "BUILD DEMO PROJECT")
     add_subdirectory(demos)
 endif ()
 

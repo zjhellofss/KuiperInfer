@@ -45,7 +45,6 @@ TEST(test_load, load_csv_missing_data1) {
   ASSERT_EQ(data.n_rows, 3);
   ASSERT_EQ(data.n_cols, 11);
   int data_one = 0;
-
   const uint32_t rows = data.n_rows;
   const uint32_t cols = data.n_cols;
   for (uint32_t i = 0; i < rows; ++i) {
@@ -55,7 +54,7 @@ TEST(test_load, load_csv_missing_data1) {
       }
     }
   }
-
+  ASSERT_EQ(data.at(2, 1), 0);
   ASSERT_EQ(data_one, 32);
 }
 
@@ -80,6 +79,7 @@ TEST(test_load, load_csv_missing_data2) {
       }
     }
   }
+  ASSERT_EQ(data.at(2, 10), 0);
   ASSERT_EQ(data_zero, 1);
   ASSERT_EQ(data_one, 32);
 }

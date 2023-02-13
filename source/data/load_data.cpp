@@ -20,6 +20,7 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   std::ifstream in(file_path);
   if (!in.is_open() || !in.good()) {
     LOG(ERROR) << "File open failed: " << file_path;
+    return data;
   }
 
   std::string line_str;
@@ -46,8 +47,7 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
         data.at(row, col) = std::stof(token);
       }
       catch (std::exception &e) {
-        DLOG(ERROR) << "Parse CSV File meet error: " << e.what();
-        continue;
+        DLOG(ERROR) << "Parse CSV File meet error: " << e.what() << " row:" << row << " col:" << col;
       }
       col += 1;
       CHECK(col <= cols) << "There are excessive elements on the column";
