@@ -57,7 +57,19 @@
 2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git 
 3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
 
-### 如何运行Yolov5的推理
+##  安装过程(不使用docker)
+1. 安装必要环境(openblas推荐编译安装，可以获得更快的运行速度，或者使用apt install intel-mkl替代openblas)
+```shell
+ apt install cmake, openblas-devel, lapack-devel, arpack-devel, SuperLU-devel
+```
+2. 下载并编译armadillo https://arma.sourceforge.net/download.html
+3. 编译安装glog\google test\google benchmark
+
+**Tips:**
+1. google benchmark编译过程中，如果遇到关于gtest缺失的报错，可以在google benchmark的cmake中关闭gtest选项
+2. 余下步骤和上述一致
+
+## 如何运行Yolov5的推理
 
 请在demos文件夹下的yolo_test.cpp文件夹中以下代码进行修改
 
@@ -73,7 +85,7 @@ const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 
 - 编译完成后，在项目目录调用 `./build/demos/yolo_test`
 
-## 效果图
+### 效果图
 ![](https://i.imgur.com/JkZ9KiE.jpg)
 
 ## 已经支持的算子
@@ -107,7 +119,7 @@ source是源码目录
 
 **bench**是google benchmark, 包含对MobilenetV3, Resnet18和yolov5s的性能测试。
 
-## 性能
+## 性能测试
 ### 测试环境
 #### 测试设备
 
