@@ -82,18 +82,6 @@ InferStatus LinearLayer::Forward(
 
     arma::fmat col_vec(input->data().memptr(), in_features_, input_dim);
 
-    arma::fmat result = (weight_data * col_vec);
-    if (use_bias_) {
-      CHECK(!this->bias_.empty() && this->bias_.size() == 1);
-      const auto &bias_cube = this->bias_.front();
-      CHECK(!bias_cube->empty());
-
-      const auto &bias_data = bias_cube->data();
-      CHECK(bias_data.n_slices == 1);
-      CHECK(bias_data.n_rows == out_features_);
-      result += bias_data.slice(0);
-    }
-
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, out_features_, input_dim);
@@ -105,7 +93,19 @@ InferStatus LinearLayer::Forward(
     CHECK(output_raw_shapes.size() == 2);
     CHECK(output_raw_shapes.at(0) == out_features_ &&
         output_raw_shapes.at(1) == input_dim);
-    output->at(0) = std::move(result);
+
+    arma::fmat &result = output->at(0);
+    result = weight_data * col_vec;
+    if (use_bias_) {
+      CHECK(!this->bias_.empty() && this->bias_.size() == 1);
+      const auto &bias_cube = this->bias_.front();
+      CHECK(!bias_cube->empty());
+
+      const auto &bias_data = bias_cube->data();
+      CHECK(bias_data.n_slices == 1);
+      CHECK(bias_data.n_rows == out_features_);
+      result += bias_data.slice(0);
+    }
   }
   return InferStatus::kInferSuccess;
 }

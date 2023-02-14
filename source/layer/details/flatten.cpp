@@ -58,8 +58,9 @@ InferStatus FlattenLayer::Forward(
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = input->Clone();
+      outputs.at(i) = output;
     } else {
-      CHECK(output->size() == input->size());
+      CHECK(outputs.at(i)->shapes() == output->shapes());
       memcpy(output->data().memptr(), input->data().memptr(), sizeof(float) * input->size());
     }
     if (start_dim == 0 && end_dim == 2) {
@@ -74,10 +75,6 @@ InferStatus FlattenLayer::Forward(
       LOG(FATAL) << "Wrong flatten dim: "
                  << "start dim: " << start_dim << " end dim: " << end_dim;
     }
-
-    if (outputs.at(i) != nullptr)
-      CHECK(outputs.at(i)->shapes() == output->shapes());
-    outputs.at(i) = output;
   }
   return InferStatus::kInferSuccess;
 }
