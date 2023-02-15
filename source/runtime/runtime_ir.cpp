@@ -352,10 +352,15 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       ProbeNextLayer(current_op, operator_queue, layer_output_datas);
     } else {
       std::string current_op_name = current_op->name;
-      bool has_ready = CheckOperatorReady(current_op);
-      if (!has_ready) {
-        operator_queue.push_back(current_op);
-        continue;
+      if (!CheckOperatorReady(current_op)) {
+        if (operator_queue.empty()) {
+          // 当current op是最后一个节点的时候，说明它已经不能被ready
+          LOG(FATAL) << "Current operator is not ready!";
+          break;
+        } else {
+          // 如果不是最后一个节点，它还有被ready的可能性
+          operator_queue.push_back(current_op);
+        }
       }
 
       const std::vector<std::shared_ptr<RuntimeOperand>> &input_operand_datas =
@@ -612,21 +617,19 @@ void RuntimeGraph::ProbeNextLayer(
   for (const auto &next_op : next_ops) {
     const auto &next_rt_operator = next_op.second;
     const auto &next_input_operands = next_rt_operator->input_operands;
-
+    // 找到后继节点
     if (next_input_operands.find(current_op->name) !=
         next_input_operands.end()) {
       std::vector<std::shared_ptr<ftensor>> next_input_datas =
           next_input_operands.at(current_op->name)->datas;
       next_input_datas_arr.push_back(next_input_datas);
+      next_rt_operator->meet_num += 1;
       if (std::find(operator_queue.begin(), operator_queue.end(),
                     next_rt_operator) == operator_queue.end()) {
-        next_rt_operator->meet_num += 1;
         if (CheckOperatorReady(next_rt_operator)) {
           operator_queue.push_back(next_rt_operator);
         }
-        next_rt_operator->meet_num -= 1;
       }
-      next_rt_operator->meet_num += 1;
     }
   }
   SetOpInputData(layer_output_datas, next_input_datas_arr);

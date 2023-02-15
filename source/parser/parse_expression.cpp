@@ -34,9 +34,9 @@ void ExpressionParser::Tokenizer(bool need_retoken) {
     char c = statement_.at(i);
     if (c == 'a') {
       CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'd')
-              << "Parse add token failed, illegal character: " << c;
+              << "Parse add token failed, illegal character: " << statement_.at(i + 1);
       CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'd')
-              << "Parse add token failed, illegal character: " << c;
+              << "Parse add token failed, illegal character: " << statement_.at(i + 2);
       Token token(TokenType::TokenAdd, i, i + 3);
       tokens_.push_back(token);
       std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
@@ -44,9 +44,9 @@ void ExpressionParser::Tokenizer(bool need_retoken) {
       i = i + 3;
     } else if (c == 'm') {
       CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'u')
-              << "Parse add token failed, illegal character: " << c;
+              << "Parse add token failed, illegal character: " << statement_.at(i + 1);
       CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'l')
-              << "Parse add token failed, illegal character: " << c;
+              << "Parse add token failed, illegal character: " << statement_.at(i + 2);
       Token token(TokenType::TokenMul, i, i + 3);
       tokens_.push_back(token);
       std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
@@ -54,7 +54,7 @@ void ExpressionParser::Tokenizer(bool need_retoken) {
       i = i + 3;
     } else if (c == '@') {
       CHECK(i + 1 < statement_.size() && std::isdigit(statement_.at(i + 1)))
-              << "Parse number token failed, illegal character: " << c;
+              << "Parse number token failed, illegal character: " << statement_.at(i + 1);
       int32_t j = i + 1;
       for (; j < statement_.size(); ++j) {
         if (!std::isdigit(statement_.at(j))) {
