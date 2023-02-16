@@ -19,16 +19,15 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     return InferStatus::kInferFailedInputEmpty;
   }
 
-  CHECK(this->parser_ != nullptr);
-  this->parser_->Tokenizer(false);
-  const auto &expressions = this->parser_->tokens();
-  CHECK(!expressions.empty());
-  const auto &expression = expressions.front();
-
   if (outputs.empty()) {
     LOG(ERROR) << "Output and input size of the expression layer is not adapting";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
+
+  CHECK(this->parser_ != nullptr) << "The parser in the expression layer is null!";
+  this->parser_->Tokenizer(false);
+  const auto &expressions = this->parser_->tokens();
+  CHECK(!expressions.empty()) << "The expression in the expression layer tokenize failed!";
 
   for (uint32_t i = 0; i < inputs.size(); ++i) {
     const sftensor &input_data = inputs.at(i);
@@ -41,7 +40,7 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   const uint32_t batch_size = outputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
-      LOG(ERROR) << "Output of the expression layer is empty";
+      LOG(ERROR) << "The output of the expression layer is empty";
       return InferStatus::kInferFailedInputOutSizeAdaptingError;
     }
     outputs.at(i)->Fill(0.f);
@@ -76,9 +75,9 @@ InferStatus ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 #pragma omp parallel for num_threads(batch_size)
       for (uint32_t i = 0; i < batch_size; ++i) {
         // do execution
-        if (op == -int(TokenType::TokenAdd)) {
+        if (op == int(TokenType::TokenAdd)) {
           output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
-        } else if (op == -int(TokenType::TokenMul)) {
+        } else if (op == int(TokenType::TokenMul)) {
           output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         } else {
           LOG(FATAL) << "Unknown operator type: " << op;

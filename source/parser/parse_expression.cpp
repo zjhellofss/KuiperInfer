@@ -19,8 +19,8 @@ void ReversePolish(const std::shared_ptr<TokenNode> &root_node,
   }
 }
 
-void ExpressionParser::Tokenizer(bool need_retoken) {
-  if (!need_retoken && !this->tokens_.empty()) {
+void ExpressionParser::Tokenizer(bool re_tokenize) {
+  if (!re_tokenize && !this->tokens_.empty()) {
     return;
   }
 
@@ -107,22 +107,21 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
   if (current_token.token_type == TokenType::TokenInputNumber) {
     uint32_t start_pos = current_token.start_pos + 1;
     uint32_t end_pos = current_token.end_pos;
-    CHECK(end_pos > start_pos);
-    CHECK(end_pos <= this->statement_.length());
+    CHECK(end_pos > start_pos || end_pos <= this->statement_.length()) << "Current token has a wrong length";
     const std::string &str_number =
         std::string(this->statement_.begin() + start_pos, this->statement_.begin() + end_pos);
     return std::make_shared<TokenNode>(std::stoi(str_number), nullptr, nullptr);
 
   } else if (current_token.token_type == TokenType::TokenMul || current_token.token_type == TokenType::TokenAdd) {
     std::shared_ptr<TokenNode> current_node = std::make_shared<TokenNode>();
-    current_node->num_index = -int(current_token.token_type);
+    current_node->num_index = int(current_token.token_type);
 
     index += 1;
-    CHECK(index < this->tokens_.size());
+    CHECK(index < this->tokens_.size()) << "Missing left bracket!";
     CHECK(this->tokens_.at(index).token_type == TokenType::TokenLeftBracket);
 
     index += 1;
-    CHECK(index < this->tokens_.size());
+    CHECK(index < this->tokens_.size()) << "Missing correspond left token!";
     const auto left_token = this->tokens_.at(index);
 
     if (left_token.token_type == TokenType::TokenInputNumber
@@ -133,11 +132,11 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
     }
 
     index += 1;
-    CHECK(index < this->tokens_.size());
+    CHECK(index < this->tokens_.size()) << "Missing comma!";
     CHECK(this->tokens_.at(index).token_type == TokenType::TokenComma);
 
     index += 1;
-    CHECK(index < this->tokens_.size());
+    CHECK(index < this->tokens_.size()) << "Missing correspond right token!";
     const auto right_token = this->tokens_.at(index);
     if (right_token.token_type == TokenType::TokenInputNumber
         || right_token.token_type == TokenType::TokenAdd || right_token.token_type == TokenType::TokenMul) {
@@ -147,7 +146,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
     }
 
     index += 1;
-    CHECK(index < this->tokens_.size());
+    CHECK(index < this->tokens_.size()) << "Missing right bracket!";
     CHECK(this->tokens_.at(index).token_type == TokenType::TokenRightBracket);
     return current_node;
   } else {

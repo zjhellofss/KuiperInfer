@@ -380,31 +380,67 @@ TEST(test_parser, tokenizer) {
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
+  ASSERT_EQ(tokens.at(0).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(1), "(");
+  ASSERT_EQ(tokens.at(1).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(2), "add");
+  ASSERT_EQ(tokens.at(2).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(3), "(");
+  ASSERT_EQ(tokens.at(3).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(4), "add");
+  ASSERT_EQ(tokens.at(4).token_type, TokenType::TokenAdd);
 
   ASSERT_EQ(token_strs.at(5), "(");
+  ASSERT_EQ(tokens.at(5).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(6), "@0");
+  ASSERT_EQ(tokens.at(6).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(7), ",");
+  ASSERT_EQ(tokens.at(7).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(8), "@1");
+  ASSERT_EQ(tokens.at(8).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(9), ")");
+  ASSERT_EQ(tokens.at(9).token_type, TokenType::TokenRightBracket);
 
   ASSERT_EQ(token_strs.at(10), ",");
+  ASSERT_EQ(tokens.at(10).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(11), "@1");
+  ASSERT_EQ(tokens.at(11).token_type, TokenType::TokenInputNumber);
 
   ASSERT_EQ(token_strs.at(12), ")");
+  ASSERT_EQ(tokens.at(12).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(13), ",");
+  ASSERT_EQ(tokens.at(13).token_type, TokenType::TokenComma);
 
   ASSERT_EQ(token_strs.at(14), "add");
+  ASSERT_EQ(tokens.at(14).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(15), "(");
+  ASSERT_EQ(tokens.at(15).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(16), "@0");
+  ASSERT_EQ(tokens.at(16).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(17), ",");
+  ASSERT_EQ(tokens.at(17).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(18), "@2");
+  ASSERT_EQ(tokens.at(18).token_type, TokenType::TokenInputNumber);
 
   ASSERT_EQ(token_strs.at(19), ")");
+  ASSERT_EQ(tokens.at(19).token_type, TokenType::TokenRightBracket);
   ASSERT_EQ(token_strs.at(20), ")");
+  ASSERT_EQ(tokens.at(20).token_type, TokenType::TokenRightBracket);
+
 }
 
 TEST(test_parser, tokenizer2) {
@@ -419,35 +455,82 @@ TEST(test_parser, tokenizer2) {
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
+  ASSERT_EQ(tokens.at(0).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(1), "(");
+  ASSERT_EQ(tokens.at(1).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(2), "add");
+  ASSERT_EQ(tokens.at(2).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(3), "(");
+  ASSERT_EQ(tokens.at(3).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(4), "add");
+  ASSERT_EQ(tokens.at(4).token_type, TokenType::TokenAdd);
 
   ASSERT_EQ(token_strs.at(5), "(");
+  ASSERT_EQ(tokens.at(5).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(6), "@0");
+  ASSERT_EQ(tokens.at(6).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(7), ",");
+  ASSERT_EQ(tokens.at(7).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(8), "@1");
+  ASSERT_EQ(tokens.at(8).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(9), ")");
+  ASSERT_EQ(tokens.at(9).token_type, TokenType::TokenRightBracket);
 
   ASSERT_EQ(token_strs.at(10), ",");
+  ASSERT_EQ(tokens.at(10).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(11), "@1");
+  ASSERT_EQ(tokens.at(11).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(12), ")");
+  ASSERT_EQ(tokens.at(12).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(13), ",");
+  ASSERT_EQ(tokens.at(13).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(14), "add");
+  ASSERT_EQ(tokens.at(14).token_type, TokenType::TokenAdd);
 
   ASSERT_EQ(token_strs.at(15), "(");
+  ASSERT_EQ(tokens.at(15).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(16), "@0");
+  ASSERT_EQ(tokens.at(16).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(17), ",");
+  ASSERT_EQ(tokens.at(17).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(18), "add");
+  ASSERT_EQ(tokens.at(18).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(19), "(");
+  ASSERT_EQ(tokens.at(19).token_type, TokenType::TokenLeftBracket);
 
   ASSERT_EQ(token_strs.at(20), "@1");
+  ASSERT_EQ(tokens.at(20).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(21), ",");
+  ASSERT_EQ(tokens.at(21).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(22), "@1");
+  ASSERT_EQ(tokens.at(22).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(23), ")");
+  ASSERT_EQ(tokens.at(23).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(24), ")");
+  ASSERT_EQ(tokens.at(24).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(25), ")");
+  ASSERT_EQ(tokens.at(25).token_type, TokenType::TokenRightBracket);
 }
 
 TEST(test_parser, tokenizer3) {
@@ -460,21 +543,112 @@ TEST(test_parser, tokenizer3) {
 
   const auto &token_strs = parser.token_strs();
   ASSERT_EQ(token_strs.at(0), "add");
+  ASSERT_EQ(tokens.at(0).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(1), "(");
+  ASSERT_EQ(tokens.at(1).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(2), "add");
+  ASSERT_EQ(tokens.at(2).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(3), "(");
+  ASSERT_EQ(tokens.at(3).token_type, TokenType::TokenLeftBracket);
+
   ASSERT_EQ(token_strs.at(4), "add");
+  ASSERT_EQ(tokens.at(4).token_type, TokenType::TokenAdd);
+
   ASSERT_EQ(token_strs.at(5), "(");
+  ASSERT_EQ(tokens.at(5).token_type, TokenType::TokenLeftBracket);
 
   ASSERT_EQ(token_strs.at(6), "@0");
+  ASSERT_EQ(tokens.at(6).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(7), ",");
+  ASSERT_EQ(tokens.at(7).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(8), "@1");
+  ASSERT_EQ(tokens.at(8).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(9), ")");
+  ASSERT_EQ(tokens.at(9).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(10), ",");
+  ASSERT_EQ(tokens.at(10).token_type, TokenType::TokenComma);
 
   ASSERT_EQ(token_strs.at(11), "@2");
+  ASSERT_EQ(tokens.at(11).token_type, TokenType::TokenInputNumber);
+
   ASSERT_EQ(token_strs.at(12), ")");
+  ASSERT_EQ(tokens.at(12).token_type, TokenType::TokenRightBracket);
+
   ASSERT_EQ(token_strs.at(13), ",");
+  ASSERT_EQ(tokens.at(13).token_type, TokenType::TokenComma);
+
   ASSERT_EQ(token_strs.at(14), "mul");
+  ASSERT_EQ(tokens.at(14).token_type, TokenType::TokenMul);
+
   ASSERT_EQ(token_strs.at(15), "(");
+  ASSERT_EQ(tokens.at(15).token_type, TokenType::TokenLeftBracket);
+
+}
+
+TEST(test_parser, generate1) {
+  using namespace kuiper_infer;
+  const std::string &str = "add(@0,@1)";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &nodes = parser.Generate();
+  ASSERT_EQ(nodes.size(), 3);
+  ASSERT_EQ(nodes.at(0)->num_index, 0);
+  ASSERT_EQ(nodes.at(1)->num_index, 1);
+  ASSERT_EQ(nodes.at(2)->num_index, int(TokenType::TokenAdd));
+}
+
+TEST(test_parser, generate2) {
+  using namespace kuiper_infer;
+  const std::string &str = "add(@0,add(@1,@2))";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &nodes = parser.Generate();
+  ASSERT_EQ(nodes.size(), 5);
+  ASSERT_EQ(nodes.at(0)->num_index, 0);
+  ASSERT_EQ(nodes.at(1)->num_index, 1);
+  ASSERT_EQ(nodes.at(2)->num_index, 2);
+
+  ASSERT_EQ(nodes.at(3)->num_index, int(TokenType::TokenAdd));
+  ASSERT_EQ(nodes.at(4)->num_index, int(TokenType::TokenAdd));
+
+}
+
+TEST(test_parser, generate3) {
+  using namespace kuiper_infer;
+  const std::string &str = "add(@0,add(@1,add(@3,@4)))";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &nodes = parser.Generate();
+  ASSERT_EQ(nodes.size(), 5);
+  ASSERT_EQ(nodes.at(0)->num_index, 0);
+  ASSERT_EQ(nodes.at(1)->num_index, 1);
+  ASSERT_EQ(nodes.at(2)->num_index, 2);
+
+  ASSERT_EQ(nodes.at(3)->num_index, int(TokenType::TokenAdd));
+  ASSERT_EQ(nodes.at(4)->num_index, int(TokenType::TokenAdd));
+}
+
+TEST(test_parser, generate4) {
+  using namespace kuiper_infer;
+  const std::string &str = "add(@0,add(@1,add(@3,mul(@4,@5))))";
+  ExpressionParser parser(str);
+  parser.Tokenizer();
+  const auto &nodes = parser.Generate();
+  ASSERT_EQ(nodes.size(), 9);
+  ASSERT_EQ(nodes.at(0)->num_index, 0);
+  ASSERT_EQ(nodes.at(1)->num_index, 1);
+  ASSERT_EQ(nodes.at(2)->num_index, 3);
+  ASSERT_EQ(nodes.at(3)->num_index, 4);
+  ASSERT_EQ(nodes.at(4)->num_index, 5);
+  ASSERT_EQ(nodes.at(5)->num_index, -5);
+  ASSERT_EQ(nodes.at(6)->num_index, -6);
+  ASSERT_EQ(nodes.at(7)->num_index, -6);
+  ASSERT_EQ(nodes.at(8)->num_index, -6);
 }
