@@ -626,13 +626,16 @@ TEST(test_parser, generate3) {
   ExpressionParser parser(str);
   parser.Tokenizer();
   const auto &nodes = parser.Generate();
-  ASSERT_EQ(nodes.size(), 5);
+  ASSERT_EQ(nodes.size(),7);
   ASSERT_EQ(nodes.at(0)->num_index, 0);
   ASSERT_EQ(nodes.at(1)->num_index, 1);
-  ASSERT_EQ(nodes.at(2)->num_index, 2);
+  ASSERT_EQ(nodes.at(2)->num_index, 3);
 
-  ASSERT_EQ(nodes.at(3)->num_index, int(TokenType::TokenAdd));
+  ASSERT_EQ(nodes.at(3)->num_index, 4);
   ASSERT_EQ(nodes.at(4)->num_index, int(TokenType::TokenAdd));
+  ASSERT_EQ(nodes.at(5)->num_index, int(TokenType::TokenAdd));
+  ASSERT_EQ(nodes.at(6)->num_index, int(TokenType::TokenAdd));
+
 }
 
 TEST(test_parser, generate4) {
