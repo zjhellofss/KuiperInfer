@@ -48,12 +48,12 @@
 4. git clone  https://github.com/zjhellofss/KuiperInfer.git 
 5. mkdir build
 6. cd build
-7. cmake ..
+7. cmake -DCMAKE_BUILD_TYPE=Release -DDEVELOPMENT=OFF ..
 8. make -j16
 
 **Tips:**
 
-1. **如果需要对KuiperInfer进行开发**，请使用 git clone  --recursive https://github.com/zjhellofss/KuiperInfer.git 同时下载子文件夹tmp, 并在cmake文件中打开`$DEVELOPMENT`或者指定`-DDEVELOPMENT=ON`
+1. **如果需要对KuiperInfer进行开发**，请使用 git clone  --recursive https://github.com/zjhellofss/KuiperInfer.git 同时下载子文件夹tmp, 并在cmake文件中设置`$DEVELOPMENT`或者指定`-DDEVELOPMENT=ON`
 2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git 
 3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
 
