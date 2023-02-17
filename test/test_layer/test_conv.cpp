@@ -64,19 +64,10 @@ InferStatus Convolution(const std::vector<std::shared_ptr<Tensor<float>>> &input
         const arma::fmat &kernel_channel = kernel->at(ic);
 
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
-          auto *output_channel_ptr = output_channel.colptr(int(c / stride_h_));
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-            float acc_value = 0.;
-            auto *kernel_ptr = const_cast<float *>(kernel_channel.memptr());
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              auto *region_ptr_col = input_channel.colptr(kw + c) + r;
-              for (uint32_t kh = 0; kh < kernel_h; ++kh) {
-                auto *region_ptr = region_ptr_col + kh;
-                acc_value += *(region_ptr) * (*kernel_ptr);
-                kernel_ptr += 1;
-              }
-            }
-            *(output_channel_ptr + int(r / stride_h_)) += acc_value;
+            const arma::fmat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
+            const float sum_value = arma::accu(region % kernel_channel);
+            output_channel.at(int(r / stride_h_), int(c / stride_w_)) += sum_value;
           }
         }
       }
@@ -108,7 +99,6 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
     kernel->Rand();
     weights.push_back(kernel);
-    sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
   ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1, false);
@@ -317,10 +307,10 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
     inputs.at(i)->Rand();
   }
-  const uint32_t kernel_h = 5;
-  const uint32_t kernel_w = 5;
-  const uint32_t stride_h = 13;
-  const uint32_t stride_w = 13;
+  const uint32_t kernel_h = 13;
+  const uint32_t kernel_w = 13;
+  const uint32_t stride_h = 7;
+  const uint32_t stride_w = 7;
   const uint32_t kernel_count = 8;
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
