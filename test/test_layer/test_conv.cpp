@@ -109,7 +109,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -146,7 +146,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -183,7 +183,7 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -219,7 +219,7 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -255,7 +255,7 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -291,7 +291,7 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
