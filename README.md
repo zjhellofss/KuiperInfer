@@ -131,13 +131,13 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
 ### 性能结果
 
-| **input size**        | **模型名称**     | **计算设备**              | **耗时**         |
-| --------------------- | ---------------- | ------------------------- | ---------------- |
-| 224×224 batch = 8     | MobileNetV3Small | CPU(armadillo + openblas) | 9.34ms / image   |
-| 224×224 batch = 8     | ResNet18         | CPU(armadillo + openblas) | 24.88ms / image  |
-| 224×224 batch =16     | ResNet18         | CPU(armadillo + openblas) | 20.38ms / image  |
-| 320×320 batch = 8     | Yolov5nano       | CPU(armadillo + openblas) | 32.42ms / image  |
-| **640×640** batch = 8 | **Yolov5s**      | CPU(armadillo + openblas) | 318.15ms / image |
+| **input size**        | **模型名称**     | **计算设备**              | **耗时**           |
+| --------------------- | ---------------- | ------------------------- |------------------|
+| 224×224 batch = 8     | MobileNetV3Small | CPU(armadillo + openblas) | 8.79ms / image   |
+| 224×224 batch = 8     | ResNet18         | CPU(armadillo + openblas) | 32.46ms / image  |
+| 224×224 batch =16     | ResNet18         | CPU(armadillo + openblas) | 20.09ms / image  |
+| 320×320 batch = 8     | Yolov5nano       | CPU(armadillo + openblas) | 30.39ms / image  |
+| **640×640** batch = 8 | **Yolov5s**      | CPU(armadillo + openblas) | 228.03ms / image |
 
 ## 致谢
 

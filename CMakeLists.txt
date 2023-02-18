@@ -18,23 +18,14 @@ if (MSVC)
         add_definitions(-D__SSE2__ -D__XOP__)
     endif ()
 endif ()
-#option(USE_CUDA "Support Cuda Backend")
-option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 
-#if (!MSVC)
-#    set(USE_CUDA ON)
-#endif ()
+option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 set(BUILD_DEMO ON)
 
 if (BUILD_DEMO)
     MESSAGE(STATUS "BUILD DEMO PROJECT")
     add_subdirectory(demos)
 endif ()
-
-#if (USE_CUDA)
-#    MESSAGE(STATUS "Support Cuda Backend")
-#    add_definitions(-DUSE_CUDA)
-#endif ()
 
 find_package(benchmark REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -55,10 +46,9 @@ IF (!WIN32)
     set(link_lib ${link_lib} pthread)
 ENDIF ()
 
-set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-
 add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} source/layer/details/platform.hpp)
 target_link_libraries(kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
+set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
 target_include_directories(kuiper PUBLIC ${benchmark_INCLUDE_DIRS})
 target_include_directories(kuiper PUBLIC ${glog_INCLUDE_DIR})
