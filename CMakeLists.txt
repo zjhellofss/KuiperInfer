@@ -18,23 +18,14 @@ if (MSVC)
         add_definitions(-D__SSE2__ -D__XOP__)
     endif ()
 endif ()
-#option(USE_CUDA "Support Cuda Backend")
 option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 
-#if (!MSVC)
-#    set(USE_CUDA ON)
-#endif ()
 set(BUILD_DEMO ON)
 
 if (BUILD_DEMO)
     MESSAGE(STATUS "BUILD DEMO PROJECT")
     add_subdirectory(demos)
 endif ()
-
-#if (USE_CUDA)
-#    MESSAGE(STATUS "Support Cuda Backend")
-#    add_definitions(-DUSE_CUDA)
-#endif ()
 
 find_package(benchmark REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -67,8 +58,6 @@ target_include_directories(kuiper PUBLIC ${Armadillo_INCLUDE_DIR})
 
 # mathfun library defines
 add_compile_definitions(SSE_MATHFUN_WITH_CODE USE_SSE_AUTO)
-set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
 
 # 本项目的开发者请使用set(DEVELOPMENT ON)或者在cmake中添加-DDEVELOPMENT=ON将选项打开
 option(DEVELOPMENT ON)
