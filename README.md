@@ -4,7 +4,7 @@
 
 从零自制深度学习推理框架，学会深度学习框架背后的知识，学会怎么上手一个中等规模的C++项目。对于以后的面试和求职都是一个不错的项目哦！
 
-项目整体风格和结构借鉴了Caffe，仅用作学习参考。 视频课程链接：[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
+项目整体风格和结构都具有C++项目的现代感，供大家学习参考。 视频课程链接：[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
 ![](./imgs/logo.jpg)
 
