@@ -51,12 +51,32 @@ InferStatus ReluLayer::Forward(
     }
     CHECK(output->shapes() == input->shapes())
             << "The output size of relu is error";
-    const uint32_t size = input->size();
-#pragma omp simd
-    for (int j = 0; j < size; ++j) {
-      float val = input->index(j);
-      output->index(j) = val > 0.f ? val : 0.f;
+#ifndef __SSE2__
+    output->set_data(input->data());
+    output->Transform([](float val) { return val > 0. ? val : 0.; });
+#else
+    float *in_ptr = const_cast<float *>(input->raw_ptr());
+    float *out_ptr = const_cast<float *>(output->raw_ptr());
+    __m128 _zero = _mm_setzero_ps();
+    const uint32_t size = output->size();
+    const uint32_t packet_size = 4;
+    uint32_t j = 0;
+    for (j = 0; j < size - 3; j += packet_size) {
+      __m128 _p = _mm_load_ps(in_ptr);
+      __m128 _value = _mm_max_ps(_zero, _p);
+      _mm_store_ps(out_ptr, _value);
+      in_ptr += 4;
+      out_ptr += 4;
     }
+
+    if (j < size) {
+      while (j < size) {
+        float value = input->index(j);
+        output->index(j) = value > 0.f ? value : 0.f;
+        j += 1;
+      }
+    }
+#endif
   }
   return InferStatus::kInferSuccess;
 }

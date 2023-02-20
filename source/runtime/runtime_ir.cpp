@@ -445,7 +445,6 @@ void RuntimeGraph::SetOpInputData(
     std::vector<std::shared_ptr<Tensor<float>>> &src,
     std::vector<std::vector<std::shared_ptr<Tensor<float>>>> &dest) {
   CHECK(!src.empty() && !dest.empty()) << "Src or dest array is empty!";
-#pragma omp simd
   for (uint32_t j = 0; j < src.size(); ++j) {
     const auto &src_data = src.at(j)->data();
     for (uint32_t i = 0; i < dest.size(); ++i) {

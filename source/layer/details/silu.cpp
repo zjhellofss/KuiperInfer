@@ -55,16 +55,34 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
     }
 
     CHECK(output->shapes() == input->shapes()) << "The output size of silu layer is error";
-    const uint32_t size = input->size();
-#pragma omp simd
-    for (int j = 0; j < size; ++j) {
-      float val = input->index(j);
-      output->index(j) = val / (1.f + expf(-val));
+    uint32_t size = output->size();
+#if __SSE2__
+    float *in_ptr = const_cast<float *>(input->raw_ptr());
+    float *out_ptr = const_cast<float *>(output->raw_ptr());
+    __m128 _one = _mm_set1_ps(1.f);
+    __m128 _zero = _mm_setzero_ps();
+    const uint32_t packet_size = 4;
+    uint32_t j = 0;
+    for (j = 0; j < size - 3; j += packet_size) {
+      __m128 _p = _mm_load_ps(in_ptr);
+      _p = _mm_div_ps(_p, _mm_add_ps(_one, exp_ps(_mm_sub_ps(_zero, _p))));
+      _mm_store_ps(out_ptr, _p);
+      in_ptr += packet_size;
+      out_ptr += packet_size;
     }
-//    output->set_data(input->data());
-//    output->Transform([](const float value) {
-//      return value / (1.f + expf(-value));
-//    });
+    if (j < size) {
+      while (j < size) {
+        float value = input->index(j);
+        output->index(j) = value / (1.f + expf(-value));
+        j += 1;
+      }
+    }
+#elif
+    output->set_data(input->data());
+    output->Transform([](const float value) {
+      return value / (1.f + expf(-value));
+    });
+#endif
   }
   return InferStatus::kInferSuccess;
 }

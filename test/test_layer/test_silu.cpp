@@ -95,3 +95,25 @@ TEST(test_layer, forward_silu4) {
     }
   }
 }
+
+TEST(test_layer, forward_silu5) {
+  using namespace kuiper_infer;
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 15);
+  input->Rand();
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+
+  SiLULayer silu_layer;
+  const auto status = silu_layer.Forward(inputs, outputs);
+  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  for (int i = 0; i < inputs.size(); ++i) {
+    std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
+    std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
+    CHECK(input_->size() == output_->size());
+    uint32_t size = input_->size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+    }
+  }
+}
