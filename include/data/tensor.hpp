@@ -226,14 +226,7 @@ class Tensor<float> {
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
-/**
- * tensor的广播机制
- * @param s1 输入张量1
- * @param s2 输入张量2
- * @return 利用广播机制将两个tensor调整到相同的大小
- */
-std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
-                                               const sftensor& s2);
+std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor &s1, const sftensor &s2);
 
 std::shared_ptr<Tensor<float>> TensorPadding(
     const std::shared_ptr<Tensor<float>>& tensor,
