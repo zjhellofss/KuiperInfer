@@ -22,16 +22,17 @@
 
 我在b站上开了一门教学课程，目前是课程的前八次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。
 
-| 课程节数    | 主要内容                   | 进度 | 课程链接                                         |
-|---------|------------------------|----|----------------------------------------------|
-| 第一次课    | 整体框架解读和开发环境配置          | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
-| 第二次课    | 张量Tensor类的解析和输入数据的内存排布 | 完成 | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
-| 第三次课    | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
-| 第四次课    | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
-| 第五次课    | Im2col的原理和卷积算子的实现      | 完成 |      https://www.bilibili.com/video/BV1F841137Ct                                        |
-| 第六次课    | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
-| 第七次课    | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课    | 读取PNNX并构建自己的计算图        | 完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
+| 课程节数 | 主要内容                   | 进度 | 课程链接                                         |
+|------|------------------------|----|----------------------------------------------|
+| 第一次课 | 整体框架解读和开发环境配置          | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课 | 张量Tensor类的解析和输入数据的内存排布 | 完成 | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课 | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课 | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课 | Im2col的原理和卷积算子的实现      | 完成 |      https://www.bilibili.com/video/BV1F841137Ct                                        |
+| 第六次课 | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
+| 第七次课 | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
+| 第八次课 | 读取PNNX并构建自己的计算图        | 完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
+| 第九次课 | 卷积算子的实现和im2col加速计算的原理       | 完成 |         https://www.bilibili.com/video/BV1F841137Ct                                    |
 | 未完待续 | ......                 | ...... | ...... |
 
 ## 使用的技术和开发环境
