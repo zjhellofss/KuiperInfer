@@ -347,9 +347,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     }
 
     if (current_op == input_op) {
-      const std::vector<std::shared_ptr<Tensor<float>>> &layer_output_datas =
-          inputs;
-      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      ProbeNextLayer(current_op, operator_queue, inputs);
     } else {
       std::string current_op_name = current_op->name;
       if (!CheckOperatorReady(current_op)) {
@@ -372,14 +370,13 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
         }
       }
 
-      CHECK(!layer_input_datas.empty());
-      CHECK(current_op->output_operands != nullptr);
-      std::vector<std::shared_ptr<Tensor<float>>> layer_output_datas =
-          current_op->output_operands->datas;
+      CHECK(!layer_input_datas.empty()) << "Layer input data is empty";
+      CHECK(current_op->output_operands != nullptr && !current_op->output_operands->datas.empty())
+              << "Layer output data is empty";
 
       const auto &start = std::chrono::steady_clock::now();
       InferStatus status =
-          current_op->layer->Forward(layer_input_datas, layer_output_datas);
+          current_op->layer->Forward(layer_input_datas, current_op->output_operands->datas);
       if (debug) {
         std::replace_if(
             current_op_name.begin(), current_op_name.end(),
@@ -400,7 +397,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
               << current_op->layer->layer_name()
               << " layer forward failed, error code: " << int(status);
       const auto copy_start = std::chrono::steady_clock::now();
-      ProbeNextLayer(current_op, operator_queue, layer_output_datas);
+      ProbeNextLayer(current_op, operator_queue, current_op->output_operands->datas);
       const double duration =
           std::chrono::duration_cast<std::chrono::duration<double>>(
               std::chrono::steady_clock::now() - copy_start)
@@ -448,6 +445,7 @@ void RuntimeGraph::SetOpInputData(
     std::vector<std::shared_ptr<Tensor<float>>> &src,
     std::vector<std::vector<std::shared_ptr<Tensor<float>>>> &dest) {
   CHECK(!src.empty() && !dest.empty()) << "Src or dest array is empty!";
+#pragma omp simd
   for (uint32_t j = 0; j < src.size(); ++j) {
     const auto &src_data = src.at(j)->data();
     for (uint32_t i = 0; i < dest.size(); ++i) {

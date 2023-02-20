@@ -310,6 +310,7 @@ void Tensor<float>::ReView(const std::vector<uint32_t> &shapes) {
   const uint32_t plane_size = target_rows * target_cols;
   for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
     const arma::fmat &channel = this->data_.slice(c);
+#pragma omp simd
     for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
       const float *colptr = channel.colptr(c_);
       for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
