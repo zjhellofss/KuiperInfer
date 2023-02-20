@@ -100,28 +100,31 @@ InferStatus YoloDetectLayer::Forward(
       input->ReRawView({stages, uint32_t(classes_info), ny * nx});
       const uint32_t size = input->size();
 
-      if (!(size % 4)) {
 #if __SSE2__
-        float *ptr = const_cast<float *>(input->raw_ptr());
-        __m128 _one1 = _mm_set1_ps(1.f);
-        __m128 _one2 = _mm_set1_ps(1.f);
-        __m128 _zero = _mm_setzero_ps();
-        const uint32_t packet_size = 4;
-        for (uint32_t j = 0; j + (packet_size - 1) < size; j += packet_size) {
-          __m128 _p = _mm_load_ps(ptr);
-          _p = _mm_div_ps(_one1,
-                          _mm_add_ps(_one2, exp_ps(_mm_sub_ps(_zero, _p))));
-          _mm_store_ps(ptr, _p);
-          ptr += packet_size;
-        }
-#elif
-        input->Transform(
-            [](const float value) { return 1.f / (1.f + std::exp(-value)); });
-#endif
-      } else {
-        input->Transform(
-            [](const float value) { return 1.f / (1.f + std::exp(-value)); });
+      float *ptr = const_cast<float *>(input->raw_ptr());
+      __m128 _one1 = _mm_set1_ps(1.f);
+      __m128 _one2 = _mm_set1_ps(1.f);
+      __m128 _zero = _mm_setzero_ps();
+      const uint32_t packet_size = 4;
+      uint32_t j = 0;
+      for (j = 0; j < size - 3; j += packet_size) {
+        __m128 _p = _mm_load_ps(ptr);
+        _p = _mm_div_ps(_one1,
+                        _mm_add_ps(_one2, exp_ps(_mm_sub_ps(_zero, _p))));
+        _mm_store_ps(ptr, _p);
+        ptr += packet_size;
       }
+      if (j < size) {
+        while (j < size) {
+          float value = input->index(j);
+          input->index(j) = 1.f / (1.f + expf(-value));
+          j += 1;
+        }
+      }
+#else
+      input->Transform(
+          [](const float value) { return 1.f / (1.f + expf(-value)); });
+#endif
 
       arma::fmat &x_stages = x_stages_tensor->at(b);
       for (uint32_t s = 0; s < stages; ++s) {

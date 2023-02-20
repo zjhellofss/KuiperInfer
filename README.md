@@ -86,7 +86,7 @@ const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 - 编译完成后，在项目目录调用 `./build/demos/yolo_test`
 
 ### 效果图
-![](https://i.imgur.com/JkZ9KiE.jpg)
+<img src="https://i.imgur.com/JkZ9KiE.jpg" alt="output0" style="zoom:50%;" />
 
 ## 已经支持的算子
 **总体理念：逐步优化已经有的算子；有需要的时候再对未实现的算子进行开发**
@@ -131,13 +131,14 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
 ### 性能结果
 
-| **input size**        | **模型名称**     | **计算设备**              | **耗时**           |
-| --------------------- | ---------------- | ------------------------- |------------------|
-| 224×224 batch = 8     | MobileNetV3Small | CPU(armadillo + openblas) | 8.79ms / image   |
-| 224×224 batch = 8     | ResNet18         | CPU(armadillo + openblas) | 32.46ms / image  |
-| 224×224 batch =16     | ResNet18         | CPU(armadillo + openblas) | 20.09ms / image  |
-| 320×320 batch = 8     | Yolov5nano       | CPU(armadillo + openblas) | 30.39ms / image  |
-| **640×640** batch = 8 | **Yolov5s**      | CPU(armadillo + openblas) | 228.03ms / image |
+| **input size**         | **模型名称**     | **计算设备**              | **耗时**           |
+|------------------------| ---------------- | ------------------------- |------------------|
+| 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 8.79ms / image   |
+| 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 27.74ms / image  |
+| 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 18.51ms / image  |
+| 320×320 batch = 8      | Yolov5nano       | CPU(armadillo + openblas) | 37.39ms / image  |
+| **640×640** batch = 8  | **Yolov5s**      | CPU(armadillo + openblas) | 209.93ms / image |
+| **640×640** batch = 16 | **Yolov5s**      | CPU(armadillo + openblas) | 222.89ms / image |
 
 ## 致谢
 
