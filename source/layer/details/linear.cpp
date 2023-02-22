@@ -3,9 +3,7 @@
 //
 
 #include "linear.hpp"
-
 #include <glog/logging.h>
-
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -32,8 +30,8 @@ LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
 }
 
 InferStatus LinearLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-    std::vector<std::shared_ptr<Tensor<float>>> &outputs) {
+    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of linear layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -64,21 +62,21 @@ InferStatus LinearLayer::Forward(
     return InferStatus::kInferFailedBiasParameterError;
   }
   uint32_t batch = inputs.size();
-  const std::shared_ptr<Tensor<float>> &weight = weights_.front();
+  const std::shared_ptr<Tensor<float>>& weight = weights_.front();
   arma::fmat weight_data(weight->data().memptr(), out_features_, in_features_);
 
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Tensor<float>> &input = inputs.at(i);
+    const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-            << "The input feature map of linear layer is empty";
-    const std::vector<uint32_t> &raw_shapes = input->raw_shapes();
-    CHECK(raw_shapes.size() == 2 || (raw_shapes.size() == 3 && raw_shapes.front() == 1));
+        << "The input feature map of linear layer is empty";
+    const std::vector<uint32_t>& input_shapes = input->shapes();
+    CHECK(input_shapes.size() == 3 && input_shapes.front() == 1);
 
-    const uint32_t feature_dims = raw_shapes.at(0);
+    const uint32_t feature_dims = input_shapes.at(1);
     CHECK(weight_data.n_rows == out_features_);
     CHECK(weight_data.n_cols == feature_dims && feature_dims == in_features_);
-    const uint32_t input_dim = raw_shapes.at(1);
+    const uint32_t input_dim = input_shapes.at(2);
 
     arma::fmat col_vec(input->data().memptr(), in_features_, input_dim);
 
@@ -88,20 +86,20 @@ InferStatus LinearLayer::Forward(
       outputs.at(i) = output;
     }
     CHECK(output->channels() == 1 && output->rows() == out_features_ &&
-        output->cols() == input_dim);
-    const auto &output_raw_shapes = output->raw_shapes();
+          output->cols() == input_dim);
+    const auto& output_raw_shapes = output->raw_shapes();
     CHECK(output_raw_shapes.size() == 2);
     CHECK(output_raw_shapes.at(0) == out_features_ &&
-        output_raw_shapes.at(1) == input_dim);
+          output_raw_shapes.at(1) == input_dim);
 
-    arma::fmat &result = output->at(0);
+    arma::fmat& result = output->at(0);
     result = weight_data * col_vec;
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1);
-      const auto &bias_cube = this->bias_.front();
+      const auto& bias_cube = this->bias_.front();
       CHECK(!bias_cube->empty());
 
-      const auto &bias_data = bias_cube->data();
+      const auto& bias_data = bias_cube->data();
       CHECK(bias_data.n_slices == 1);
       CHECK(bias_data.n_rows == out_features_);
       result += bias_data.slice(0);
@@ -111,22 +109,22 @@ InferStatus LinearLayer::Forward(
 }
 
 ParseParameterAttrStatus LinearLayer::GetInstance(
-    const std::shared_ptr<RuntimeOperator> &op,
-    std::shared_ptr<Layer> &linear_layer) {
+    const std::shared_ptr<RuntimeOperator>& op,
+    std::shared_ptr<Layer>& linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
-  const auto &params = op->params;
+  const auto& params = op->params;
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  const auto &use_bias_param =
-      dynamic_cast<RuntimeParameterBool *>(params.at("bias"));
+  const auto& use_bias_param =
+      dynamic_cast<RuntimeParameterBool*>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
 
-  const auto &attr = op->attribute;
+  const auto& attr = op->attribute;
   CHECK(!attr.empty()) << "Operator attributes is empty";
 
   if (attr.find("weight") == attr.end()) {
@@ -141,11 +139,11 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
     }
   }
 
-  const auto &weight = attr.at("weight");
-  const auto &bias = attr.at("bias");
-  const auto &shapes = weight->shape;
+  const auto& weight = attr.at("weight");
+  const auto& bias = attr.at("bias");
+  const auto& shapes = weight->shape;
   CHECK(shapes.size() == 2)
-          << "The graph only support two dimension matrix multiply";
+      << "The graph only support two dimension matrix multiply";
 
   int32_t out_features = shapes.at(0);
   int32_t in_features = shapes.at(1);

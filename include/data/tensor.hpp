@@ -186,8 +186,6 @@ class Tensor<float> {
    */
   void ReRawshape(const std::vector<uint32_t>& shapes);
 
-  void ReRawShapeNoKeep(const std::vector<uint32_t>& shapes);
-
   /**
    * 张量的实际尺寸大小的Reshape pytorch兼容
    * @param shapes 张量的实际尺寸大小

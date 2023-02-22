@@ -244,33 +244,6 @@ void Tensor<float>::ReRawshape(const std::vector<uint32_t>& shapes) {
   }
 }
 
-void Tensor<float>::ReRawShapeNoKeep(const std::vector<uint32_t>& shapes) {
-  CHECK(!this->data_.empty());
-  CHECK(!shapes.empty());
-  const uint32_t origin_size = this->size();
-  uint32_t current_size = 1;
-  for (uint32_t s : shapes) {
-    current_size *= s;
-  }
-  CHECK(shapes.size() <= 3);
-  CHECK(current_size == origin_size);
-
-  //  if (this->raw_shapes_ == shapes) {
-  //    return;
-  //  }
-
-  if (shapes.size() == 3) {
-    this->data_.set_size(shapes.at(1), shapes.at(2), shapes.at(0));
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-  } else if (shapes.size() == 2) {
-    this->data_.set_size(shapes.at(0), shapes.at(1), 1);
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
-  } else {
-    this->data_.set_size(shapes.at(0), 1, 1);
-    this->raw_shapes_ = {shapes.at(0)};
-  }
-}
-
 const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
   CHECK(!this->raw_shapes_.empty());
   return this->raw_shapes_;
