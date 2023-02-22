@@ -30,12 +30,14 @@ void RuntimeGraphShape::InitOperatorInputTensor(
     } else {
       const std::map<std::string, std::shared_ptr<RuntimeOperand>>&
           input_operands_map = op->input_operands;
+      // 初始化operator的输入空间
       for (const auto& input_operand_iter : input_operands_map) {
         const auto& input_operand = input_operand_iter.second;
         const auto& type = input_operand->type;
         CHECK(type == RuntimeDataType::kTypeFloat32)
             << "The graph only support float32 yet!";
         const auto& input_operand_shape = input_operand->shapes;
+        // 得到需要初始化的空间
         auto& input_datas = input_operand->datas;
 
         CHECK(!input_operand_shape.empty());
@@ -47,11 +49,13 @@ void RuntimeGraphShape::InitOperatorInputTensor(
             << "Unsupported tensor shape sizes: " << input_operand_shape.size();
 
         if (!input_datas.empty()) {
+          // 如果输入空间不为空，则输入空间的形状是否被改变
           if (!input_operators.empty() &&
               input_operators.find(op->name) == input_operators.end()) {
             continue;
           }
           CHECK(input_datas.size() == batch) << "Batch size is wrong!";
+          // 逐批次检查形状是否被改变
           for (int32_t i = 0; i < batch; ++i) {
             const std::vector<uint32_t>& input_data_shape =
                 input_datas.at(i)->shapes();
@@ -74,7 +78,9 @@ void RuntimeGraphShape::InitOperatorInputTensor(
             }
           }
         } else {
+          // 如果输入空间为空，则为其预留空间
           input_datas.resize(batch);
+          // 只需要为输入节点预留输入空间即可，其他节点的输入复用了它上一层节点的输出
           if (!input_operators.empty() &&
               input_operators.find(op->name) == input_operators.end()) {
             continue;
@@ -88,7 +94,6 @@ void RuntimeGraphShape::InitOperatorInputTensor(
               input_datas.at(i) = std::make_shared<Tensor<float>>(
                   1, input_operand_shape.at(1), 1);
             } else {
-              // current shape is 3
               input_datas.at(i) = std::make_shared<Tensor<float>>(
                   1, input_operand_shape.at(1), input_operand_shape.at(2));
             }
@@ -105,16 +110,19 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
   CHECK(!pnnx_operators.empty() && !operators.empty());
   CHECK(pnnx_operators.size() == operators.size());
   for (uint32_t i = 0; i < pnnx_operators.size(); ++i) {
+    // 得到pnnx原有的输出空间
     const std::vector<pnnx::Operand*> operands = pnnx_operators.at(i)->outputs;
     CHECK(operands.size() <= 1) << "Only support one node one output yet!";
     if (operands.empty()) {
       continue;
     }
     CHECK(operands.size() == 1) << "Only support one output in the KuiperInfer";
+    // 一个节点仅支持一个输出
     pnnx::Operand* operand = operands.front();
     const auto& runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
     const std::vector<int32_t>& operand_shapes = operand->shape;
+    // 得到需要初始化的输出空间
     const auto& output_tensors = runtime_op->output_operands;
 
     const int32_t batch = operand_shapes.at(0);
@@ -123,12 +131,15 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
           operand_shapes.size() == 3)
         << "Unsupported shape sizes: " << operand_shapes.size();
 
+    // 如果输出空间没有被初始化过
     if (!output_tensors) {
       std::shared_ptr<RuntimeOperand> output_operand =
           std::make_shared<RuntimeOperand>();
+      // 将输出操作数赋变量
       output_operand->shapes = operand_shapes;
       output_operand->type = RuntimeDataType::kTypeFloat32;
       output_operand->name = operand->name + "_output";
+      // 输出空间初始化
       for (int j = 0; j < batch; ++j) {
         if (operand_shapes.size() == 4) {
           output_operand->datas.push_back(std::make_shared<Tensor<float>>(
@@ -145,10 +156,11 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
       }
       runtime_op->output_operands = std::move(output_operand);
     } else {
+      // 如果输出空间不为空
       CHECK(batch == output_tensors->datas.size());
-      // output_tensors empty
       CHECK(output_tensors->type == RuntimeDataType::kTypeFloat32);
       CHECK(output_tensors->shapes == operand_shapes);
+      // 逐批次检查输出空间的形状是否合理，如果不合理则进行reshape
       for (uint32_t b = 0; b < batch; ++b) {
         const std::vector<uint32_t>& tensor_shapes =
             output_tensors->datas.at(b)->shapes();
@@ -297,6 +309,9 @@ void RuntimeGraph::Build(const std::string& input_name,
   LOG_IF(FATAL, this->operators_.empty())
       << "Graph operators is empty, may be no init";
 
+  if (graph_state_ == GraphState::Complete) {
+    return;
+  }
   this->input_operators_maps_.clear();
   this->output_operators_maps_.clear();
   for (const auto& kOperator : this->operators_) {
@@ -317,6 +332,10 @@ void RuntimeGraph::Build(const std::string& input_name,
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
   output_name_ = output_name;
+  if (graph_ != nullptr) {
+    graph_.reset();
+    graph_ = nullptr;
+  }
 }
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
