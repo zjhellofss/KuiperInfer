@@ -49,7 +49,7 @@ void RuntimeGraphShape::InitOperatorInputTensor(
             << "Unsupported tensor shape sizes: " << input_operand_shape.size();
 
         if (!input_datas.empty()) {
-          // 如果输入空间不为空，则输入空间的形状是否被改变
+          // 如果输入空间不为空，则检查输入空间的形状是否被改变
           if (!input_operators.empty() &&
               input_operators.find(op->name) == input_operators.end()) {
             continue;
@@ -80,11 +80,12 @@ void RuntimeGraphShape::InitOperatorInputTensor(
         } else {
           // 如果输入空间为空，则为其预留空间
           input_datas.resize(batch);
-          // 只需要为输入节点预留输入空间即可，其他节点的输入复用了它上一层节点的输出
+          // 一般只需要为输入节点预留输入空间即可，其他节点的输入复用了它上一层节点的输出空间
           if (!input_operators.empty() &&
               input_operators.find(op->name) == input_operators.end()) {
             continue;
           }
+          // 为节点初始化空间
           for (int32_t i = 0; i < batch; ++i) {
             if (input_operand_shape.size() == 4) {
               input_datas.at(i) = std::make_shared<Tensor<float>>(
@@ -117,14 +118,14 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
       continue;
     }
     CHECK(operands.size() == 1) << "Only support one output in the KuiperInfer";
-    // 一个节点仅支持一个输出
+    // 一个节点仅支持一个输出，实际上在pnnx中一个节点拥有两个不同输出的情况也是不存在的
     pnnx::Operand* operand = operands.front();
     const auto& runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
     const std::vector<int32_t>& operand_shapes = operand->shape;
     // 得到需要初始化的输出空间
     const auto& output_tensors = runtime_op->output_operands;
-
+    // 获取节点的输出张量应有形状
     const int32_t batch = operand_shapes.at(0);
     CHECK(batch >= 0) << "Dynamic batch size is not supported!";
     CHECK(operand_shapes.size() == 2 || operand_shapes.size() == 4 ||
@@ -133,6 +134,7 @@ void RuntimeGraphShape::InitOperatorOutputTensor(
 
     // 如果输出空间没有被初始化过
     if (!output_tensors) {
+      // 需要被初始化的输出张量
       std::shared_ptr<RuntimeOperand> output_operand =
           std::make_shared<RuntimeOperand>();
       // 将输出操作数赋变量
