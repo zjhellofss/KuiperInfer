@@ -283,11 +283,13 @@ bool RuntimeGraph::Init() {
 
   // 构建图关系
   for (const auto& current_op : this->operators_) {
+    // 获取当前节点的所有后继节点names
     const std::vector<std::string>& output_names = current_op->output_names;
     for (const auto& next_op : this->operators_) {
       if (next_op == current_op) {
         continue;
       }
+      // 如果其余节点的name符合当前节点的后继节点names，则将这个其余节点作为当前节点的后继
       if (std::find(output_names.begin(), output_names.end(), next_op->name) !=
           output_names.end()) {
         current_op->output_operators.insert({next_op->name, next_op});
@@ -342,12 +344,14 @@ void RuntimeGraph::Build(const std::string& input_name,
 
 std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug) {
+  // 检查当前的执行图是否已经初始化完毕
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
   }
   CHECK(graph_state_ == GraphState::Complete)
       << "Graph status error, current state is " << int(graph_state_);
 
+  // 找到图中的输入算子
   std::shared_ptr<RuntimeOperator> input_op;
   if (input_operators_maps_.find(input_name_) == input_operators_maps_.end()) {
     LOG(FATAL) << "Can not find the input node: " << input_name_;
@@ -355,6 +359,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     input_op = input_operators_maps_.at(input_name_);
   }
 
+  // 找到图中的输出算子
   std::shared_ptr<RuntimeOperator> output_op;
   if (output_operators_maps_.find(output_name_) ==
       output_operators_maps_.end()) {
@@ -363,9 +368,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     output_op = output_operators_maps_.at(output_name_);
   }
 
+  // 输入和输出算子一般唯一
+  // 执行队列中添加输入算子
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
   operator_queue.push_back(input_op);
-  std::map<std::string, double> run_duration_infos;
+  std::map<std::string, double> run_duration_infos;  /// 运行时间统计
 
   if (debug) {
     LOG(INFO) << "Batch Size:" << inputs.size();
@@ -380,6 +387,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   }
 
   while (!operator_queue.empty()) {
+    // 得到执行队列中的当前节点
     std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
     operator_queue.pop_front();
 
@@ -390,9 +398,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       break;
     }
 
+    // 如果当前节点为输入节点，则将输入inputs直接拷贝到后继节点中
     if (current_op == input_op) {
       ProbeNextLayer(current_op, operator_queue, inputs);
     } else {
+      // 如果当前节点是其他待执行节点，首先使用checkready检测它是否就绪
       std::string current_op_name = current_op->name;
       if (!CheckOperatorReady(current_op)) {
         if (operator_queue.empty()) {
@@ -400,13 +410,14 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
           LOG(FATAL) << "Current operator is not ready!";
           break;
         } else {
-          // 如果不是最后一个节点，它还有被ready的可能性
+          // 如果current op不是最后一个节点，它还有被ready的可能性
           operator_queue.push_back(current_op);
         }
       }
-
+      // 准备节点layer计算所需要的输入
       const std::vector<std::shared_ptr<RuntimeOperand>>& input_operand_datas =
           current_op->input_operands_seq;
+      // layer的输入
       std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
       for (const auto& input_operand_data : input_operand_datas) {
         for (const auto& input_data : input_operand_data->datas) {
@@ -420,6 +431,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
           << "Layer output data is empty";
 
       const auto& start = std::chrono::steady_clock::now();
+      // 执行operator当中的layer计算过程
+      // layer的计算结果存放在current_op->output_operands->datas中
       InferStatus status = current_op->layer->Forward(
           layer_input_datas, current_op->output_operands->datas);
       if (debug) {
@@ -442,6 +455,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
           << current_op->layer->layer_name()
           << " layer forward failed, error code: " << int(status);
       const auto copy_start = std::chrono::steady_clock::now();
+      // 将当前layer的计算输出current_op->output_operands->datas赋值到后继节点的输入中
       ProbeNextLayer(current_op, operator_queue,
                      current_op->output_operands->datas);
       const double duration =
@@ -464,6 +478,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
 
   CHECK(output_op->input_operands.size() == 1)
       << "The graph only support one path to the output node yet!";
+  // 计算图中最后一个节点的输入，等于整张图的输出
   const auto& output_op_input_operand = output_op->input_operands.begin();
   const auto& output_operand = output_op_input_operand->second;
   if (debug) {
@@ -641,22 +656,35 @@ void RuntimeGraph::ProbeNextLayer(
     const std::shared_ptr<RuntimeOperator>& current_op,
     std::deque<std::shared_ptr<RuntimeOperator>>& operator_queue,
     const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_datas) {
+  // 当前节点的后继节点next_ops
   const auto& next_ops = current_op->output_operators;
-
+  // 对所有后继节点进行遍历
   for (const auto& next_op : next_ops) {
+    // 得到后继节点的输入next_input_operands
     const auto& next_rt_operator = next_op.second;
     const auto& next_input_operands = next_rt_operator->input_operands;
-    // 找到后继节点
+    // 确定后继节点的输入来自于current_op
     if (next_input_operands.find(current_op->name) !=
         next_input_operands.end()) {
+      // 得到后继节点的关于current_op输出的输入空间 next_input_datas
+      /**
+       * next_input_operands:
+       * {
+       *    输入1 -- current_op.name: current_op对应的输出空间
+       *    输入2 -- other_op.name: other_op对应的输出空间
+       * }
+       */
       std::vector<std::shared_ptr<ftensor>>& next_input_datas =
           next_input_operands.at(current_op->name)->datas;
+      // 将当前current_op的输出赋值到next_input_datas中
       for (int i = 0; i < next_input_datas.size(); ++i) {
         next_input_datas.at(i) = layer_output_datas.at(i);
       }
+      // 后继节点的访问次数加1
       next_rt_operator->meet_num += 1;
       if (std::find(operator_queue.begin(), operator_queue.end(),
                     next_rt_operator) == operator_queue.end()) {
+        // 检测后继节点是否已经ready，有则入执行队列
         if (CheckOperatorReady(next_rt_operator)) {
           operator_queue.push_back(next_rt_operator);
         }
