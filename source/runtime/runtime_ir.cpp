@@ -60,13 +60,13 @@ bool RuntimeGraph::Init() {
       // 初始化算子中的input
       const std::vector<pnnx::Operand*>& inputs = op->inputs;
       if (!inputs.empty()) {
-        InitInputOperators(inputs, runtime_operator);
+        InitGraphOperatorsInput(inputs, runtime_operator);
       }
 
       // 记录输出operand中的名称
       const std::vector<pnnx::Operand*>& outputs = op->outputs;
       if (!outputs.empty()) {
-        InitOutputOperators(outputs, runtime_operator);
+        InitGraphOperatorsOutput(outputs, runtime_operator);
       }
 
       // 初始化算子中的attribute(权重)
@@ -306,7 +306,7 @@ std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
   return layer;
 }
 
-void RuntimeGraph::InitInputOperators(
+void RuntimeGraph::InitGraphOperatorsInput(
     const std::vector<pnnx::Operand*>& inputs,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
   for (const pnnx::Operand* input : inputs) {
@@ -337,7 +337,7 @@ void RuntimeGraph::InitInputOperators(
   }
 }
 
-void RuntimeGraph::InitOutputOperators(
+void RuntimeGraph::InitGraphOperatorsOutput(
     const std::vector<pnnx::Operand*>& outputs,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
   for (const pnnx::Operand* output : outputs) {

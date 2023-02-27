@@ -74,7 +74,7 @@ class RuntimeGraph {
    * @param inputs pnnx中的输入操作数
    * @param runtime_operator 计算图节点
    */
-  static void InitInputOperators(
+  static void InitGraphOperatorsInput(
       const std::vector<pnnx::Operand*>& inputs,
       const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
@@ -83,7 +83,7 @@ class RuntimeGraph {
    * @param outputs pnnx中的输出操作数
    * @param runtime_operator 计算图节点
    */
-  static void InitOutputOperators(
+  static void InitGraphOperatorsOutput(
       const std::vector<pnnx::Operand*>& outputs,
       const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
