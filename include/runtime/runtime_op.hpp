@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 #include "layer/abstract/layer.hpp"
+#include "runtime/ir.h"
 #include "runtime_attr.hpp"
 #include "runtime_operand.hpp"
 #include "runtime_parameter.hpp"
@@ -20,14 +21,7 @@ class Layer;
 /// 计算图中的计算节点
 struct RuntimeOperator {
   int32_t meet_num = 0;  /// 计算节点被相连接节点访问到的次数
-  virtual ~RuntimeOperator() {
-    for (auto& param : this->params) {
-      if (param.second != nullptr) {
-        delete param.second;
-        param.second = nullptr;
-      }
-    }
-  }
+  virtual ~RuntimeOperator();
   std::string name;              /// 计算节点的名称
   std::string type;              /// 计算节点的类型
   std::shared_ptr<Layer> layer;  /// 节点对应的计算Layer
@@ -46,5 +40,38 @@ struct RuntimeOperator {
   std::map<std::string, std::shared_ptr<RuntimeAttribute>>
       attribute;  /// 算子的属性信息，内含权重信息
 };
+
+class RuntimeOperatorUtils {
+ public:
+  /**
+   * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor
+   * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
+   * @param operators 计算图中的计算节点
+   * @param input_operators 计算图中的输入节点
+   */
+  static void InitOperatorInputTensor(
+      const std::vector<std::shared_ptr<RuntimeOperator>>& operators,
+      const std::map<std::string, std::shared_ptr<RuntimeOperator>>&
+          input_operators);
+
+  /**
+   * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor
+   * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
+   * @param operators 计算图中的计算节点
+   */
+  static void InitOperatorInputTensor(
+      const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
+
+  /**
+   * 如果图是第一次运行，则根据节点输出operand的形状准备好后续Layer计算中所需要的Tensor
+   * 如果图是第二次以上运行，则检查输出operand的形状和operand中张量的形状是否匹配
+   * @param pnnx_operators pnnx图节点
+   * @param operators KuiperInfer计算图中的计算节点
+   */
+  static void InitOperatorOutputTensor(
+      const std::vector<pnnx::Operator*>& pnnx_operators,
+      const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
+};
+
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_INCLUDE_PARSER_RUNTIME_OPERATOR_HPP_

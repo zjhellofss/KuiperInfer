@@ -180,6 +180,16 @@ class Tensor<float> {
    */
   void Show();
 
+  /// reshape和review的区别
+  /// reshape是满足列优先的
+  /// review是满足行优先的
+  /**
+   * 1 3 4 7
+   * review(2,2)  reshape(2,2)
+   * 1 3          1 4
+   * 4 7          3 7
+   */
+   
   /**
    * 张量的实际尺寸大小的Reshape
    * @param shapes 张量的实际尺寸大小
