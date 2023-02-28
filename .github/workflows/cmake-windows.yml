@@ -1,0 +1,80 @@
+name: CMake-Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BUILD_TYPE: Release
+
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "This job is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Make vcpkg .git directory writable
+        run: |
+          # vcpkg will fail to update if the .git directory is not writable
+          attrib -r "c:\vcpkg\.git\*.*" /s
+
+      - name: Restore artifacts, or setup vcpkg for building artifacts
+        uses: lukka/run-vcpkg@v10
+        id: runvcpkg
+        with:
+          vcpkgDirectory: C:/vcpkg
+          doNotUpdateVcpkg: true
+
+      - name: Install Dependencies
+        run: |
+          # clear buildtrees after each package installation to reduce disk space requirements
+          $packages = `
+            "openblas:x64-windows",
+            "opencv:x64-windows",
+            "lapack:x64-windows",
+            "superlu:x64-windows",
+            "glog:x64-windows",
+            "gtest:x64-windows",
+            "benchmark:x64-windows",
+            "armadillo:x64-windows"
+          ${{ env.RUNVCPKG_VCPKG_ROOT }}/vcpkg.exe upgrade `
+            --overlay-triplets="${{ github.workspace }}/triplets_overlay" `
+            --no-dry-run
+          ${{ env.RUNVCPKG_VCPKG_ROOT }}/vcpkg.exe install `
+            --overlay-triplets="${{ github.workspace }}/triplets_overlay" `
+            --clean-after-build `
+            $packages
+
+      - name: Configure CMake
+        run: echo ${{github.workspace}} `
+          && cmake -B ${{github.workspace}}/build `
+          -Thost=x64 `
+          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} `
+          -DCMAKE_TOOLCHAIN_FILE="${{ env.RUNVCPKG_VCPKG_ROOT }}/scripts/buildsystems/vcpkg.cmake" `
+          -DDEVELOPMENT=ON
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --
+
+
+      - name: Test
+        working-directory: ${{github.workspace}}
+        run: ${{github.workspace}}/build/test/Release/test_kuiper.exe
+
