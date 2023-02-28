@@ -13,14 +13,13 @@ RuntimeOperator::~RuntimeOperator() {
   }
 }
 
-void RuntimeOperatorUtils::InitOperatorInputTensor(
+void RuntimeOperatorUtils::InitOperatorInput(
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
   std::map<std::string, std::shared_ptr<RuntimeOperator>> input_operators;
-  return RuntimeOperatorUtils::InitOperatorInputTensor(operators,
-                                                       input_operators);
+  return RuntimeOperatorUtils::InitOperatorInput(operators, input_operators);
 }
 
-void RuntimeOperatorUtils::InitOperatorInputTensor(
+void RuntimeOperatorUtils::InitOperatorInput(
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators,
     const std::map<std::string, std::shared_ptr<RuntimeOperator>>&
         input_operators) {
@@ -110,7 +109,7 @@ void RuntimeOperatorUtils::InitOperatorInputTensor(
   }
 }
 
-void RuntimeOperatorUtils::InitOperatorOutputTensor(
+void RuntimeOperatorUtils::InitOperatorOutput(
     const std::vector<pnnx::Operator*>& pnnx_operators,
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
   CHECK(!pnnx_operators.empty() && !operators.empty());

@@ -49,7 +49,7 @@ class RuntimeOperatorUtils {
    * @param operators 计算图中的计算节点
    * @param input_operators 计算图中的输入节点
    */
-  static void InitOperatorInputTensor(
+  static void InitOperatorInput(
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators,
       const std::map<std::string, std::shared_ptr<RuntimeOperator>>&
           input_operators);
@@ -59,7 +59,7 @@ class RuntimeOperatorUtils {
    * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
    * @param operators 计算图中的计算节点
    */
-  static void InitOperatorInputTensor(
+  static void InitOperatorInput(
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 
   /**
@@ -68,7 +68,7 @@ class RuntimeOperatorUtils {
    * @param pnnx_operators pnnx图节点
    * @param operators KuiperInfer计算图中的计算节点
    */
-  static void InitOperatorOutputTensor(
+  static void InitOperatorOutput(
       const std::vector<pnnx::Operator*>& pnnx_operators,
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 };

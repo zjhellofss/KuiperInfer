@@ -26,8 +26,8 @@ TEST(test_runtime, runtime_graph_input_init1) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -48,7 +48,7 @@ TEST(test_runtime, runtime_graph_input_init1) {
       ASSERT_EQ(shape2.at(2), 64);
     }
   }
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -93,7 +93,7 @@ TEST(test_runtime, runtime_graph_input_init2) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -114,7 +114,7 @@ TEST(test_runtime, runtime_graph_input_init2) {
       ASSERT_EQ(shape2.at(2), 64);
     }
   }
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -159,7 +159,7 @@ TEST(test_runtime, runtime_graph_input_init3) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -180,7 +180,7 @@ TEST(test_runtime, runtime_graph_input_init3) {
       ASSERT_EQ(shape2.at(2), 1);
     }
   }
-  RuntimeOperatorUtils::InitOperatorInputTensor(operators);
+  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto &op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -216,7 +216,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -230,7 +230,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -257,7 +257,7 @@ TEST(test_runtime, runtime_graph_output_init2) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -272,7 +272,7 @@ TEST(test_runtime, runtime_graph_output_init2) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -300,7 +300,7 @@ TEST(test_runtime, runtime_graph_output_init3) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -314,7 +314,7 @@ TEST(test_runtime, runtime_graph_output_init3) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -341,7 +341,7 @@ TEST(test_runtime, runtime_graph_output_init4) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
@@ -355,7 +355,7 @@ TEST(test_runtime, runtime_graph_output_init4) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutputTensor(pnnx_operators, run_ops);
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto &run_op : run_ops) {
     const auto &output_datas = run_op->output_operands;
