@@ -73,7 +73,7 @@ InferStatus CatLayer::Forward(
       CHECK(output->channels() == in_channels * packet_size &&
             output->rows() == rows && output->cols() == cols);
       for (uint32_t c = 0; c < in_channels; ++c) {
-        output->at(start_channel + c) = input->at(c);
+        output->slice(start_channel + c) = input->slice(c);
       }
       start_channel += input->channels();
     }

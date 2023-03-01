@@ -83,7 +83,8 @@ InferStatus ConvolutionLayer::Forward(
     for (uint32_t k = 0; k < kernel_count_group; ++k) {
       const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
       for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
-        memcpy(kernel_matrix_c.memptr() + row_len * ic, kernel->at(ic).memptr(),
+        memcpy(kernel_matrix_c.memptr() + row_len * ic,
+               kernel->slice(ic).memptr(),
                row_len * sizeof(float));
       }
       kernel_matrix_arr.at(k) = kernel_matrix_c;
@@ -135,7 +136,7 @@ InferStatus ConvolutionLayer::Forward(
               this->weights_.at(k + g * kernel_count_group);
           for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
             memcpy(kernel_matrix_c.memptr() + row_len * ic,
-                   kernel->at(ic).memptr(), row_len * sizeof(float));
+                   kernel->slice(ic).memptr(), row_len * sizeof(float));
           }
           kernel_matrix_arr_group.at(k) = kernel_matrix_c;
         }
@@ -143,7 +144,7 @@ InferStatus ConvolutionLayer::Forward(
 
       arma::fmat input_matrix(input_c_group * row_len, col_len);
       for (uint32_t ic = 0; ic < input_c_group; ++ic) {
-        const arma::fmat& input_channel = input_->at(ic + g * input_c_group);
+        const arma::fmat& input_channel = input_->slice(ic + g * input_c_group);
         int current_col = 0;
         for (uint32_t w = 0; w < input_w - kernel_w + 1; w += stride_w_) {
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
@@ -188,7 +189,7 @@ InferStatus ConvolutionLayer::Forward(
           float bias_value = bias->index(0);
           output += bias_value;
         }
-        mempcpy(output_tensor->at(k + g * kernel_count_group).memptr(),
+        mempcpy(output_tensor->slice(k + g * kernel_count_group).memptr(),
                 output.memptr(), sizeof(float) * output_h * output_w);
       }
     }

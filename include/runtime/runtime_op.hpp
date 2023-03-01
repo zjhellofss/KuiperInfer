@@ -47,17 +47,6 @@ class RuntimeOperatorUtils {
    * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor
    * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
    * @param operators 计算图中的计算节点
-   * @param input_operators 计算图中的输入节点
-   */
-  static void InitOperatorInput(
-      const std::vector<std::shared_ptr<RuntimeOperator>>& operators,
-      const std::map<std::string, std::shared_ptr<RuntimeOperator>>&
-          input_operators);
-
-  /**
-   * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor
-   * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
-   * @param operators 计算图中的计算节点
    */
   static void InitOperatorInput(
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);

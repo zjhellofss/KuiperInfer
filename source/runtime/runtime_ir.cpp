@@ -135,7 +135,7 @@ void RuntimeGraph::Build(const std::string& input_name,
       }
     }
   }
-  RuntimeOperatorUtils::InitOperatorInput(operators_, input_operators_maps_);
+  RuntimeOperatorUtils::InitOperatorInput(operators_);
   RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
@@ -229,7 +229,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
         }
       }
 
-      CHECK(!layer_input_datas.empty()) << "Layer input data is empty";
+      CHECK(!layer_input_datas.empty())
+          << current_op->name << " Layer input data is empty";
       CHECK(current_op->output_operands != nullptr &&
             !current_op->output_operands->datas.empty())
           << "Layer output data is empty";

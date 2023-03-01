@@ -26,7 +26,7 @@ TEST(test_expression, add1) {
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output1 = output_tensors.at(0)->slice(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
@@ -55,7 +55,7 @@ TEST(test_expression, add2) {
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output1 = output_tensors.at(0)->slice(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
@@ -84,7 +84,7 @@ TEST(test_expression, mul1) {
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->at(0);
+  const auto &output1 = output_tensors.at(0)->slice(0);
   const auto &output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
   ASSERT_EQ(output1.size(), output2.size());
 

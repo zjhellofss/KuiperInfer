@@ -115,12 +115,12 @@ arma::fcube& Tensor<float>::data() { return this->data_; }
 
 const arma::fcube& Tensor<float>::data() const { return this->data_; }
 
-arma::fmat& Tensor<float>::at(uint32_t channel) {
+arma::fmat& Tensor<float>::slice(uint32_t channel) {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
 
-const arma::fmat& Tensor<float>::at(uint32_t channel) const {
+const arma::fmat& Tensor<float>::slice(uint32_t channel) const {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
@@ -278,24 +278,27 @@ void Tensor<float>::ReView(const std::vector<uint32_t>& shapes) {
   const uint32_t target_channels = shapes.at(0);
   const uint32_t target_rows = shapes.at(1);
   const uint32_t target_cols = shapes.at(2);
+  CHECK_EQ(this->data_.size(), target_channels * target_cols * target_rows);
   arma::fcube new_data(target_rows, target_cols, target_channels);
 
   const uint32_t plane_size = target_rows * target_cols;
   for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
     const arma::fmat& channel = this->data_.slice(c);
     for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
-      const float* colptr = channel.colptr(c_);
+      const float* col_ptr = channel.colptr(c_);
       for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
         const uint32_t pos_index =
             c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
         const uint32_t ch = pos_index / plane_size;
         const uint32_t row = (pos_index - ch * plane_size) / target_cols;
         const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
-        new_data.at(row, col, ch) = *(colptr + r);
+        CHECK(ch < new_data.n_slices && col < new_data.n_cols &&
+              row < new_data.n_rows);
+        new_data.at(row, col, ch) = *(col_ptr + r);
       }
     }
   }
-  this->data_ = new_data;
+  this->data_ = std::move(new_data);
 }
 
 const float* Tensor<float>::raw_ptr() const {
@@ -422,8 +425,8 @@ std::shared_ptr<Tensor<float>> TensorPadding(
 
   const uint32_t channels = tensor->channels();
   for (uint32_t channel = 0; channel < channels; ++channel) {
-    const arma::fmat& in_channel = tensor->at(channel);
-    arma::fmat& output_channel = output->at(channel);
+    const arma::fmat& in_channel = tensor->slice(channel);
+    arma::fmat& output_channel = output->slice(channel);
     const uint32_t in_channel_width = in_channel.n_cols;
     const uint32_t in_channel_height = in_channel.n_rows;
 
@@ -451,14 +454,14 @@ std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
       sftensor s2_ = TensorCreate(s2->channels(), s1->rows(), s1->cols());
       CHECK(s2->size() == s2->channels());
       for (uint32_t c = 0; c < s2->channels(); ++c) {
-        s2_->at(c).fill(s2->index(c));
+        s2_->slice(c).fill(s2->index(c));
       }
       return {s1, s2_};
     } else if (s1->rows() == 1 && s1->cols() == 1) {
       sftensor s1_ = TensorCreate(s1->channels(), s2->rows(), s2->cols());
       CHECK(s1->size() == s1->channels());
       for (uint32_t c = 0; c < s1->channels(); ++c) {
-        s1_->at(c).fill(s1->index(c));
+        s1_->slice(c).fill(s1->index(c));
       }
       return {s1_, s2};
     } else {

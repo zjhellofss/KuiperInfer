@@ -168,7 +168,7 @@ TEST(test_layer, forward_batchnorm6) {
   for (int i = 0; i < 32; ++i) {
     const std::string &path = "tmp/batchnorm/bn_" + std::to_string(i) + ".csv";
     const auto &output_data1 = CSVDataLoader::LoadData(path);
-    const auto &output_data2 = output_->at(i);
+    const auto &output_data2 = output_->slice(i);
     ASSERT_TRUE(arma::approx_equal(output_data1, output_data2, "absdiff", 1e-6));
   }
 }
@@ -194,7 +194,7 @@ TEST(test_layer, forward_batchnorm7) {
   for (int i = 0; i < 32; ++i) {
     const std::string &path = "tmp/batchnorm/bn2_" + std::to_string(i) + ".csv";
     const auto &output_data1 = CSVDataLoader::LoadData(path);
-    const auto &output_data2 = output_->at(i);
+    const auto &output_data2 = output_->slice(i);
     ASSERT_TRUE(arma::approx_equal(output_data1, output_data2, "absdiff", 1e-4));
   }
 }

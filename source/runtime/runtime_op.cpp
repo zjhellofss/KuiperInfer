@@ -15,14 +15,6 @@ RuntimeOperator::~RuntimeOperator() {
 
 void RuntimeOperatorUtils::InitOperatorInput(
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
-  std::map<std::string, std::shared_ptr<RuntimeOperator>> input_operators;
-  return RuntimeOperatorUtils::InitOperatorInput(operators, input_operators);
-}
-
-void RuntimeOperatorUtils::InitOperatorInput(
-    const std::vector<std::shared_ptr<RuntimeOperator>>& operators,
-    const std::map<std::string, std::shared_ptr<RuntimeOperator>>&
-        input_operators) {
   if (operators.empty()) {
     LOG(ERROR) << "Operators for init input shapes is empty!";
     return;
@@ -53,56 +45,9 @@ void RuntimeOperatorUtils::InitOperatorInput(
             << "Unsupported tensor shape sizes: " << input_operand_shape.size();
 
         if (!input_datas.empty()) {
-          // 如果输入空间不为空，则检查输入空间的形状是否被改变
-          if (!input_operators.empty() &&
-              input_operators.find(op->name) == input_operators.end()) {
-            continue;
-          }
-          CHECK(input_datas.size() == batch) << "Batch size is wrong!";
-          // 逐批次检查形状是否被改变
-          for (int32_t i = 0; i < batch; ++i) {
-            const std::vector<uint32_t>& input_data_shape =
-                input_datas.at(i)->shapes();
-            CHECK(input_data_shape.size() == 3)
-                << "The origin shape size of operator input data do not "
-                   "equals "
-                   "to three";
-            if (input_operand_shape.size() == 4) {
-              CHECK(input_data_shape.at(0) == input_operand_shape.at(1) &&
-                    input_data_shape.at(1) == input_operand_shape.at(2) &&
-                    input_data_shape.at(2) == input_operand_shape.at(3));
-            } else if (input_operand_shape.size() == 2) {
-              CHECK(input_data_shape.at(1) == input_operand_shape.at(1) &&
-                    input_data_shape.at(0) == 1 && input_data_shape.at(2) == 1);
-            } else {
-              // current shape size = 3
-              CHECK(input_data_shape.at(1) == input_operand_shape.at(1) &&
-                    input_data_shape.at(0) == 1 &&
-                    input_data_shape.at(2) == input_operand_shape.at(2));
-            }
-          }
+          CHECK_EQ(input_datas.size(), batch);
         } else {
-          // 如果输入空间为空，则为其预留空间
           input_datas.resize(batch);
-          // 一般只需要为输入节点预留输入空间即可，其他节点的输入复用了它上一层节点的输出空间
-          if (!input_operators.empty() &&
-              input_operators.find(op->name) == input_operators.end()) {
-            continue;
-          }
-          // 为节点初始化空间
-          for (int32_t i = 0; i < batch; ++i) {
-            if (input_operand_shape.size() == 4) {
-              input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  input_operand_shape.at(1), input_operand_shape.at(2),
-                  input_operand_shape.at(3));
-            } else if (input_operand_shape.size() == 2) {
-              input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  1, input_operand_shape.at(1), 1);
-            } else {
-              input_datas.at(i) = std::make_shared<Tensor<float>>(
-                  1, input_operand_shape.at(1), input_operand_shape.at(2));
-            }
-          }
         }
       }
     }

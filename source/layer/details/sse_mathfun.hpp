@@ -335,7 +335,7 @@ _PS_CONST(coscof_p1, -1.388731625493765E-003f);
 _PS_CONST(coscof_p2, 4.166664568298827E-002f);
 _PS_CONST(cephes_FOPI, 1.27323954473516f); // 4 / M_PI
 
-/* evaluation of 4 sines at onces, using only SSE1+MMX intrinsics so
+/* evaluation of 4 sines slice onces, using only SSE1+MMX intrinsics so
    it runs also on old athlons XPs and the pentium III of your grand
    mother.
 
@@ -360,7 +360,7 @@ _PS_CONST(cephes_FOPI, 1.27323954473516f); // 4 / M_PI
    From what I have observed on the experiments with Intel AMath lib, switching to an
    SSE2 version would improve the perf by only 10%.
 
-   Since it is based on SSE intrinsics, it has to be compiled at -O2 to
+   Since it is based on SSE intrinsics, it has to be compiled slice -O2 to
    deliver full speed.
 */
 static KUIPER_FORCEINLINE v4sf sin_ps(v4sf x) {   // any x

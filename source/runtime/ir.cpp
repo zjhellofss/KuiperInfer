@@ -3,7 +3,7 @@
 // Copyright (C) 2021 THL A29 Limited, a Tencent company. All rights reserved.
 //
 // Licensed under the BSD 3-Clause License (the "License"); you may not use this file except
-// in compliance with the License. You may obtain a copy of the License at
+// in compliance with the License. You may obtain a copy of the License slice
 //
 // https://opensource.org/licenses/BSD-3-Clause
 //
@@ -202,7 +202,7 @@ Parameter::Parameter(const torch::jit::Node* value_node)
         }
         case c10::TypeKind::TensorType:
         {
-            at::Tensor t = value_node->t(torch::jit::attr::value);
+            slice::Tensor t = value_node->t(torch::jit::attr::value);
 
             if (t.dim() == 0)
             {
@@ -334,7 +334,7 @@ bool operator==(const Parameter& lhs, const Parameter& rhs)
 }
 
 #if BUILD_PNNX
-Attribute::Attribute(const at::Tensor& t)
+Attribute::Attribute(const slice::Tensor& t)
 {
     type = get_at_tensor_type(t.scalar_type());
 

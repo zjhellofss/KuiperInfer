@@ -78,8 +78,8 @@ InferStatus BatchNorm2dLayer::Forward(
                                        "and mean values is not adapting";
 
       const float var_value_ = std::sqrt(var_value + eps_);
-      output->at(i) =
-          ((input->at(i) - mean_value) / var_value_) * affine_weight_.at(i) +
+      output->slice(i) =
+          ((input->slice(i) - mean_value) / var_value_) * affine_weight_.at(i) +
           affine_bias_.at(i);
     }
   }

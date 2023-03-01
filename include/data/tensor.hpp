@@ -119,14 +119,14 @@ class Tensor<float> {
    * @param channel 需要返回的通道
    * @return 返回的通道
    */
-  arma::fmat& at(uint32_t channel);
+  arma::fmat& slice(uint32_t channel);
 
   /**
    * 返回张量第channel通道中的数据
    * @param channel 需要返回的通道
    * @return 返回的通道
    */
-  const arma::fmat& at(uint32_t channel) const;
+  const arma::fmat& slice(uint32_t channel) const;
 
   /**
    * 返回特定位置的元素

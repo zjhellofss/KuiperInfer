@@ -29,15 +29,16 @@ TEST(test_layer, cat1) {
 
   for (int i = 0; i < input_size / 2; ++i) {
     for (int input_channel = 0; input_channel < input_channels; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel),
-                                     outputs.at(i)->at(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->slice(input_channel),
+                                     outputs.at(i)->slice(input_channel), "absdiff", 0.01f));
     }
   }
 
   for (int i = input_size / 2; i < input_size; ++i) {
     for (int input_channel = input_channels; input_channel < input_channels * 2; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel - input_channels),
-                                     outputs.at(i - output_size)->at(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(
+          inputs.at(i)->slice(input_channel - input_channels),
+          outputs.at(i - output_size)->slice(input_channel), "absdiff", 0.01f));
     }
   }
 }
@@ -65,15 +66,16 @@ TEST(test_layer, cat2) {
 
   for (int i = 0; i < input_size / 2; ++i) {
     for (int input_channel = 0; input_channel < input_channels; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel),
-                                     outputs.at(i)->at(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->slice(input_channel),
+                                     outputs.at(i)->slice(input_channel), "absdiff", 0.01f));
     }
   }
 
   for (int i = input_size / 2; i < input_size; ++i) {
     for (int input_channel = input_channels; input_channel < input_channels * 2; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->at(input_channel - input_channels),
-                                     outputs.at(i - output_size)->at(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(
+          inputs.at(i)->slice(input_channel - input_channels),
+          outputs.at(i - output_size)->slice(input_channel), "absdiff", 0.01f));
     }
   }
 }
@@ -101,8 +103,8 @@ TEST(test_layer, cat3) {
   }
 
   for (int i = 0; i < input_size; ++i) {
-    const arma::fmat &in_channel = inputs.at(i)->at(0);
-    const arma::fmat &out_channel = outputs.at(0)->at(i);
+    const arma::fmat &in_channel = inputs.at(i)->slice(0);
+    const arma::fmat &out_channel = outputs.at(0)->slice(i);
     ASSERT_TRUE(arma::approx_equal(in_channel, out_channel, "absdiff", 0.01f));
   }
 }
@@ -130,8 +132,8 @@ TEST(test_layer, cat4) {
   }
 
   for (int i = 0; i < input_size; ++i) {
-    const arma::fmat &in_channel = inputs.at(i)->at(0);
-    const arma::fmat &out_channel = outputs.at(0)->at(i);
+    const arma::fmat &in_channel = inputs.at(i)->slice(0);
+    const arma::fmat &out_channel = outputs.at(0)->slice(i);
     ASSERT_TRUE(arma::approx_equal(in_channel, out_channel, "absdiff", 0.01f));
   }
 }

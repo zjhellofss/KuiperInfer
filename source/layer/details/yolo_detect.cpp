@@ -126,10 +126,10 @@ InferStatus YoloDetectLayer::Forward(
           [](const float value) { return 1.f / (1.f + expf(-value)); });
 #endif
 
-      arma::fmat &x_stages = x_stages_tensor->at(b);
+      arma::fmat &x_stages = x_stages_tensor->slice(b);
       for (uint32_t s = 0; s < stages; ++s) {
         x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1,
-                        classes_info - 1) = input->at(s).t();
+                        classes_info - 1) = input->slice(s).t();
       }
 
       const arma::fmat &xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
@@ -160,7 +160,7 @@ InferStatus YoloDetectLayer::Forward(
     }
     CHECK(output->rows() == f1.slice(i).n_rows);
     CHECK(output->cols() == f1.slice(i).n_cols);
-    output->at(0) = std::move(f1.slice(i));
+    output->slice(0) = std::move(f1.slice(i));
   }
   return InferStatus::kInferSuccess;
 }

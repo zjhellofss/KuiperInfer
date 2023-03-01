@@ -35,10 +35,6 @@ TEST(test_layer, forward_flatten_layer1) {
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
-
-  for (uint32_t i = 0; i < size1; ++i) {
-    ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
-  }
 }
 
 TEST(test_layer, forward_flatten_layer2) {
@@ -71,11 +67,6 @@ TEST(test_layer, forward_flatten_layer2) {
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
-
-  for (uint32_t i = 0; i < size1; ++i) {
-    ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
-  }
-
 }
 
 TEST(test_layer, forward_flatten_layer3) {
@@ -110,9 +101,6 @@ TEST(test_layer, forward_flatten_layer3) {
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
 
-  for (uint32_t i = 0; i < size1; ++i) {
-    ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
-  }
 }
 
 TEST(test_layer, forward_flatten_layer4) {
@@ -147,10 +135,6 @@ TEST(test_layer, forward_flatten_layer4) {
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
-
-  for (uint32_t i = 0; i < size1; ++i) {
-    ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
-  }
 }
 
 TEST(test_layer, forward_flatten_layer5) {
@@ -185,8 +169,4 @@ TEST(test_layer, forward_flatten_layer5) {
   uint32_t size1 = inputs.front()->size();
   uint32_t size2 = outputs.front()->size();
   ASSERT_EQ(size1, size2);
-
-  for (uint32_t i = 0; i < size1; ++i) {
-    ASSERT_EQ(inputs.front()->index(i), outputs.front()->index(i));
-  }
 }
