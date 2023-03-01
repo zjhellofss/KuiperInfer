@@ -589,11 +589,28 @@ TEST(test_tensor, review1) {
   tensor.Fill(values);
 
   tensor.ReRawView({4, 3, 5});
-  const auto& data = tensor.slice(0);
+  auto data = tensor.slice(0);
   int index = 0;
   for (int i = 0; i < 3; ++i) {
     for (int j = 0; j < 5; ++j) {
       ASSERT_EQ(data.at(i, j), index);
+      index += 1;
+    }
+  }
+  data = tensor.slice(1);
+  index = 0;
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 5; ++j) {
+      ASSERT_EQ(data.at(i, j), index + 15);
+      index += 1;
+    }
+  }
+  index = 0;
+  data = tensor.slice(2);
+
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 5; ++j) {
+      ASSERT_EQ(data.at(i, j), index + 30);
       index += 1;
     }
   }
