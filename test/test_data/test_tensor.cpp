@@ -614,6 +614,16 @@ TEST(test_tensor, review1) {
       index += 1;
     }
   }
+
+  index = 0;
+  data = tensor.slice(3);
+
+  for (int i = 0; i < 3; ++i) {
+    for (int j = 0; j < 5; ++j) {
+      ASSERT_EQ(data.at(i, j), index + 45);
+      index += 1;
+    }
+  }
 }
 
 TEST(test_tensor, review2) {
