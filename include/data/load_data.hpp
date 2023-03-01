@@ -2,8 +2,8 @@
 // Created by fss on 22-11-21.
 //
 
-#ifndef KUIPER_COURSE_INCLUDE_DATA_LOAD_DATA_HPP_
-#define KUIPER_COURSE_INCLUDE_DATA_LOAD_DATA_HPP_
+#ifndef KUIPER_INFER_INCLUDE_DATA_LOAD_DATA_HPP_
+#define KUIPER_INFER_INCLUDE_DATA_LOAD_DATA_HPP_
 #include <armadillo>
 #include <string>
 namespace kuiper_infer {
@@ -28,4 +28,4 @@ class CSVDataLoader {
 };
 }
 
-#endif //KUIPER_COURSE_INCLUDE_DATA_LOAD_DATA_HPP_
+#endif //KUIPER_INFER_INCLUDE_DATA_LOAD_DATA_HPP_

@@ -2,8 +2,8 @@
 // Created by fss on 22-11-18.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
 #include "layer/abstract/layer.hpp"
 #include "parser/parse_expression.hpp"
 
@@ -22,4 +22,4 @@ class ExpressionLayer : public Layer {
   std::unique_ptr<ExpressionParser> parser_;
 };
 }
-#endif //KUIPER_COURSE_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_

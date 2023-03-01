@@ -2,8 +2,8 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_COURSE_DATA_BLOB_HPP_
-#define KUIPER_COURSE_DATA_BLOB_HPP_
+#ifndef KUIPER_INFER_DATA_BLOB_HPP_
+#define KUIPER_INFER_DATA_BLOB_HPP_
 #include <memory>
 #include <vector>
 #include "armadillo"
@@ -309,4 +309,4 @@ std::shared_ptr<Tensor<float>> TensorCreate(
 
 }  // namespace kuiper_infer
 
-#endif  // KUIPER_COURSE_DATA_BLOB_HPP_
+#endif  // KUIPER_INFER_DATA_BLOB_HPP_

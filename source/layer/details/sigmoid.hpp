@@ -2,8 +2,8 @@
 // Created by fss on 22-11-13.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_SIGMOID_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_SIGMOID_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_SIGMOID_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_SIGMOID_HPP_
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 class SigmoidLayer : public Layer {
@@ -19,4 +19,4 @@ class SigmoidLayer : public Layer {
 };
 }
 
-#endif //KUIPER_COURSE_SOURCE_LAYER_SIGMOID_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_SIGMOID_HPP_
