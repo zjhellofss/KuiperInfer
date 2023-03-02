@@ -9,12 +9,12 @@ TEST(test_runtime, runtime_graph_input_init1) {
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;
   for (uint32_t i = 0; i < op_size; ++i) {
-    const auto &runtime_operator = std::make_shared<RuntimeOperator>();
-    const auto &runtime_operand1 = std::make_shared<RuntimeOperand>();
+    const auto& runtime_operator = std::make_shared<RuntimeOperator>();
+    const auto& runtime_operand1 = std::make_shared<RuntimeOperand>();
     runtime_operand1->shapes = {3, 32, 32};
     runtime_operand1->type = RuntimeDataType::kTypeFloat32;
 
-    const auto &runtime_operand2 = std::make_shared<RuntimeOperand>();
+    const auto& runtime_operand2 = std::make_shared<RuntimeOperand>();
     runtime_operand2->shapes = {3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
@@ -27,47 +27,23 @@ TEST(test_runtime, runtime_graph_input_init1) {
   }
   ASSERT_EQ(operators.size(), 3);
   RuntimeOperatorUtils::InitOperatorInput(operators);
-  RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 1);
-      ASSERT_EQ(shape1.at(1), 32);
-      ASSERT_EQ(shape1.at(2), 32);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 1);
-      ASSERT_EQ(shape2.at(1), 64);
-      ASSERT_EQ(shape2.at(2), 64);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 3);
+    ASSERT_EQ(size1, size2);
   }
+
   RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 1);
-      ASSERT_EQ(shape1.at(1), 32);
-      ASSERT_EQ(shape1.at(2), 32);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 1);
-      ASSERT_EQ(shape2.at(1), 64);
-      ASSERT_EQ(shape2.at(2), 64);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 3);
+    ASSERT_EQ(size1, size2);
   }
 }
 
@@ -76,13 +52,13 @@ TEST(test_runtime, runtime_graph_input_init2) {
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;
   for (uint32_t i = 0; i < op_size; ++i) {
-    const auto &runtime_operator = std::make_shared<RuntimeOperator>();
-    const auto &runtime_operand1 = std::make_shared<RuntimeOperand>();
-    runtime_operand1->shapes = {1, 3, 32, 32};
+    const auto& runtime_operator = std::make_shared<RuntimeOperator>();
+    const auto& runtime_operand1 = std::make_shared<RuntimeOperand>();
+    runtime_operand1->shapes = {4, 3, 32, 32};
     runtime_operand1->type = RuntimeDataType::kTypeFloat32;
 
-    const auto &runtime_operand2 = std::make_shared<RuntimeOperand>();
-    runtime_operand2->shapes = {1, 3, 64, 64};
+    const auto& runtime_operand2 = std::make_shared<RuntimeOperand>();
+    runtime_operand2->shapes = {4, 3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
     runtime_operator->input_operands.insert(
@@ -95,45 +71,22 @@ TEST(test_runtime, runtime_graph_input_init2) {
   ASSERT_EQ(operators.size(), 3);
   RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 3);
-      ASSERT_EQ(shape1.at(1), 32);
-      ASSERT_EQ(shape1.at(2), 32);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 3);
-      ASSERT_EQ(shape2.at(1), 64);
-      ASSERT_EQ(shape2.at(2), 64);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 4);
+    ASSERT_EQ(size1, size2);
   }
+
   RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 3);
-      ASSERT_EQ(shape1.at(1), 32);
-      ASSERT_EQ(shape1.at(2), 32);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 3);
-      ASSERT_EQ(shape2.at(1), 64);
-      ASSERT_EQ(shape2.at(2), 64);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 4);
+    ASSERT_EQ(size1, size2);
   }
 }
 
@@ -142,13 +95,13 @@ TEST(test_runtime, runtime_graph_input_init3) {
   std::vector<std::shared_ptr<RuntimeOperator>> operators;
   uint32_t op_size = 3;
   for (uint32_t i = 0; i < op_size; ++i) {
-    const auto &runtime_operator = std::make_shared<RuntimeOperator>();
-    const auto &runtime_operand1 = std::make_shared<RuntimeOperand>();
-    runtime_operand1->shapes = {1, 99};
+    const auto& runtime_operator = std::make_shared<RuntimeOperator>();
+    const auto& runtime_operand1 = std::make_shared<RuntimeOperand>();
+    runtime_operand1->shapes = {5, 32};
     runtime_operand1->type = RuntimeDataType::kTypeFloat32;
 
-    const auto &runtime_operand2 = std::make_shared<RuntimeOperand>();
-    runtime_operand2->shapes = {1, 97};
+    const auto& runtime_operand2 = std::make_shared<RuntimeOperand>();
+    runtime_operand2->shapes = {5, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
     runtime_operator->input_operands.insert(
@@ -161,55 +114,32 @@ TEST(test_runtime, runtime_graph_input_init3) {
   ASSERT_EQ(operators.size(), 3);
   RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 1);
-      ASSERT_EQ(shape1.at(1), 99);
-      ASSERT_EQ(shape1.at(2), 1);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 1);
-      ASSERT_EQ(shape2.at(1), 97);
-      ASSERT_EQ(shape2.at(2), 1);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 5);
+    ASSERT_EQ(size1, size2);
   }
+
   RuntimeOperatorUtils::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
-    const auto &op = operators.at(i);
+    const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size1"]->datas) {
-      const auto &shape1 = input_datas->shapes();
-      ASSERT_EQ(shape1.size(), 3);
-      ASSERT_EQ(shape1.at(0), 1);
-      ASSERT_EQ(shape1.at(1), 99);
-      ASSERT_EQ(shape1.at(2), 1);
-    }
-
-    ASSERT_EQ(op->input_operands["size2"]->datas.empty(), false);
-    for (const auto &input_datas : op->input_operands["size2"]->datas) {
-      const auto &shape2 = input_datas->shapes();
-      ASSERT_EQ(shape2.size(), 3);
-      ASSERT_EQ(shape2.at(0), 1);
-      ASSERT_EQ(shape2.at(1), 97);
-      ASSERT_EQ(shape2.at(2), 1);
-    }
+    const uint32_t size1 = op->input_operands["size1"]->datas.size();
+    const uint32_t size2 = op->input_operands["size2"]->datas.size();
+    ASSERT_EQ(size1, 5);
+    ASSERT_EQ(size1, size2);
   }
 }
 
 TEST(test_runtime, runtime_graph_output_init1) {
   using namespace kuiper_infer;
-  std::vector<pnnx::Operator *> pnnx_operators;
+  std::vector<pnnx::Operator*> pnnx_operators;
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
   for (int i = 0; i < 4; ++i) {
-    pnnx::Operator *pnnx_op = new pnnx::Operator;
-    pnnx::Operand *pnnx_number = new pnnx::Operand;
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
     pnnx_number->shape = std::vector<int>{8, 3, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -218,11 +148,11 @@ TEST(test_runtime, runtime_graph_output_init1) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 3);
@@ -232,11 +162,11 @@ TEST(test_runtime, runtime_graph_output_init1) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 3);
@@ -246,11 +176,11 @@ TEST(test_runtime, runtime_graph_output_init1) {
 
 TEST(test_runtime, runtime_graph_output_init2) {
   using namespace kuiper_infer;
-  std::vector<pnnx::Operator *> pnnx_operators;
+  std::vector<pnnx::Operator*> pnnx_operators;
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
   for (int i = 0; i < 4; ++i) {
-    pnnx::Operator *pnnx_op = new pnnx::Operator;
-    pnnx::Operand *pnnx_number = new pnnx::Operand;
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
     pnnx_number->shape = std::vector<int>{8, 64};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -259,12 +189,12 @@ TEST(test_runtime, runtime_graph_output_init2) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 2);
     ASSERT_EQ(output_datas->datas.size(), 8);
 
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
@@ -274,12 +204,12 @@ TEST(test_runtime, runtime_graph_output_init2) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 2);
     ASSERT_EQ(output_datas->datas.size(), 8);
 
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
@@ -289,11 +219,11 @@ TEST(test_runtime, runtime_graph_output_init2) {
 
 TEST(test_runtime, runtime_graph_output_init3) {
   using namespace kuiper_infer;
-  std::vector<pnnx::Operator *> pnnx_operators;
+  std::vector<pnnx::Operator*> pnnx_operators;
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
   for (int i = 0; i < 4; ++i) {
-    pnnx::Operator *pnnx_op = new pnnx::Operator;
-    pnnx::Operand *pnnx_number = new pnnx::Operand;
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
     pnnx_number->shape = std::vector<int>{8, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -302,11 +232,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -316,11 +246,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -330,11 +260,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
 
 TEST(test_runtime, runtime_graph_output_init4) {
   using namespace kuiper_infer;
-  std::vector<pnnx::Operator *> pnnx_operators;
+  std::vector<pnnx::Operator*> pnnx_operators;
   std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
   for (int i = 0; i < 4; ++i) {
-    pnnx::Operator *pnnx_op = new pnnx::Operator;
-    pnnx::Operand *pnnx_number = new pnnx::Operand;
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
     pnnx_number->shape = std::vector<int>{8, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -343,11 +273,11 @@ TEST(test_runtime, runtime_graph_output_init4) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (auto &output_data : output_datas->datas) {
+    for (auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -357,11 +287,11 @@ TEST(test_runtime, runtime_graph_output_init4) {
 
   RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
 
-  for (const auto &run_op : run_ops) {
-    const auto &output_datas = run_op->output_operands;
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
-    for (const auto &output_data : output_datas->datas) {
+    for (const auto& output_data : output_datas->datas) {
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);

@@ -92,7 +92,7 @@ InferStatus LinearLayer::Forward(
     CHECK(output_raw_shapes.at(0) == out_features_ &&
           output_raw_shapes.at(1) == input_dim);
 
-    arma::fmat& result = output->at(0);
+    arma::fmat& result = output->slice(0);
     result = weight_data * col_vec;
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1);

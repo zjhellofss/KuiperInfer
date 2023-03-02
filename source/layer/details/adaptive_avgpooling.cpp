@@ -84,8 +84,8 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
         << "The output size of adaptive pooling is error";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::fmat& input_channel = input_data->at(ic);
-      arma::fmat& output_channel = output_data->at(ic);
+      const arma::fmat& input_channel = input_data->slice(ic);
+      arma::fmat& output_channel = output_data->slice(ic);
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w) {
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h) {
           float mean_value = 0.f;

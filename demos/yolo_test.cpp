@@ -55,7 +55,7 @@ void SingleImageYoloInferNano(const std::string& image_path,
   for (const auto& split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
     const cv::Mat& split_image_t = split_image.t();
-    memcpy(input->at(index).memptr(), split_image_t.data,
+    memcpy(input->slice(index).memptr(), split_image_t.data,
            sizeof(float) * split_image.total());
     index += 1;
     offset += split_image.total();
@@ -187,7 +187,7 @@ void MultiImageYoloInferNano(const std::string& image_path,
     for (const auto& split_image : split_images) {
       assert(split_image.total() == input_w * input_h);
       const cv::Mat& split_image_t = split_image.t();
-      memcpy(input->at(index).memptr(), split_image_t.data,
+      memcpy(input->slice(index).memptr(), split_image_t.data,
              sizeof(float) * split_image.total());
       index += 1;
       offset += split_image.total();

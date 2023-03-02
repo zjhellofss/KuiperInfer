@@ -2,8 +2,8 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_COURSE_INCLUDE_COMMON_HPP_
-#define KUIPER_COURSE_INCLUDE_COMMON_HPP_
+#ifndef KUIPER_INFER_INCLUDE_COMMON_HPP_
+#define KUIPER_INFER_INCLUDE_COMMON_HPP_
 namespace kuiper_infer {
 
 enum class RuntimeParameterType {
@@ -70,4 +70,4 @@ enum class ParseParameterAttrStatus {
   kParameterAttrParseSuccess = 0
 };
 }
-#endif //KUIPER_COURSE_INCLUDE_COMMON_HPP_
+#endif //KUIPER_INFER_INCLUDE_COMMON_HPP_

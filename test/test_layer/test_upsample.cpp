@@ -26,8 +26,8 @@ TEST(test_layer, forward_upsample1) {
   for (int i = 0; i < outputs.size(); ++i) {
     const auto &output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->at(i);
-      const auto &input_channel = input->at(i);
+      const auto &output_channel = output->slice(i);
+      const auto &input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 2);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 2);
 
@@ -61,8 +61,8 @@ TEST(test_layer, forward_upsample2) {
   for (int i = 0; i < outputs.size(); ++i) {
     const auto &output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->at(i);
-      const auto &input_channel = input->at(i);
+      const auto &output_channel = output->slice(i);
+      const auto &input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 2);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 3);
 
@@ -95,8 +95,8 @@ TEST(test_layer, forward_upsample3) {
   for (int i = 0; i < outputs.size(); ++i) {
     const auto &output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->at(i);
-      const auto &input_channel = input->at(i);
+      const auto &output_channel = output->slice(i);
+      const auto &input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 3);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 2);
 
@@ -129,8 +129,8 @@ TEST(test_layer, forward_upsample4) {
   for (int i = 0; i < outputs.size(); ++i) {
     const auto &output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->at(i);
-      const auto &input_channel = input->at(i);
+      const auto &output_channel = output->slice(i);
+      const auto &input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 3);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 3);
 
@@ -163,8 +163,8 @@ TEST(test_layer, forward_upsample5) {
   for (int i = 0; i < outputs.size(); ++i) {
     const auto &output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->at(i);
-      const auto &input_channel = input->at(i);
+      const auto &output_channel = output->slice(i);
+      const auto &input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 4);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 4);
 

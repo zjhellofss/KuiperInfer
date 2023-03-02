@@ -2,8 +2,8 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_COURSE_DATA_BLOB_HPP_
-#define KUIPER_COURSE_DATA_BLOB_HPP_
+#ifndef KUIPER_INFER_DATA_BLOB_HPP_
+#define KUIPER_INFER_DATA_BLOB_HPP_
 #include <memory>
 #include <vector>
 #include "armadillo"
@@ -119,14 +119,14 @@ class Tensor<float> {
    * @param channel 需要返回的通道
    * @return 返回的通道
    */
-  arma::fmat& at(uint32_t channel);
+  arma::fmat& slice(uint32_t channel);
 
   /**
    * 返回张量第channel通道中的数据
    * @param channel 需要返回的通道
    * @return 返回的通道
    */
-  const arma::fmat& at(uint32_t channel) const;
+  const arma::fmat& slice(uint32_t channel) const;
 
   /**
    * 返回特定位置的元素
@@ -309,4 +309,4 @@ std::shared_ptr<Tensor<float>> TensorCreate(
 
 }  // namespace kuiper_infer
 
-#endif  // KUIPER_COURSE_DATA_BLOB_HPP_
+#endif  // KUIPER_INFER_DATA_BLOB_HPP_

@@ -2,8 +2,8 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_LAYER_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_LAYER_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_
 #include <string>
 #include <utility>
 #include <vector>
@@ -76,4 +76,4 @@ class Layer {
 };
 
 }
-#endif //KUIPER_COURSE_SOURCE_LAYER_LAYER_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_

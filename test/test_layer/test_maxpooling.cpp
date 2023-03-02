@@ -24,8 +24,8 @@ void MaxPooling(const std::vector<std::shared_ptr<kuiper_infer::Tensor<float>>> 
 
     std::shared_ptr<Tensor<float>> output_data = std::make_shared<Tensor<float>>(output_c, output_h, output_w);
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::fmat &input_channel = input_data->at(ic);
-      arma::fmat &output_channel = output_data->at(ic);
+      const arma::fmat &input_channel = input_data->slice(ic);
+      arma::fmat &output_channel = output_data->slice(ic);
       for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h) {
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w) {
           const arma::fmat &region = input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
@@ -69,7 +69,7 @@ TEST(test_layer, forward_max_pooling_s11_k33) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -106,7 +106,7 @@ TEST(test_layer, forward_max_pooling_s11_k33_p1) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -143,7 +143,7 @@ TEST(test_layer, forward_max_pooling_s22_k33) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -180,7 +180,7 @@ TEST(test_layer, forward_max_pooling_s33_k33) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -217,7 +217,7 @@ TEST(test_layer, forward_max_pooling_s11_k55) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -254,7 +254,7 @@ TEST(test_layer, forward_max_pooling_s22_k55) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -291,7 +291,7 @@ TEST(test_layer, forward_max_pooling_s33_k55) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -328,7 +328,7 @@ TEST(test_layer, forward_max_pooling_s55_k55) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -365,7 +365,7 @@ TEST(test_layer, forward_max_pooling_s11_k77) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -402,7 +402,7 @@ TEST(test_layer, forward_max_pooling_s22_k77) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -439,7 +439,7 @@ TEST(test_layer, forward_max_pooling_s33_k77) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -476,7 +476,7 @@ TEST(test_layer, forward_max_pooling_s55_k77) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }
@@ -513,7 +513,7 @@ TEST(test_layer, forward_max_pooling_s77_k77) {
     ASSERT_EQ(output1->channels(), output2->channels());
     uint32_t channels = output1->channels();
     for (int c = 0; c < channels; ++c) {
-      ASSERT_TRUE(arma::approx_equal(output1->at(c), output2->at(c), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(output1->slice(c), output2->slice(c), "absdiff", 0.01f));
     }
   }
 }

@@ -58,10 +58,10 @@ InferStatus Convolution(const std::vector<std::shared_ptr<Tensor<float>>> &input
         return InferStatus::kInferFailedChannelParameterError;
       }
 
-      arma::fmat &output_channel = output_data->at(k);
+      arma::fmat &output_channel = output_data->slice(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
-        const arma::fmat &input_channel = input->at(ic);
-        const arma::fmat &kernel_channel = kernel->at(ic);
+        const arma::fmat &input_channel = input->slice(ic);
+        const arma::fmat &kernel_channel = kernel->slice(ic);
 
         for (uint32_t c = 0; c < input_w - kernel_w + 1; c += stride_w_) {
           for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {

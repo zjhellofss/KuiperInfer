@@ -2,8 +2,8 @@
 // Created by fss on 22-11-17.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_LAYER_FACTORY_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_LAYER_FACTORY_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_LAYER_FACTORY_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_LAYER_FACTORY_HPP_
 #include <map>
 #include <string>
 #include <memory>
@@ -34,4 +34,4 @@ class LayerRegistererWrapper {
 
 }
 
-#endif //KUIPER_COURSE_SOURCE_LAYER_LAYER_FACTORY_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_LAYER_FACTORY_HPP_

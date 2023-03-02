@@ -62,7 +62,7 @@ InferStatus ViewLayer::Forward(
     }
 
     CHECK(dynamic_index == -1 || dynamic_index == shapes_.size() - 1)
-            << "Minus one shape is in the wrong axis, only at the last axis!";
+            << "Minus one shape is in the wrong axis, only slice the last axis!";
     if (dynamic_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));

@@ -2,8 +2,8 @@
 // Created by fss on 22-11-13.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_
 #include "layer/abstract/param_layer.hpp"
 
 namespace kuiper_infer {
@@ -34,4 +34,4 @@ class ConvolutionLayer : public ParamLayer {
 
 }  // namespace kuiper_infer
 
-#endif  // KUIPER_COURSE_SOURCE_LAYER_CONVOLUTION_HPP_
+#endif  // KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_

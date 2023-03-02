@@ -2,8 +2,8 @@
 // Created by fss on 22-11-15.
 //
 
-#ifndef KUIPER_COURSE_INCLUDE_TICK_HPP_
-#define KUIPER_COURSE_INCLUDE_TICK_HPP_
+#ifndef KUIPER_INFER_INCLUDE_TICK_HPP_
+#define KUIPER_INFER_INCLUDE_TICK_HPP_
 #include <iostream>
 #include <chrono>
 
@@ -14,4 +14,4 @@
 #define TICK(x)
 #define TOCK(x)
 #endif
-#endif //KUIPER_COURSE_INCLUDE_TICK_HPP_
+#endif //KUIPER_INFER_INCLUDE_TICK_HPP_

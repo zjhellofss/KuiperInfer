@@ -2,8 +2,8 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_COURSE_SOURCE_LAYER_AVGPOOLING_HPP_
-#define KUIPER_COURSE_SOURCE_LAYER_AVGPOOLING_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_AVGPOOLING_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_AVGPOOLING_HPP_
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 class MaxPoolingLayer : public Layer {
@@ -26,4 +26,4 @@ class MaxPoolingLayer : public Layer {
   uint32_t stride_w_ = 1;
 };
 }
-#endif //KUIPER_COURSE_SOURCE_LAYER_AVGPOOLING_HPP_
+#endif //KUIPER_INFER_SOURCE_LAYER_AVGPOOLING_HPP_
