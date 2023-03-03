@@ -18,6 +18,7 @@
 
 - [Azusachan](https://github.com/Azusachan)
 - [wfs2010](https://github.com/wfs2010)
+- [mlmz](https://github.com/minleminzui)
 ## 课程计划
 
 我在b站上开了一门教学课程，目前是课程的前八次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。

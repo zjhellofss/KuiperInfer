@@ -77,7 +77,7 @@ InferStatus SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>
         j += 1;
       }
     }
-#elif
+#else
     output->set_data(input->data());
     output->Transform([](const float value) {
       return value / (1.f + expf(-value));

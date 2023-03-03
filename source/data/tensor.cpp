@@ -211,10 +211,7 @@ void Tensor<float>::Ones() {
 
 void Tensor<float>::Transform(const std::function<float(float)>& filter) {
   CHECK(!this->data_.empty());
-  uint32_t channels = this->channels();
-  for (uint32_t c = 0; c < channels; ++c) {
-    this->data_.slice(c).transform(filter);
-  }
+  this->data_.transform(filter);
 }
 
 void Tensor<float>::ReRawshape(const std::vector<uint32_t>& shapes) {
