@@ -142,7 +142,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t &index) {
         || right_token.token_type == TokenType::TokenAdd || right_token.token_type == TokenType::TokenMul) {
       current_node->right = Generate_(index);
     } else {
-      LOG(FATAL) << "Unknown token type: " << int(left_token.token_type);
+      LOG(FATAL) << "Unknown token type: " << int(right_token.token_type);
     }
 
     index += 1;
