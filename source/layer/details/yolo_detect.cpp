@@ -141,7 +141,7 @@ InferStatus YoloDetectLayer::Forward(
           arma::pow((wh * 2), 2) % anchor_grids_[stage];
     }
     concat_rows += x_stages_tensor->rows();
-    zs.at(stage) = std::move(x_stages_tensor);
+    zs.at(stage) = x_stages_tensor;
   }
 
   uint32_t current_rows = 0;

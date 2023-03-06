@@ -77,15 +77,14 @@ InferStatus ConvolutionLayer::Forward(
   const uint32_t kernel_count_group = kernel_count / groups_;
   const uint32_t batch_size = inputs.size();
 
-  std::vector<arma::fmat> kernel_matrix_arr(kernel_count_group);
+  std::vector<arma::frowvec> kernel_matrix_arr(kernel_count_group);
   if (groups_ == 1) {
-    arma::fmat kernel_matrix_c(1, row_len * kernel_c);
+    arma::frowvec kernel_matrix_c(row_len * kernel_c);
     for (uint32_t k = 0; k < kernel_count_group; ++k) {
       const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
       for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
         memcpy(kernel_matrix_c.memptr() + row_len * ic,
-               kernel->slice(ic).memptr(),
-               row_len * sizeof(float));
+               kernel->slice(ic).memptr(), row_len * sizeof(float));
       }
       kernel_matrix_arr.at(k) = kernel_matrix_c;
     }
@@ -174,7 +173,9 @@ InferStatus ConvolutionLayer::Forward(
           << "The output size of convolution is error";
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        arma::fmat output;
+        arma::fmat output(
+            output_tensor->slice(k + g * kernel_count_group).memptr(), output_h,
+            output_w, false, true);
         if (groups_ == 1) {
           output = kernel_matrix_arr.at(k) * input_matrix;
         } else {
@@ -185,12 +186,10 @@ InferStatus ConvolutionLayer::Forward(
           bias = this->bias_.at(k);
         }
         CHECK(output.size() == output_h * output_w);
-        if (bias != nullptr) {
+        if (bias != nullptr && !bias->empty()) {
           float bias_value = bias->index(0);
           output += bias_value;
         }
-        mempcpy(output_tensor->slice(k + g * kernel_count_group).memptr(),
-                output.memptr(), sizeof(float) * output_h * output_w);
       }
     }
   }
