@@ -192,7 +192,7 @@ void Tensor<float>::Show() {
 void Tensor<float>::Flatten() {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
-  this->ReRawshape({size});
+  this->Reshape({size});
 }
 
 std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
@@ -214,39 +214,13 @@ void Tensor<float>::Transform(const std::function<float(float)>& filter) {
   this->data_.transform(filter);
 }
 
-void Tensor<float>::ReRawshape(const std::vector<uint32_t>& shapes) {
-  CHECK(!this->data_.empty());
-  CHECK(!shapes.empty());
-  const uint32_t origin_size = this->size();
-  uint32_t current_size = 1;
-  for (uint32_t s : shapes) {
-    current_size *= s;
-  }
-  CHECK(shapes.size() <= 3);
-  CHECK(current_size == origin_size);
-
-  //  if (this->raw_shapes_ == shapes) {
-  //    return;
-  //  }
-
-  if (shapes.size() == 3) {
-    this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-  } else if (shapes.size() == 2) {
-    this->data_.reshape(shapes.at(0), shapes.at(1), 1);
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
-  } else {
-    this->data_.reshape(shapes.at(0), 1, 1);
-    this->raw_shapes_ = {shapes.at(0)};
-  }
-}
-
 const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
   CHECK(!this->raw_shapes_.empty());
   return this->raw_shapes_;
 }
 
-void Tensor<float>::ReRawView(const std::vector<uint32_t>& shapes) {
+void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
+                                 bool raw_major) {
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
@@ -256,18 +230,31 @@ void Tensor<float>::ReRawView(const std::vector<uint32_t>& shapes) {
   }
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
-  std::vector<uint32_t> target_shapes;  // channel row col
-  if (shapes.size() == 3) {
-    target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-  } else if (shapes.size() == 2) {
-    target_shapes = {1, shapes.at(0), shapes.at(1)};
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
+  if (raw_major) {
+    std::vector<uint32_t> target_shapes;  // channel row col
+    if (shapes.size() == 3) {
+      target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
+    } else if (shapes.size() == 2) {
+      target_shapes = {1, shapes.at(0), shapes.at(1)};
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
+    } else {
+      target_shapes = {1, shapes.at(0), 1};
+      this->raw_shapes_ = {shapes.at(0)};
+    }
+    this->ReView(target_shapes);
   } else {
-    target_shapes = {1, shapes.at(0), 1};
-    this->raw_shapes_ = {shapes.at(0)};
+    if (shapes.size() == 3) {
+      this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
+    } else if (shapes.size() == 2) {
+      this->data_.reshape(shapes.at(0), shapes.at(1), 1);
+      this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
+    } else {
+      this->data_.reshape(shapes.at(0), 1, 1);
+      this->raw_shapes_ = {shapes.at(0)};
+    }
   }
-  this->ReView(target_shapes);
 }
 
 void Tensor<float>::ReView(const std::vector<uint32_t>& shapes) {
@@ -448,19 +435,21 @@ std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
   } else {
     CHECK(s1->channels() == s2->channels());
     if (s2->rows() == 1 && s2->cols() == 1) {
-      sftensor s2_ = TensorCreate(s2->channels(), s1->rows(), s1->cols());
+      sftensor new_tensor =
+          TensorCreate(s2->channels(), s1->rows(), s1->cols());
       CHECK(s2->size() == s2->channels());
       for (uint32_t c = 0; c < s2->channels(); ++c) {
-        s2_->slice(c).fill(s2->index(c));
+        new_tensor->slice(c).fill(s2->index(c));
       }
-      return {s1, s2_};
+      return {s1, new_tensor};
     } else if (s1->rows() == 1 && s1->cols() == 1) {
-      sftensor s1_ = TensorCreate(s1->channels(), s2->rows(), s2->cols());
+      sftensor new_tensor =
+          TensorCreate(s1->channels(), s2->rows(), s2->cols());
       CHECK(s1->size() == s1->channels());
       for (uint32_t c = 0; c < s1->channels(); ++c) {
-        s1_->slice(c).fill(s1->index(c));
+        new_tensor->slice(c).fill(s1->index(c));
       }
-      return {s1_, s2};
+      return {new_tensor, s2};
     } else {
       LOG(FATAL) << "Broadcast shape is not adapting!";
       return {s1, s2};

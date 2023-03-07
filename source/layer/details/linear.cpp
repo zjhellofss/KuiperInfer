@@ -144,8 +144,10 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
   const auto& weight = attr.at("weight");
   const auto& bias = attr.at("bias");
   const auto& shapes = weight->shape;
-  CHECK(shapes.size() == 2)
-      << "The graph only support two dimension matrix multiply";
+  if ((shapes.size() < 2)) {
+    LOG(ERROR) << "The graph only support two dimension matrix multiply";
+    return ParseParameterAttrStatus::kAttrMissingOutFeatures;
+  }
 
   int32_t out_features = shapes.at(0);
   int32_t in_features = shapes.at(1);

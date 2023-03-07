@@ -465,7 +465,7 @@ TEST(test_tensor, shapes) {
 TEST(test_tensor, raw_shapes1) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawshape({24});
+  f3.Reshape({24});
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 1);
   ASSERT_EQ(shapes.at(0), 24);
@@ -474,7 +474,7 @@ TEST(test_tensor, raw_shapes1) {
 TEST(test_tensor, raw_shapes2) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawshape({4, 6});
+  f3.Reshape({4, 6});
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 2);
   ASSERT_EQ(shapes.at(0), 4);
@@ -484,7 +484,7 @@ TEST(test_tensor, raw_shapes2) {
 TEST(test_tensor, raw_shapes3) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawshape({4, 3, 2});
+  f3.Reshape({4, 3, 2});
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 3);
   ASSERT_EQ(shapes.at(0), 4);
@@ -495,7 +495,7 @@ TEST(test_tensor, raw_shapes3) {
 TEST(test_tensor, raw_view1) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawView({24});
+  f3.Reshape({24}, true);
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 1);
   ASSERT_EQ(shapes.at(0), 24);
@@ -504,7 +504,7 @@ TEST(test_tensor, raw_view1) {
 TEST(test_tensor, raw_view2) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawView({4, 6});
+  f3.Reshape({4, 6}, true);
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 2);
   ASSERT_EQ(shapes.at(0), 4);
@@ -514,7 +514,7 @@ TEST(test_tensor, raw_view2) {
 TEST(test_tensor, raw_view3) {
   using namespace kuiper_infer;
   Tensor<float> f3(2, 3, 4);
-  f3.ReRawView({4, 3, 2});
+  f3.Reshape({4, 3, 2}, true);
   const auto& shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 3);
   ASSERT_EQ(shapes.at(0), 4);
@@ -588,7 +588,7 @@ TEST(test_tensor, review1) {
 
   tensor.Fill(values);
 
-  tensor.ReRawView({4, 3, 5});
+  tensor.Reshape({4, 3, 5}, true);
   auto data = tensor.slice(0);
   int index = 0;
   for (int i = 0; i < 3; ++i) {
@@ -638,7 +638,7 @@ TEST(test_tensor, review2) {
   sftensor data = TensorCreate(2, 2, 4);
   data->slice(0) = f1;
   data->slice(1) = f2;
-  data->ReRawView({16});
+  data->Reshape({16}, true);
   for (uint32_t i = 0; i < 8; ++i) {
     ASSERT_EQ(data->index(i), i + 1);
   }
@@ -656,7 +656,7 @@ TEST(test_tensor, review3) {
 
   sftensor data = TensorCreate(1, 2, 4);
   data->slice(0) = f1;
-  data->ReRawView({4, 2});
+  data->Reshape({4, 2}, true);
 
   arma::fmat data2 = data->slice(0);
   ASSERT_EQ(data2.n_rows, 4);
@@ -683,7 +683,7 @@ TEST(test_tensor, review4) {
   sftensor data = TensorCreate(2, 2, 4);
   data->slice(0) = f1;
   data->slice(1) = f2;
-  data->ReRawView({4, 2, 2});
+  data->Reshape({4, 2, 2}, true);
   for (uint32_t c = 0; c < data->channels(); ++c) {
     const auto& in_channel = data->slice(c);
     ASSERT_EQ(in_channel.n_rows, 2);
@@ -712,7 +712,7 @@ TEST(test_tensor, reshape1) {
   sftensor data = TensorCreate(2, 2, 2);
   data->slice(0) = f1;
   data->slice(1) = f2;
-  data->ReRawshape({8});
+  data->Reshape({8});
   for (uint32_t i = 0; i < 4; ++i) {
     ASSERT_EQ(data->index(i), i + 1);
   }
@@ -735,7 +735,7 @@ TEST(test_tensor, reshape2) {
   sftensor data = TensorCreate(2, 2, 2);
   data->slice(0) = f1;
   data->slice(1) = f2;
-  data->ReRawshape({2, 4});
+  data->Reshape({2, 4});
   for (uint32_t i = 0; i < 4; ++i) {
     ASSERT_EQ(data->index(i), i);
   }

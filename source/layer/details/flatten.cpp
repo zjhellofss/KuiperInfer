@@ -64,13 +64,13 @@ InferStatus FlattenLayer::Forward(
       memcpy(output->data().memptr(), input->data().memptr(), sizeof(float) * input->size());
     }
     if (start_dim == 0 && end_dim == 2) {
-      output->ReRawView({elements_size});
+      output->Reshape({elements_size}, true);
     } else if (start_dim == 1 && end_dim == 2) {
       uint32_t channels = input->channels();
-      output->ReRawView({channels, elements_size});
+      output->Reshape({channels, elements_size}, true);
     } else if (start_dim == 0 && end_dim == 1) {
       uint32_t cols = input->cols();
-      output->ReRawView({elements_size, cols});
+      output->Reshape({elements_size, cols}, true);
     } else {
       LOG(FATAL) << "Wrong flatten dim: "
                  << "start dim: " << start_dim << " end dim: " << end_dim;

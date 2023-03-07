@@ -180,27 +180,11 @@ class Tensor<float> {
    */
   void Show();
 
-  /// reshape和review的区别
-  /// reshape是满足列优先的
-  /// review是满足行优先的
-  /**
-   * 1 3 4 7
-   * review(2,2)  reshape(2,2)
-   * 1 3          1 4
-   * 4 7          3 7
-   */
-   
-  /**
-   * 张量的实际尺寸大小的Reshape
-   * @param shapes 张量的实际尺寸大小
-   */
-  void ReRawshape(const std::vector<uint32_t>& shapes);
-
   /**
    * 张量的实际尺寸大小的Reshape pytorch兼容
    * @param shapes 张量的实际尺寸大小
    */
-  void ReRawView(const std::vector<uint32_t>& shapes);
+  void Reshape(const std::vector<uint32_t>& shapes, bool raw_major = false);
 
   /**
    * 展开张量
@@ -234,7 +218,8 @@ class Tensor<float> {
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
-std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor &s1, const sftensor &s2);
+std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& s1,
+                                               const sftensor& s2);
 
 std::shared_ptr<Tensor<float>> TensorPadding(
     const std::shared_ptr<Tensor<float>>& tensor,

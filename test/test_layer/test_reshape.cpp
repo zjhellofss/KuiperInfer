@@ -9,7 +9,7 @@ TEST(test_reshape, reshape1) {
   Tensor<float> tensor1(3, 224, 224);
   tensor1.Rand();
   Tensor<float> tensor2 = tensor1;
-  tensor1.ReRawshape({224, 224, 3});
+  tensor1.Reshape({224, 224, 3});
 
   const auto &raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 3);
@@ -29,7 +29,7 @@ TEST(test_reshape, reshape2) {
   Tensor<float> tensor1(3, 224, 224);
   tensor1.Rand();
   Tensor<float> tensor2 = tensor1;
-  tensor1.ReRawshape({672, 224});
+  tensor1.Reshape({672, 224});
 
   const auto &raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 2);
@@ -48,7 +48,7 @@ TEST(test_reshape, reshape3) {
   Tensor<float> tensor1(3, 224, 224);
   tensor1.Rand();
   Tensor<float> tensor2 = tensor1;
-  tensor1.ReRawshape({150528});
+  tensor1.Reshape({150528});
 
   const auto &raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
