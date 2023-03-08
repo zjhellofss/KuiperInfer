@@ -189,10 +189,10 @@ void Tensor<float>::Show() {
   }
 }
 
-void Tensor<float>::Flatten() {
+void Tensor<float>::Flatten(bool row_major) {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
-  this->Reshape({size});
+  this->Reshape({size}, row_major);
 }
 
 std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
@@ -220,7 +220,7 @@ const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
 }
 
 void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
-                                 bool raw_major) {
+                            bool row_major) {
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
@@ -230,7 +230,7 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   }
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
-  if (raw_major) {
+  if (row_major) {
     std::vector<uint32_t> target_shapes;  // channel row col
     if (shapes.size() == 3) {
       target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};

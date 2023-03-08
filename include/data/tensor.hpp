@@ -183,13 +183,14 @@ class Tensor<float> {
   /**
    * 张量的实际尺寸大小的Reshape pytorch兼容
    * @param shapes 张量的实际尺寸大小
+   * @param row_major 根据行主序还是列主序进行reshape
    */
-  void Reshape(const std::vector<uint32_t>& shapes, bool raw_major = false);
+  void Reshape(const std::vector<uint32_t>& shapes, bool row_major = false);
 
   /**
    * 展开张量
    */
-  void Flatten();
+  void Flatten(bool row_major = false);
 
   /**
    * 对张量中的元素进行过滤

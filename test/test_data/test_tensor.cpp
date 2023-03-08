@@ -181,7 +181,7 @@ TEST(test_tensor, index2) {
   ASSERT_EQ(f3.index(3), 4);
 }
 
-TEST(test_tensor, flatten) {
+TEST(test_tensor, flatten1) {
   using namespace kuiper_infer;
 
   Tensor<float> f3(3, 3, 3);
@@ -190,7 +190,7 @@ TEST(test_tensor, flatten) {
     values.push_back(float(i));
   }
   f3.Fill(values);
-  f3.Flatten();
+  f3.Flatten(false);
   ASSERT_EQ(f3.channels(), 1);
   ASSERT_EQ(f3.rows(), 27);
   ASSERT_EQ(f3.cols(), 1);
@@ -205,6 +205,21 @@ TEST(test_tensor, flatten) {
   ASSERT_EQ(f3.index(6), 2);
   ASSERT_EQ(f3.index(7), 5);
   ASSERT_EQ(f3.index(8), 8);
+}
+
+TEST(test_tensor, flatten2) {
+  using namespace kuiper_infer;
+
+  Tensor<float> f3(3, 3, 3);
+  std::vector<float> values;
+  for (int i = 0; i < 27; ++i) {
+    values.push_back(float(i));
+  }
+  f3.Fill(values);
+  f3.Flatten(true);
+  for (int i = 0; i < 27; ++i) {
+    ASSERT_EQ(f3.index(i), i);
+  }
 }
 
 TEST(test_tensor, fill1) {
