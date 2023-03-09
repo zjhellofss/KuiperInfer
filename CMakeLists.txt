@@ -17,6 +17,8 @@ if (MSVC)
         # set __SSE2__ and __XOP__ macros
         add_definitions(-D__SSE2__ -D__XOP__)
     endif ()
+    # Force LLVM OpenMP on MSVC
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /openmp:llvm")
 endif ()
 option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 
