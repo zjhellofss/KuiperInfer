@@ -135,8 +135,11 @@ void RuntimeGraph::Build(const std::string& input_name,
       }
     }
   }
+
+  // 初始化节点的输入和输出空间
   RuntimeOperatorUtils::InitOperatorInput(operators_);
   RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
+
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
   output_name_ = output_name;
@@ -171,6 +174,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   } else {
     output_op = output_operators_maps_.at(output_name_);
   }
+
 
   // 输入和输出算子一般唯一
   // 执行队列中添加输入算子
@@ -208,16 +212,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     } else {
       // 如果当前节点是其他待执行节点，首先使用checkready检测它是否就绪
       std::string current_op_name = current_op->name;
-      if (!CheckOperatorReady(current_op)) {
-        if (operator_queue.empty()) {
-          // 当current op是最后一个节点的时候，说明它已经不能被ready
-          LOG(FATAL) << "Current operator is not ready!";
-          break;
-        } else {
-          // 如果current op不是最后一个节点，它还有被ready的可能性
-          operator_queue.push_back(current_op);
-        }
-      }
+      CHECK_EQ(CheckOperatorReady(current_op), true)
+          << "Current operator " << current_op->name << " is not ready!";
       // 准备节点layer计算所需要的输入
       const std::vector<std::shared_ptr<RuntimeOperand>>& input_operand_datas =
           current_op->input_operands_seq;
@@ -240,10 +236,11 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       // layer的计算结果存放在current_op->output_operands->datas中
       InferStatus status = current_op->layer->Forward(
           layer_input_datas, current_op->output_operands->datas);
+
+      CHECK(status == InferStatus::kInferSuccess)
+          << current_op->layer->layer_name()
+          << " layer forward failed, error code: " << int(status);
       if (debug) {
-        std::replace_if(
-            current_op_name.begin(), current_op_name.end(),
-            [](char c) { return c == '.'; }, '_');
         const double duration =
             std::chrono::duration_cast<std::chrono::duration<double>>(
                 std::chrono::steady_clock::now() - start)
@@ -256,9 +253,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
         }
       }
 
-      CHECK(status == InferStatus::kInferSuccess)
-          << current_op->layer->layer_name()
-          << " layer forward failed, error code: " << int(status);
       const auto copy_start = std::chrono::steady_clock::now();
       // 将当前layer的计算输出current_op->output_operands->datas赋值到后继节点的输入中
       ProbeNextLayer(current_op, operator_queue,
