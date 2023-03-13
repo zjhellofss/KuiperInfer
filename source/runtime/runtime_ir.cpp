@@ -132,6 +132,7 @@ void RuntimeGraph::Build(const std::string& input_name,
       CHECK(layer != nullptr) << "Layer create failed!";
       if (layer) {
         kOperator->layer = layer;
+        layer->set_runtime_operator(kOperator);
       }
     }
   }
@@ -175,7 +176,6 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     output_op = output_operators_maps_.at(output_name_);
   }
 
-
   // 输入和输出算子一般唯一
   // 执行队列中添加输入算子
   std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
@@ -214,28 +214,9 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       std::string current_op_name = current_op->name;
       CHECK_EQ(CheckOperatorReady(current_op), true)
           << "Current operator " << current_op->name << " is not ready!";
-      // 准备节点layer计算所需要的输入
-      const std::vector<std::shared_ptr<RuntimeOperand>>& input_operand_datas =
-          current_op->input_operands_seq;
-      // layer的输入
-      std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
-      for (const auto& input_operand_data : input_operand_datas) {
-        for (const auto& input_data : input_operand_data->datas) {
-          layer_input_datas.push_back(input_data);
-        }
-      }
-
-      CHECK(!layer_input_datas.empty())
-          << current_op->name << " Layer input data is empty";
-      CHECK(current_op->output_operands != nullptr &&
-            !current_op->output_operands->datas.empty())
-          << "Layer output data is empty";
 
       const auto& start = std::chrono::steady_clock::now();
-      // 执行operator当中的layer计算过程
-      // layer的计算结果存放在current_op->output_operands->datas中
-      InferStatus status = current_op->layer->Forward(
-          layer_input_datas, current_op->output_operands->datas);
+      InferStatus status = current_op->layer->Forward();
 
       CHECK(status == InferStatus::kInferSuccess)
           << current_op->layer->layer_name()
