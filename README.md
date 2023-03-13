@@ -23,6 +23,11 @@
 
 我在b站上开了一门教学课程，目前是课程的前八次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。
 
+### 学习群：
+请注明来意，我会拉你进群
+
+![](https://i.imgur.com/7myOrcY.png)
+
 | 课程节数 | 主要内容                   | 进度 | 课程链接                                         |
 |------|------------------------|----|----------------------------------------------|
 | 第一次课 | 整体框架解读和开发环境配置          | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
@@ -48,10 +53,12 @@
 2. sudo docker run -t -i registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest /bin/bash
 3. cd code 
 4. git clone  https://github.com/zjhellofss/KuiperInfer.git 
-5. mkdir build
-6. cd build
-7. cmake -DCMAKE_BUILD_TYPE=Release -DDEVELOPMENT=OFF ..
-8. make -j16
+5. cd KuiperInfer
+6. **git checkout -b 你的新分支 study_version_0.01 (如果想抄本项目的代码，请使用这一步切换到study tag)**
+7. mkdir build 
+8. cd build 
+9. cmake -DCMAKE_BUILD_TYPE=Release -DDEVELOPMENT=OFF .. 
+10. make -j16
 
 **Tips:**
 
@@ -60,16 +67,18 @@
 3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
 
 ##  安装过程(不使用docker)
-1. 安装必要环境(openblas推荐编译安装，可以获得更快的运行速度，或者使用apt install intel-mkl替代openblas)
+1. git clone --recursive https://github.com/zjhellofss/KuiperInfer.git
+2. **git checkout -b 你的新分支 study_version_0.01 (如果想抄本项目的代码，请使用这一步切换到study tag)**
+3. 安装必要环境(openblas推荐编译安装，可以获得更快的运行速度，或者使用apt install intel-mkl替代openblas)
 ```shell
  apt install cmake, openblas-devel, lapack-devel, arpack-devel, SuperLU-devel
 ```
-2. 下载并编译armadillo https://arma.sourceforge.net/download.html
-3. 编译安装glog\google test\google benchmark
+4. 下载并编译armadillo https://arma.sourceforge.net/download.html
+5. 编译安装glog\google test\google benchmark
+6. 余下步骤和上述一致
 
 **Tips:**
 1. google benchmark编译过程中，如果遇到关于gtest缺失的报错，可以在google benchmark的cmake中关闭gtest选项
-2. 余下步骤和上述一致
 
 ## 如何运行Yolov5的推理
 
