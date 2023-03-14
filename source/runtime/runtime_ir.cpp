@@ -141,7 +141,6 @@ void RuntimeGraph::Build(const std::string& input_name,
   // 初始化节点的输入和输出空间
   RuntimeOperatorUtils::InitOperatorInput(operators_);
   RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
-  RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
 
   // 构建拓扑顺序
   topo_operators_.clear();
