@@ -69,6 +69,8 @@ class RuntimeGraph {
    */
   bool Init();
 
+  void ReverseTopo(const std::shared_ptr<RuntimeOperator>& current_op);
+
   /**
    * 初始化kuiper infer计算图节点中的输入操作数
    * @param inputs pnnx中的输入操作数
@@ -113,22 +115,14 @@ class RuntimeGraph {
   static std::shared_ptr<Layer> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
-  /**
-   * 检查当前节点是否就绪
-   * @param op 待检查的节点
-   * @return 是否就绪
-   */
-  static bool CheckOperatorReady(const std::shared_ptr<RuntimeOperator>& op);
 
   /**
    * 探查下一层的计算节点
    * @param current_op 当前计算节点
-   * @param operator_queue 计算节点的计算序列
    * @param layer_output_data 当前节点的输出，赋予到下一层计算节点的输入张量中
    */
   static void ProbeNextLayer(
       const std::shared_ptr<RuntimeOperator>& current_op,
-      std::deque<std::shared_ptr<RuntimeOperator>>& operator_queue,
       const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
 
  private:
@@ -146,6 +140,7 @@ class RuntimeGraph {
       input_operators_maps_;  /// 保存输入节点
   std::map<std::string, std::shared_ptr<RuntimeOperator>>
       output_operators_maps_;  /// 保存输出节点
+  std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>>
       operators_;                       /// 计算图的计算节点
   std::unique_ptr<pnnx::Graph> graph_;  /// pnnx的graph

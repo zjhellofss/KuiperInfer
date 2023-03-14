@@ -90,6 +90,11 @@ bool RuntimeGraph::Init() {
 
 void RuntimeGraph::Build(const std::string& input_name,
                          const std::string& output_name) {
+  if (graph_state_ == GraphState::Complete) {
+    LOG(INFO) << "Model has been built already!";
+    return;
+  }
+
   if (graph_state_ == GraphState::NeedInit) {
     bool init_graph = Init();
     LOG_IF(FATAL, !init_graph) << "Init graph failed!";
@@ -99,10 +104,6 @@ void RuntimeGraph::Build(const std::string& input_name,
       << "Graph status error, current state is " << int(graph_state_);
   LOG_IF(FATAL, this->operators_.empty())
       << "Graph operators is empty, may be no init";
-
-  if (graph_state_ == GraphState::Complete) {
-    return;
-  }
 
   // 构建图关系
   for (const auto& current_op : this->operators_) {
@@ -120,13 +121,13 @@ void RuntimeGraph::Build(const std::string& input_name,
     }
   }
 
-  this->input_operators_maps_.clear();
-  this->output_operators_maps_.clear();
+  input_operators_maps_.clear();
+  output_operators_maps_.clear();
   for (const auto& kOperator : this->operators_) {
     if (kOperator->type == "pnnx.Input") {
-      this->input_operators_maps_.insert({kOperator->name, kOperator});
+      input_operators_maps_.insert({kOperator->name, kOperator});
     } else if (kOperator->type == "pnnx.Output") {
-      this->output_operators_maps_.insert({kOperator->name, kOperator});
+      output_operators_maps_.insert({kOperator->name, kOperator});
     } else {
       std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
       CHECK(layer != nullptr) << "Layer create failed!";
@@ -140,6 +141,17 @@ void RuntimeGraph::Build(const std::string& input_name,
   // 初始化节点的输入和输出空间
   RuntimeOperatorUtils::InitOperatorInput(operators_);
   RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
+  RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
+
+  // 构建拓扑顺序
+  topo_operators_.clear();
+  for (const auto& input_op_pair : input_operators_maps_) {
+    this->ReverseTopo(input_op_pair.second);
+  }
+
+  CHECK(topo_operators_.size() == operators_.size())
+      << "Build wrong topo queue";
+  std::reverse(topo_operators_.begin(), topo_operators_.end());
 
   graph_state_ = GraphState::Complete;
   input_name_ = input_name;
@@ -159,119 +171,49 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   CHECK(graph_state_ == GraphState::Complete)
       << "Graph status error, current state is " << int(graph_state_);
 
-  // 找到图中的输入算子
-  std::shared_ptr<RuntimeOperator> input_op;
-  if (input_operators_maps_.find(input_name_) == input_operators_maps_.end()) {
-    LOG(FATAL) << "Can not find the input node: " << input_name_;
-  } else {
-    input_op = input_operators_maps_.at(input_name_);
+  CHECK(topo_operators_.size() == operators_.size())
+      << "Build wrong topo queue";
+
+  for (const auto& op : topo_operators_) {
+    op->has_forward = false;
   }
 
-  // 找到图中的输出算子
-  std::shared_ptr<RuntimeOperator> output_op;
-  if (output_operators_maps_.find(output_name_) ==
-      output_operators_maps_.end()) {
-    LOG(FATAL) << "Can not find the output node: " << input_name_;
-  } else {
-    output_op = output_operators_maps_.at(output_name_);
-  }
-
-  // 输入和输出算子一般唯一
-  // 执行队列中添加输入算子
-  std::deque<std::shared_ptr<RuntimeOperator>> operator_queue;
-  operator_queue.push_back(input_op);
-  std::map<std::string, double> run_duration_infos;  /// 运行时间统计
-
-  if (debug) {
-    LOG(INFO) << "Batch Size:" << inputs.size();
-    for (int i = 0; i < inputs.size(); ++i) {
-      LOG(INFO) << "Input Rows: " << inputs.at(i)->rows()
-                << " Cols: " << inputs.at(i)->cols()
-                << " Channels: " << inputs.at(i)->channels();
-    }
-    LOG(INFO) << "Inference starting...";
-    LOG(INFO) << "--------------------------------------------------"
-              << "\n";
-  }
-
-  while (!operator_queue.empty()) {
-    // 得到执行队列中的当前节点
-    std::shared_ptr<RuntimeOperator> current_op = operator_queue.front();
-    operator_queue.pop_front();
-
-    if (!current_op || current_op == output_op) {
-      if (debug) {
-        LOG(INFO) << "Model Inference End";
-      }
-      break;
-    }
-
-    // 如果当前节点为输入节点，则将输入inputs直接拷贝到后继节点中
-    if (current_op == input_op) {
-      ProbeNextLayer(current_op, operator_queue, inputs);
+  for (const auto& current_op : topo_operators_) {
+    if (input_operators_maps_.find(current_op->name) !=
+        input_operators_maps_.end()) {
+      current_op->has_forward = true;
+      ProbeNextLayer(current_op, inputs);
+    } else if (output_operators_maps_.find(current_op->name) !=
+               output_operators_maps_.end()) {
+      current_op->has_forward = true;
+      CHECK(current_op->input_operands_seq.size() == 1);
+      current_op->output_operands = current_op->input_operands_seq.front();
     } else {
-      // 如果当前节点是其他待执行节点，首先使用checkready检测它是否就绪
-      std::string current_op_name = current_op->name;
-      CHECK_EQ(CheckOperatorReady(current_op), true)
-          << "Current operator " << current_op->name << " is not ready!";
-
-      const auto& start = std::chrono::steady_clock::now();
       InferStatus status = current_op->layer->Forward();
-
       CHECK(status == InferStatus::kInferSuccess)
           << current_op->layer->layer_name()
           << " layer forward failed, error code: " << int(status);
-      if (debug) {
-        const double duration =
-            std::chrono::duration_cast<std::chrono::duration<double>>(
-                std::chrono::steady_clock::now() - start)
-                .count();
-        if (run_duration_infos.find(current_op->type) ==
-            run_duration_infos.end()) {
-          run_duration_infos.insert({current_op->type, duration});
-        } else {
-          run_duration_infos.at(current_op->type) += duration;
-        }
-      }
-
-      const auto copy_start = std::chrono::steady_clock::now();
-      // 将当前layer的计算输出current_op->output_operands->datas赋值到后继节点的输入中
-      ProbeNextLayer(current_op, operator_queue,
-                     current_op->output_operands->datas);
-      const double duration =
-          std::chrono::duration_cast<std::chrono::duration<double>>(
-              std::chrono::steady_clock::now() - copy_start)
-              .count();
-      if (debug) {
-        if (run_duration_infos.find("Copy") == run_duration_infos.end()) {
-          run_duration_infos.insert({"Copy", duration});
-        } else {
-          run_duration_infos.at("Copy") += duration;
-        }
-      }
+      current_op->has_forward = true;
+      ProbeNextLayer(current_op, current_op->output_operands->datas);
     }
   }
 
-  for (const auto& op : this->operators_) {
-    op->meet_num = 0;
+  for (const auto& op : topo_operators_) {
+    LOG_IF(FATAL, !op->has_forward)
+        << "The operator: " << op->name << " has not been forward yet!";
   }
 
-  CHECK(output_op->input_operands.size() == 1)
-      << "The graph only support one path to the output node yet!";
-  // 计算图中最后一个节点的输入，等于整张图的输出
-  const auto& output_op_input_operand = output_op->input_operands.begin();
-  const auto& output_operand = output_op_input_operand->second;
-  if (debug) {
-    LOG(INFO) << "Model Running Information, Time Cost:";
-    double duration_all = 0.;
-    for (const auto& run_info : run_duration_infos) {
-      LOG(INFO) << "OP type: " << run_info.first
-                << " duration: " << run_info.second << " s";
-      duration_all += run_info.second;
-    }
-    LOG(INFO) << "All time cost: " << duration_all << " s";
+  if (output_operators_maps_.find(output_name_) !=
+      output_operators_maps_.end()) {
+    const auto& output_op = output_operators_maps_.at(output_name_);
+    CHECK(output_op->output_operands != nullptr)
+        << "Output from" << output_op->name << " is empty";
+    const auto& output_operand = output_op->output_operands;
+    return output_operand->datas;
+  } else {
+    LOG(FATAL) << "Can not find the output operator " << output_name_;
+    return std::vector<std::shared_ptr<Tensor<float>>>{};
   }
-  return output_operand->datas;
 }
 
 std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
@@ -421,20 +363,8 @@ void RuntimeGraph::InitGraphAttrs(
   }
 }
 
-bool RuntimeGraph::CheckOperatorReady(
-    const std::shared_ptr<RuntimeOperator>& op) {
-  CHECK(op != nullptr);
-  CHECK(op->meet_num <= op->input_operands.size());
-  if (op->meet_num == op->input_operands.size()) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 void RuntimeGraph::ProbeNextLayer(
     const std::shared_ptr<RuntimeOperator>& current_op,
-    std::deque<std::shared_ptr<RuntimeOperator>>& operator_queue,
     const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_datas) {
   // 当前节点的后继节点next_ops
   const auto& next_ops = current_op->output_operators;
@@ -460,16 +390,26 @@ void RuntimeGraph::ProbeNextLayer(
       for (int i = 0; i < next_input_datas.size(); ++i) {
         next_input_datas.at(i) = layer_output_datas.at(i);
       }
-      // 后继节点的访问次数加1
-      next_rt_operator->meet_num += 1;
-      if (std::find(operator_queue.begin(), operator_queue.end(),
-                    next_rt_operator) == operator_queue.end()) {
-        // 检测后继节点是否已经ready，有则入执行队列
-        if (CheckOperatorReady(next_rt_operator)) {
-          operator_queue.push_back(next_rt_operator);
-        }
+    }
+  }
+}
+
+void RuntimeGraph::ReverseTopo(
+    const std::shared_ptr<RuntimeOperator>& current_op) {
+  CHECK(current_op != nullptr) << "current operator is nullptr";
+  current_op->has_forward = true;
+  const auto& next_ops = current_op->output_operators;
+  for (const auto& op_pair : next_ops) {
+    const auto& op = op_pair.second;
+    if (op != nullptr) {
+      if (!op->has_forward) {
+        this->ReverseTopo(op);
       }
     }
   }
+  for (const auto& op_pair : next_ops) {
+    CHECK_EQ(op_pair.second->has_forward, true);
+  }
+  this->topo_operators_.push_back(current_op);
 }
 }  // namespace kuiper_infer

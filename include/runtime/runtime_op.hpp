@@ -20,10 +20,11 @@ class Layer;
 
 /// 计算图中的计算节点
 struct RuntimeOperator {
-  int32_t meet_num = 0;  /// 计算节点被相连接节点访问到的次数
   virtual ~RuntimeOperator();
-  std::string name;              /// 计算节点的名称
-  std::string type;              /// 计算节点的类型
+
+  bool has_forward = false;
+  std::string name;      /// 计算节点的名称
+  std::string type;      /// 计算节点的类型
   std::shared_ptr<Layer> layer;  /// 节点对应的计算Layer
 
   std::vector<std::string> output_names;  /// 节点的输出节点名称
