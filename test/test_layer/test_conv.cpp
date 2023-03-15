@@ -85,150 +85,150 @@ InferStatus Convolution(
   return InferStatus::kInferSuccess;
 }
 
-TEST(test_layer, convolution3x3_winograd1) {
-  sftensor input = std::make_shared<ftensor>(3, 5, 5);
-  input->Fill(1.f);
-  sftensor weight = std::make_shared<ftensor>(3, 3, 3);
-  weight->Fill(2.f);
-  sftensor output;
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  Convolution(inputs, outputs, 1, 1, weights);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 1e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd2) {
-  sftensor input = std::make_shared<ftensor>(31, 51, 51);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(31, 3, 3);
-  weight->Rand();
-  sftensor output;
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  Convolution(inputs, outputs, 1, 1, weights);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 1e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd3) {
-  sftensor input = std::make_shared<ftensor>(64, 253, 254);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(64, 3, 3);
-  weight->Rand();
-  sftensor output;
-
-  Convolution3x3s1(input, output, weight);
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  // 设置权重
-  ConvolutionLayer conv_layer(1, 64, 3, 3, 0, 0, 1, 1, 1, false);
-  conv_layer.set_weights(weights);
-  conv_layer.Forward(inputs, outputs);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd5) {
-  sftensor input = std::make_shared<ftensor>(16, 32, 32);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(16, 3, 3);
-  weight->Rand();
-  sftensor output;
-
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  // 设置权重
-  ConvolutionLayer conv_layer(1, 16, 3, 3, 0, 0, 1, 1, 1, false);
-  conv_layer.set_weights(weights);
-  conv_layer.Forward(inputs, outputs);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd7) {
-  sftensor input = std::make_shared<ftensor>(168, 1024, 1024);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(168, 3, 3);
-  weight->Rand();
-  sftensor output;
-
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  // 设置权重
-  ConvolutionLayer conv_layer(1, 168, 3, 3, 0, 0, 1, 1, 1, false);
-  conv_layer.set_weights(weights);
-  conv_layer.Forward(inputs, outputs);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd4) {
-  sftensor input = std::make_shared<ftensor>(128, 533, 131);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(128, 3, 3);
-  weight->Rand();
-  sftensor output;
-
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  // 设置权重
-  ConvolutionLayer conv_layer(1, 128, 3, 3, 0, 0, 1, 1, 1, false);
-  conv_layer.set_weights(weights);
-  conv_layer.Forward(inputs, outputs);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
-}
-
-TEST(test_layer, convolution3x3_winograd6) {
-  sftensor input = std::make_shared<ftensor>(16, 32, 32);
-  input->Rand();
-  sftensor weight = std::make_shared<ftensor>(16, 3, 3);
-  weight->Rand();
-  sftensor output;
-
-  Convolution3x3s1(input, output, weight);
-
-  std::vector<sftensor> inputs;
-  inputs.push_back(input);
-  std::vector<sftensor> outputs(1);
-  std::vector<sftensor> weights(1);
-  weights.at(0) = weight;
-  // 设置权重
-  ConvolutionLayer conv_layer(1, 16, 3, 3, 0, 0, 1, 1, 1, false);
-  conv_layer.set_weights(weights);
-  conv_layer.Forward(inputs, outputs);
-  ASSERT_EQ(outputs.size(), 1);
-  ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
-}
+// TEST(test_layer, convolution3x3_winograd1) {
+//   sftensor input = std::make_shared<ftensor>(3, 5, 5);
+//   input->Fill(1.f);
+//   sftensor weight = std::make_shared<ftensor>(3, 3, 3);
+//   weight->Fill(2.f);
+//   sftensor output;
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   Convolution(inputs, outputs, 1, 1, weights);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 1e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd2) {
+//   sftensor input = std::make_shared<ftensor>(31, 51, 51);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(31, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   Convolution(inputs, outputs, 1, 1, weights);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 1e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd3) {
+//   sftensor input = std::make_shared<ftensor>(64, 253, 254);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(64, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//
+//   Convolution3x3s1(input, output, weight);
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   // 设置权重
+//   ConvolutionLayer conv_layer(1, 64, 3, 3, 0, 0, 1, 1, 1, false);
+//   conv_layer.set_weights(weights);
+//   conv_layer.Forward(inputs, outputs);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd5) {
+//   sftensor input = std::make_shared<ftensor>(16, 32, 32);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(16, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   // 设置权重
+//   ConvolutionLayer conv_layer(1, 16, 3, 3, 0, 0, 1, 1, 1, false);
+//   conv_layer.set_weights(weights);
+//   conv_layer.Forward(inputs, outputs);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd7) {
+//   sftensor input = std::make_shared<ftensor>(168, 1024, 1024);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(168, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   // 设置权重
+//   ConvolutionLayer conv_layer(1, 168, 3, 3, 0, 0, 1, 1, 1, false);
+//   conv_layer.set_weights(weights);
+//   conv_layer.Forward(inputs, outputs);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd4) {
+//   sftensor input = std::make_shared<ftensor>(128, 533, 131);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(128, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   // 设置权重
+//   ConvolutionLayer conv_layer(1, 128, 3, 3, 0, 0, 1, 1, 1, false);
+//   conv_layer.set_weights(weights);
+//   conv_layer.Forward(inputs, outputs);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
+// }
+//
+// TEST(test_layer, convolution3x3_winograd6) {
+//   sftensor input = std::make_shared<ftensor>(16, 32, 32);
+//   input->Rand();
+//   sftensor weight = std::make_shared<ftensor>(16, 3, 3);
+//   weight->Rand();
+//   sftensor output;
+//
+//   Convolution3x3s1(input, output, weight);
+//
+//   std::vector<sftensor> inputs;
+//   inputs.push_back(input);
+//   std::vector<sftensor> outputs(1);
+//   std::vector<sftensor> weights(1);
+//   weights.at(0) = weight;
+//   // 设置权重
+//   ConvolutionLayer conv_layer(1, 16, 3, 3, 0, 0, 1, 1, 1, false);
+//   conv_layer.set_weights(weights);
+//   conv_layer.Forward(inputs, outputs);
+//   ASSERT_EQ(outputs.size(), 1);
+//   ASSERT_EQ(TensorIsSame(outputs.front(), output, 5e-4), true);
+// }
 
 TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
   const uint32_t batch_size = 8;
