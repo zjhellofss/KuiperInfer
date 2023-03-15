@@ -124,7 +124,7 @@ void RuntimeGraph::Build(const std::string& input_name,
   input_operators_maps_.clear();
   output_operators_maps_.clear();
   for (const auto& kOperator : this->operators_) {
-    if (kOperator->type == "pnnx.Input") {
+    if (kOperator->type == "pnnx.Input" && kOperator->name == input_name) {
       input_operators_maps_.insert({kOperator->name, kOperator});
     } else if (kOperator->type == "pnnx.Output") {
       output_operators_maps_.insert({kOperator->name, kOperator});
@@ -394,10 +394,10 @@ void RuntimeGraph::ProbeNextLayer(
 }
 
 void RuntimeGraph::ReverseTopo(
-    const std::shared_ptr<RuntimeOperator>& current_op) {
-  CHECK(current_op != nullptr) << "current operator is nullptr";
-  current_op->has_forward = true;
-  const auto& next_ops = current_op->output_operators;
+    const std::shared_ptr<RuntimeOperator>& root_op) {
+  CHECK(root_op != nullptr) << "current operator is nullptr";
+  root_op->has_forward = true;
+  const auto& next_ops = root_op->output_operators;
   for (const auto& op_pair : next_ops) {
     const auto& op = op_pair.second;
     if (op != nullptr) {
@@ -409,6 +409,17 @@ void RuntimeGraph::ReverseTopo(
   for (const auto& op_pair : next_ops) {
     CHECK_EQ(op_pair.second->has_forward, true);
   }
-  this->topo_operators_.push_back(current_op);
+  this->topo_operators_.push_back(root_op);
 }
+
+void RuntimeGraph::ReBuildGraph(const std::string& input_name,
+                                const std::string& output_name) {
+  this->graph_state_ = GraphState::NeedInit;
+  this->Build(input_name, output_name);
+}
+
+RuntimeGraph::GraphState RuntimeGraph::graph_state() const {
+  return this->graph_state_;
+}
+
 }  // namespace kuiper_infer

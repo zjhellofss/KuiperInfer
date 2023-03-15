@@ -314,3 +314,21 @@ TEST(test_runtime, set_bin_path) {
   graph.set_bin_path("yy.bin");
   ASSERT_EQ(graph.bin_path(), "yy.bin");
 }
+
+TEST(test_runtime, graph_build1) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
+                     "tmp/add/resnet_add.pnnx.bin");
+  ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  ASSERT_EQ(int(graph.graph_state()), 0);  // need_init
+}
+
+TEST(test_runtime, graph_build2) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
+                     "tmp/add/resnet_add.pnnx.bin");
+  ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
+  graph.ReBuildGraph("pnnx_input_0", "pnnx_output_0");
+  ASSERT_EQ(int(graph.graph_state()), 0);  // need_init
+}

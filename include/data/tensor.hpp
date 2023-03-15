@@ -230,10 +230,12 @@ std::shared_ptr<Tensor<float>> TensorPadding(
  * 比较tensor的值是否相同
  * @param a 输入张量1
  * @param b 输入张量2
+ * @param threshold 张量之间差距的阈值
  * @return 比较结果
  */
 bool TensorIsSame(const std::shared_ptr<Tensor<float>>& a,
-                  const std::shared_ptr<Tensor<float>>& b);
+                  const std::shared_ptr<Tensor<float>>& b,
+                  float threshold = 1e-5f);
 
 /**
  * 张量相加

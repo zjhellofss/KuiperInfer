@@ -22,6 +22,12 @@ class RuntimeGraph {
   RuntimeGraph(std::string param_path, std::string bin_path);
 
   /**
+   * 对模型重新进行build
+   */
+  void ReBuildGraph(const std::string& input_name,
+                    const std::string& output_name);
+
+  /**
    * 构建计算图
    * @param input_name 计算图输入节点的名称
    * @param output_name  计算图输出节点的名称
@@ -69,7 +75,11 @@ class RuntimeGraph {
    */
   bool Init();
 
-  void ReverseTopo(const std::shared_ptr<RuntimeOperator>& current_op);
+  /**
+   * 构建模型的拓扑执行顺序
+   * @param root_op 模型的输入节点或根节点，如果有多个输入节点，则调用多次
+   */
+  void ReverseTopo(const std::shared_ptr<RuntimeOperator>& root_op);
 
   /**
    * 初始化kuiper infer计算图节点中的输入操作数
@@ -115,7 +125,6 @@ class RuntimeGraph {
   static std::shared_ptr<Layer> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
-
   /**
    * 探查下一层的计算节点
    * @param current_op 当前计算节点
@@ -131,6 +140,13 @@ class RuntimeGraph {
     NeedBuild = -1,
     Complete = 0,
   };
+ public:
+  /**
+   * 返回模型当前的状态
+   * @return 返回模型当前的状态
+   */
+  GraphState graph_state() const;
+ private:
   GraphState graph_state_ = GraphState::NeedInit;
   std::string input_name_;   /// 计算图输入节点的名称
   std::string output_name_;  /// 计算图输出节点的名称

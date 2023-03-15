@@ -2,7 +2,6 @@
 // Created by fss on 23-1-23.
 //
 #include <gtest/gtest.h>
-
 #include "layer/abstract/param_layer.hpp"
 
 TEST(test_param_layer, set_weight1) {
@@ -14,13 +13,14 @@ TEST(test_param_layer, set_weight1) {
     std::shared_ptr<ftensor> weight = std::make_shared<ftensor>(3, 32, 32);
     weights.push_back(weight);
   }
+  param_layer.InitWeightParam(weight_count, 3, 32, 32);
   param_layer.set_weights(weights);
-  const auto &weights_ = param_layer.weights();
+  const auto& weights_ = param_layer.weights();
   ASSERT_EQ(weights.size(), weight_count);
 
   for (uint32_t w = 0; w < weight_count; ++w) {
-    const auto &weight_ = weights_.at(w);
-    const auto &weight = weights.at(w);
+    const auto& weight_ = weights_.at(w);
+    const auto& weight = weights.at(w);
     ASSERT_EQ(weight->size(), weight_->size());
     for (uint32_t i = 0; i < weight->size(); ++i) {
       ASSERT_EQ(weight->index(i), weight_->index(i));
@@ -37,13 +37,14 @@ TEST(test_param_layer, set_bias1) {
     std::shared_ptr<ftensor> bias = std::make_shared<ftensor>(1, 32, 1);
     biases.push_back(bias);
   }
+  param_layer.InitBiasParam(bias_count, 1, 32, 1);
   param_layer.set_bias(biases);
-  const auto &biases_ = param_layer.bias();
+  const auto& biases_ = param_layer.bias();
   ASSERT_EQ(biases.size(), biases_.size());
 
   for (uint32_t w = 0; w < bias_count; ++w) {
-    const auto &bias_ = biases_.at(w);
-    const auto &bias = biases.at(w);
+    const auto& bias_ = biases_.at(w);
+    const auto& bias = biases.at(w);
     ASSERT_EQ(bias->size(), bias_->size());
     for (uint32_t i = 0; i < bias->size(); ++i) {
       ASSERT_EQ(bias->index(i), bias_->index(i));
@@ -62,6 +63,7 @@ TEST(test_param_layer, set_weight2) {
   std::vector<std::shared_ptr<ftensor>> weights_;
   std::shared_ptr<ftensor> weight = std::make_shared<ftensor>(1, 3, 3);
   weights_.push_back(weight);
+  param_layer.InitWeightParam(1, 1, 3, 3);
   param_layer.set_weights(weights_);
 
   param_layer.set_weights(weights);
@@ -89,6 +91,8 @@ TEST(test_param_layer, set_bias2) {
   std::vector<std::shared_ptr<ftensor>> biases_;
   std::shared_ptr<ftensor> bias = std::make_shared<ftensor>(1, 9, 1);
   biases_.push_back(bias);
+  param_layer.InitBiasParam(1, 1, 9, 1);
+
   param_layer.set_bias(biases_);
 
   param_layer.set_bias(biases);
@@ -115,7 +119,6 @@ TEST(test_param_layer, init_bias) {
     ASSERT_EQ(bias.at(i)->cols(), 1);
   }
 }
-
 
 TEST(test_param_layer, init_weight) {
   using namespace kuiper_infer;

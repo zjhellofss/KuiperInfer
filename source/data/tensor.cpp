@@ -291,13 +291,13 @@ const float* Tensor<float>::raw_ptr() const {
 }
 
 bool TensorIsSame(const std::shared_ptr<Tensor<float>>& a,
-                  const std::shared_ptr<Tensor<float>>& b) {
+                  const std::shared_ptr<Tensor<float>>& b, float threshold) {
   CHECK(a != nullptr);
   CHECK(b != nullptr);
   if (a->shapes() != b->shapes()) {
     return false;
   }
-  bool is_same = arma::approx_equal(a->data(), b->data(), "absdiff", 1e-5);
+  bool is_same = arma::approx_equal(a->data(), b->data(), "absdiff", threshold);
   return is_same;
 }
 
