@@ -8,6 +8,6 @@
 namespace kuiper_infer {
 void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
                       std::shared_ptr<Tensor<float>>& output,
-                      const sftensor& weights);
+                      const std::vector<sftensor>& weights);
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_WINOGRAD_HPP
