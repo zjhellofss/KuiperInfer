@@ -64,8 +64,10 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
         << "The stride parameter is set incorrectly. It must always be greater "
            "than 0";
 
-    const uint32_t pooling_h = input_h - (output_h_ - 1) * stride_h;
-    const uint32_t pooling_w = input_w - (output_w_ - 1) * stride_w;
+    const uint32_t pooling_h =
+        (int)input_h - (int(output_h_) - 1) * int(stride_h);
+    const uint32_t pooling_w =
+        (int)input_w - (int(output_w_) - 1) * int(stride_w);
     CHECK(pooling_w > 0 && pooling_h > 0)
         << "The pooling parameter is set incorrectly. It must always be "
            "greater than 0";

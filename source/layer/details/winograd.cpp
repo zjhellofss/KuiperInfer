@@ -39,20 +39,18 @@ void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
   }
 }
 
-void Winograd4x32(const arma::fmat& transform_g, const std::vector<float>& d,
-                  std::vector<float>& Y) {
-  CHECK_EQ(d.size(), 36);
+void Winograd4x32(const arma::fmat& transform_g, float* in[6], float Y[16]) {
   CHECK_EQ(transform_g.empty(), false);
   CHECK(transform_g.n_cols == 6 && transform_g.n_rows == 6);
 
   float BTd[6][6];
   for (int i = 0; i < 6; ++i) {
-    const float d0 = d[0 * 6 + i];
-    const float d1 = d[1 * 6 + i];
-    const float d2 = d[2 * 6 + i];
-    const float d3 = d[3 * 6 + i];
-    const float d4 = d[4 * 6 + i];
-    const float d5 = d[5 * 6 + i];
+    const float d0 = in[0][i];
+    const float d1 = in[1][i];
+    const float d2 = in[2][i];
+    const float d3 = in[3][i];
+    const float d4 = in[4][i];
+    const float d5 = in[5][i];
 
     BTd[0][i] = (d0 * 4) - d2 * 5 + d4;
     BTd[1][i] = -(d1 * 4) - d2 * 4 + d3 + d4;
@@ -62,7 +60,7 @@ void Winograd4x32(const arma::fmat& transform_g, const std::vector<float>& d,
     BTd[5][i] = (d1 * 4) - d3 * 5 + d5;
   }
 
-  arma::fmat V(6, 6);
+  float V[6][6];
   for (int i = 0; i < 6; ++i) {
     const float BTd0 = BTd[i][0];
     const float BTd1 = BTd[i][1];
@@ -70,24 +68,22 @@ void Winograd4x32(const arma::fmat& transform_g, const std::vector<float>& d,
     const float BTd3 = BTd[i][3];
     const float BTd4 = BTd[i][4];
     const float BTd5 = BTd[i][5];
-    V.at(i, 0) = ((BTd0 * 4) - (BTd2 * 4) - BTd2 + BTd4) * transform_g.at(0, i);
-    V.at(i, 1) =
-        (-(BTd1 * 4) - (BTd2 * 4) + BTd3 + BTd4) * transform_g.at(1, i);
-    V.at(i, 2) = ((BTd1 * 4) - (BTd2 * 4) - BTd3 + BTd4) * transform_g.at(2, i);
-    V.at(i, 3) = (-(BTd1 * 2) - BTd2 + BTd3 * 2 + BTd4) * transform_g.at(3, i);
-    V.at(i, 4) = ((BTd1 * 2) - BTd2 - BTd3 * 2 + BTd4) * transform_g.at(4, i);
-    V.at(i, 5) = ((BTd1 * 4) - (BTd3 * 4) - BTd3 + BTd5) * transform_g.at(5, i);
+    V[i][0] = ((BTd0 * 4) - (BTd2 * 4) - BTd2 + BTd4) * transform_g.at(0, i);
+    V[i][1] = (-(BTd1 * 4) - (BTd2 * 4) + BTd3 + BTd4) * transform_g.at(1, i);
+    V[i][2] = ((BTd1 * 4) - (BTd2 * 4) - BTd3 + BTd4) * transform_g.at(2, i);
+    V[i][3] = (-(BTd1 * 2) - BTd2 + BTd3 * 2 + BTd4) * transform_g.at(3, i);
+    V[i][4] = ((BTd1 * 2) - BTd2 - BTd3 * 2 + BTd4) * transform_g.at(4, i);
+    V[i][5] = ((BTd1 * 4) - (BTd3 * 4) - BTd3 + BTd5) * transform_g.at(5, i);
   }
 
   float ATM[4][6];
   for (int i = 0; i < 6; ++i) {
-    float* M_colptr = (float*)V.colptr(i);
-    float M0 = *(M_colptr + 0);
-    float M1 = *(M_colptr + 1);
-    float M2 = *(M_colptr + 2);
-    float M3 = *(M_colptr + 3);
-    float M4 = *(M_colptr + 4);
-    float M5 = *(M_colptr + 5);
+    const float M0 = V[0][i];
+    const float M1 = V[1][i];
+    const float M2 = V[2][i];
+    const float M3 = V[3][i];
+    const float M4 = V[4][i];
+    const float M5 = V[5][i];
 
     ATM[0][i] = M0 + M1 + M2 + M3 + M4;
     ATM[1][i] = M1 - M2 + (M3 * 2) - (M4 * 2);
@@ -125,8 +121,10 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
   const uint32_t kernel_w = 3;
   const uint32_t kernel_count = weights.size();
 
-  const uint32_t output_h = (input_h - ((kernel_h - 1) + 1)) / stride_h + 1;
-  const uint32_t output_w = (input_w - ((kernel_w - 1) + 1)) / stride_w + 1;
+  const uint32_t output_h =
+      std::floor((int(input_h) - int(kernel_h)) / stride_h + 1);
+  const uint32_t output_w =
+      std::floor((int(input_w) - int(kernel_w)) / stride_w + 1);
   if (output == nullptr || output->empty()) {
     output = std::make_shared<ftensor>(kernel_count, output_h, output_w);
   }
@@ -141,72 +139,62 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
 
   const uint32_t padded_in_w = 4 * tile_num_w + 2;
   const uint32_t padded_in_h = 4 * tile_num_h + 2;
-  const uint32_t padded_out_w = 4 * tile_num_w;
-  const uint32_t padded_out_h = 4 * tile_num_h;
 
-  sftensor padded_input =
-      std::make_shared<ftensor>(input_channels, padded_in_h, padded_in_w);
-  sftensor padded_out =
-      std::make_shared<ftensor>(kernel_count, padded_out_h, padded_out_w);
-
-  // 填充数据
-  for (uint32_t c = 0; c < input_channels; ++c) {
-    arma::fmat& padded_input_channel = padded_input->slice(c);
-    const arma::fmat& input_channel = input->slice(c);
-
-    for (uint32_t w = 0; w < input_w; ++w) {
-      float* padded_col_ptr = padded_input_channel.colptr(w);
-      const float* col_ptr = input_channel.colptr(w);
-      for (uint32_t h = 0; h < input_h; ++h) {
-        *(padded_col_ptr + h) = *(col_ptr + h);
+  sftensor padded_input;
+  if (padded_in_w != input_w && padded_in_h != input_h) {
+    padded_input =
+        std::make_shared<ftensor>(input_channels, padded_in_h, padded_in_w);
+    for (uint32_t c = 0; c < input_channels; ++c) {
+      arma::fmat& padded_input_channel = padded_input->slice(c);
+      const arma::fmat& input_channel = input->slice(c);
+      for (uint32_t w = 0; w < input_w; ++w) {
+        float* padded_col_ptr = padded_input_channel.colptr(w);
+        const float* col_ptr = input_channel.colptr(w);
+        for (uint32_t h = 0; h < input_h; ++h) {
+          *(padded_col_ptr + h) = *(col_ptr + h);
+        }
       }
     }
+  } else {
+    padded_input = input;
   }
 
 #pragma omp parallel for
   for (uint32_t k = 0; k < kernel_count; ++k) {
-    const auto& weight = weights.at(k);
-    CHECK_EQ(weight->rows(), kernel_h);
-    CHECK_EQ(weight->cols(), kernel_w);
-    CHECK_EQ(weight->channels(), input_channels);
-    const arma::fmat& padded_out_channel = padded_out->slice(k);
-
     for (uint32_t input_c = 0; input_c < input_channels; ++input_c) {
+      const auto& weight = weights.at(k);
       arma::fmat transform_g;
       WinogradTransformG(weight->slice(input_c), transform_g);
       const arma::fmat& padded_input_channel = padded_input->slice(input_c);
 
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for
       for (uint32_t tile_ind_x = 0; tile_ind_x < tile_num_w; ++tile_ind_x) {
         for (uint32_t tile_ind_y = 0; tile_ind_y < tile_num_h; ++tile_ind_y) {
           uint32_t tile_x = tile_ind_x * 4;
           uint32_t tile_y = tile_ind_y * 4;
-          std::vector<float> in(36);
+          float* in[6];
           for (int i = 0; i < 6; i++) {
-            const float* col_ptr = padded_input_channel.colptr(tile_x + i);
-            for (int j = 0; j < 6; j++) {
-              in[i * 6 + j] = *(col_ptr + tile_y + j);
-            }
+            float* padded_input_channel_colptr =
+                (float*)padded_input_channel.colptr(tile_x + i) + tile_y;
+            in[i] = padded_input_channel_colptr;
           }
 
-          std::vector<float> Y(16);
+          float Y[16];
           Winograd4x32(transform_g, in, Y);
+          const arma::fmat& out_channel = output->slice(k);
+#pragma omp simd
           for (int i = 0; i < 4; ++i) {
-            const float* out_col_ptr =
-                (padded_out_channel.colptr(tile_ind_x * 4 + i));
-            for (int j = 0; j < 4; ++j) {
-              *((float*)out_col_ptr + tile_ind_y * 4 + j) += Y[i * 4 + j];
+            if (tile_x + i < out_channel.n_cols) {
+              float* col_ptr = (float*)out_channel.colptr(tile_x + i);
+              for (int j = 0; j < 4; ++j) {
+                if (tile_y + j < out_channel.n_rows) {
+                  *(col_ptr + tile_y + j) += Y[i * 4 + j];
+                }
+              }
             }
           }
         }
       }
-    }
-
-    arma::fmat& out_channel = output->slice(k);
-    for (uint32_t w = 0; w < output_w; w++) {
-      float* out_channel_ptr = out_channel.colptr(w);
-      const float* padded_out_channel_ptr = padded_out_channel.colptr(w);
-      memcpy(out_channel_ptr, padded_out_channel_ptr, sizeof(float) * output_h);
     }
   }
 }

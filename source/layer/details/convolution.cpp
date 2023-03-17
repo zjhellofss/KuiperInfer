@@ -108,9 +108,9 @@ InferStatus ConvolutionLayer::Forward(
     const uint32_t input_c = input_->channels();
 
     const uint32_t output_h =
-        uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+        std::floor((int(input_h) - int(kernel_h)) / stride_h_ + 1);
     const uint32_t output_w =
-        uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
+        std::floor((int(input_w) - int(kernel_w)) / stride_w_ + 1);
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output feature map is less than zero";
 
