@@ -9,7 +9,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include "layer/abstract/layer.hpp"
+// #include "layer/abstract/layer.hpp"
 #include "runtime/ir.h"
 #include "runtime_attr.hpp"
 #include "runtime_operand.hpp"
