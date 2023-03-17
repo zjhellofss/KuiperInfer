@@ -6,29 +6,29 @@
 #include "tick.hpp"
 namespace kuiper_infer {
 
-void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
+static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
   arma::fmat Gg(6, 3);
   for (int i = 0; i < 3; ++i) {
     float g0 = g.at(i, 0);
     float g1 = g.at(i, 1);
     float g2 = g.at(i, 2);
-    float* Gg_colptr = Gg.colptr(i);
+    float* Gg_ptr = Gg.colptr(i);
 
-    *(Gg_colptr + 0) = g0 / 4.f;
-    *(Gg_colptr + 1) = ((-g0 - g1 - g2) / 2.f) / 3.f;
-    *(Gg_colptr + 2) = ((-g0 + g1 - g2) / 2.f) / 3.f;
-    *(Gg_colptr + 3) = (g0 / 8.f + g1 / 4.f + g2 / 2.f) / 3.f;
-    *(Gg_colptr + 4) = (g0 / 8.f - g1 / 4.f + g2 / 2.f) / 3.f;
-    *(Gg_colptr + 5) = g2;
+    *(Gg_ptr + 0) = g0 / 4.f;
+    *(Gg_ptr + 1) = ((-g0 - g1 - g2) / 2.f) / 3.f;
+    *(Gg_ptr + 2) = ((-g0 + g1 - g2) / 2.f) / 3.f;
+    *(Gg_ptr + 3) = (g0 / 8.f + g1 / 4.f + g2 / 2.f) / 3.f;
+    *(Gg_ptr + 4) = (g0 / 8.f - g1 / 4.f + g2 / 2.f) / 3.f;
+    *(Gg_ptr + 5) = g2;
   }
 
   const arma::fmat& Gg_t = Gg.t();
   transform_g = arma::fmat(6, 6);
   for (int i = 0; i < 6; ++i) {
-    float* Gg_t_colptr = (float*)Gg_t.colptr(i);
-    const float Gg0 = *(Gg_t_colptr + 0);
-    const float Gg1 = *(Gg_t_colptr + 1);
-    const float Gg2 = *(Gg_t_colptr + 2);
+    float* Ggt_ptr = (float*)Gg_t.colptr(i);
+    const float Gg0 = *(Ggt_ptr + 0);
+    const float Gg1 = *(Ggt_ptr + 1);
+    const float Gg2 = *(Ggt_ptr + 2);
 
     transform_g.at(0, i) = Gg0 / 4.f;
     transform_g.at(1, i) = ((-Gg0 - Gg1 - Gg2) / 2.f) / 3.f;
