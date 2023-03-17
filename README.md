@@ -8,38 +8,42 @@
 
 ![](./imgs/logo.jpg)
 
-## 项目贡献者
-
-**如何参与项目的贡献？提交代码增加新功能或修改bug；提出有用的建议；完善文档或增加单元测试。**
-
+## 项目贡献者列表
+感谢以下同学对Kuiperinfer的付出
 - [zjhellofss](https://github.com/zjhellofss)
-
 - [liuxubit](https://github.com/liuxubit)
-
 - [Azusachan](https://github.com/Azusachan)
 - [wfs2010](https://github.com/wfs2010)
 - [mlmz](https://github.com/minleminzui)
-## 课程计划
+- [Tigerrr07](https://github.com/Tigerrr07)
 
-我在b站上开了一门教学课程，目前是课程的前八次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。
+如何参与项目贡献？
+1. 提交代码增加新功能或修改bug；
+2. 提出特别有用的建议；
+3. 完善文档或增加单元测试。
 
-### 学习群：
+### 课程学习群，课程大纲如课程计划：
 请注明来意，我会拉你进群
 
 ![](https://i.imgur.com/7myOrcY.png)
 
-| 课程节数 | 主要内容                   | 进度 | 课程链接                                         |
-|------|------------------------|----|----------------------------------------------|
-| 第一次课 | 整体框架解读和开发环境配置          | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
-| 第二次课 | 张量Tensor类的解析和输入数据的内存排布 | 完成 | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
-| 第三次课 | 从CSV文件中初始化张量Tensor一个实例 | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
-| 第四次课 | 手写第一个算子Relu并完成算子注册工厂类  | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
-| 第五次课 | Im2col的原理和卷积算子的实现      | 完成 |      https://www.bilibili.com/video/BV1F841137Ct                                        |
-| 第六次课 | 照猫画虎，完成MaxPooling算子    | 完成 |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
-| 第七次课 | 图结构(PNNX)讲解和计算图初步      | 完成 |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课 | 读取PNNX并构建自己的计算图        | 完成 |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
-| 第九次课 | 卷积算子的实现和im2col加速计算的原理       | 完成 |         https://www.bilibili.com/video/BV1F841137Ct                                    |
-| 未完待续 | ......                 | ...... | ...... |
+## 课程计划
+我在b站上开了一门教学课程，目前是课程的前12次课程，课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。
+
+| 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
+|-------|----------------------------------|-----|----------------------------------------------|
+| 第一次课  | 整体框架解读和开发环境配置                    | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课  | 张量Tensor类的解析和输入数据的内存排布           | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课  | 从CSV文件中初始化张量Tensor一个实例           | 完成  | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课  | 手写第一个算子Relu并完成算子注册工厂类            | 完成  | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课  | Im2col的原理和卷积算子的实现                | 完成  |      https://www.bilibili.com/video/BV1F841137Ct                                        |
+| 第六次课  | 照猫画虎，完成MaxPooling算子              | 完成  |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
+| 第七次课  | 图结构(PNNX)讲解和计算图初步                | 完成  |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
+| 第八次课  | 读取PNNX并构建自己的计算图                  | 完成  |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
+| 第九次课  | 卷积算子的实现和im2col加速计算的原理            | 完成  |         https://www.bilibili.com/video/BV1F841137Ct                                    |
+| 第十次课  | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成  | https://www.bilibili.com/video/BV1M54y1K7AG |
+| 第十一次课 | 算子的执行流程                          | 完成  | https://www.bilibili.com/video/BV1wY411C7Kv|
+| 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类    | 完成  | https://www.bilibili.com/video/BV1jD4y1M772|
 
 ## 使用的技术和开发环境
 * 开发语言：C++ 17
