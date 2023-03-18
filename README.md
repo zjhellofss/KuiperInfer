@@ -31,6 +31,7 @@
 1. Winograd代码优化和使用条件探索
 
 什么时候用gemm，什么时候使用winograd, 基础版本写在source/details/winograd.cpp下，性能测试可以使用bench/bench_conv.cpp
+
 2. layer下已有算子的优化和项目中其他推理过程的优化
 
 ### 课程学习群，课程大纲如课程计划：
