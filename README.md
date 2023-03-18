@@ -17,10 +17,21 @@
 - [mlmz](https://github.com/minleminzui)
 - [Tigerrr07](https://github.com/Tigerrr07)
 
-如何参与项目贡献？
+### 如何参与项目贡献？
 1. 提交代码增加新功能或修改bug；
 2. 提出特别有用的建议；
 3. 完善文档或增加单元测试。
+
+### 本项目和视频课程的关系
+- 本项目相当于课程的上游或者预研项目
+
+- 这里的每一个功能都有可能成为视频课程中的知识点，无论是我开发的还是其他同学完善的。
+
+### 功能Needed
+1. Winograd代码优化和使用条件探索
+
+什么时候用gemm，什么时候使用winograd, 基础版本写在source/details/winograd.cpp下，性能测试可以使用bench/bench_conv.cpp
+2. layer下已有算子的优化和项目中其他推理过程的优化
 
 ### 课程学习群，课程大纲如课程计划：
 请注明来意，我会拉你进群

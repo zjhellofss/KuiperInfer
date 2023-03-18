@@ -22,10 +22,10 @@ static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
     *(Gg_ptr + 5) = g2;
   }
 
-  const arma::fmat& Gg_t = Gg.t();
+  const arma::fmat& Ggt = Gg.t();
   transform_g = arma::fmat(6, 6);
   for (int i = 0; i < 6; ++i) {
-    float* Ggt_ptr = (float*)Gg_t.colptr(i);
+    const float* Ggt_ptr = Ggt.colptr(i);
     const float Gg0 = *(Ggt_ptr + 0);
     const float Gg1 = *(Ggt_ptr + 1);
     const float Gg2 = *(Ggt_ptr + 2);
