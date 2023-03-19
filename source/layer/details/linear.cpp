@@ -79,7 +79,7 @@ InferStatus LinearLayer::Forward(
     CHECK(weight_data.n_cols == feature_dims && feature_dims == in_features_);
     const uint32_t input_dim = input_shapes.at(2);
 
-    arma::fmat col_vec(input->data().memptr(), in_features_, input_dim, false,
+    arma::fmat input_vec(input->data().memptr(), in_features_, input_dim, false,
                        true);
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
@@ -95,7 +95,7 @@ InferStatus LinearLayer::Forward(
           output_raw_shapes.at(1) == input_dim);
 
     arma::fmat& result = output->slice(0);
-    result = weight_data * col_vec;
+    result = weight_data * input_vec;
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1);
       const auto& bias_cube = this->bias_.front();

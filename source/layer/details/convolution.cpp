@@ -77,18 +77,14 @@ InferStatus ConvolutionLayer::Forward(
   const uint32_t kernel_count_group = kernel_count / groups_;
   const uint32_t batch_size = inputs.size();
 
-  std::vector<arma::frowvec> kernel_matrix_arr(kernel_count_group);
-  if (groups_ == 1) {
-    arma::frowvec kernel_matrix_c(row_len * kernel_c);
-    for (uint32_t k = 0; k < kernel_count_group; ++k) {
-      const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
-      for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
-        memcpy(kernel_matrix_c.memptr() + row_len * ic,
-               kernel->slice(ic).memptr(), row_len * sizeof(float));
-      }
-      kernel_matrix_arr.at(k) = kernel_matrix_c;
-    }
+  if (kernel_matrix_arr_.empty() && groups_ == 1) {
+    this->InitIm2ColWeight();
   }
+
+  if (!kernel_matrix_arr_.empty() && groups_ == 1)
+    CHECK(kernel_matrix_arr_.size() == kernel_count_group)
+        << "Kernel matrix size is wrong";
+
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
@@ -140,7 +136,6 @@ InferStatus ConvolutionLayer::Forward(
           kernel_matrix_arr_group.at(k) = kernel_matrix_c;
         }
       }
-
       arma::fmat input_matrix(input_c_group * row_len, col_len);
       for (uint32_t ic = 0; ic < input_c_group; ++ic) {
         const arma::fmat& input_channel = input_->slice(ic + g * input_c_group);
@@ -171,13 +166,14 @@ InferStatus ConvolutionLayer::Forward(
             output_tensor->cols() == output_w &&
             output_tensor->channels() == kernel_count)
           << "The output size of convolution is error";
+
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::fmat output(
             output_tensor->slice(k + g * kernel_count_group).memptr(), output_h,
             output_w, false, true);
         if (groups_ == 1) {
-          output = kernel_matrix_arr.at(k) * input_matrix;
+          output = kernel_matrix_arr_.at(k) * input_matrix;
         } else {
           output = kernel_matrix_arr_group.at(k) * input_matrix;
         }
@@ -194,6 +190,38 @@ InferStatus ConvolutionLayer::Forward(
     }
   }
   return InferStatus::kInferSuccess;
+}
+
+void ConvolutionLayer::InitIm2ColWeight() {
+  const uint32_t kernel_count = this->weights_.size();
+  CHECK(kernel_count > 0) << "kernel count must greater than zero";
+  const uint32_t kernel_h = this->weights_.at(0)->rows();
+  const uint32_t kernel_w = this->weights_.at(0)->cols();
+  const uint32_t kernel_c = this->weights_.at(0)->channels();
+  const uint32_t row_len = kernel_h * kernel_w;
+  CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
+      << "The size of kernel size is less than zero";
+
+  for (uint32_t k = 0; k < kernel_count; ++k) {
+    const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
+    CHECK(kernel->rows() == kernel_h);
+    CHECK(kernel->cols() == kernel_w);
+    CHECK(kernel->channels() == kernel_c);
+  }
+  const uint32_t kernel_count_group = kernel_count / groups_;
+  std::vector<arma::frowvec> kernel_matrix_arr(kernel_count_group);
+  if (groups_ == 1) {
+    arma::frowvec kernel_matrix_c(row_len * kernel_c);
+    for (uint32_t k = 0; k < kernel_count_group; ++k) {
+      const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
+      for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
+        memcpy(kernel_matrix_c.memptr() + row_len * ic,
+               kernel->slice(ic).memptr(), row_len * sizeof(float));
+      }
+      kernel_matrix_arr.at(k) = kernel_matrix_c;
+    }
+    this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
+  }
 }
 
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(
@@ -367,6 +395,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
 
   const std::vector<float>& weight_values = weight->get<float>();
   conv_layer->set_weights(weight_values);
+  std::dynamic_pointer_cast<ConvolutionLayer>(conv_layer)->InitIm2ColWeight();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 

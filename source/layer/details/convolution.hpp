@@ -23,6 +23,11 @@ class ConvolutionLayer : public ParamLayer {
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
+  /**
+   * 初始化kernel的im2col排布
+   */
+  void InitIm2ColWeight();
+
  private:
   bool use_bias_ = false;
   uint32_t groups_ = 1;
@@ -30,6 +35,7 @@ class ConvolutionLayer : public ParamLayer {
   uint32_t padding_w_ = 0;
   uint32_t stride_h_ = 1;
   uint32_t stride_w_ = 1;
+  std::vector<arma::frowvec> kernel_matrix_arr_;
 };
 
 }  // namespace kuiper_infer
