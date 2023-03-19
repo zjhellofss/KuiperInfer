@@ -152,10 +152,12 @@ class RuntimeGraph {
   std::string output_name_;  /// 计算图输出节点的名称
   std::string param_path_;   /// 计算图的结构文件
   std::string bin_path_;     /// 计算图的权重文件
+  //   std::map<std::string, std::shared_ptr<RuntimeOperator>>
+  //       input_operators_maps_;  /// 保存输入节点
+  //   std::map<std::string, std::shared_ptr<RuntimeOperator>>
+  //       output_operators_maps_;  /// 保存输出节点
   std::map<std::string, std::shared_ptr<RuntimeOperator>>
-      input_operators_maps_;  /// 保存输入节点
-  std::map<std::string, std::shared_ptr<RuntimeOperator>>
-      output_operators_maps_;  /// 保存输出节点
+      operators_maps_;  /// 保存所有节点，根据唯一的name索引
   std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
   std::vector<std::shared_ptr<RuntimeOperator>>
       operators_;                       /// 计算图的计算节点

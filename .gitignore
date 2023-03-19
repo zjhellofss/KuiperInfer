@@ -10,6 +10,7 @@ build/
 .vscode/
 
 .idea/
+.cache/
 
 output0.jpg
 

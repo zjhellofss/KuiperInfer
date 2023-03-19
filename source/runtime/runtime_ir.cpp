@@ -81,6 +81,7 @@ bool RuntimeGraph::Init() {
         InitGraphParams(params, runtime_operator);
       }
       this->operators_.push_back(runtime_operator);
+      this->operators_maps_.insert({runtime_operator->name, runtime_operator});
     }
   }
 
@@ -107,28 +108,22 @@ void RuntimeGraph::Build(const std::string& input_name,
 
   // 构建图关系
   for (const auto& current_op : this->operators_) {
-    // 获取当前节点的所有后继节点names
+    // 获取当前节点的所有后继节点的names，遍历根据next_op_name从operators_maps_中插入所需要的节点
     const std::vector<std::string>& output_names = current_op->output_names;
-    for (const auto& next_op : this->operators_) {
-      if (next_op == current_op) {
-        continue;
-      }
-      // 如果其余节点的name符合当前节点的后继节点names，则将这个其余节点作为当前节点的后继
-      if (std::find(output_names.begin(), output_names.end(), next_op->name) !=
-          output_names.end()) {
-        current_op->output_operators.insert({next_op->name, next_op});
+    for (const auto& next_op_name : output_names) {
+      if (const auto& next_op_pair = this->operators_maps_.find(next_op_name);
+          next_op_pair != this->operators_maps_.end()) {
+        current_op->output_operators.insert(
+            {next_op_name, next_op_pair->second});
       }
     }
   }
 
-  input_operators_maps_.clear();
-  output_operators_maps_.clear();
+  // input_operators_maps_.clear();
+  // output_operators_maps_.clear();
   for (const auto& kOperator : this->operators_) {
-    if (kOperator->type == "pnnx.Input" && kOperator->name == input_name) {
-      input_operators_maps_.insert({kOperator->name, kOperator});
-    } else if (kOperator->type == "pnnx.Output") {
-      output_operators_maps_.insert({kOperator->name, kOperator});
-    } else {
+    // 除了输入和输出节点，都创建layer
+    if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") {
       std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
       CHECK(layer != nullptr) << "Layer create failed!";
       if (layer) {
@@ -144,8 +139,12 @@ void RuntimeGraph::Build(const std::string& input_name,
 
   // 构建拓扑顺序
   topo_operators_.clear();
-  for (const auto& input_op_pair : input_operators_maps_) {
-    this->ReverseTopo(input_op_pair.second);
+  for (const auto& op_pair : operators_maps_) {
+    const auto& op = op_pair.second;
+    // 根据输入节点构建拓扑排序
+    if (op->type == "pnnx.Input" && !op->has_forward) {
+      this->ReverseTopo(op_pair.second);
+    }
   }
 
   CHECK(topo_operators_.size() == operators_.size())
@@ -178,12 +177,10 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   }
 
   for (const auto& current_op : topo_operators_) {
-    if (input_operators_maps_.find(current_op->name) !=
-        input_operators_maps_.end()) {
+    if (current_op->type == "pnnx.Input") {
       current_op->has_forward = true;
       ProbeNextLayer(current_op, inputs);
-    } else if (output_operators_maps_.find(current_op->name) !=
-               output_operators_maps_.end()) {
+    } else if (current_op->type == "pnnx.Output") {
       current_op->has_forward = true;
       CHECK(current_op->input_operands_seq.size() == 1);
       current_op->output_operands = current_op->input_operands_seq.front();
@@ -202,9 +199,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
         << "The operator: " << op->name << " has not been forward yet!";
   }
 
-  if (output_operators_maps_.find(output_name_) !=
-      output_operators_maps_.end()) {
-    const auto& output_op = output_operators_maps_.at(output_name_);
+  if (operators_maps_.find(output_name_) != operators_maps_.end()) {
+    const auto& output_op = operators_maps_.at(output_name_);
     CHECK(output_op->output_operands != nullptr)
         << "Output from" << output_op->name << " is empty";
     const auto& output_operand = output_op->output_operands;
