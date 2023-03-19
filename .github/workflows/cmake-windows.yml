@@ -64,5 +64,5 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}
-        run: ${{github.workspace}}/build/test/Release/test_kuiper.exe
+        run: ${{github.workspace}}/build/test/${{ env.BUILD_TYPE }}/test_kuiper.exe
 
