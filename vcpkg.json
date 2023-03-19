@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "dependencies": [
+    "openblas",
+    "opencv",
+    "lapack",
+    "superlu",
+    "glog",
+    "gtest",
+    "benchmark",
+    "armadillo"
+  ]
+}
