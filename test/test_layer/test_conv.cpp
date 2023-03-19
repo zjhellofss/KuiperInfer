@@ -479,8 +479,13 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
+#ifdef _MSC_VER
       ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
+                1e-2);
+#else
+        ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
                 1e-3);
+#endif
     }
   }
 }

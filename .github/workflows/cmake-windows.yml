@@ -28,6 +28,13 @@ jobs:
         with:
           submodules: 'true'
 
+      - name: Setup devcmd
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install build tools
+        run: |
+          choco install ninja
+
       - uses: lukka/get-cmake@latest
 
       - name: Make vcpkg .git directory writable
@@ -41,26 +48,7 @@ jobs:
         with:
           vcpkgDirectory: C:/vcpkg
           doNotUpdateVcpkg: true
-
-      - name: Install Dependencies
-        run: |
-          # clear buildtrees after each package installation to reduce disk space requirements
-          $packages = `
-            "openblas:x64-windows",
-            "opencv:x64-windows",
-            "lapack:x64-windows",
-            "superlu:x64-windows",
-            "glog:x64-windows",
-            "gtest:x64-windows",
-            "benchmark:x64-windows",
-            "armadillo:x64-windows"
-          ${{ env.RUNVCPKG_VCPKG_ROOT }}/vcpkg.exe upgrade `
-            --overlay-triplets="${{ github.workspace }}/triplets_overlay" `
-            --no-dry-run
-          ${{ env.RUNVCPKG_VCPKG_ROOT }}/vcpkg.exe install `
-            --overlay-triplets="${{ github.workspace }}/triplets_overlay" `
-            --clean-after-build `
-            $packages
+          runVcpkgInstall: true
 
       - name: Configure CMake
         run: echo ${{github.workspace}} `
@@ -76,5 +64,5 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}
-        run: ${{github.workspace}}/build/test/Release/test_kuiper.exe
+        run: ${{github.workspace}}/build/test/${{ env.BUILD_TYPE }}/test_kuiper.exe
 
