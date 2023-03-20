@@ -3,8 +3,9 @@
 //
 
 #include "expression.hpp"
-#include "layer/abstract/layer_factory.hpp"
 #include <stack>
+#include "data/tensor_util.hpp"
+#include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
 ExpressionLayer::ExpressionLayer(const std::string &statement)

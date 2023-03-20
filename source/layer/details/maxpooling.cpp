@@ -3,6 +3,7 @@
 //
 
 #include "maxpooling.hpp"
+#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
 namespace kuiper_infer {

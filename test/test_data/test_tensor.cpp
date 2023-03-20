@@ -5,6 +5,7 @@
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include "data/tensor.hpp"
+#include "data/tensor_util.hpp"
 
 TEST(test_tensor, tensor_init1) {
   using namespace kuiper_infer;

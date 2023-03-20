@@ -6,6 +6,7 @@
 #include "../../source/layer/details/convolution.hpp"
 #include "../../source/layer/details/winograd.hpp"
 #include "data/tensor.hpp"
+#include "data/tensor_util.hpp"
 #include "tick.hpp"
 
 using namespace kuiper_infer;
