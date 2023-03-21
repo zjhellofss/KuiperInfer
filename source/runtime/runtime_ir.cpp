@@ -375,6 +375,7 @@ void RuntimeGraph::ProbeNextLayer(
        */
       std::vector<std::shared_ptr<ftensor>>& next_input_datas =
           next_input_operands.at(current_op->name)->datas;
+      CHECK(next_input_datas.size() == layer_output_datas.size());
       // 将当前current_op的输出赋值到next_input_datas中
       for (int i = 0; i < next_input_datas.size(); ++i) {
         next_input_datas.at(i) = layer_output_datas.at(i);
