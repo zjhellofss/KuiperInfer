@@ -44,7 +44,6 @@ float Letterbox(const cv::Mat &image,
   int left = int(std::round(dw - 0.1f));
   int right = int(std::round(dw + 0.1f));
   cv::copyMakeBorder(tmp, out_image, top, bottom, left, right, cv::BORDER_CONSTANT, color);
-
   return 1.0f / r;
 }
 
