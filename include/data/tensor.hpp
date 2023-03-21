@@ -199,12 +199,6 @@ class Tensor<float> {
   void Transform(const std::function<float(float)>& filter);
 
   /**
-   * 返回一个深拷贝后的张量
-   * @return 新的张量
-   */
-  std::shared_ptr<Tensor> Clone();
-
-  /**
    * 返回数据的原始指针
    * @return 返回数据的原始指针
    */
@@ -218,7 +212,6 @@ class Tensor<float> {
 
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
-
 
 }  // namespace kuiper_infer
 

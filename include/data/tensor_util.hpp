@@ -96,5 +96,13 @@ std::shared_ptr<Tensor<float>> TensorCreate(uint32_t channels, uint32_t rows,
 std::shared_ptr<Tensor<float>> TensorCreate(
     const std::vector<uint32_t>& shapes);
 
+/**
+ * 返回一个深拷贝后的张量
+ * @param 待Clone的张量
+ * @return 新的张量
+ */
+std::shared_ptr<Tensor<float>> TensorClone(
+    std::shared_ptr<Tensor<float>> tensor);
+
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_TENSOR_UTIL_H

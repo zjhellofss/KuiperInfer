@@ -172,4 +172,9 @@ std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tenor1,
     }
   }
 }
+
+std::shared_ptr<Tensor<float>> TensorClone(
+    std::shared_ptr<Tensor<float>> tensor) {
+  return std::make_shared<Tensor<float>>(*tensor);
+}
 }  // namespace kuiper_infer

@@ -142,15 +142,15 @@ TEST(test_tensor, transform2) {
 TEST(test_tensor, clone) {
   using namespace kuiper_infer;
 
-  Tensor<float> f3(3, 3, 3);
-  ASSERT_EQ(f3.empty(), false);
-  f3.Rand();
+  std::shared_ptr<Tensor<float>> f3 = std::make_shared<Tensor<float>>(3, 3, 3);
+  ASSERT_EQ(f3->empty(), false);
+  f3->Rand();
 
-  const auto& f4 = f3.Clone();
+  const auto& f4 = TensorClone(f3);
   assert(f4->data().memptr() != f3.data().memptr());
-  ASSERT_EQ(f4->size(), f3.size());
-  for (int i = 0; i < f3.size(); ++i) {
-    ASSERT_EQ(f3.index(i), f4->index(i));
+  ASSERT_EQ(f4->size(), f3->size());
+  for (int i = 0; i <f3->size(); ++i) {
+    ASSERT_EQ(f3->index(i), f4->index(i));
   }
 }
 

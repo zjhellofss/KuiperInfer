@@ -5,10 +5,10 @@
 
 namespace kuiper_infer {
 RuntimeOperator::~RuntimeOperator() {
-  for (auto& param : this->params) {
-    if (param.second != nullptr) {
-      delete param.second;
-      param.second = nullptr;
+  for (auto& [_, param] : this->params) {
+    if (param != nullptr) {
+      delete param;
+      param = nullptr;
     }
   }
 }
@@ -27,8 +27,7 @@ void RuntimeOperatorUtils::InitOperatorInput(
       const std::map<std::string, std::shared_ptr<RuntimeOperand>>&
           input_operands_map = op->input_operands;
       // 初始化operator的输入空间
-      for (const auto& input_operand_iter : input_operands_map) {
-        const auto& input_operand = input_operand_iter.second;
+      for (const auto& [_, input_operand] : input_operands_map) {
         const auto& type = input_operand->type;
         CHECK(type == RuntimeDataType::kTypeFloat32)
             << "The graph only support float32 yet!";

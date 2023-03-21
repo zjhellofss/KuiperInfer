@@ -2,7 +2,7 @@
 // Created by fss on 22-12-9.
 //
 #include "flatten.hpp"
-
+#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -57,7 +57,7 @@ InferStatus FlattenLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = input->Clone();
+      output = TensorClone(input);
       outputs.at(i) = output;
     } else {
       CHECK(outputs.at(i)->shapes() == output->shapes());

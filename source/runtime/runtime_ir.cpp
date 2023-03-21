@@ -139,11 +139,10 @@ void RuntimeGraph::Build(const std::string& input_name,
 
   // 构建拓扑顺序
   topo_operators_.clear();
-  for (const auto& op_pair : operators_maps_) {
-    const auto& op = op_pair.second;
+  for (const auto& [_, op] : operators_maps_) {
     // 根据输入节点构建拓扑排序
     if (op->type == "pnnx.Input" && !op->has_forward) {
-      this->ReverseTopo(op_pair.second);
+      this->ReverseTopo(op);
     }
   }
 
@@ -267,9 +266,7 @@ void RuntimeGraph::InitGraphOperatorsOutput(
 void RuntimeGraph::InitGraphParams(
     const std::map<std::string, pnnx::Parameter>& params,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
-  for (const auto& pair : params) {
-    const std::string& name = pair.first;
-    const pnnx::Parameter& parameter = pair.second;
+  for (const auto& [name, parameter] : params) {
     const int type = parameter.type;
     switch (type) {
       case int(RuntimeParameterType::kParameterUnknown): {
@@ -338,9 +335,7 @@ void RuntimeGraph::InitGraphParams(
 void RuntimeGraph::InitGraphAttrs(
     const std::map<std::string, pnnx::Attribute>& attrs,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
-  for (const auto& pair : attrs) {
-    const std::string& name = pair.first;
-    const pnnx::Attribute& attr = pair.second;
+  for (const auto& [name, attr] : attrs) {
     switch (attr.type) {
       case 1: {
         std::shared_ptr<RuntimeAttribute> runtime_attribute =
@@ -364,9 +359,8 @@ void RuntimeGraph::ProbeNextLayer(
   // 当前节点的后继节点next_ops
   const auto& next_ops = current_op->output_operators;
   // 对所有后继节点进行遍历
-  for (const auto& next_op : next_ops) {
+  for (const auto& [_, next_rt_operator] : next_ops) {
     // 得到后继节点的输入next_input_operands
-    const auto& next_rt_operator = next_op.second;
     const auto& next_input_operands = next_rt_operator->input_operands;
     // 确定后继节点的输入来自于current_op
     if (next_input_operands.find(current_op->name) !=
@@ -394,16 +388,15 @@ void RuntimeGraph::ReverseTopo(
   CHECK(root_op != nullptr) << "current operator is nullptr";
   root_op->has_forward = true;
   const auto& next_ops = root_op->output_operators;
-  for (const auto& op_pair : next_ops) {
-    const auto& op = op_pair.second;
+  for (const auto& [_, op] : next_ops) {
     if (op != nullptr) {
       if (!op->has_forward) {
         this->ReverseTopo(op);
       }
     }
   }
-  for (const auto& op_pair : next_ops) {
-    CHECK_EQ(op_pair.second->has_forward, true);
+  for (const auto& [_, op] : next_ops) {
+    CHECK_EQ(op->has_forward, true);
   }
   this->topo_operators_.push_back(root_op);
 }

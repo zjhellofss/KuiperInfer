@@ -195,10 +195,6 @@ void Tensor<float>::Flatten(bool row_major) {
   this->Reshape({size}, row_major);
 }
 
-std::shared_ptr<Tensor<float>> Tensor<float>::Clone() {
-  return std::make_shared<Tensor>(*this);
-}
-
 void Tensor<float>::Rand() {
   CHECK(!this->data_.empty());
   this->data_.randn();
@@ -268,18 +264,17 @@ void Tensor<float>::ReView(const std::vector<uint32_t>& shapes) {
   const uint32_t plane_size = target_rows * target_cols;
   for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
     const arma::fmat& channel = this->data_.slice(c);
-    for (uint32_t w = 0; w < this->data_.n_cols; ++w) {
-      const float* col_ptr = channel.colptr(w);
-      for (uint32_t h = 0; h < this->data_.n_rows; ++h) {
+    for (uint32_t c_ = 0; c_ < this->data_.n_cols; ++c_) {
+      const float* col_ptr = channel.colptr(c_);
+      for (uint32_t r = 0; r < this->data_.n_rows; ++r) {
         const uint32_t pos_index =
-            c * data_.n_rows * data_.n_cols + h * data_.n_cols + w;
+            c * data_.n_rows * data_.n_cols + r * data_.n_cols + c_;
         const uint32_t ch = pos_index / plane_size;
-        const uint32_t ch_reserve = pos_index - ch * plane_size;
-        const uint32_t row = ch_reserve / target_cols;
-        const uint32_t col = ch_reserve - row * target_cols;
+        const uint32_t row = (pos_index - ch * plane_size) / target_cols;
+        const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
         CHECK(ch < new_data.n_slices && col < new_data.n_cols &&
               row < new_data.n_rows);
-        new_data.at(row, col, ch) = *(col_ptr + h);
+        new_data.at(row, col, ch) = *(col_ptr + r);
       }
     }
   }

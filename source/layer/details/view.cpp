@@ -3,6 +3,7 @@
 //
 #include "view.hpp"
 #include <glog/logging.h>
+#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
 
@@ -69,7 +70,7 @@ InferStatus ViewLayer::Forward(
     }
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
-      output_data = input_data->Clone();
+      output_data = TensorClone(input_data);
       outputs.at(i) = output_data;
     } else {
       CHECK(output_data->shapes() == output_data->shapes());
