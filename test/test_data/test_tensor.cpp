@@ -147,7 +147,7 @@ TEST(test_tensor, clone) {
   f3->Rand();
 
   const auto& f4 = TensorClone(f3);
-  assert(f4->data().memptr() != f3.data().memptr());
+  assert(f4->data().memptr() != f3->data().memptr());
   ASSERT_EQ(f4->size(), f3->size());
   for (int i = 0; i <f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), f4->index(i));
