@@ -13,7 +13,6 @@ static void BM_ReshapeRowMajor(benchmark::State& state) {
     tensors.push_back(TensorCreate(32, 320, 320));
   }
   for (auto _ : state) {
-#pragma omp parallel for
     for (uint32_t i = 0; i < batch_size; ++i) {
       auto tensor = tensors.at(i);
       tensor->Reshape({320, 320, 32}, true);
@@ -29,7 +28,6 @@ static void BM_ReshapeColMajor(benchmark::State& state) {
     tensors.push_back(TensorCreate(32, 320, 320));
   }
   for (auto _ : state) {
-#pragma omp parallel for
     for (uint32_t i = 0; i < batch_size; ++i) {
       auto tensor = tensors.at(i);
       tensor->Reshape({320, 320, 32}, false);
