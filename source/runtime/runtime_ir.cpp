@@ -5,7 +5,6 @@
 #include <utility>
 #include <vector>
 #include "layer/abstract/layer_factory.hpp"
-#include "tick.hpp"
 
 namespace kuiper_infer {
 RuntimeGraph::RuntimeGraph(std::string param_path, std::string bin_path)
@@ -34,7 +33,7 @@ bool RuntimeGraph::Init() {
   this->graph_ = std::make_unique<pnnx::Graph>();
   int load_result = this->graph_->load(param_path_, bin_path_);
   if (load_result != 0) {
-    LOG(ERROR) << "Load param path and bin path error: " << param_path_ << " "
+    LOG(ERROR) << "Can not find the param path or bin path: " << param_path_ << " "
                << bin_path_;
     return false;
   }
@@ -46,6 +45,7 @@ bool RuntimeGraph::Init() {
   }
 
   this->operators_.clear();
+  this->operators_maps_.clear();
   for (const pnnx::Operator* op : operators) {
     if (!op) {
       LOG(ERROR) << "Meet the empty node";
@@ -119,8 +119,6 @@ void RuntimeGraph::Build(const std::string& input_name,
     }
   }
 
-  // input_operators_maps_.clear();
-  // output_operators_maps_.clear();
   for (const auto& kOperator : this->operators_) {
     // 除了输入和输出节点，都创建layer
     if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") {

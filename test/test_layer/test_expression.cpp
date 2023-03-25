@@ -2,32 +2,33 @@
 // Created by fss on 22-12-1.
 //
 #include <gtest/gtest.h>
+#include "../../source/layer/details/expression.hpp"
+#include "data/load_data.hpp"
 #include "parser/parse_expression.hpp"
 #include "runtime/runtime_ir.hpp"
-#include "data/load_data.hpp"
-#include "../../source/layer/details/expression.hpp"
 
 TEST(test_expression, add1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph
-      ("tmp/add/resnet_add.pnnx.param",
-       "tmp/add/resnet_add.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
+                     "tmp/add/resnet_add.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(1, 4, 4);
     input->Fill(1.);
     inputs.push_back(input);
   }
 
-  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
+      graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->slice(0);
-  const auto &output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
+  const auto& output1 = output_tensors.at(0)->slice(0);
+  const auto& output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -38,25 +39,26 @@ TEST(test_expression, add1) {
 
 TEST(test_expression, add2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph
-      ("tmp/add/resnet_add2.pnnx.param",
-       "tmp/add/resnet_add2.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add2.pnnx.param",
+                     "tmp/add/resnet_add2.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(1, 4, 4);
     input->Fill(1.);
     inputs.push_back(input);
   }
 
-  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
+      graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->slice(0);
-  const auto &output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
+  const auto& output1 = output_tensors.at(0)->slice(0);
+  const auto& output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -67,25 +69,26 @@ TEST(test_expression, add2) {
 
 TEST(test_expression, mul1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph
-      ("tmp/add/resnet_add3.pnnx.param",
-       "tmp/add/resnet_add3.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add3.pnnx.param",
+                     "tmp/add/resnet_add3.pnnx.bin");
 
   graph.Build("pnnx_input_0", "pnnx_output_0");
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 4, 4);
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(1, 4, 4);
     input->Fill(1.);
     inputs.push_back(input);
   }
 
-  std::vector<std::shared_ptr<Tensor<float>>> output_tensors = graph.Forward(inputs, false);
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
+      graph.Forward(inputs, false);
   ASSERT_EQ(output_tensors.size(), 4);
 
-  const auto &output1 = output_tensors.at(0)->slice(0);
-  const auto &output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
+  const auto& output1 = output_tensors.at(0)->slice(0);
+  const auto& output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -96,11 +99,13 @@ TEST(test_expression, mul1) {
 
 TEST(test_layer, add1) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,@1)";
+  const std::string& str = "add(@0,@1)";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(1.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(1.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
@@ -111,20 +116,24 @@ TEST(test_layer, add1) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(2.f);
 
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, add2) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,@1)";
+  const std::string& str = "add(@0,@1)";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
@@ -135,20 +144,24 @@ TEST(test_layer, add2) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(5.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, mul1) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(@0,@1)";
+  const std::string& str = "mul(@0,@1)";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
@@ -159,23 +172,28 @@ TEST(test_layer, mul1) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(6.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex1) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(@2,add(@0,@1))";
+  const std::string& str = "mul(@2,add(@0,@1))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -188,26 +206,32 @@ TEST(test_layer, complex1) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(20.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex2) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(add(@0,@1),add(@2,@3))";
+  const std::string& str = "mul(add(@0,@1),add(@2,@3))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input4 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -221,26 +245,32 @@ TEST(test_layer, complex2) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(40.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex3) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(mul(@0,@1),add(@2,@3))";
+  const std::string& str = "mul(mul(@0,@1),add(@2,@3))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input4 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -254,26 +284,32 @@ TEST(test_layer, complex3) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(48.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex4) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(mul(@0,@1), mul(@2,@3))";
+  const std::string& str = "mul(mul(@0,@1), mul(@2,@3))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input4 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -287,29 +323,36 @@ TEST(test_layer, complex4) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(96.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex5) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(mul(@0,@1), mul(@2,add(@3,@4)))";
+  const std::string& str = "mul(mul(@0,@1), mul(@2,add(@3,@4)))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(1.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(2.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input4 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input5 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input5 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input5->Fill(5.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -324,29 +367,36 @@ TEST(test_layer, complex5) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(54.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_layer, complex6) {
   using namespace kuiper_infer;
-  const std::string &str = "mul(mul(@0,@1), mul(@2,mul(@3,@4)))";
+  const std::string& str = "mul(mul(@0,@1), mul(@2,mul(@3,@4)))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input1->Fill(1.f);
-  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input2->Fill(2.f);
 
-  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input3 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input3->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input4 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input4->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input5 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> input5 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   input5->Fill(5.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -361,22 +411,24 @@ TEST(test_layer, complex6) {
   const auto status = layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
-  std::shared_ptr<Tensor<float>> output2 = std::make_shared<Tensor<float>>(3, 224, 224);
+  std::shared_ptr<Tensor<float>> output2 =
+      std::make_shared<Tensor<float>>(3, 224, 224);
   output2->Fill(120.f);
   std::shared_ptr<Tensor<float>> output1 = outputs.front();
 
-  ASSERT_TRUE(arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
+  ASSERT_TRUE(
+      arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;
-  const std::string &str = "add(add(add(@0,@1),@1),add(@0,@2))";
+  const std::string& str = "add(add(add(@0,@1),@1),add(@0,@2))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &tokens = parser.tokens();
+  const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto &token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_strs();
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
@@ -440,18 +492,17 @@ TEST(test_parser, tokenizer) {
   ASSERT_EQ(tokens.at(19).token_type, TokenType::TokenRightBracket);
   ASSERT_EQ(token_strs.at(20), ")");
   ASSERT_EQ(tokens.at(20).token_type, TokenType::TokenRightBracket);
-
 }
 
 TEST(test_parser, tokenizer2) {
   using namespace kuiper_infer;
-  const std::string &str = "add(add(add(@0,@1),@1),add(@0,add(@1,@1)))";
+  const std::string& str = "add(add(add(@0,@1),@1),add(@0,add(@1,@1)))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &tokens = parser.tokens();
+  const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto &token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_strs();
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
@@ -535,13 +586,13 @@ TEST(test_parser, tokenizer2) {
 
 TEST(test_parser, tokenizer3) {
   using namespace kuiper_infer;
-  const std::string &str = "add(add(add(@0,@1),@2),mul(@0,@2))";
+  const std::string& str = "add(add(add(@0,@1),@2),mul(@0,@2))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &tokens = parser.tokens();
+  const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto &token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_strs();
   ASSERT_EQ(token_strs.at(0), "add");
   ASSERT_EQ(tokens.at(0).token_type, TokenType::TokenAdd);
 
@@ -589,15 +640,14 @@ TEST(test_parser, tokenizer3) {
 
   ASSERT_EQ(token_strs.at(15), "(");
   ASSERT_EQ(tokens.at(15).token_type, TokenType::TokenLeftBracket);
-
 }
 
 TEST(test_parser, generate1) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,@1)";
+  const std::string& str = "add(@0,@1)";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &nodes = parser.Generate();
+  const auto& nodes = parser.Generate();
   ASSERT_EQ(nodes.size(), 3);
   ASSERT_EQ(nodes.at(0)->num_index, 0);
   ASSERT_EQ(nodes.at(1)->num_index, 1);
@@ -606,10 +656,10 @@ TEST(test_parser, generate1) {
 
 TEST(test_parser, generate2) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,add(@1,@2))";
+  const std::string& str = "add(@0,add(@1,@2))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &nodes = parser.Generate();
+  const auto& nodes = parser.Generate();
   ASSERT_EQ(nodes.size(), 5);
   ASSERT_EQ(nodes.at(0)->num_index, 0);
   ASSERT_EQ(nodes.at(1)->num_index, 1);
@@ -617,16 +667,15 @@ TEST(test_parser, generate2) {
 
   ASSERT_EQ(nodes.at(3)->num_index, int(TokenType::TokenAdd));
   ASSERT_EQ(nodes.at(4)->num_index, int(TokenType::TokenAdd));
-
 }
 
 TEST(test_parser, generate3) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,add(@1,add(@3,@4)))";
+  const std::string& str = "add(@0,add(@1,add(@3,@4)))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &nodes = parser.Generate();
-  ASSERT_EQ(nodes.size(),7);
+  const auto& nodes = parser.Generate();
+  ASSERT_EQ(nodes.size(), 7);
   ASSERT_EQ(nodes.at(0)->num_index, 0);
   ASSERT_EQ(nodes.at(1)->num_index, 1);
   ASSERT_EQ(nodes.at(2)->num_index, 3);
@@ -635,15 +684,14 @@ TEST(test_parser, generate3) {
   ASSERT_EQ(nodes.at(4)->num_index, int(TokenType::TokenAdd));
   ASSERT_EQ(nodes.at(5)->num_index, int(TokenType::TokenAdd));
   ASSERT_EQ(nodes.at(6)->num_index, int(TokenType::TokenAdd));
-
 }
 
 TEST(test_parser, generate4) {
   using namespace kuiper_infer;
-  const std::string &str = "add(@0,add(@1,add(@3,mul(@4,@5))))";
+  const std::string& str = "add(@0,add(@1,add(@3,mul(@4,@5))))";
   ExpressionParser parser(str);
   parser.Tokenizer();
-  const auto &nodes = parser.Generate();
+  const auto& nodes = parser.Generate();
   ASSERT_EQ(nodes.size(), 9);
   ASSERT_EQ(nodes.at(0)->num_index, 0);
   ASSERT_EQ(nodes.at(1)->num_index, 1);

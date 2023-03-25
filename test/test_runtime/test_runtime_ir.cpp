@@ -2,6 +2,7 @@
 // Created by fss on 23-1-29.
 //
 #include <gtest/gtest.h>
+#include "data/load_data.hpp"
 #include "runtime/runtime_ir.hpp"
 
 TEST(test_runtime, runtime_graph_input_init1) {
@@ -321,7 +322,7 @@ TEST(test_runtime, graph_build1) {
                      "tmp/add/resnet_add.pnnx.bin");
   ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
   graph.Build("pnnx_input_0", "pnnx_output_0");
-  ASSERT_EQ(int(graph.graph_state()), 0);  // need_init
+  ASSERT_EQ(int(graph.graph_state()), 0);
 }
 
 TEST(test_runtime, graph_build2) {
@@ -330,5 +331,42 @@ TEST(test_runtime, graph_build2) {
                      "tmp/add/resnet_add.pnnx.bin");
   ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
   graph.ReBuildGraph("pnnx_input_0", "pnnx_output_0");
+  ASSERT_EQ(int(graph.graph_state()), 0);
+}
+
+TEST(test_runtime, graph_build3) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
+                     "tmp/add/resnet_add.pnnx.bin");
+  graph.Build("pnnx_input_0", "pnnx_output_0");
   ASSERT_EQ(int(graph.graph_state()), 0);  // need_init
+
+  graph.set_bin_path("tmp/add/resnet_add2.pnnx.bin");
+  graph.set_param_path("tmp/add/resnet_add2.pnnx.param");
+  graph.ReBuildGraph("pnnx_input_0", "pnnx_output_0");
+  ASSERT_EQ(int(graph.graph_state()), 0);
+
+  const int batch_size = 4;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(1, 4, 4);
+    input->Fill(1.);
+    inputs.push_back(input);
+  }
+
+  std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
+      graph.Forward(inputs, false);
+  ASSERT_EQ(output_tensors.size(), 4);
+
+  for (int i = 0; i < batch_size; ++i) {
+    const auto& output1 = output_tensors.at(i)->slice(0);
+    const auto& output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
+    ASSERT_EQ(output1.size(), output2.size());
+
+    const uint32_t size = output1.size();
+    for (uint32_t j = 0; j < size; ++j) {
+      ASSERT_LE(abs(output1.at(j) - output2.at(j)), 5e-6);
+    }
+  }
 }
