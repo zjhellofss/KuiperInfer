@@ -85,6 +85,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
           output_data->channels() == input_c)
         << "The output size of adaptive pooling is error";
 
+    const uint32_t pooling_size = pooling_h * pooling_w;
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat& input_channel = input_data->slice(ic);
       arma::fmat& output_channel = output_data->slice(ic);
@@ -100,7 +101,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
             }
           }
           *(output_channel_ptr + int(r / stride_h)) =
-              mean_value / float(pooling_h * pooling_w);
+              mean_value / float(pooling_size);
         }
       }
     }
