@@ -78,7 +78,6 @@ InferStatus YoloDetectLayer::Forward(
   }
 
   uint32_t concat_rows = 0;
-  std::vector<std::shared_ptr<Tensor<float>>> zs(stages);
   for (uint32_t stage = 0; stage < stages; ++stage) {
     const std::vector<sftensor> stage_output = stage_outputs.at(stage);
     const uint32_t nx_ = stage_output.front()->rows();
@@ -88,10 +87,8 @@ InferStatus YoloDetectLayer::Forward(
             stage_output.at(i)->cols() == ny_);
     }
 
-    std::shared_ptr<Tensor<float>> x_stages_tensor;
-    x_stages_tensor =
-        TensorCreate(batch_size, stages * nx_ * ny_, uint32_t(classes_info));
-
+    std::shared_ptr<Tensor<float>> stages_tensor =
+        this->stages_tensors_.at(stage);
 #pragma omp parallel for num_threads(batch_size)
     for (uint32_t b = 0; b < batch_size; ++b) {
       const std::shared_ptr<Tensor<float>>& input = stage_output.at(b);
@@ -100,6 +97,10 @@ InferStatus YoloDetectLayer::Forward(
       const uint32_t ny = input->cols();
       input->Reshape({stages, uint32_t(classes_info), ny * nx}, true);
       const uint32_t size = input->size();
+
+      CHECK_EQ(stages_tensor->channels(), batch_size);
+      CHECK_EQ(stages_tensor->rows(), stages_ * nx_ * ny_);
+      CHECK_EQ(stages_tensor->cols(), classes_info);
 
 #if __SSE2__
       float* ptr = const_cast<float*>(input->raw_ptr());
@@ -127,7 +128,7 @@ InferStatus YoloDetectLayer::Forward(
           [](const float value) { return 1.f / (1.f + expf(-value)); });
 #endif
 
-      arma::fmat& x_stages = x_stages_tensor->slice(b);
+      arma::fmat& x_stages = stages_tensor->slice(b);
       for (uint32_t s = 0; s < stages; ++s) {
         x_stages.submat(ny * nx * s, 0, ny * nx * (s + 1) - 1,
                         classes_info - 1) = input->slice(s).t();
@@ -135,22 +136,20 @@ InferStatus YoloDetectLayer::Forward(
 
       const arma::fmat& xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
       const arma::fmat& wh = x_stages.submat(0, 2, x_stages.n_rows - 1, 3);
-
       x_stages.submat(0, 0, x_stages.n_rows - 1, 1) =
           (xy * 2 + grids_[stage]) * strides_[stage];
       x_stages.submat(0, 2, x_stages.n_rows - 1, 3) =
           arma::pow((wh * 2), 2) % anchor_grids_[stage];
     }
-    concat_rows += x_stages_tensor->rows();
-    zs.at(stage) = x_stages_tensor;
+    concat_rows += stages_tensor->rows();
   }
 
   uint32_t current_rows = 0;
   arma::fcube f1(concat_rows, classes_info, batch_size);
-  for (const auto& z : zs) {
-    f1.subcube(current_rows, 0, 0, current_rows + z->rows() - 1,
-               classes_info - 1, batch_size - 1) = z->data();
-    current_rows += z->rows();
+  for (auto stages_tensor : this->stages_tensors_) {
+    f1.subcube(current_rows, 0, 0, current_rows + stages_tensor->rows() - 1,
+               classes_info - 1, batch_size - 1) = stages_tensor->data();
+    current_rows += stages_tensor->rows();
   }
 
   for (int i = 0; i < f1.n_slices; ++i) {
@@ -164,6 +163,11 @@ InferStatus YoloDetectLayer::Forward(
     output->slice(0) = std::move(f1.slice(i));
   }
   return InferStatus::kInferSuccess;
+}
+
+void YoloDetectLayer::set_stage_tensors(
+    const std::vector<sftensor>& stage_tensors) {
+  this->stages_tensors_ = stage_tensors;
 }
 
 ParseParameterAttrStatus YoloDetectLayer::GetInstance(
@@ -187,12 +191,15 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
 
   int stages_number = stages_attr->shape.at(0);
   CHECK(stages_number == 3) << "Only support three stages yolo detect head";
+  CHECK(op->input_operands_seq.size() == stages_number);
+
   const std::vector<float>& strides = stages_attr->get<float>();
   CHECK(strides.size() == stages_number)
       << "Stride number is not equal to strides";
 
   std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers(stages_number);
   int32_t num_classes = -1;
+  std::vector<sftensor> stage_tensors;
   for (int i = 0; i < stages_number; ++i) {
     const std::string& weight_name = "m." + std::to_string(i) + ".weight";
     if (attrs.find(weight_name) == attrs.end()) {
@@ -216,6 +223,19 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const int in_channels = out_shapes.at(1);
     const int kernel_h = out_shapes.at(2);
     const int kernel_w = out_shapes.at(3);
+
+    CHECK_EQ(op->input_operands_seq.at(i)->shapes.size(), 4);
+    const uint32_t batch_size = op->input_operands_seq.at(i)->shapes.front();
+
+    const uint32_t nx = op->input_operands_seq.at(i)->shapes.at(2);
+    const uint32_t ny = op->input_operands_seq.at(i)->shapes.at(3);
+
+    auto stages_tensor = TensorCreate(batch_size, stages_number * nx * ny,
+                                      uint32_t(num_classes + 5));
+    stage_tensors.push_back(stages_tensor);
+
+    TensorCreate(stages_number * uint32_t(num_classes + 5), nx, ny);
+
     conv_layers.at(i) = std::make_shared<ConvolutionLayer>(
         out_channels, in_channels, kernel_h, kernel_w, 0, 0, 1, 1, 1);
     const std::vector<float>& weights = conv_attr->get<float>();
@@ -283,6 +303,10 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   }
   yolo_detect_layer = std::make_shared<YoloDetectLayer>(
       stages_number, num_classes, strides, anchor_grids, grids, conv_layers);
+  auto yolo_detect_layer_ =
+      std::dynamic_pointer_cast<YoloDetectLayer>(yolo_detect_layer);
+
+  yolo_detect_layer_->set_stage_tensors(stage_tensors);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
