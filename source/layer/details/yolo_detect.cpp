@@ -80,11 +80,11 @@ InferStatus YoloDetectLayer::Forward(
   uint32_t concat_rows = 0;
   for (uint32_t stage = 0; stage < stages; ++stage) {
     const std::vector<sftensor> stage_output = stage_outputs.at(stage);
-    const uint32_t nx_ = stage_output.front()->rows();
-    const uint32_t ny_ = stage_output.front()->cols();
+    const uint32_t nx = stage_output.front()->rows();
+    const uint32_t ny = stage_output.front()->cols();
     for (uint32_t i = 0; i < stage_output.size(); ++i) {
-      CHECK(stage_output.at(i)->rows() == nx_ &&
-            stage_output.at(i)->cols() == ny_);
+      CHECK(stage_output.at(i)->rows() == nx &&
+            stage_output.at(i)->cols() == ny);
     }
 
     std::shared_ptr<Tensor<float>> stages_tensor =
@@ -93,13 +93,13 @@ InferStatus YoloDetectLayer::Forward(
     for (uint32_t b = 0; b < batch_size; ++b) {
       const std::shared_ptr<Tensor<float>>& input = stage_output.at(b);
       CHECK(input != nullptr && !input->empty());
-      const uint32_t nx = input->rows();
-      const uint32_t ny = input->cols();
+      CHECK_EQ(input->rows(), nx);
+      CHECK_EQ(input->cols(), ny);
       input->Reshape({stages, uint32_t(classes_info), ny * nx}, true);
       const uint32_t size = input->size();
 
       CHECK_EQ(stages_tensor->channels(), batch_size);
-      CHECK_EQ(stages_tensor->rows(), stages_ * nx_ * ny_);
+      CHECK_EQ(stages_tensor->rows(), stages_ * nx * ny);
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
 #if __SSE2__

@@ -47,8 +47,8 @@ InferStatus LinearLayer::Forward(
     return InferStatus::kInferFailedWeightParameterError;
   } else {
     if (this->use_bias_ && this->weights_.size() != this->bias_.size()) {
-      return InferStatus::kInferFailedBiasParameterError;
       LOG(ERROR) << "The size of the weight and bias parameters is not equal";
+      return InferStatus::kInferFailedBiasParameterError;
     }
   }
 

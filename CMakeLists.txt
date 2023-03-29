@@ -41,7 +41,7 @@ aux_source_directory(./source/runtime DIR_PARSER)
 aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(./source/layer/details DIR_BINOCULAR_LAYER)
 aux_source_directory(./source/parser DIR_PARSER)
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(link_lib glog::glog)
 IF (!WIN32)
@@ -69,3 +69,4 @@ if (${DEVELOPMENT})
     add_subdirectory(bench)
     add_subdirectory(test)
 endif ()
+
