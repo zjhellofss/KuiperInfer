@@ -60,7 +60,7 @@ InferStatus FlattenLayer::Forward(
       output = TensorClone(input);
       outputs.at(i) = output;
     }
-    CHECK(input->shapes() == output->shapes());
+    CHECK(input->size() == output->size());
     memcpy(output->data().memptr(), input->data().memptr(),
            sizeof(float) * input->size());
 
