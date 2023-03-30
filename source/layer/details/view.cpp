@@ -72,11 +72,11 @@ InferStatus ViewLayer::Forward(
     if (output_data == nullptr || output_data->empty()) {
       output_data = TensorClone(input_data);
       outputs.at(i) = output_data;
-    } else {
-      CHECK(output_data->shapes() == output_data->shapes());
-      memcpy(output_data->data().memptr(), input_data->data().mem,
-             sizeof(float) * input_data->size());
     }
+    CHECK(input_data->shapes() == output_data->shapes());
+    memcpy(output_data->data().memptr(), input_data->data().mem,
+           sizeof(float) * input_data->size());
+
     output_data->Reshape(shapes, true);
   }
   return InferStatus::kInferSuccess;

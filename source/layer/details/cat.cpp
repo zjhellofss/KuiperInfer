@@ -25,9 +25,12 @@ InferStatus CatLayer::Forward(
   }
 
   const uint32_t output_size = outputs.size();
-  CHECK(inputs.size() % output_size == 0);
-  const uint32_t packet_size = inputs.size() / output_size;
+  if (inputs.size() % output_size != 0) {
+    LOG(ERROR) << "Input and output size are not adapting";
+    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+  }
 
+  const uint32_t packet_size = inputs.size() / output_size;
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     const std::shared_ptr<ftensor>& input_data = inputs.at(i);
     const std::shared_ptr<ftensor>& output_data = outputs.at(i);
