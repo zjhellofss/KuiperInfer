@@ -58,11 +58,13 @@ InferStatus FlattenLayer::Forward(
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = TensorClone(input);
+      CHECK(input->size() == output->size());
       outputs.at(i) = output;
+    } else {
+      CHECK(input->size() == output->size());
+      memcpy(output->data().memptr(), input->data().memptr(),
+             sizeof(float) * input->size());
     }
-    CHECK(input->size() == output->size());
-    memcpy(output->data().memptr(), input->data().memptr(),
-           sizeof(float) * input->size());
 
     if (start_dim == 0 && end_dim == 2) {
       output->Reshape({elements_size}, true);

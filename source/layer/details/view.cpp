@@ -71,12 +71,14 @@ InferStatus ViewLayer::Forward(
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
       output_data = TensorClone(input_data);
+      CHECK(input_data->size() == output_data->size());
       outputs.at(i) = output_data;
     }
-    CHECK(input_data->size() == output_data->size());
-    memcpy(output_data->data().memptr(), input_data->data().mem,
-           sizeof(float) * input_data->size());
-
+    else{
+      CHECK(input_data->size() == output_data->size());
+      memcpy(output_data->data().memptr(), input_data->data().mem,
+             sizeof(float) * input_data->size());
+    }
     output_data->Reshape(shapes, true);
   }
   return InferStatus::kInferSuccess;
