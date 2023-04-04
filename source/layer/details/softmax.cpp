@@ -4,7 +4,7 @@
 
 #include "softmax.hpp"
 #include <glog/logging.h>
-
+#include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 SoftmaxLayer::SoftmaxLayer() : Layer("Softmax") {
 
@@ -46,5 +46,10 @@ InferStatus SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   }
   return InferStatus::kInferSuccess;
 }
-
+ParseParameterAttrStatus SoftmaxLayer::GetInstance(const std::shared_ptr<RuntimeOperator> &op, std::shared_ptr<Layer> &softmax_layer){
+      CHECK(op != nullptr) << "SoftMax operator is nullptr";
+      softmax_layer = std::make_shared<SoftmaxLayer>(); // 创建reluLayer层
+      return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+}
+LayerRegistererWrapper kSoftMaxGetInstance("nn.Softmax", SoftmaxLayer::GetInstance);
 }
