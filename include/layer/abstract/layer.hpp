@@ -50,6 +50,10 @@ class Layer {
    */
   virtual const std::vector<std::shared_ptr<Tensor<float>>>& bias() const;
 
+  /**
+   * 设置Layer的权重
+   * @param weights 权重
+   */
   virtual void set_weights(
       const std::vector<std::shared_ptr<Tensor<float>>>& weights);
 

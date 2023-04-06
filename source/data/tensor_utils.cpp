@@ -121,8 +121,6 @@ std::shared_ptr<Tensor<float>> TensorPadding(
       tensor->channels(), tensor->rows() + pad_rows1 + pad_rows2,
       tensor->cols() + pad_cols1 + pad_cols2);
 
-  if (padding_value != 0.f) output->Fill(padding_value);
-
   const uint32_t channels = tensor->channels();
   for (uint32_t channel = 0; channel < channels; ++channel) {
     const arma::fmat& in_channel = tensor->slice(channel);
@@ -137,6 +135,30 @@ std::shared_ptr<Tensor<float>> TensorPadding(
       for (uint32_t h = 0; h < in_channel_height; ++h) {
         const float value = *(in_channel_ptr + h);
         *(output_channel_ptr + h + pad_rows1) = value;
+      }
+
+      for (uint32_t h = 0; h < pad_rows1; ++h) {
+        *(output_channel_ptr + h) = padding_value;
+      }
+
+      for (uint32_t h = 0; h < pad_rows2; ++h) {
+        *(output_channel_ptr + in_channel_height + pad_rows1 + h) =
+            padding_value;
+      }
+    }
+
+    for (uint32_t w = 0; w < pad_cols1; ++w) {
+      float* output_channel_ptr = const_cast<float*>(output_channel.colptr(w));
+      for (uint32_t h = 0; h < in_channel_height + pad_rows1 + pad_rows2; ++h) {
+        *(output_channel_ptr + h) = padding_value;
+      }
+    }
+
+    for (uint32_t w = 0; w < pad_cols2; ++w) {
+      float* output_channel_ptr = const_cast<float*>(
+          output_channel.colptr(pad_cols1 + w + in_channel_width));
+      for (uint32_t h = 0; h < in_channel_height + pad_rows1 + pad_rows2; ++h) {
+        *(output_channel_ptr + h) = padding_value;
       }
     }
   }
