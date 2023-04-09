@@ -82,6 +82,10 @@ class Layer {
    */
   virtual const std::string& layer_name() const { return this->layer_name_; }
 
+  /**
+   * 设置层的执行算子
+   * @param runtime_operator 该层的执行算子
+   */
   void set_runtime_operator(
       const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
