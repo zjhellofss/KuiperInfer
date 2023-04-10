@@ -163,7 +163,7 @@ InferStatus ConvolutionLayer::Forward(
         }
         arma::fmat output =
             ConvGemm(input_matrix, output_tensor, g, k, kernel_count_group,
-                     kernel, output_h, output_w);
+                     kernel, output_w, output_h);
         AddBias(output, k);
       }
     }
@@ -199,7 +199,7 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
 arma::fmat ConvolutionLayer::ConvGemm(
     const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
     uint32_t kernel_index, uint32_t kernel_count_group,
-    const arma::frowvec& kernel, uint32_t output_h, uint32_t output_w) const {
+    const arma::frowvec& kernel, uint32_t output_w, uint32_t output_h) const {
   arma::fmat output(
       output_tensor->slice(kernel_index + group * kernel_count_group).memptr(),
       output_h, output_w, false, true);
