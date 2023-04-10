@@ -137,24 +137,10 @@ InferStatus ConvolutionLayer::Forward(
             kernel_matrix_arr_.begin() + kernel_count_group * (g + 1));
         CHECK(kernel_matrix_arr_group.size() == kernel_count_group);
       }
-      arma::fmat input_matrix(input_c_group * row_len, col_len);
-      for (uint32_t ic = 0; ic < input_c_group; ++ic) {
-        const arma::fmat& input_channel = input_->slice(ic + g * input_c_group);
-        int current_col = 0;
-        for (uint32_t w = 0; w < input_w - kernel_w + 1; w += stride_w_) {
-          for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
-            float* input_matrix_c_ptr =
-                input_matrix.colptr(current_col) + ic * row_len;
-            current_col += 1;
-            for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-              const float* region_ptr = input_channel.colptr(w + kw) + r;
-              memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
-              input_matrix_c_ptr += kernel_h;
-            }
-          }
-        }
-      }
 
+      const auto& input_matrix =
+          Im2Col(input_, kernel_w, kernel_h, input_w, input_h, input_c_group, g,
+                 row_len, col_len);
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
         output_tensor =
@@ -169,27 +155,68 @@ InferStatus ConvolutionLayer::Forward(
 
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        arma::fmat output(
-            output_tensor->slice(k + g * kernel_count_group).memptr(), output_h,
-            output_w, false, true);
+        arma::frowvec kernel;
         if (groups_ == 1) {
-          output = kernel_matrix_arr_.at(k) * input_matrix;
+          kernel = kernel_matrix_arr_.at(k);
         } else {
-          output = kernel_matrix_arr_group.at(k) * input_matrix;
+          kernel = kernel_matrix_arr_group.at(k);
         }
-        std::shared_ptr<Tensor<float>> bias;
-        if (!this->bias_.empty() && this->use_bias_) {
-          bias = this->bias_.at(k);
-        }
-        CHECK(output.size() == output_h * output_w);
-        if (bias != nullptr && !bias->empty()) {
-          float bias_value = bias->index(0);
-          output += bias_value;
-        }
+        arma::fmat output =
+            ConvGemm(input_matrix, output_tensor, g, k, kernel_count_group,
+                     kernel, output_h, output_w);
+        AddBias(output, k);
       }
     }
   }
   return InferStatus::kInferSuccess;
+}
+
+arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
+                                    uint32_t kernel_h, uint32_t input_w,
+                                    uint32_t input_h, uint32_t input_c_group,
+                                    uint32_t group, uint32_t row_len,
+                                    uint32_t col_len) const {
+  arma::fmat input_matrix(input_c_group * row_len, col_len);
+  for (uint32_t ic = 0; ic < input_c_group; ++ic) {
+    const arma::fmat& input_channel = input->slice(ic + group * input_c_group);
+    int current_col = 0;
+    for (uint32_t w = 0; w < input_w - kernel_w + 1; w += stride_w_) {
+      for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+        float* input_matrix_c_ptr =
+            input_matrix.colptr(current_col) + ic * row_len;
+        current_col += 1;
+        for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+          const float* region_ptr = input_channel.colptr(w + kw) + r;
+          memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
+          input_matrix_c_ptr += kernel_h;
+        }
+      }
+    }
+  }
+  return input_matrix;
+}
+
+arma::fmat ConvolutionLayer::ConvGemm(
+    const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
+    uint32_t kernel_index, uint32_t kernel_count_group,
+    const arma::frowvec& kernel, uint32_t output_h, uint32_t output_w) const {
+  arma::fmat output(
+      output_tensor->slice(kernel_index + group * kernel_count_group).memptr(),
+      output_h, output_w, false, true);
+  output = kernel * input_matrix;
+  CHECK(output.size() == output_h * output_w);
+  return output;
+}
+
+void ConvolutionLayer::AddBias(arma::fmat& output, uint32_t kernel_index) {
+  std::shared_ptr<Tensor<float>> bias;
+  if (!this->bias_.empty() && this->use_bias_) {
+    bias = this->bias_.at(kernel_index);
+  }
+  if (bias != nullptr && !bias->empty()) {
+    float bias_value = bias->index(0);
+    output += bias_value;
+  }
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
