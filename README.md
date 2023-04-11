@@ -108,10 +108,10 @@
 ```cpp
 const std::string& image_path = "imgs/car.jpg";
 const std::string& param_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.param";
-const std::string& weight_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
+const std::string& bin_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 ```
 
-- `image_path`指定图像目录，`param_path`为模型的参数文件，`weight_path`为模型的权重文件，请替换为自己本地的路径。
+- `image_path`指定图像目录，`param_path`为模型的参数文件，`bin_path`为模型的权重文件，请替换为自己本地的路径。
 
 - 模型定义和权重下载地址如下： https://cowtransfer.com/s/9bc43e0905cb40 
 
