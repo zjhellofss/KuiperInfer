@@ -248,3 +248,45 @@ TEST(test_layer, forward_flatten_layer8) {
     }
   }
 }
+
+TEST(test_layer, forward_flatten_layer9) {
+  using namespace kuiper_infer;
+  std::vector<float> values;
+  for (int i = 0; i < 24; ++i) {
+    values.push_back(float(i));
+  }
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(2, 3, 4);
+  input->Fill(values);
+
+  std::vector<sftensor> inputs;
+  inputs.push_back(input);
+  std::vector<sftensor> outputs(1);
+  FlattenLayer flatten_layer(1, 2);
+  flatten_layer.Forward(inputs, outputs);
+  const sftensor output = outputs.front();
+  ASSERT_EQ(output->rows(), 6);
+  ASSERT_EQ(output->cols(), 4);
+  ASSERT_EQ(output->channels(), 1);
+}
+
+TEST(test_layer, forward_flatten_layer10) {
+  using namespace kuiper_infer;
+  std::vector<float> values;
+  for (int i = 0; i < 24; ++i) {
+    values.push_back(float(i));
+  }
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(2, 3, 4);
+  input->Fill(values);
+
+  std::vector<sftensor> inputs;
+  inputs.push_back(input);
+  std::vector<sftensor> outputs(1);
+  FlattenLayer flatten_layer(2, 3);
+  flatten_layer.Forward(inputs, outputs);
+  const sftensor output = outputs.front();
+  ASSERT_EQ(output->rows(), 2);
+  ASSERT_EQ(output->cols(), 12);
+  ASSERT_EQ(output->channels(), 1);
+}
