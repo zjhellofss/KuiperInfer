@@ -22,7 +22,7 @@ InferStatus SoftmaxLayer::Forward(
   }
 
   const uint32_t batch_size = inputs.size();
-   #pragma omp parallel for num_threads(batch_size)
+#pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
@@ -52,41 +52,30 @@ InferStatus SoftmaxLayer::Forward(
         shapes.begin(), shapes.begin() + dim, 1, std::multiplies());
     const uint32_t axis_sizes = shapes.at(dim);
     CHECK_EQ(axis_sizes * outer_sizes * inner_sizes, input->size());
-    if (dim != 2) {
-      input->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
-      output->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
-      for (uint32_t outer_size = 0; outer_size < outer_sizes; ++outer_size) {
-        for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
-          float max_value = std::numeric_limits<float>::lowest();
-          float sum_value = 0.f;
-          for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-            float cur_value = input->at(outer_size, axis_size, inner_size);
-            if (cur_value > max_value) {
-              max_value = cur_value;
-            }
-          }
-
-          for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-            float cur_value = input->at(outer_size, axis_size, inner_size);
-            sum_value += std::exp(cur_value - max_value);
-          }
-
-          for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-            float cur_value = input->at(outer_size, axis_size, inner_size);
-            output->at(outer_size, axis_size, inner_size) =
-                std::exp(cur_value - max_value) / sum_value;
+    input->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
+    output->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
+    for (uint32_t outer_size = 0; outer_size < outer_sizes; ++outer_size) {
+      for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
+        float max_value = std::numeric_limits<float>::lowest();
+        float sum_value = 0.f;
+        for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
+          float cur_value = input->at(outer_size, axis_size, inner_size);
+          if (cur_value > max_value) {
+            max_value = cur_value;
           }
         }
+
+        for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
+          float cur_value = input->at(outer_size, axis_size, inner_size);
+          sum_value += std::exp(cur_value - max_value);
+        }
+
+        for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
+          float cur_value = input->at(outer_size, axis_size, inner_size);
+          output->at(outer_size, axis_size, inner_size) =
+              std::exp(cur_value - max_value) / sum_value;
+        }
       }
-    } else {
-      CHECK(input->shapes() == output->shapes())
-          << "The output size of softmax is error";
-      const arma::fcube& input_data = input->data();
-      arma::fcube& output_data = output->data();
-      const float max = input_data.max();
-      const float sum = arma::accu(arma::exp(input_data - max));
-      const float offset = max + logf(sum);
-      output_data = arma::exp(input_data - offset);
     }
   }
   return InferStatus::kInferSuccess;
