@@ -9,7 +9,7 @@
 namespace kuiper_infer {
 class SoftmaxLayer : public Layer {
  public:
-  explicit SoftmaxLayer(int dim);
+  explicit SoftmaxLayer(int dim = -1);
 
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
