@@ -24,7 +24,7 @@ InferStatus FlattenLayer::Forward(
 
   int start_dim = start_dim_;
   int end_dim = end_dim_;
-  int total_dims = 4;  // NCHW
+  int total_dims = 3;  // CHW
 
   if (start_dim < 0) {
     start_dim = total_dims + start_dim;
@@ -33,8 +33,6 @@ InferStatus FlattenLayer::Forward(
     end_dim = total_dims + end_dim;
   }
 
-  end_dim -= 1;
-  start_dim -= 1;
   CHECK(end_dim > start_dim) << "End dim must greater than start dim";
   CHECK(end_dim <= 2 && start_dim >= 0)
       << "end dim must less than two and start dim must greater than zero";
@@ -50,7 +48,6 @@ InferStatus FlattenLayer::Forward(
 
     const auto& shapes = input->shapes();
     uint32_t elements_size = 1;
-
     for (int s = start_dim; s <= end_dim; ++s) {
       elements_size *= shapes.at(s);
     }
