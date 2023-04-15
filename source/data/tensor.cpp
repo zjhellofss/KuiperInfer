@@ -238,6 +238,11 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
       target_shapes = {1, shapes.at(0), 1};
       this->raw_shapes_ = {shapes.at(0)};
     }
+    if (target_shapes.at(0) == this->channels() &&
+        target_shapes.at(1) == this->rows() &&
+        target_shapes.at(2) == this->cols()) {
+      return;
+    }
     this->ReView(target_shapes);
   } else {
     if (shapes.size() == 3) {
