@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
   assert(outputs.size() == batch_size);
   // softmax
   std::vector<sftensor> outputs_softmax(batch_size);
-  SoftmaxLayer softmax_layer(1);
+  SoftmaxLayer softmax_layer(0);
   softmax_layer.Forward(outputs, outputs_softmax);
   assert(outputs_softmax.size() == batch_size);
 

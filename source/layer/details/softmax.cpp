@@ -4,6 +4,7 @@
 
 #include "softmax.hpp"
 #include <glog/logging.h>
+#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 SoftmaxLayer::SoftmaxLayer(int dim) : Layer("Softmax"), softmax_dim_(dim) {}
@@ -33,7 +34,7 @@ InferStatus SoftmaxLayer::Forward(
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(i) = output;
     }
-    CHECK(input->size() == output->size());
+    CHECK(input->shapes() == output->shapes());
     int dim = this->softmax_dim_;
     const int total_dim = 3;  // chw
     if (dim < 0) {
@@ -45,38 +46,50 @@ InferStatus SoftmaxLayer::Forward(
                  << dim;
     }
     CHECK(dim >= 0 && dim <= 2);
-    const std::vector<uint32_t>& shapes = input->shapes();
+    const auto& output_origin_shapes = output->shapes();
+
+    std::vector<uint32_t> raw_shapes = input->raw_shapes();
+    CHECK_LT(dim, raw_shapes.size());
+
+    const uint32_t padding_size_num = 3 - raw_shapes.size();
+    for (uint32_t j = 0; j < padding_size_num; ++j) {
+      raw_shapes.push_back(1);
+    }
+
     const uint32_t inner_sizes = std::accumulate(
-        shapes.begin() + dim + 1, shapes.end(), 1, std::multiplies());
+        raw_shapes.begin() + dim + 1, raw_shapes.end(), 1, std::multiplies());
     const uint32_t outer_sizes = std::accumulate(
-        shapes.begin(), shapes.begin() + dim, 1, std::multiplies());
-    const uint32_t axis_sizes = shapes.at(dim);
+        raw_shapes.begin(), raw_shapes.begin() + dim, 1, std::multiplies());
+    const uint32_t axis_sizes = raw_shapes.at(dim);
     CHECK_EQ(axis_sizes * outer_sizes * inner_sizes, input->size());
-    input->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
+
+    auto input_ = TensorClone(input);
+    input_->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
     output->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
     for (uint32_t outer_size = 0; outer_size < outer_sizes; ++outer_size) {
       for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
         float max_value = std::numeric_limits<float>::lowest();
         float sum_value = 0.f;
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input->at(outer_size, axis_size, inner_size);
+          float cur_value = input_->at(outer_size, axis_size, inner_size);
           if (cur_value > max_value) {
             max_value = cur_value;
           }
         }
 
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input->at(outer_size, axis_size, inner_size);
+          float cur_value = input_->at(outer_size, axis_size, inner_size);
           sum_value += std::exp(cur_value - max_value);
         }
 
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input->at(outer_size, axis_size, inner_size);
+          float cur_value = input_->at(outer_size, axis_size, inner_size);
           output->at(outer_size, axis_size, inner_size) =
               std::exp(cur_value - max_value) / sum_value;
         }
       }
     }
+    output->Reshape(output_origin_shapes, true);
   }
   return InferStatus::kInferSuccess;
 }
