@@ -172,3 +172,35 @@ TEST(test_layer, forward_softmax_dim1_1) {
     }
   }
 }
+
+TEST(test_layer, forward_softmax_dim1_1_m) {
+  using namespace kuiper_infer;
+  SoftmaxLayer softmax_layer(-1);
+  for (int k = 0; k < 2; ++k) {
+    uint32_t size = 24;
+    std::vector<float> values;
+    for (uint32_t i = 0; i < size; ++i) {
+      values.push_back(float(i));
+    }
+
+    const uint32_t batch_size = 4;
+    std::vector<sftensor> inputs;
+
+    for (uint32_t i = 0; i < batch_size; ++i) {
+      sftensor input = std::make_shared<ftensor>(1, 1, 24);
+      input->Fill(values);
+      inputs.push_back(input);
+    }
+    std::vector<sftensor> outputs(batch_size);
+    softmax_layer.Forward(inputs, outputs);
+    arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1_1.csv");
+    for (const auto& output : outputs) {
+      output->Reshape({24}, true);
+      for (int i = 0; i < 24; ++i) {
+        float a = output->index(i);
+        float b = real.at(i);
+        ASSERT_LE(std::abs(a - b), 1e-5f);
+      }
+    }
+  }
+}

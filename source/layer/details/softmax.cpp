@@ -36,10 +36,13 @@ InferStatus SoftmaxLayer::Forward(
     }
     CHECK(input->shapes() == output->shapes());
     int dim = this->softmax_dim_;
-    const int total_dim = 3;  // chw
+    std::vector<uint32_t> raw_shapes = input->raw_shapes();
+
     if (dim < 0) {
-      dim += total_dim;
+      dim += int(raw_shapes.size());
     }
+    CHECK_LT(dim, raw_shapes.size());
+
     if (dim < 0 || dim >= 3) {
       LOG(FATAL) << "Error softmax dimension, which need between 0 and 2, "
                     "but dimension is "
@@ -47,9 +50,6 @@ InferStatus SoftmaxLayer::Forward(
     }
     CHECK(dim >= 0 && dim <= 2);
     const auto& output_origin_shapes = output->shapes();
-
-    std::vector<uint32_t> raw_shapes = input->raw_shapes();
-    CHECK_LT(dim, raw_shapes.size());
 
     const uint32_t padding_size_num = 3 - raw_shapes.size();
     for (uint32_t j = 0; j < padding_size_num; ++j) {
