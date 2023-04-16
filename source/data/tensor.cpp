@@ -164,21 +164,24 @@ void Tensor<float>::Fill(float value) {
   this->data_.fill(value);
 }
 
-void Tensor<float>::Fill(const std::vector<float>& values) {
+void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
   CHECK(!this->data_.empty());
   const uint32_t total_elems = this->data_.size();
   CHECK_EQ(values.size(), total_elems);
+  if (row_major) {
+    const uint32_t rows = this->rows();
+    const uint32_t cols = this->cols();
+    const uint32_t planes = rows * cols;
+    const uint32_t channels = this->data_.n_slices;
 
-  const uint32_t rows = this->rows();
-  const uint32_t cols = this->cols();
-  const uint32_t planes = rows * cols;
-  const uint32_t channels = this->data_.n_slices;
-
-  for (uint32_t i = 0; i < channels; ++i) {
-    auto& channel_data = this->data_.slice(i);
-    const arma::fmat& channel_data_t =
-        arma::fmat(values.data() + i * planes, this->cols(), this->rows());
-    channel_data = channel_data_t.t();
+    for (uint32_t i = 0; i < channels; ++i) {
+      auto& channel_data = this->data_.slice(i);
+      const arma::fmat& channel_data_t =
+          arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+      channel_data = channel_data_t.t();
+    }
+  } else {
+    std::copy(values.begin(), values.end(), this->data_.memptr());
   }
 }
 

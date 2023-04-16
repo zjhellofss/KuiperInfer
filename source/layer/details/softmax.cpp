@@ -41,6 +41,7 @@ InferStatus SoftmaxLayer::Forward(
     if (dim < 0) {
       dim += int(raw_shapes.size());
     }
+    CHECK(dim >= 0 && dim <= 2);
     CHECK_LT(dim, raw_shapes.size());
 
     if (dim < 0 || dim >= 3) {
@@ -48,7 +49,6 @@ InferStatus SoftmaxLayer::Forward(
                     "but dimension is "
                  << dim;
     }
-    CHECK(dim >= 0 && dim <= 2);
     const auto& output_origin_shapes = output->shapes();
 
     const uint32_t padding_size_num = 3 - raw_shapes.size();
