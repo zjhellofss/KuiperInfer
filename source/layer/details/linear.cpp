@@ -80,7 +80,7 @@ InferStatus LinearLayer::Forward(
     const uint32_t input_dim = input_shapes.at(2);
 
     arma::fmat input_vec(input->data().memptr(), in_features_, input_dim, false,
-                       true);
+                         true);
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
@@ -90,9 +90,13 @@ InferStatus LinearLayer::Forward(
     CHECK(output->channels() == 1 && output->rows() == out_features_ &&
           output->cols() == input_dim);
     const auto& output_raw_shapes = output->raw_shapes();
-    CHECK(output_raw_shapes.size() == 2);
-    CHECK(output_raw_shapes.at(0) == out_features_ &&
-          output_raw_shapes.at(1) == input_dim);
+    if (output_raw_shapes.size() == 2) {
+      CHECK(output_raw_shapes.at(0) == out_features_ &&
+            output_raw_shapes.at(1) == input_dim);
+    }
+    if (output_raw_shapes.size() == 1) {
+      CHECK(output_raw_shapes.at(0) == out_features_);
+    }
 
     arma::fmat& result = output->slice(0);
     result = weight_data * input_vec;

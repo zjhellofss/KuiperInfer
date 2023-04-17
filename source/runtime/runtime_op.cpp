@@ -2,6 +2,7 @@
 // Created by fss on 23-2-27.
 //
 #include "runtime/runtime_op.hpp"
+#include "data/tensor_util.hpp"
 
 namespace kuiper_infer {
 RuntimeOperator::~RuntimeOperator() {
@@ -92,16 +93,16 @@ void RuntimeOperatorUtils::InitOperatorOutput(
       // 输出空间初始化
       for (int j = 0; j < batch; ++j) {
         if (operand_shapes.size() == 4) {
-          output_operand->datas.push_back(std::make_shared<Tensor<float>>(
-              operand_shapes.at(1), operand_shapes.at(2),
-              operand_shapes.at(3)));
+          output_operand->datas.push_back(TensorCreate(operand_shapes.at(1),
+                                                       operand_shapes.at(2),
+                                                       operand_shapes.at(3)));
         } else if (operand_shapes.size() == 2) {
           output_operand->datas.push_back(
-              std::make_shared<Tensor<float>>(1, operand_shapes.at(1), 1));
+              TensorCreate(1, operand_shapes.at(1), 1));
         } else {
           // current shape is 3
-          output_operand->datas.push_back(std::make_shared<Tensor<float>>(
-              1, operand_shapes.at(1), operand_shapes.at(2)));
+          output_operand->datas.push_back(
+              TensorCreate(1, operand_shapes.at(1), operand_shapes.at(2)));
         }
       }
       runtime_op->output_operands = std::move(output_operand);
