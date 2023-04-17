@@ -97,12 +97,12 @@ void Tensor<float>::set_data(const arma::fcube& data) {
 bool Tensor<float>::empty() const { return this->data_.empty(); }
 
 float Tensor<float>::index(uint32_t offset) const {
-  CHECK(offset < this->data_.size()) << "Tensor capacity is not enough!";
+  CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
   return this->data_.at(offset);
 }
 
 float& Tensor<float>::index(uint32_t offset) {
-  CHECK(offset < this->data_.size()) << "Tensor capacity is not enough!";
+  CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
   return this->data_.at(offset);
 }
 
@@ -215,6 +215,8 @@ void Tensor<float>::Transform(const std::function<float(float)>& filter) {
 
 const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
   CHECK(!this->raw_shapes_.empty());
+  CHECK_LE(this->raw_shapes_.size(), 3);
+  CHECK_GE(this->raw_shapes_.size(), 1);
   return this->raw_shapes_;
 }
 
@@ -223,10 +225,8 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
-  uint32_t current_size = 1;
-  for (uint32_t s : shapes) {
-    current_size *= s;
-  }
+  const uint32_t current_size =
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 

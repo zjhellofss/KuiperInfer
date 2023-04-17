@@ -164,12 +164,12 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
 | **input size**         | **模型名称**     | **计算设备**              | **耗时**           |
 |------------------------| ---------------- | ------------------------- |------------------|
-| 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 7.77ms / image   |
-| 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 24.80ms / image  |
-| 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 16.45ms / image  |
+| 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 7.02ms / image   |
+| 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 21.99ms / image  |
+| 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 13.51ms / image  |
 | 320×320 batch = 8      | Yolov5nano       | CPU(armadillo + openblas) | 13.39ms / image  |
-| **640×640** batch = 8  | **Yolov5s**      | CPU(armadillo + openblas) | 209.93ms / image |
-| **640×640** batch = 16 | **Yolov5s**      | CPU(armadillo + openblas) | 159.45ms / image |
+| **640×640** batch = 8  | **Yolov5s**      | CPU(armadillo + openblas) | 190.29ms / image |
+| **640×640** batch = 16 | **Yolov5s**      | CPU(armadillo + openblas) | 137.62ms / image |
 
 ## 致谢
 

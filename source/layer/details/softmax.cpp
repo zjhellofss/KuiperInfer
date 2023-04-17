@@ -42,9 +42,8 @@ InferStatus SoftmaxLayer::Forward(
     if (dim < 0) {
       dim += int(raw_shapes.size());
     }
-    CHECK(dim >= 0 && dim <= 2);
-    CHECK_LT(dim, raw_shapes.size());
 
+    CHECK_LT(dim, raw_shapes.size());
     if (dim < 0 || dim >= 3) {
       LOG(FATAL) << "Error softmax dimension, which need between 0 and 2, "
                     "but dimension is "
