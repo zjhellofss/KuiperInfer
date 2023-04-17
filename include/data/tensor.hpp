@@ -165,6 +165,14 @@ class Tensor<float> {
    */
   void Fill(const std::vector<float>& values, bool row_major = true);
 
+
+  /**
+   * 返回Tensor内的所有数据
+   * @param row_major 是否是行主序列的
+   * @return Tensor内的所有数据
+   */
+  std::vector<float> values(bool row_major = true);
+
   /**
    * 以常量1初始化张量
    */
@@ -205,7 +213,6 @@ class Tensor<float> {
   const float* raw_ptr() const;
 
  private:
-  void ReView(const std::vector<uint32_t>& shapes);
   std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
   arma::fcube data_;                  // 张量数据
 };

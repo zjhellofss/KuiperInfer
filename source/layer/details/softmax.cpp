@@ -63,33 +63,37 @@ InferStatus SoftmaxLayer::Forward(
     const uint32_t axis_sizes = raw_shapes.at(dim);
     CHECK_EQ(axis_sizes * outer_sizes * inner_sizes, input->size());
 
-    auto input_ = TensorClone(input);
-    input_->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
-    output->Reshape({outer_sizes, axis_sizes, inner_sizes}, true);
+    const auto& input_values = input->values(true);
+    std::vector<float> output_values(input_values.size());
     for (uint32_t outer_size = 0; outer_size < outer_sizes; ++outer_size) {
       for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
         float max_value = std::numeric_limits<float>::lowest();
         float sum_value = 0.f;
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input_->at(outer_size, axis_size, inner_size);
+          uint32_t index = outer_size * axis_sizes * inner_sizes +
+                           axis_size * inner_sizes + inner_size;
+          float cur_value = input_values.at(index);
           if (cur_value > max_value) {
             max_value = cur_value;
           }
         }
 
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input_->at(outer_size, axis_size, inner_size);
+          uint32_t index = outer_size * axis_sizes * inner_sizes +
+                           axis_size * inner_sizes + inner_size;
+          float cur_value = input_values.at(index);
           sum_value += std::exp(cur_value - max_value);
         }
 
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          float cur_value = input_->at(outer_size, axis_size, inner_size);
-          output->at(outer_size, axis_size, inner_size) =
-              std::exp(cur_value - max_value) / sum_value;
+          uint32_t index = outer_size * axis_sizes * inner_sizes +
+                           axis_size * inner_sizes + inner_size;
+          float cur_value = input_values.at(index);
+          output_values.at(index) = std::exp(cur_value - max_value) / sum_value;
         }
       }
     }
-    output->Reshape(output_origin_shapes, true);
+    output->Fill(output_values, true);
   }
   return InferStatus::kInferSuccess;
 }

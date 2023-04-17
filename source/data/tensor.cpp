@@ -229,64 +229,25 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   }
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
+
+  std::vector<float> values;
   if (row_major) {
-    std::vector<uint32_t> target_shapes;  // channel row col
-    if (shapes.size() == 3) {
-      target_shapes = {shapes.at(0), shapes.at(1), shapes.at(2)};
-      this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-    } else if (shapes.size() == 2) {
-      target_shapes = {1, shapes.at(0), shapes.at(1)};
-      this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
-    } else {
-      target_shapes = {1, shapes.at(0), 1};
-      this->raw_shapes_ = {shapes.at(0)};
-    }
-    if (target_shapes.at(0) == this->channels() &&
-        target_shapes.at(1) == this->rows() &&
-        target_shapes.at(2) == this->cols()) {
-      return;
-    }
-    this->ReView(target_shapes);
+    values = this->values(true);
+  }
+  if (shapes.size() == 3) {
+    this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
+  } else if (shapes.size() == 2) {
+    this->data_.reshape(shapes.at(0), shapes.at(1), 1);
+    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
   } else {
-    if (shapes.size() == 3) {
-      this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
-      this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-    } else if (shapes.size() == 2) {
-      this->data_.reshape(shapes.at(0), shapes.at(1), 1);
-      this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
-    } else {
-      this->data_.reshape(shapes.at(0), 1, 1);
-      this->raw_shapes_ = {shapes.at(0)};
-    }
+    this->data_.reshape(shapes.at(0), 1, 1);
+    this->raw_shapes_ = {shapes.at(0)};
   }
-}
 
-void Tensor<float>::ReView(const std::vector<uint32_t>& shapes) {
-  CHECK(!this->data_.empty());
-  const uint32_t target_channels = shapes.at(0);
-  const uint32_t target_rows = shapes.at(1);
-  const uint32_t target_cols = shapes.at(2);
-  CHECK_EQ(this->data_.size(), target_channels * target_cols * target_rows);
-  arma::fcube new_data(target_rows, target_cols, target_channels);
-
-  const uint32_t plane_size = target_rows * target_cols;
-  for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
-    const arma::fmat& channel = this->data_.slice(c);
-    for (uint32_t w = 0; w < this->data_.n_cols; ++w) {
-      const float* col_ptr = channel.colptr(w);
-      for (uint32_t h = 0; h < this->data_.n_rows; ++h) {
-        const uint32_t pos_index =
-            c * data_.n_rows * data_.n_cols + h * data_.n_cols + w;
-        const uint32_t ch = pos_index / plane_size;
-        const uint32_t row = (pos_index - ch * plane_size) / target_cols;
-        const uint32_t col = (pos_index - ch * plane_size - row * target_cols);
-        CHECK(ch < new_data.n_slices && col < new_data.n_cols &&
-              row < new_data.n_rows);
-        new_data.at(row, col, ch) = *(col_ptr + h);
-      }
-    }
+  if (row_major) {
+    this->Fill(values, true);
   }
-  this->data_ = std::move(new_data);
 }
 
 const float* Tensor<float>::raw_ptr() const {
@@ -294,4 +255,22 @@ const float* Tensor<float>::raw_ptr() const {
   return this->data_.memptr();
 }
 
+std::vector<float> Tensor<float>::values(bool row_major) {
+  CHECK_EQ(this->data_.empty(), false);
+  std::vector<float> values(this->data_.size());
+
+  if (!row_major) {
+    std::copy(this->data_.mem, this->data_.mem + this->data_.size(),
+              values.begin());
+  } else {
+    uint32_t index = 0;
+    for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
+      const arma::fmat& channel = this->data_.slice(c).t();
+      std::copy(channel.begin(), channel.end(), values.begin() + index);
+      index += channel.size();
+    }
+    CHECK_EQ(index, values.size());
+  }
+  return values;
+}
 }  // namespace kuiper_infer

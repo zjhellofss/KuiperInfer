@@ -913,3 +913,49 @@ TEST(test_tensor, tensor_padding1) {
     }
   }
 }
+
+TEST(test_tensor, tensor_values_row1) {
+  using namespace kuiper_infer;
+  const uint32_t size = 60;
+  std::vector<float> values_in;
+  for (uint32_t i = 0; i < size; ++i) {
+    values_in.push_back(float(i));
+  }
+  sftensor tensor = TensorCreate(3, 4, 5);
+  tensor->Fill(values_in);
+  const auto& values_output = tensor->values(true);
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(values_output.at(i), values_in.at(i));
+  }
+}
+
+TEST(test_tensor, tensor_values_row2) {
+  using namespace kuiper_infer;
+  const uint32_t size = 60;
+  std::vector<float> values_in;
+  for (uint32_t i = 0; i < size; ++i) {
+    values_in.push_back(float(i));
+  }
+  sftensor tensor = TensorCreate(1, 60, 1);
+  tensor->Fill(values_in);
+  const auto& values_output = tensor->values(true);
+  for (uint32_t i = 0; i < size; ++i) {
+    ASSERT_EQ(values_output.at(i), values_in.at(i));
+  }
+}
+
+TEST(test_tensor, tensor_values_col1) {
+  using namespace kuiper_infer;
+  const uint32_t size = 4;
+  std::vector<float> values_in;
+  for (uint32_t i = 0; i < size; ++i) {
+    values_in.push_back(float(i));
+  }
+  sftensor tensor = TensorCreate(1, 2, 2);
+  tensor->Fill(values_in);
+  const auto& values_output = tensor->values(false);
+  ASSERT_EQ(values_output.at(0), 0);
+  ASSERT_EQ(values_output.at(1), 2);
+  ASSERT_EQ(values_output.at(2), 1);
+  ASSERT_EQ(values_output.at(3), 3);
+}
