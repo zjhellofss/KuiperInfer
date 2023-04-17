@@ -4,6 +4,7 @@
 
 #include "softmax.hpp"
 #include <glog/logging.h>
+#include <numeric>
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
