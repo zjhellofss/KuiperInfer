@@ -4,6 +4,7 @@
 
 #include "data/tensor.hpp"
 #include <glog/logging.h>
+#include <numeric>
 #include <memory>
 
 namespace kuiper_infer {
