@@ -154,6 +154,12 @@ TEST(test_runtime, runtime_graph_output_init1) {
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 3);
+      ASSERT_EQ(raw_shapes.at(0), 3);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+      ASSERT_EQ(raw_shapes.at(2), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 3);
@@ -168,6 +174,12 @@ TEST(test_runtime, runtime_graph_output_init1) {
     ASSERT_EQ(output_datas->shapes.size(), 4);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 3);
+      ASSERT_EQ(raw_shapes.at(0), 3);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+      ASSERT_EQ(raw_shapes.at(2), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 3);
@@ -196,6 +208,10 @@ TEST(test_runtime, runtime_graph_output_init2) {
     ASSERT_EQ(output_datas->datas.size(), 8);
 
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 64);
+
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
@@ -211,6 +227,9 @@ TEST(test_runtime, runtime_graph_output_init2) {
     ASSERT_EQ(output_datas->datas.size(), 8);
 
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 64);
       ASSERT_EQ(output_data->rows(), 64);
       ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
@@ -238,6 +257,11 @@ TEST(test_runtime, runtime_graph_output_init3) {
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -252,8 +276,62 @@ TEST(test_runtime, runtime_graph_output_init3) {
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
+      ASSERT_EQ(output_data->channels(), 1);
+    }
+  }
+}
+
+TEST(test_runtime, runtime_graph_output_init6) {
+  using namespace kuiper_infer;
+  std::vector<pnnx::Operator*> pnnx_operators;
+  std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{2, 32};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 2);
+    ASSERT_EQ(output_datas->datas.size(), 2);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+
+      ASSERT_EQ(output_data->rows(), 32);
+      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->channels(), 1);
+      output_data->data().resize(1, 16, 2);
+    }
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 2);
+    ASSERT_EQ(output_datas->datas.size(), 2);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+
+      ASSERT_EQ(output_data->rows(), 32);
+      ASSERT_EQ(output_data->cols(), 1);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }
@@ -279,6 +357,11 @@ TEST(test_runtime, runtime_graph_output_init4) {
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
@@ -293,12 +376,122 @@ TEST(test_runtime, runtime_graph_output_init4) {
     ASSERT_EQ(output_datas->shapes.size(), 3);
     ASSERT_EQ(output_datas->datas.size(), 8);
     for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 32);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
       ASSERT_EQ(output_data->rows(), 32);
       ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }
 }
+
+
+TEST(test_runtime, runtime_graph_output_init7) {
+  using namespace kuiper_infer;
+  std::vector<pnnx::Operator*> pnnx_operators;
+  std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{8, 3, 31, 32};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 4);
+    ASSERT_EQ(output_datas->datas.size(), 8);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 3);
+      ASSERT_EQ(raw_shapes.at(0), 3);
+      ASSERT_EQ(raw_shapes.at(1), 31);
+      ASSERT_EQ(raw_shapes.at(2), 32);
+
+      ASSERT_EQ(output_data->rows(), 31);
+      ASSERT_EQ(output_data->cols(), 32);
+      ASSERT_EQ(output_data->channels(), 3);
+      output_data->data().resize(31, 16, 6);
+    }
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 4);
+    ASSERT_EQ(output_datas->datas.size(), 8);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 3);
+      ASSERT_EQ(raw_shapes.at(0), 3);
+      ASSERT_EQ(raw_shapes.at(1), 31);
+      ASSERT_EQ(raw_shapes.at(2), 32);
+
+      ASSERT_EQ(output_data->rows(), 31);
+      ASSERT_EQ(output_data->cols(), 32);
+      ASSERT_EQ(output_data->channels(), 3);
+    }
+  }
+}
+
+
+TEST(test_runtime, runtime_graph_output_init8) {
+  using namespace kuiper_infer;
+  std::vector<pnnx::Operator*> pnnx_operators;
+  std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{8, 363};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 2);
+    ASSERT_EQ(output_datas->datas.size(), 8);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 363);
+
+      ASSERT_EQ(output_data->rows(), 363);
+      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->channels(), 1);
+      output_data->data().resize(3, 121, 1);
+    }
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 2);
+    ASSERT_EQ(output_datas->datas.size(), 8);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 1);
+      ASSERT_EQ(raw_shapes.at(0), 363);
+
+      ASSERT_EQ(output_data->rows(), 363);
+      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->channels(), 1);
+    }
+  }
+}
+
 
 TEST(test_runtime, set_param_path) {
   using namespace kuiper_infer;

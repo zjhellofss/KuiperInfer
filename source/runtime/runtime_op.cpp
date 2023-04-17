@@ -133,7 +133,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
             DLOG(WARNING)
                 << "The shape of tensor do not adapting with output operand";
             const auto& target_shapes =
-                std::vector<uint32_t>{1, (uint32_t)operand_shapes.at(1), 1};
+                std::vector<uint32_t>{(uint32_t)operand_shapes.at(1)};
             output_tensors->datas.at(b)->Reshape(target_shapes);
           }
         } else {
@@ -143,9 +143,8 @@ void RuntimeOperatorUtils::InitOperatorOutput(
               tensor_shapes.at(2) != operand_shapes.at(2)) {
             DLOG(WARNING)
                 << "The shape of tensor do not adapting with output operand";
-            const auto& target_shapes =
-                std::vector<uint32_t>{1, (uint32_t)operand_shapes.at(1),
-                                      (uint32_t)operand_shapes.at(2)};
+            const auto& target_shapes = std::vector<uint32_t>{
+                (uint32_t)operand_shapes.at(1), (uint32_t)operand_shapes.at(2)};
             output_tensors->datas.at(b)->Reshape(target_shapes);
           }
         }
