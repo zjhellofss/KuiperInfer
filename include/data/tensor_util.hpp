@@ -13,7 +13,7 @@ namespace kuiper_infer {
  * @param tensor2 张量2
  * @return 形状一致的张量
  */
-std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tenor1,
+std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tensor1,
                                                const sftensor& tensor2);
 
 /**

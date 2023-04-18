@@ -165,32 +165,32 @@ std::shared_ptr<Tensor<float>> TensorPadding(
   return output;
 }
 
-std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tenor1,
+std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tensor1,
                                                const sftensor& tensor2) {
-  CHECK(tenor1 != nullptr && tensor2 != nullptr);
-  if (tenor1->shapes() == tensor2->shapes()) {
-    return {tenor1, tensor2};
+  CHECK(tensor1 != nullptr && tensor2 != nullptr);
+  if (tensor1->shapes() == tensor2->shapes()) {
+    return {tensor1, tensor2};
   } else {
-    CHECK(tenor1->channels() == tensor2->channels());
+    CHECK(tensor1->channels() == tensor2->channels());
     if (tensor2->rows() == 1 && tensor2->cols() == 1) {
       sftensor new_tensor =
-          TensorCreate(tensor2->channels(), tenor1->rows(), tenor1->cols());
+          TensorCreate(tensor2->channels(), tensor1->rows(), tensor1->cols());
       CHECK(tensor2->size() == tensor2->channels());
       for (uint32_t c = 0; c < tensor2->channels(); ++c) {
         new_tensor->slice(c).fill(tensor2->index(c));
       }
-      return {tenor1, new_tensor};
-    } else if (tenor1->rows() == 1 && tenor1->cols() == 1) {
+      return {tensor1, new_tensor};
+    } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
       sftensor new_tensor =
-          TensorCreate(tenor1->channels(), tensor2->rows(), tensor2->cols());
-      CHECK(tenor1->size() == tenor1->channels());
-      for (uint32_t c = 0; c < tenor1->channels(); ++c) {
-        new_tensor->slice(c).fill(tenor1->index(c));
+          TensorCreate(tensor1->channels(), tensor2->rows(), tensor2->cols());
+      CHECK(tensor1->size() == tensor1->channels());
+      for (uint32_t c = 0; c < tensor1->channels(); ++c) {
+        new_tensor->slice(c).fill(tensor1->index(c));
       }
       return {new_tensor, tensor2};
     } else {
       LOG(FATAL) << "Broadcast shape is not adapting!";
-      return {tenor1, tensor2};
+      return {tensor1, tensor2};
     }
   }
 }

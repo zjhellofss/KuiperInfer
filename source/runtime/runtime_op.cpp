@@ -113,8 +113,8 @@ void RuntimeOperatorUtils::InitOperatorOutput(
       CHECK(output_tensors->shapes == operand_shapes);
       // 逐批次检查输出空间的形状是否合理，如果不合理则进行reshape
       for (uint32_t b = 0; b < batch; ++b) {
-        const std::vector<uint32_t>& tensor_shapes =
-            output_tensors->datas.at(b)->shapes();
+        sftensor output_tensor = output_tensors->datas.at(b);
+        const std::vector<uint32_t>& tensor_shapes = output_tensor->shapes();
         if (operand_shapes.size() == 4) {
           if (tensor_shapes.at(0) != operand_shapes.at(1) ||
               tensor_shapes.at(1) != operand_shapes.at(2) ||
@@ -124,7 +124,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
             const auto& target_shapes = std::vector<uint32_t>{
                 (uint32_t)operand_shapes.at(1), (uint32_t)operand_shapes.at(2),
                 (uint32_t)operand_shapes.at(3)};
-            output_tensors->datas.at(b)->Reshape(target_shapes);
+            output_tensor->Reshape(target_shapes);
           }
         } else if (operand_shapes.size() == 2) {
           if (tensor_shapes.at(0) != 1 ||
@@ -134,7 +134,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
                 << "The shape of tensor do not adapting with output operand";
             const auto& target_shapes =
                 std::vector<uint32_t>{(uint32_t)operand_shapes.at(1)};
-            output_tensors->datas.at(b)->Reshape(target_shapes);
+            output_tensor->Reshape(target_shapes);
           }
         } else {
           // current shape is 3
@@ -145,7 +145,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
                 << "The shape of tensor do not adapting with output operand";
             const auto& target_shapes = std::vector<uint32_t>{
                 (uint32_t)operand_shapes.at(1), (uint32_t)operand_shapes.at(2)};
-            output_tensors->datas.at(b)->Reshape(target_shapes);
+            output_tensor->Reshape(target_shapes);
           }
         }
       }
