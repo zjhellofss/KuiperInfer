@@ -98,7 +98,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
                                                        operand_shapes.at(3)));
         } else if (operand_shapes.size() == 2) {
           output_operand->datas.push_back(
-              TensorCreate(1, operand_shapes.at(1), 1));
+              TensorCreate(1, 1, operand_shapes.at(1)));
         } else {
           // current shape is 3
           output_operand->datas.push_back(

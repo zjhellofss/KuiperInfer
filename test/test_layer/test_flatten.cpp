@@ -17,7 +17,7 @@ TEST(test_layer, forward_flatten_layer1) {
 
   inputs.push_back(input);
 
-  FlattenLayer flatten_layer(0, 2);
+  FlattenLayer flatten_layer(1, 3);
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
@@ -26,8 +26,8 @@ TEST(test_layer, forward_flatten_layer1) {
   ASSERT_EQ(shapes.size(), 3);
 
   ASSERT_EQ(shapes.at(0), 1);
-  ASSERT_EQ(shapes.at(1), 8 * 24 * 32);
-  ASSERT_EQ(shapes.at(2), 1);
+  ASSERT_EQ(shapes.at(1), 1);
+  ASSERT_EQ(shapes.at(2), 8 * 24 * 32);
 
   const auto& raw_shapes = outputs.front()->raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
@@ -49,7 +49,7 @@ TEST(test_layer, forward_flatten_layer2) {
 
   inputs.push_back(input);
 
-  FlattenLayer flatten_layer(0, -1);  // 1 3 -> 0 2
+  FlattenLayer flatten_layer(1, -1);  // 1 3 -> 0 2
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ASSERT_EQ(outputs.size(), 1);
@@ -58,8 +58,8 @@ TEST(test_layer, forward_flatten_layer2) {
   ASSERT_EQ(shapes.size(), 3);
 
   ASSERT_EQ(shapes.at(0), 1);
-  ASSERT_EQ(shapes.at(1), 8 * 24 * 32);
-  ASSERT_EQ(shapes.at(2), 1);
+  ASSERT_EQ(shapes.at(1), 1);
+  ASSERT_EQ(shapes.at(2), 8 * 24 * 32);
 
   const auto& raw_shapes = outputs.front()->raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
@@ -82,7 +82,7 @@ TEST(test_layer, forward_flatten_layer3) {
 
   inputs.push_back(input);
 
-  FlattenLayer flatten_layer(0, 1);  // 0 1
+  FlattenLayer flatten_layer(1, 2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   ;
@@ -117,7 +117,7 @@ TEST(test_layer, forward_flatten_layer4) {
 
   inputs.push_back(input);
 
-  FlattenLayer flatten_layer(0, -2);  // 0 1
+  FlattenLayer flatten_layer(1, -2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
@@ -152,7 +152,7 @@ TEST(test_layer, forward_flatten_layer5) {
 
   inputs.push_back(input);
 
-  FlattenLayer flatten_layer(1, 2);  // 1 2
+  FlattenLayer flatten_layer(2, 3);  // 1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
@@ -188,7 +188,7 @@ TEST(test_layer, forward_flatten_layer6) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   inputs.push_back(input);
-  FlattenLayer flatten_layer(0, 2);  // 1 2
+  FlattenLayer flatten_layer(1, 3);  // 1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   const auto& output = outputs.front();
@@ -209,7 +209,7 @@ TEST(test_layer, forward_flatten_layer7) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   inputs.push_back(input);
-  FlattenLayer flatten_layer(0, 1);  // 0 1
+  FlattenLayer flatten_layer(1, 2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   const auto& output = outputs.front();
@@ -235,7 +235,7 @@ TEST(test_layer, forward_flatten_layer8) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   inputs.push_back(input);
-  FlattenLayer flatten_layer(1, 2);  //  1 2
+  FlattenLayer flatten_layer(2, 3);  //  1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, InferStatus::kInferSuccess);
   const auto& output = outputs.front();
@@ -262,7 +262,7 @@ TEST(test_layer, forward_flatten_layer9) {
   std::vector<sftensor> inputs;
   inputs.push_back(input);
   std::vector<sftensor> outputs(1);
-  FlattenLayer flatten_layer(0, 1);
+  FlattenLayer flatten_layer(1, 2);
   flatten_layer.Forward(inputs, outputs);
   const sftensor output = outputs.front();
   ASSERT_EQ(output->rows(), 6);
@@ -283,7 +283,7 @@ TEST(test_layer, forward_flatten_layer10) {
   std::vector<sftensor> inputs;
   inputs.push_back(input);
   std::vector<sftensor> outputs(1);
-  FlattenLayer flatten_layer(1, 2);
+  FlattenLayer flatten_layer(2, 3);
   flatten_layer.Forward(inputs, outputs);
   const sftensor output = outputs.front();
   ASSERT_EQ(output->rows(), 2);
@@ -329,7 +329,7 @@ TEST(test_layer, forward_flatten_layer12) {
   FlattenLayer flatten_layer(-3, -1);
   flatten_layer.Forward(inputs, outputs);
   const sftensor output = outputs.front();
-  ASSERT_EQ(output->rows(), 24);
-  ASSERT_EQ(output->cols(), 1);
+  ASSERT_EQ(output->cols(), 24);
+  ASSERT_EQ(output->rows(), 1);
   ASSERT_EQ(output->channels(), 1);
 }

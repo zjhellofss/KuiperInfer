@@ -212,8 +212,8 @@ TEST(test_runtime, runtime_graph_output_init2) {
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 64);
 
-      ASSERT_EQ(output_data->rows(), 64);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 64);
       ASSERT_EQ(output_data->channels(), 1);
       output_data->data().resize(32, 1, 2);
     }
@@ -230,8 +230,8 @@ TEST(test_runtime, runtime_graph_output_init2) {
       const auto& raw_shapes = output_data->raw_shapes();
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 64);
-      ASSERT_EQ(output_data->rows(), 64);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 64);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }
@@ -312,8 +312,8 @@ TEST(test_runtime, runtime_graph_output_init6) {
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 32);
 
-      ASSERT_EQ(output_data->rows(), 32);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
       output_data->data().resize(1, 16, 2);
     }
@@ -330,8 +330,8 @@ TEST(test_runtime, runtime_graph_output_init6) {
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 32);
 
-      ASSERT_EQ(output_data->rows(), 32);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 32);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }
@@ -467,8 +467,8 @@ TEST(test_runtime, runtime_graph_output_init8) {
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 363);
 
-      ASSERT_EQ(output_data->rows(), 363);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 363);
       ASSERT_EQ(output_data->channels(), 1);
       output_data->data().resize(3, 121, 1);
     }
@@ -485,8 +485,8 @@ TEST(test_runtime, runtime_graph_output_init8) {
       ASSERT_EQ(raw_shapes.size(), 1);
       ASSERT_EQ(raw_shapes.at(0), 363);
 
-      ASSERT_EQ(output_data->rows(), 363);
-      ASSERT_EQ(output_data->cols(), 1);
+      ASSERT_EQ(output_data->rows(), 1);
+      ASSERT_EQ(output_data->cols(), 363);
       ASSERT_EQ(output_data->channels(), 1);
     }
   }

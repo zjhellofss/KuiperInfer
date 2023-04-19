@@ -12,8 +12,6 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, channels);
   if (channels == 1 && rows == 1) {
     this->raw_shapes_ = std::vector<uint32_t>{cols};
-  } else if (channels == 1 && cols == 1) {
-    this->raw_shapes_ = std::vector<uint32_t>{rows};
   } else if (channels == 1) {
     this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
   } else {
@@ -244,7 +242,7 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
     this->data_.reshape(shapes.at(0), shapes.at(1), 1);
     this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
   } else {
-    this->data_.reshape(shapes.at(0), 1, 1);
+    this->data_.reshape(1, shapes.at(0), 1);
     this->raw_shapes_ = {shapes.at(0)};
   }
 

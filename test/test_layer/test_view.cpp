@@ -132,8 +132,8 @@ TEST(test_layer, forward_view5) {
     const auto &shapes = outputs.at(i)->shapes();
     ASSERT_EQ(shapes.size(), 3);
     ASSERT_EQ(shapes.at(0), 1);
-    ASSERT_EQ(shapes.at(1), 32);
-    ASSERT_EQ(shapes.at(2), 1);
+    ASSERT_EQ(shapes.at(1), 1);
+    ASSERT_EQ(shapes.at(2), 32);
   }
 }
 
@@ -160,8 +160,8 @@ TEST(test_layer, forward_view6) {
     const auto &shapes = outputs.at(i)->shapes();
     ASSERT_EQ(shapes.size(), 3);
     ASSERT_EQ(shapes.at(0), 1); // channels
-    ASSERT_EQ(shapes.at(1), 96); // rows
-    ASSERT_EQ(shapes.at(2), 1); // cols
+    ASSERT_EQ(shapes.at(1), 1); // rows
+    ASSERT_EQ(shapes.at(2), 96); // cols
   }
 }
 

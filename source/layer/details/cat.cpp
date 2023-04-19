@@ -10,23 +10,25 @@ InferStatus CatLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of cat layer is empty";
+    LOG(ERROR) << "The input tensor array in the cat layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() == outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR)
+        << "The input and output tensor array size of cat layer do not match";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
   if (dim_ != 1 && dim_ != -3) {
-    LOG(ERROR) << "The dimension of cat layer is error";
+    LOG(ERROR) << "The dimension parameter of cat layer is error";
     return InferStatus::kInferFailedDimensionParameterError;
   }
 
   const uint32_t output_size = outputs.size();
   if (inputs.size() % output_size != 0) {
-    LOG(ERROR) << "Input and output size are not adapting";
+    LOG(ERROR)
+        << "The input and output tensor array size of cat layer do not match";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
@@ -35,7 +37,8 @@ InferStatus CatLayer::Forward(
     const std::shared_ptr<ftensor>& input_data = inputs.at(i);
     const std::shared_ptr<ftensor>& output_data = outputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input feature map of cat layer is empty";
+      LOG(ERROR) << "The input tensor array in the cat layer has an "
+                    "empty tensor";
       return InferStatus::kInferFailedInputEmpty;
     }
     if (output_data == nullptr || output_data->empty()) {
@@ -44,13 +47,14 @@ InferStatus CatLayer::Forward(
     const uint32_t input_channel = input_data->channels();
     const uint32_t output_channel = output_data->channels();
     if (input_channel * packet_size != output_channel) {
-      LOG(ERROR)
-          << "The channel of input and output feature map is not adapting";
+      LOG(ERROR) << "Inconsistent number of channels between input tensor and "
+                    "output tensor";
       return InferStatus::kInferFailedChannelParameterError;
     }
     if (input_data->rows() != output_data->rows() ||
         input_data->cols() != output_data->cols()) {
-      LOG(ERROR) << "The size of input and output feature map is not adapting";
+      LOG(ERROR) << "The output and input shapes of the cat layer do "
+                    "not match!";
       return InferStatus::kInferFailedInputOutSizeAdaptingError;
     }
   }
@@ -64,9 +68,12 @@ InferStatus CatLayer::Forward(
     for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
       CHECK(input != nullptr && !input->empty())
-          << "The input feature map of cat layer is empty";
+          << "The input tensor array in the cat layer has "
+             "an empty tensor";
       const uint32_t in_channels = input->channels();
-      CHECK(rows == input->rows() && cols == input->cols());
+      CHECK(rows == input->rows() && cols == input->cols())
+          << "The input tensor array in the cat layer "
+             "has an incorrectly sized tensor";
 
       if (output == nullptr || output->empty()) {
         output = std::make_shared<Tensor<float>>(in_channels * packet_size,
@@ -74,7 +81,9 @@ InferStatus CatLayer::Forward(
         outputs.at(i) = output;
       }
       CHECK(output->channels() == in_channels * packet_size &&
-            output->rows() == rows && output->cols() == cols);
+            output->rows() == rows && output->cols() == cols)
+          << "The output tensor array in the cat layer "
+             "has an incorrectly sized tensor";
       for (uint32_t c = 0; c < in_channels; ++c) {
         output->slice(start_channel + c) = input->slice(c);
       }

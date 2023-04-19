@@ -193,8 +193,8 @@ TEST(test_tensor, flatten1) {
   f3.Fill(values);
   f3.Flatten(false);
   ASSERT_EQ(f3.channels(), 1);
-  ASSERT_EQ(f3.rows(), 27);
-  ASSERT_EQ(f3.cols(), 1);
+  ASSERT_EQ(f3.rows(), 1);
+  ASSERT_EQ(f3.cols(), 27);
   ASSERT_EQ(f3.index(0), 0);
   ASSERT_EQ(f3.index(1), 3);
   ASSERT_EQ(f3.index(2), 6);

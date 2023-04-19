@@ -33,6 +33,7 @@ enum class InferStatus {
   kInferFailedYoloStageNumberError = 8,
   kInferFailedShapeParameterError = 9,
   kInferFailedChannelParameterError = 10,
+  kInferFailedOutputEmpty = 11,
 
 };
 
@@ -57,7 +58,6 @@ enum class ParseParameterAttrStatus {
   kParameterMissingDilation = 16,
   kParameterMissingPaddingMode = 16,
 
-
   kAttrMissingBias = 21,
   kAttrMissingWeight = 22,
   kAttrMissingRunningMean = 23,
@@ -69,5 +69,5 @@ enum class ParseParameterAttrStatus {
 
   kParameterAttrParseSuccess = 0
 };
-}
-#endif //KUIPER_INFER_INCLUDE_COMMON_HPP_
+}  // namespace kuiper_infer
+#endif  // KUIPER_INFER_INCLUDE_COMMON_HPP_
