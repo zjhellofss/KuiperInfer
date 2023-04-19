@@ -77,9 +77,9 @@ InferStatus LinearLayer::Forward(
     const uint32_t feature_dims = input_shapes.at(1);
     const uint32_t in_features = input_shapes.at(2);
     CHECK(weight_data.n_rows == out_features_)
-        << "The row of weight tensor need equal to output features";
+        << "The row of weight tensor should be equal to output_features";
     CHECK(weight_data.n_cols == in_features && in_features == in_features_)
-        << "The col of weight tensor need equal to input features";
+        << "The col of weight tensor should be equal to input_features";
 
     arma::fmat input_vec(input->data().memptr(), feature_dims, in_features_,
                          false, true);
@@ -91,8 +91,8 @@ InferStatus LinearLayer::Forward(
     }
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
-        << "The row of output tensor need equal to feature dims and the col of "
-           "output tensor need equal to output features";
+        << "The row of output tensor should be equal to feature dims and the col of "
+           "output tensor should be equal to output features";
     const auto& output_raw_shapes = output->raw_shapes();
     if (output_raw_shapes.size() == 2) {
       CHECK(output_raw_shapes.at(0) == feature_dims &&
