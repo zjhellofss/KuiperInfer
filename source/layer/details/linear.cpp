@@ -77,9 +77,9 @@ InferStatus LinearLayer::Forward(
     const uint32_t feature_dims = input_shapes.at(1);
     const uint32_t in_features = input_shapes.at(2);
     CHECK(weight_data.n_rows == out_features_)
-        << "The row of weight tensor should be same to output_features";
+        << "The row of weight tensor should be same to output_features_";
     CHECK(weight_data.n_cols == in_features && in_features == in_features_)
-        << "The col of weight tensor should be same to input_features";
+        << "The col of weight tensor should be same to input_features_";
 
     arma::fmat input_vec(input->data().memptr(), feature_dims, in_features_,
                          false, true);
@@ -91,8 +91,8 @@ InferStatus LinearLayer::Forward(
     }
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
-        << "The row of output tensor should be same to feature dims and the col of "
-           "output tensor should be same to output features";
+        << "The row of output tensor should be same to feature_dims_ and the col of "
+           "output tensor should be same to output_features_";
     const auto& output_raw_shapes = output->raw_shapes();
     if (output_raw_shapes.size() == 2) {
       CHECK(output_raw_shapes.at(0) == feature_dims &&
@@ -113,7 +113,7 @@ InferStatus LinearLayer::Forward(
 
       const auto& bias_data = bias_cube->data();
       CHECK(bias_data.n_slices == 1 && bias_data.n_cols == out_features_)
-          << "The col of bias tensor is not same to output_features";
+          << "The col of bias tensor is not same to output_features_";
 #pragma omp parallel for
       for (uint32_t row = 0; row < result.n_rows; ++row) {
         result.row(row) += bias_data.slice(0);

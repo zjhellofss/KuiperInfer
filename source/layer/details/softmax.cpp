@@ -14,12 +14,13 @@ InferStatus SoftmaxLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of softmax layer is empty";
+    LOG(ERROR) << "The input tensor array in the softmax layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR) << "The input and output tensor array size of the softmax layer "
+                  "do not match";
     return InferStatus::kInferFailedInputOutSizeAdaptingError;
   }
 
@@ -28,7 +29,7 @@ InferStatus SoftmaxLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input feature map for softmax layer is empty";
+        << "The input tensor array in the softmax layer has an empty tensor";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
