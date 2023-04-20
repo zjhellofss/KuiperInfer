@@ -291,7 +291,6 @@ TEST(test_layer, forward_linear10) {
 
   std::vector<sftensor> outputs;
   outputs = graph.Forward(inputs);
-  outputs.front()->Show();
   arma::fmat real_data =
       CSVDataLoader::LoadData("tmp/linear/linear_1305x2047_arange.csv");
   for (const auto& output : outputs) {

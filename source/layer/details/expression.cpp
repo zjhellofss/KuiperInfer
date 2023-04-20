@@ -26,13 +26,6 @@ InferStatus ExpressionLayer::Forward(
     return InferStatus::kInferFailedOutputEmpty;
   }
 
-  if (inputs.size() != outputs.size()) {
-    LOG(ERROR)
-        << "The input and output tensor array size of the expression layer do "
-           "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
-  }
-
   CHECK(this->parser_ != nullptr)
       << "The parser in the expression layer is null!";
   this->parser_->Tokenizer(false);
