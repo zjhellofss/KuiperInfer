@@ -21,7 +21,7 @@ InferStatus SoftmaxLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the softmax layer "
                   "do not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -29,14 +29,19 @@ InferStatus SoftmaxLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the softmax layer has an empty tensor";
+        << "The input tensor array in the softmax layer has an empty tensor "
+        << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(i) = output;
     }
-    CHECK(input->shapes() == output->shapes());
+    CHECK(input->shapes() == output->shapes())
+        << "The input and output tensor shapes of the softmax layer do not "
+           "match "
+        << i << " th";
+    ;
     int dim = this->softmax_dim_;
     std::vector<uint32_t> raw_shapes = input->raw_shapes();
 
@@ -44,14 +49,11 @@ InferStatus SoftmaxLayer::Forward(
       dim += int(raw_shapes.size());
     }
 
-    CHECK_LT(dim, raw_shapes.size());
-    if (dim < 0 || dim >= 3) {
+    if (dim < 0 || dim >= 3 || dim > raw_shapes.size()) {
       LOG(FATAL) << "Error softmax dimension, which need between 0 and 2, "
                     "but dimension is "
                  << dim;
     }
-    const auto& output_origin_shapes = output->shapes();
-
     const uint32_t padding_size_num = 3 - raw_shapes.size();
     for (uint32_t j = 0; j < padding_size_num; ++j) {
       raw_shapes.push_back(1);

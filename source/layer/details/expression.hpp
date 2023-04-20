@@ -19,6 +19,7 @@ class ExpressionLayer : public Layer {
                                               std::shared_ptr<Layer> &expression_layer);
 
  private:
+  std::string statement_;
   std::unique_ptr<ExpressionParser> parser_;
 };
 }

@@ -17,7 +17,7 @@ InferStatus CatLayer::Forward(
   if (inputs.size() == outputs.size()) {
     LOG(ERROR)
         << "The input and output tensor array size of cat layer do not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   if (dim_ != 1 && dim_ != -3) {
@@ -29,7 +29,7 @@ InferStatus CatLayer::Forward(
   if (inputs.size() % output_size != 0) {
     LOG(ERROR)
         << "The input and output tensor array size of cat layer do not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t packet_size = inputs.size() / output_size;
@@ -38,7 +38,8 @@ InferStatus CatLayer::Forward(
     const std::shared_ptr<ftensor>& output_data = outputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
       LOG(ERROR) << "The input tensor array in the cat layer has an "
-                    "empty tensor";
+                    "empty tensor "
+                 << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
     if (output_data == nullptr || output_data->empty()) {
@@ -54,8 +55,9 @@ InferStatus CatLayer::Forward(
     if (input_data->rows() != output_data->rows() ||
         input_data->cols() != output_data->cols()) {
       LOG(ERROR) << "The output and input shapes of the cat layer do "
-                    "not match!";
-      return InferStatus::kInferFailedInputOutSizeAdaptingError;
+                    "not match, "
+                 << i << "th";
+      return InferStatus::kInferFailedInputOutSizeMatchError;
     }
   }
 #pragma omp parallel for num_threads(outputs.size())
@@ -69,11 +71,13 @@ InferStatus CatLayer::Forward(
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
       CHECK(input != nullptr && !input->empty())
           << "The input tensor array in the cat layer has "
-             "an empty tensor";
+             "an empty tensor "
+          << i << " th";
       const uint32_t in_channels = input->channels();
       CHECK(rows == input->rows() && cols == input->cols())
           << "The input tensor array in the cat layer "
-             "has an incorrectly sized tensor";
+             "has an incorrectly sized tensor "
+          << i << " th";
 
       if (output == nullptr || output->empty()) {
         output = std::make_shared<Tensor<float>>(in_channels * packet_size,
@@ -83,7 +87,8 @@ InferStatus CatLayer::Forward(
       CHECK(output->channels() == in_channels * packet_size &&
             output->rows() == rows && output->cols() == cols)
           << "The output tensor array in the cat layer "
-             "has an incorrectly sized tensor";
+             "has an incorrectly sized tensor "
+          << i << " th";
       for (uint32_t c = 0; c < in_channels; ++c) {
         output->slice(start_channel + c) = input->slice(c);
       }

@@ -17,7 +17,7 @@ InferStatus SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output size is not adapting";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t batch_size = inputs.size();

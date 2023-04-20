@@ -41,7 +41,7 @@ InferStatus ConvolutionLayer::Forward(
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output size is not adapting";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   if (weights_.empty()) {

@@ -21,7 +21,7 @@ InferStatus FlattenLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the flatten "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   int start_dim = start_dim_;
@@ -45,7 +45,8 @@ InferStatus FlattenLayer::Forward(
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     if (input == nullptr || input->empty()) {
       LOG(ERROR) << "The input tensor array in the flatten layer has"
-                    " an empty tensor";
+                    " an empty tensor "
+                 << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
 
@@ -59,7 +60,8 @@ InferStatus FlattenLayer::Forward(
     output = TensorClone(input);
     CHECK(input->size() == output->size())
         << "The output and input shapes of the flatten layer do "
-           "not match!";
+           "not match "
+        << i << " th";
     outputs.at(i) = output;
 
     if (start_dim == 1 && end_dim == 3) {

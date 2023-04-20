@@ -40,7 +40,7 @@ InferStatus LinearLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of linear layer do "
                   "not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   if (this->weights_.empty()) {
@@ -71,7 +71,8 @@ InferStatus LinearLayer::Forward(
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the linear layer has an empty tensor";
+        << "The input tensor array in the linear layer has an empty tensor "
+        << i << " th";
     const std::vector<uint32_t>& input_shapes = input->shapes();
 
     const uint32_t feature_dims = input_shapes.at(1);
@@ -91,8 +92,10 @@ InferStatus LinearLayer::Forward(
     }
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
-        << "The row of output tensor should be same to feature_dims_ and the col of "
-           "output tensor should be same to output_features_";
+        << "The row of output tensor should be same to feature_dims_ and the "
+           "col of "
+           "output tensor should be same to output_features_ "
+        << i << " th";
     const auto& output_raw_shapes = output->raw_shapes();
     if (output_raw_shapes.size() == 2) {
       CHECK(output_raw_shapes.at(0) == feature_dims &&

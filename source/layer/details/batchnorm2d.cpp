@@ -17,7 +17,7 @@ InferStatus BatchNorm2dLayer::Forward(
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output size is not adapting";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
@@ -45,7 +45,7 @@ InferStatus BatchNorm2dLayer::Forward(
     if (output_data != nullptr && !output_data->empty()) {
       if (input_data->shapes() != output_data->shapes()) {
         LOG(ERROR) << "The input and output size is not adapting";
-        return InferStatus::kInferFailedInputOutSizeAdaptingError;
+        return InferStatus::kInferFailedInputOutSizeMatchError;
       }
     }
   }

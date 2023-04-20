@@ -31,7 +31,7 @@ InferStatus MaxPoolingLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR)
         << "The input and output size of max pooling layer is not adapting";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t batch = inputs.size();

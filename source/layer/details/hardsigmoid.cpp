@@ -18,7 +18,7 @@ InferStatus HardSigmoid::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardsigmoid "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t batch = inputs.size();
@@ -41,16 +41,19 @@ InferStatus HardSigmoid::Forward(
     CHECK(output->shapes() == input->shapes())
         << "The output and input shapes of the hardsigmoid layer do "
            "not match!";
-    output->set_data(input->data());
-    output->Transform([](float val) {
+
+    for (uint32_t j = 0; j < input->size(); ++j) {
+      float val = input->index(j);
+      float result = 0.f;
       if (val <= -3.f) {
-        return 0.f;
+        result = 0.f;
       } else if (val >= 3.f) {
-        return 1.f;
+        result = 1.f;
       } else {
-        return val / 6.f + 0.5f;
+        result = val / 6.f + 0.5f;
       }
-    });
+      output->index(j) = result;
+    }
   }
   return InferStatus::kInferSuccess;
 }

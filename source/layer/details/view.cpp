@@ -19,7 +19,7 @@ InferStatus ViewLayer::Forward(
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The size of input and output feature map is not adapting!";
-    return InferStatus::kInferFailedInputOutSizeAdaptingError;
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t batch_size = inputs.size();

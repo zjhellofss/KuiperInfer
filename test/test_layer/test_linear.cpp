@@ -244,3 +244,61 @@ TEST(test_layer, forward_linear8) {
   }
 }
 
+TEST(test_layer, forward_linear9) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/linear/linear_1305_2407.pnnx.param",
+                     "tmp/linear/linear_1305_2407.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  const uint32_t batch_size = 4;
+  std::vector<sftensor> inputs;
+
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    sftensor input = std::make_shared<ftensor>(1, 31, 1305);
+    input->Fill(1.f);
+    inputs.push_back(input);
+  }
+  std::vector<sftensor> outputs;
+  outputs = graph.Forward(inputs);
+  arma::fmat real_data =
+      CSVDataLoader::LoadData("tmp/linear/linear_1305x2047.csv");
+  for (const auto& output : outputs) {
+    for (uint32_t c = 0; c < output->channels(); ++c) {
+      bool is_same =
+          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
+      ASSERT_EQ(is_same, true);
+    }
+  }
+}
+
+TEST(test_layer, forward_linear10) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/linear/linear_1305_2407.pnnx.param",
+                     "tmp/linear/linear_1305_2407.pnnx.bin");
+
+  graph.Build("pnnx_input_0", "pnnx_output_0");
+  const uint32_t batch_size = 4;
+  std::vector<sftensor> inputs;
+  std::vector<float> values;
+  for (int i = 0; i < 31 * 1305; ++i) {
+    values.push_back(float(i));
+  }
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    sftensor input = std::make_shared<ftensor>(1, 31, 1305);
+    input->Fill(values);
+    inputs.push_back(input);
+  }
+
+  std::vector<sftensor> outputs;
+  outputs = graph.Forward(inputs);
+  outputs.front()->Show();
+  arma::fmat real_data =
+      CSVDataLoader::LoadData("tmp/linear/linear_1305x2047_arange.csv");
+  for (const auto& output : outputs) {
+    for (uint32_t c = 0; c < output->channels(); ++c) {
+      bool is_same =
+          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-1f);
+      ASSERT_EQ(is_same, true);
+    }
+  }
+}

@@ -10,6 +10,7 @@
 namespace kuiper_infer {
 ExpressionLayer::ExpressionLayer(const std::string& statement)
     : Layer("Expression"),
+      statement_(statement),
       parser_(std::make_unique<ExpressionParser>(statement)) {}
 
 InferStatus ExpressionLayer::Forward(
@@ -25,17 +26,26 @@ InferStatus ExpressionLayer::Forward(
     return InferStatus::kInferFailedOutputEmpty;
   }
 
+  if (inputs.size() != outputs.size()) {
+    LOG(ERROR)
+        << "The input and output tensor array size of the expression layer do "
+           "not match";
+    return InferStatus::kInferFailedInputOutSizeMatchError;
+  }
+
   CHECK(this->parser_ != nullptr)
       << "The parser in the expression layer is null!";
   this->parser_->Tokenizer(false);
   const auto& expressions = this->parser_->tokens();
-  CHECK(!expressions.empty()) << "The expression parser failed to parse";
+  CHECK(!expressions.empty())
+      << "The expression parser failed to parse " << statement_;
 
   for (uint32_t i = 0; i < inputs.size(); ++i) {
     const sftensor& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
       LOG(ERROR) << "The input tensor array in the expression layer has an "
-                    "empty tensor";
+                    "empty tensor "
+                 << i << "th";
       return InferStatus::kInferFailedInputEmpty;
     }
   }
@@ -44,7 +54,8 @@ InferStatus ExpressionLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
       LOG(ERROR) << "The output tensor array in the expression layer has an "
-                    "empty tensor";
+                    "empty tensor "
+                 << i << "th";
       return InferStatus::kInferFailedOutputEmpty;
     }
     outputs.at(i)->Fill(0.f);
@@ -60,7 +71,8 @@ InferStatus ExpressionLayer::Forward(
       std::vector<std::shared_ptr<Tensor<float>>> input_token_nodes;
       for (uint32_t i = 0; i < batch_size; ++i) {
         CHECK(i + start_pos < inputs.size())
-            << "The " << i << "th operand has too many tensors";
+            << "The " << i
+            << "th operand doesn't have appropriate number of tensors";
         // fixme 这里的张量拷贝是否有必要
         input_token_nodes.push_back(inputs.at(i + start_pos));
       }
@@ -72,13 +84,15 @@ InferStatus ExpressionLayer::Forward(
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
 
       CHECK(input_node1.size() == batch_size)
-          << "The first operand doesn't have enough tensors, which need "
+          << "The first operand doesn't have appropriate number of tensors, "
+             "which need "
           << batch_size;
       op_stack.pop();
 
       std::vector<std::shared_ptr<Tensor<float>>> input_node2 = op_stack.top();
       CHECK(input_node2.size() == batch_size)
-          << "The second operand doesn't have enough tensors, which need "
+          << "The second operand doesn't have appropriate number of tensors, "
+             "which need "
           << batch_size;
       op_stack.pop();
 
