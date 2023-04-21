@@ -37,7 +37,7 @@ InferStatus FlattenLayer::Forward(
 
   CHECK(end_dim > start_dim) << "The end dim must greater than start dim";
   CHECK(end_dim <= 3 && start_dim >= 1)
-      << "end dim must less than two and start dim must greater than zero";
+      << "The end dim must less than two and start dim must greater than zero";
 
   const uint32_t batch_size = inputs.size();
 

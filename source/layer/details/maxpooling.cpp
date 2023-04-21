@@ -24,13 +24,14 @@ InferStatus MaxPoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of max pooling layer is empty";
+    LOG(ERROR) << "The input tensor array in the max pooling layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR)
-        << "The input and output size of max pooling layer is not adapting";
+        << "The input and output tensor array size of the max pooling layer "
+           "do not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
@@ -46,7 +47,9 @@ InferStatus MaxPoolingLayer::Forward(
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<ftensor>& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input feature map of max pooling layer is empty";
+      LOG(ERROR) << "The input tensor array in the max pooling layer has an "
+                    "empty tensor "
+                 << i << "th";
       return InferStatus::kInferFailedInputEmpty;
     } else {
       uint32_t input_h = input_data->rows();
@@ -56,15 +59,17 @@ InferStatus MaxPoolingLayer::Forward(
       uint32_t output_w = uint32_t(std::floor(
           (int(input_w) - int(pooling_w) + 2 * padding_w_) / stride_w_ + 1));
       if (!output_w || !output_h) {
-        LOG(ERROR) << "The output size of max pooling layer is less than zero";
+        LOG(ERROR) << "The output size of tensor " << i << "th"
+                   << " in the max pooling layer is less than zero";
         return InferStatus::kInferFailedOutputSizeError;
       } else {
         const std::shared_ptr<ftensor>& output_data = outputs.at(i);
         if (output_data != nullptr && !output_data->empty()) {
           if (output_data->rows() != output_h ||
               output_data->cols() != output_w) {
-            LOG(ERROR)
-                << "The output size of max pooling layer is not adapting";
+            LOG(ERROR) << "The output tensor array in the max pooling layer "
+                          "has an incorrectly sized tensor "
+                       << i << "th";
             return InferStatus::kInferFailedOutputSizeError;
           }
         }
@@ -77,12 +82,11 @@ InferStatus MaxPoolingLayer::Forward(
     const std::shared_ptr<Tensor<float>>& input_data = inputs.at(i);
     std::shared_ptr<Tensor<float>> input_data_;
     CHECK(input_data == nullptr || !input_data->empty())
-        << "The input feature map of max pooling layer is empty";
+        << "The input tensor array in the max pooling layer has an "
+           "empty tensor "
+        << i << "th";
 
     if (padding_h_ > 0 || padding_w_ > 0) {
-      //      input_data_ = input_data->Clone();
-      //      input_data_->Padding({padding_h_, padding_h_, padding_w_,
-      //      padding_w_}, std::numeric_limits<float>::lowest());
       input_data_ = TensorPadding(
           input_data, {padding_h_, padding_h_, padding_w_, padding_w_},
           std::numeric_limits<float>::lowest());
@@ -108,7 +112,9 @@ InferStatus MaxPoolingLayer::Forward(
 
     CHECK(output_data->rows() == output_h && output_data->cols() == output_w &&
           output_data->channels() == input_c)
-        << "The output size of max pooling layer is error";
+        << "The output tensor array in the max pooling layer "
+           "has an incorrectly sized tensor "
+        << i << "th";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
       const arma::fmat& input_channel = input_data_->slice(ic);

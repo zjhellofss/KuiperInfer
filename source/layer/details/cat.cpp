@@ -16,7 +16,7 @@ InferStatus CatLayer::Forward(
 
   if (inputs.size() == outputs.size()) {
     LOG(ERROR)
-        << "The input and output tensor array size of cat layer do not match";
+        << "The input and output tensor array size of the cat layer do not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 

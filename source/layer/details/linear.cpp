@@ -92,9 +92,8 @@ InferStatus LinearLayer::Forward(
     }
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
-        << "The row of output tensor should be same to feature_dims_ and the "
-           "col of "
-           "output tensor should be same to output_features_ "
+        << "The row of output tensor should be same to feature_dims_ and the"
+           "col of output tensor should be same to output_features_ "
         << i << " th";
     const auto& output_raw_shapes = output->raw_shapes();
     if (output_raw_shapes.size() == 2) {
@@ -110,16 +109,15 @@ InferStatus LinearLayer::Forward(
     if (use_bias_) {
       CHECK(!this->bias_.empty() && this->bias_.size() == 1)
           << "The bias tensor is empty, but use_bias is true";
-      const auto& bias_cube = this->bias_.front();
-      CHECK(!bias_cube->empty())
-          << "The bias tensor is empty, but use_bias is true";
 
-      const auto& bias_data = bias_cube->data();
-      CHECK(bias_data.n_slices == 1 && bias_data.n_cols == out_features_)
+      const auto& bias_data = bias_.front()->data();
+      CHECK(!bias_data.empty() && bias_data.n_slices == 1 &&
+            bias_data.n_cols == out_features_)
           << "The col of bias tensor is not same to output_features_";
+      const auto& bias_tensor = bias_data.slice(0);
 #pragma omp parallel for
       for (uint32_t row = 0; row < result.n_rows; ++row) {
-        result.row(row) += bias_data.slice(0);
+        result.row(row) += bias_tensor;
       }
     }
   }

@@ -27,12 +27,14 @@ InferStatus HardSigmoid::Forward(
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input == nullptr || !input->empty())
         << "The input tensor array in the hardsigmoid layer has an "
-           "empty tensor";
+           "empty tensor "
+        << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       DLOG(ERROR) << "The output tensor array in the hardsigmoid layer has an "
-                     "empty tensor";
+                     "empty tensor"
+                  << i << " th";
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(),
                                                input->cols());
       outputs.at(i) = output;
@@ -40,7 +42,8 @@ InferStatus HardSigmoid::Forward(
 
     CHECK(output->shapes() == input->shapes())
         << "The output and input shapes of the hardsigmoid layer do "
-           "not match!";
+           "not match "
+        << i << " th";
 
     for (uint32_t j = 0; j < input->size(); ++j) {
       float val = input->index(j);

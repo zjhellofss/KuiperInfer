@@ -41,7 +41,6 @@ InferStatus SoftmaxLayer::Forward(
         << "The input and output tensor shapes of the softmax layer do not "
            "match "
         << i << " th";
-    ;
     int dim = this->softmax_dim_;
     std::vector<uint32_t> raw_shapes = input->raw_shapes();
 
