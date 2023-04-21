@@ -61,8 +61,10 @@ InferStatus ReluLayer::Forward(
         << "The input and output tensor shapes of the relu layer do not match "
         << i << " th";
 #ifndef __SSE2__
-    output->set_data(input->data());
-    output->Transform([](float val) { return val > 0. ? val : 0.; });
+    for (uint32_t j = 0; j < input->size(); ++j) {
+      float value = input->index(j);
+      output->index(j) = value > 0.f ? value : 0.f;
+    }
 #else
     float* in_ptr = const_cast<float*>(input->raw_ptr());
     float* out_ptr = const_cast<float*>(output->raw_ptr());

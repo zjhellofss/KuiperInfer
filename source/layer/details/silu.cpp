@@ -86,9 +86,10 @@ InferStatus SiLULayer::Forward(
       }
     }
 #else
-    output->set_data(input->data());
-    output->Transform(
-        [](const float value) { return value / (1.f + expf(-value)); });
+    for (uint32_t j = 0; j < input->size(); ++j) {
+      float value = input->index(j);
+      output->index(j) = value / (1.f + expf(-value));
+    }
 #endif
   }
   return InferStatus::kInferSuccess;
