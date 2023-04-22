@@ -27,7 +27,7 @@ InferStatus YoloDetectLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of yolo detect layer is empty";
+    LOG(ERROR) << "The input tensor array in the yolo detect layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
@@ -37,20 +37,23 @@ InferStatus YoloDetectLayer::Forward(
   const uint32_t batch_size = outputs.size();
 
   if (input_size / batch_size != stages_ || input_size % batch_size != 0) {
-    LOG(ERROR) << "The input and output number of yolo detect layer is wrong";
-    return InferStatus::kInferFailedYoloStageNumberError;
+    LOG(ERROR) << "The input and output tensor array size of the yolo detect "
+                  "layer do not match";
+    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages)
-      << "The convolution layers in yolo detection layer is empty or do not "
-         "have a correct number";
+      << "The yolo detect layer do not have appropriate number of convolution "
+         "operations";
 
   std::vector<std::vector<std::shared_ptr<Tensor<float>>>> batches(stages);
   for (uint32_t i = 0; i < input_size; ++i) {
     const uint32_t index = i / batch_size;
     const auto& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input feature map of yolo detect layer is empty";
+      LOG(ERROR) << "The input tensor array in the yolo detect layer has an "
+                    "empty tensor "
+                 << i << "th";
       return InferStatus::kInferFailedInputEmpty;
     }
     CHECK(index <= batches.size());
@@ -64,16 +67,20 @@ InferStatus YoloDetectLayer::Forward(
         batches.at(stage);
 
     CHECK(stage_input.size() == batch_size)
-        << "The number of stage do not equal to batch size";
+        << "The number of stage input in the yolo detect layer should be equal "
+           "to batch size";
 
     std::vector<std::shared_ptr<Tensor<float>>> stage_output(batch_size);
     const auto status =
         this->conv_layers_.at(stage)->Forward(stage_input, stage_output);
 
     CHECK(status == InferStatus::kInferSuccess)
-        << "Infer failed, error code: " << int(status);
+        << "Convolution layers infer failed in the yolo detect layer, error "
+           "code: "
+        << int(status);
     CHECK(stage_output.size() == batch_size)
-        << "The number of stage output do not equal to batch size";
+        << "The number of stage output in the yolo detect layer should be "
+           "equal to batch size";
     stage_outputs.at(stage) = stage_output;
   }
 

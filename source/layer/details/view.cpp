@@ -13,12 +13,13 @@ InferStatus ViewLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of view layer is empty";
+    LOG(ERROR) << "The input tensor array in the view layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The size of input and output feature map is not adapting!";
+    LOG(ERROR) << "The input and output tensor array size of the view layer "
+                  "do not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
@@ -26,25 +27,25 @@ InferStatus ViewLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<ftensor>& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input feature map of view layer is empty";
+      LOG(ERROR)
+          << "The input tensor array in the view layer has an empty tensor "
+          << i << "th";
       return InferStatus::kInferFailedInputEmpty;
     }
   }
 
-  if (shapes_.empty()) {
-    LOG(ERROR) << "The shape parameter is empty!";
-    return InferStatus::kInferFailedShapeParameterError;
-  }
-
-  if (shapes_.front() != -1 && shapes_.front() != batch_size) {
-    LOG(ERROR) << "The shape parameter is wrong!";
+  if (shapes_.empty() ||
+      (shapes_.front() != -1 && shapes_.front() != batch_size)) {
+    LOG(ERROR)
+        << "The shape parameter in the view layer has an incorrectly size! ";
     return InferStatus::kInferFailedShapeParameterError;
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input_data = inputs.at(i);
     CHECK(input_data != nullptr && !input_data->empty())
-        << "The input feature map of view layer is empty";
+        << "The input tensor array in the view layer has an empty tensor " << i
+        << " th";
 
     // 检查形状中-1的数量，最多只可以存在一个
     int dynamic_index = -1;
@@ -54,7 +55,8 @@ InferStatus ViewLayer::Forward(
     for (int j = 1; j < shapes_.size(); ++j) {
       CHECK(shapes_.at(j) == -1 || shapes_.at(j) > 0);
       if (shapes_.at(j) == -1) {
-        CHECK(dynamic_index == -1) << "Having two minus one in shape arrays";
+        CHECK(dynamic_index == -1)
+            << "Having two minus value in shape parameters of the view layer";
         dynamic_index = j;
       } else {
         current_size *= shapes_.at(j);
@@ -63,17 +65,17 @@ InferStatus ViewLayer::Forward(
     }
 
     CHECK(dynamic_index == -1 || dynamic_index == shapes_.size() - 1)
-        << "Minus one shape is in the wrong axis, only slice the last axis!";
+        << "-1 appears in the wrong dimension, it can only be on the last dimension";
     if (dynamic_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
     }
-    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
 
+    std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     output_data = TensorClone(input_data);
     CHECK(input_data->size() == output_data->size());
     outputs.at(i) = output_data;
-    
+
     output_data->Reshape(shapes, true);
   }
   return InferStatus::kInferSuccess;

@@ -30,7 +30,6 @@ enum class InferStatus {
   kInferFailedInputOutSizeMatchError = 6,
 
   kInferFailedOutputSizeError = 7,
-  kInferFailedYoloStageNumberError = 8,
   kInferFailedShapeParameterError = 9,
   kInferFailedChannelParameterError = 10,
   kInferFailedOutputEmpty = 11,
