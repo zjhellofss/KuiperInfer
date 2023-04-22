@@ -11,27 +11,33 @@ InferStatus BatchNorm2dLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of batchnorm layer is empty";
+    LOG(ERROR) << "The input tensor array in the batchnorm2d layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR) << "The input and output tensor array size of the batchnorm2d "
+                  "layer do not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
   const uint32_t bias_value_size = this->bias_.size();
   if (mean_value_size != bias_value_size) {
-    LOG(ERROR)
-        << "BatchNorm2d layer do not have the same mean values and bias values";
+    LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
+                  "values and bias values";
     return InferStatus::kInferFailedWeightParameterError;
   }
 
   if (this->affine_bias_.size() != this->affine_weight_.size()) {
-    LOG(ERROR) << "BatchNorm2d layer do not have the same affine weight and "
-                  "bias values";
+    LOG(ERROR) << "The batchnorm2d layer do not have the same number of affine "
+                  "weight and affine bias";
     return InferStatus::kInferFailedWeightParameterError;
+  }
+
+  if (this->affine_weight_.size() != this->weights().size()) {
+    LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
+                  "values and affine weight";
   }
 
   const uint32_t batch_size = inputs.size();
@@ -39,12 +45,16 @@ InferStatus BatchNorm2dLayer::Forward(
     const auto& input_data = inputs.at(i);
     const auto& output_data = outputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input feature map of batchNorm2d layer is empty";
+      LOG(ERROR) << "The input tensor array in the batchnorm2d layer has an "
+                    "empty tensor "
+                 << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
     if (output_data != nullptr && !output_data->empty()) {
       if (input_data->shapes() != output_data->shapes()) {
-        LOG(ERROR) << "The input and output size is not adapting";
+        LOG(ERROR) << "The input and output tensor shapes of the batchnorm2d "
+                      "layer do not match "
+                   << i << " th";
         return InferStatus::kInferFailedInputOutSizeMatchError;
       }
     }
@@ -54,28 +64,31 @@ InferStatus BatchNorm2dLayer::Forward(
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto& input = inputs.at(b);
     CHECK(input != nullptr && !input->empty())
-        << "The input feature map of batchnorm layer is empty";
-    CHECK(input->channels() == mean_value_size)
-        << "The channel of of input and mean value mat is not equal";
-    CHECK(input->channels() == affine_weight_.size())
-        << "The channel of input and affine weight is not equal";
+        << "The input tensor array in the batchnorm2d layer has an "
+           "empty tensor "
+        << b << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
-      DLOG(ERROR) << "The output size of batchnorm is empty";
+      LOG(ERROR) << "The output tensor array in the batchnorm2d layer has an "
+                    "empty tensor "
+                 << b << " th";
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(b) = output;
     }
 
     CHECK(output->shapes() == input->shapes())
-        << "The output size of batchnorm is error";
+        << "The input and output tensor shapes of the batchnorm2d "
+           "layer do not match "
+        << b << " th";
 
     for (uint32_t i = 0; i < mean_value_size; ++i) {
       CHECK(weights_.at(i)->size() == 1 && bias_.at(i)->size() == 1);
       const float mean_value = weights_.at(i)->index(0);
       const float var_value = bias_.at(i)->index(0);
-      CHECK(input->channels() >= i) << "The channel of the input feature maps "
-                                       "and mean values is not adapting";
+      CHECK(input->channels() > i)
+          << "In the batchnorm2d layer, too few channels for input tensor " << b
+          << " th";
 
       const float var_value_ = std::sqrt(var_value + eps_);
       output->slice(i) =

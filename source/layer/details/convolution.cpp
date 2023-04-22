@@ -35,22 +35,24 @@ InferStatus ConvolutionLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input feature map of convolution layer is empty";
+    LOG(ERROR) << "The input tensor array in the convolution layer is empty";
     return InferStatus::kInferFailedInputEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output size is not adapting";
+    LOG(ERROR) << "The input and output tensor array size of the convolution "
+                  "layer do not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   if (weights_.empty()) {
-    LOG(ERROR) << "Weight parameters is empty";
+    LOG(ERROR) << "The number of kernel matrix in the convolution layer should "
+                  "be greater than zero";
     return InferStatus::kInferFailedWeightParameterError;
   }
 
   if (this->use_bias_ && this->bias_.size() != this->weights_.size()) {
-    LOG(ERROR) << "The size of the weight and bias is not adapting";
+    LOG(ERROR) << "The number of kernel matrix and bias matrix do not match";
     return InferStatus::kInferFailedBiasParameterError;
   }
 
@@ -61,13 +63,13 @@ InferStatus ConvolutionLayer::Forward(
   }
 
   const uint32_t kernel_count = this->weights_.size();
-  CHECK(kernel_count > 0) << "kernel count must greater than zero";
   const uint32_t kernel_h = this->weights_.at(0)->rows();
   const uint32_t kernel_w = this->weights_.at(0)->cols();
   const uint32_t kernel_c = this->weights_.at(0)->channels();
   const uint32_t row_len = kernel_h * kernel_w;
   CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
-      << "The size of kernel size is less than zero";
+      << "The size of kernel matrix in the convolution layer should be greater "
+         "than zero";
 
   for (uint32_t k = 0; k < kernel_count; ++k) {
     const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
@@ -85,10 +87,10 @@ InferStatus ConvolutionLayer::Forward(
   if (!kernel_matrix_arr_.empty()) {
     if (groups_ == 1) {
       CHECK(kernel_matrix_arr_.size() == kernel_count_group)
-          << "Kernel matrix size is wrong";
+          << "The number of kernel matrix and kernel_count_group do not match";
     } else {
       CHECK(kernel_matrix_arr_.size() == kernel_count)
-          << "Kernel matrix size is wrong";
+          << "The number of kernel matrix and kernel_count do not match";
     }
   }
 
@@ -96,7 +98,9 @@ InferStatus ConvolutionLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input feature map of conv layer is empty";
+        << "The input tensor array in the convolution layer has an empty  "
+           "tensor "
+        << i << " th";
 
     std::shared_ptr<Tensor<float>> input_;
     if (padding_h_ > 0 || padding_w_ > 0) {
@@ -115,7 +119,8 @@ InferStatus ConvolutionLayer::Forward(
     const uint32_t output_w =
         std::floor((int(input_w) - int(kernel_w)) / stride_w_ + 1);
     CHECK(output_h > 0 && output_w > 0)
-        << "The size of the output feature map is less than zero";
+        << "The size of the output tensor should be greater than zero " << i
+        << " th";
 
     if (groups_ != 1) {
       CHECK(kernel_count % groups_ == 0);
@@ -123,11 +128,13 @@ InferStatus ConvolutionLayer::Forward(
     }
 
     uint32_t col_len = output_h * output_w;
-    CHECK(col_len > 0) << "The col len of the input matrix is less than zero";
+    CHECK(col_len > 0) << "Output_h x output_w for the convolution layer "
+                          "should be greater than zero "
+                       << i << " th";
 
     uint32_t input_c_group = input_c / groups_;
-    CHECK(input_c_group == kernel_c)
-        << "The channel of the kernel and input feature do not equal";
+    CHECK(input_c_group == kernel_c) << "The number of channel for the kernel "
+                                        "matrix and input tensor do not match";
 
     for (uint32_t g = 0; g < groups_; ++g) {
       std::vector<arma::fmat> kernel_matrix_arr_group;
@@ -151,7 +158,9 @@ InferStatus ConvolutionLayer::Forward(
       CHECK(output_tensor->rows() == output_h &&
             output_tensor->cols() == output_w &&
             output_tensor->channels() == kernel_count)
-          << "The output size of convolution is error";
+          << "The output tensor array in the convolution layer has an "
+             "incorrectly sized tensor "
+          << i << "th";
 
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
@@ -204,7 +213,9 @@ arma::fmat ConvolutionLayer::ConvGemm(
       output_tensor->slice(kernel_index + group * kernel_count_group).memptr(),
       output_h, output_w, false, true);
   output = kernel * input_matrix;
-  CHECK(output.size() == output_h * output_w);
+  CHECK(output.size() == output_h * output_w)
+      << "Output_h x output_w for the convolution layer "
+         "should be output tensor size";
   return output;
 }
 
@@ -227,7 +238,7 @@ void ConvolutionLayer::InitIm2ColWeight() {
   const uint32_t kernel_c = this->weights_.at(0)->channels();
   const uint32_t row_len = kernel_h * kernel_w;
   CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
-      << "The size of kernel size is less than zero";
+      << "The size of kernel matrix should be greater than zero";
 
   for (uint32_t k = 0; k < kernel_count; ++k) {
     const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
