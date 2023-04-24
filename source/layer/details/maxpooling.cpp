@@ -85,23 +85,17 @@ InferStatus MaxPoolingLayer::Forward(
            "empty tensor "
         << i << "th";
 
-    std::shared_ptr<Tensor<float>> input_data_;
-    if (padding_h_ > 0 || padding_w_ > 0) {
-      input_data_ = TensorPadding(
-          input_data, {padding_h_, padding_h_, padding_w_, padding_w_},
-          std::numeric_limits<float>::lowest());
-    } else {
-      input_data_ = input_data;
-    }
+    const uint32_t input_h = input_data->rows();
+    const uint32_t input_w = input_data->cols();
+    const uint32_t input_padded_h = input_data->rows() + 2 * padding_h_;
+    const uint32_t input_padded_w = input_data->cols() + 2 * padding_w_;
 
-    const uint32_t input_h = input_data_->rows();
-    const uint32_t input_w = input_data_->cols();
-    const uint32_t input_c = input_data_->channels();
+    const uint32_t input_c = input_data->channels();
 
     const uint32_t output_h =
-        uint32_t(std::floor((int(input_h) - int(pooling_h)) / stride_h_ + 1));
+        uint32_t(std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
     const uint32_t output_w =
-        uint32_t(std::floor((int(input_w) - int(pooling_w)) / stride_w_ + 1));
+        uint32_t(std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
@@ -117,16 +111,24 @@ InferStatus MaxPoolingLayer::Forward(
         << i << "th";
 
     for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::fmat& input_channel = input_data_->slice(ic);
+      const arma::fmat& input_channel = input_data->slice(ic);
       arma::fmat& output_channel = output_data->slice(ic);
-      for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w_) {
-        for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h_) {
+      for (uint32_t c = 0; c < input_padded_w - pooling_w + 1; c += stride_w_) {
+        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1;
+             r += stride_h_) {
           float* output_channel_ptr = output_channel.colptr(int(c / stride_w_));
           float max_value = std::numeric_limits<float>::lowest();
           for (uint32_t w = 0; w < pooling_w; ++w) {
-            const float* col_ptr = input_channel.colptr(c + w) + r;
             for (uint32_t h = 0; h < pooling_h; ++h) {
-              float current_value = *(col_ptr + h);
+              float current_value = 0.f;
+              if ((h + r >= padding_h_ && w + c >= padding_w_) &&
+                  (h + r < input_h + padding_h_ &&
+                   w + c < input_w + padding_w_)) {
+                const float* col_ptr = input_channel.colptr(c + w - padding_w_);
+                current_value = *(col_ptr + r + h - padding_h_);
+              } else {
+                current_value = std::numeric_limits<float>::lowest();
+              }
               max_value = max_value > current_value ? max_value : current_value;
             }
           }

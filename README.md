@@ -61,6 +61,8 @@
 | 第十次课  | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成  | https://www.bilibili.com/video/BV1M54y1K7AG |
 | 第十一次课 | 算子的执行流程                          | 完成  | https://www.bilibili.com/video/BV1wY411C7Kv|
 | 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类    | 完成  | https://www.bilibili.com/video/BV1jD4y1M772|
+| 第十三次课 | 用自制的推理框架支持Yolov5模型的推理    | 完成  | https://www.bilibili.com/video/BV1xs4y1J7t2|
+
 
 ## 使用的技术和开发环境
 * 开发语言：C++ 17
@@ -75,7 +77,7 @@
 3. cd code 
 4. git clone  https://github.com/zjhellofss/KuiperInfer.git 
 5. cd KuiperInfer
-6. **git checkout -b 你的新分支 study_version_0.01 (如果想抄本项目的代码，请使用这一步切换到study tag)**
+6. **git checkout -b 你的新分支 study_version_0.02 (如果想抄本项目的代码，请使用这一步切换到study tag)**
 7. mkdir build 
 8. cd build 
 9. cmake -DCMAKE_BUILD_TYPE=Release -DDEVELOPMENT=OFF .. 

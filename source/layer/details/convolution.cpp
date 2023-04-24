@@ -102,22 +102,14 @@ InferStatus ConvolutionLayer::Forward(
            "tensor "
         << i << " th";
 
-    std::shared_ptr<Tensor<float>> input_;
-    if (padding_h_ > 0 || padding_w_ > 0) {
-      input_ = TensorPadding(
-          input, {padding_h_, padding_h_, padding_w_, padding_w_}, 0);
-    } else {
-      input_ = input;
-    }
-
-    const uint32_t input_w = input_->cols();
-    const uint32_t input_h = input_->rows();
-    const uint32_t input_c = input_->channels();
+    const uint32_t input_c = input->channels();
+    const uint32_t input_padded_h = input->rows() + 2 * padding_h_;
+    const uint32_t input_padded_w = input->cols() + 2 * padding_w_;
 
     const uint32_t output_h =
-        std::floor((int(input_h) - int(kernel_h)) / stride_h_ + 1);
+        std::floor((int(input_padded_h) - int(kernel_h)) / stride_h_ + 1);
     const uint32_t output_w =
-        std::floor((int(input_w) - int(kernel_w)) / stride_w_ + 1);
+        std::floor((int(input_padded_w) - int(kernel_w)) / stride_w_ + 1);
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i
         << " th";
@@ -146,8 +138,8 @@ InferStatus ConvolutionLayer::Forward(
       }
 
       const auto& input_matrix =
-          Im2Col(input_, kernel_w, kernel_h, input_w, input_h, input_c_group, g,
-                 row_len, col_len);
+          Im2Col(input, kernel_w, kernel_h, input->cols(), input->rows(),
+                 input_c_group, g, row_len, col_len);
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
       if (output_tensor == nullptr || output_tensor->empty()) {
         output_tensor =
@@ -186,18 +178,31 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
                                     uint32_t group, uint32_t row_len,
                                     uint32_t col_len) const {
   arma::fmat input_matrix(input_c_group * row_len, col_len);
+  const uint32_t input_padded_h = input_h + 2 * padding_h_;
+  const uint32_t input_padded_w = input_w + 2 * padding_w_;
+  const float padding_value = 0.f;
   for (uint32_t ic = 0; ic < input_c_group; ++ic) {
     const arma::fmat& input_channel = input->slice(ic + group * input_c_group);
     int current_col = 0;
-    for (uint32_t w = 0; w < input_w - kernel_w + 1; w += stride_w_) {
-      for (uint32_t r = 0; r < input_h - kernel_h + 1; r += stride_h_) {
+    for (uint32_t w = 0; w < input_padded_w - kernel_w + 1; w += stride_w_) {
+      for (uint32_t r = 0; r < input_padded_h - kernel_h + 1; r += stride_h_) {
         float* input_matrix_c_ptr =
             input_matrix.colptr(current_col) + ic * row_len;
         current_col += 1;
         for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-          const float* region_ptr = input_channel.colptr(w + kw) + r;
-          memcpy(input_matrix_c_ptr, region_ptr, kernel_h * sizeof(float));
-          input_matrix_c_ptr += kernel_h;
+          for (uint32_t kh = 0; kh < kernel_h; ++kh) {
+            if ((kh + r >= padding_h_ && kw + w >= padding_w_) &&
+                (kh + r < input_h + padding_h_ &&
+                 kw + w < input_w + padding_w_)) {
+              const float* region_ptr =
+                  input_channel.colptr(w + kw - padding_w_) + r + kh -
+                  padding_h_;
+              *input_matrix_c_ptr = *region_ptr;
+            } else {
+              *input_matrix_c_ptr = padding_value;  // only support zero mode
+            }
+            input_matrix_c_ptr += 1;
+          }
         }
       }
     }

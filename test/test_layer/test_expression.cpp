@@ -7,7 +7,7 @@
 #include "parser/parse_expression.hpp"
 #include "runtime/runtime_ir.hpp"
 
-TEST(test_expression, add1) {
+TEST(test_layer, add1) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
                      "tmp/add/resnet_add.pnnx.bin");
@@ -37,7 +37,7 @@ TEST(test_expression, add1) {
   }
 }
 
-TEST(test_expression, add2) {
+TEST(test_layer, add2) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/add/resnet_add2.pnnx.param",
                      "tmp/add/resnet_add2.pnnx.bin");
@@ -67,7 +67,7 @@ TEST(test_expression, add2) {
   }
 }
 
-TEST(test_expression, mul1) {
+TEST(test_layer, mul1) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/add/resnet_add3.pnnx.param",
                      "tmp/add/resnet_add3.pnnx.bin");
@@ -97,7 +97,7 @@ TEST(test_expression, mul1) {
   }
 }
 
-TEST(test_layer, add1) {
+TEST(test_expression, add1) {
   using namespace kuiper_infer;
   const std::string& str = "add(@0,@1)";
   ExpressionLayer layer(str);
@@ -125,7 +125,7 @@ TEST(test_layer, add1) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, add2) {
+TEST(test_expression, add2) {
   using namespace kuiper_infer;
   const std::string& str = "add(@0,@1)";
   ExpressionLayer layer(str);
@@ -153,7 +153,7 @@ TEST(test_layer, add2) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, mul1) {
+TEST(test_expression, mul1) {
   using namespace kuiper_infer;
   const std::string& str = "mul(@0,@1)";
   ExpressionLayer layer(str);
@@ -181,7 +181,7 @@ TEST(test_layer, mul1) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex1) {
+TEST(test_expression, complex1) {
   using namespace kuiper_infer;
   const std::string& str = "mul(@2,add(@0,@1))";
   ExpressionLayer layer(str);
@@ -215,7 +215,7 @@ TEST(test_layer, complex1) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex2) {
+TEST(test_expression, complex2) {
   using namespace kuiper_infer;
   const std::string& str = "mul(add(@0,@1),add(@2,@3))";
   ExpressionLayer layer(str);
@@ -254,7 +254,7 @@ TEST(test_layer, complex2) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex3) {
+TEST(test_expression, complex3) {
   using namespace kuiper_infer;
   const std::string& str = "mul(mul(@0,@1),add(@2,@3))";
   ExpressionLayer layer(str);
@@ -293,7 +293,7 @@ TEST(test_layer, complex3) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex4) {
+TEST(test_expression, complex4) {
   using namespace kuiper_infer;
   const std::string& str = "mul(mul(@0,@1), mul(@2,@3))";
   ExpressionLayer layer(str);
@@ -332,7 +332,7 @@ TEST(test_layer, complex4) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex5) {
+TEST(test_expression, complex5) {
   using namespace kuiper_infer;
   const std::string& str = "mul(mul(@0,@1), mul(@2,add(@3,@4)))";
   ExpressionLayer layer(str);
@@ -376,7 +376,7 @@ TEST(test_layer, complex5) {
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
 
-TEST(test_layer, complex6) {
+TEST(test_expression, complex6) {
   using namespace kuiper_infer;
   const std::string& str = "mul(mul(@0,@1), mul(@2,mul(@3,@4)))";
   ExpressionLayer layer(str);
@@ -419,6 +419,7 @@ TEST(test_layer, complex6) {
   ASSERT_TRUE(
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
+
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;
