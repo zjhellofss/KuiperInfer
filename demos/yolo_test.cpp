@@ -70,10 +70,10 @@ void YoloDemo(const std::vector<std::string>& image_paths,
     inputs.push_back(input);
   }
 
-  TICK(FORWARD)
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.Forward(inputs, true);
-  TOCK(FORWARD);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  for (int i = 0; i < 1; ++i) {
+    outputs = graph.Forward(inputs, true);
+  }
 
   assert(outputs.size() == inputs.size());
   assert(outputs.size() == batch_size);

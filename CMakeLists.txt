@@ -41,6 +41,8 @@ aux_source_directory(./source/runtime DIR_PARSER)
 aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(./source/layer/details DIR_BINOCULAR_LAYER)
 aux_source_directory(./source/parser DIR_PARSER)
+aux_source_directory(./source/utils DIR_UTILS)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
 set(link_lib glog::glog)
@@ -50,7 +52,7 @@ ENDIF ()
 
 set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
-add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} source/layer/details/platform.hpp)
+add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_UTILS} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} source/layer/details/platform.hpp)
 target_link_libraries(kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(kuiper PUBLIC ${benchmark_INCLUDE_DIRS})
@@ -60,7 +62,6 @@ target_include_directories(kuiper PUBLIC ${Armadillo_INCLUDE_DIR})
 
 # mathfun library defines
 add_compile_definitions(SSE_MATHFUN_WITH_CODE USE_SSE_AUTO)
-
 # 本项目的开发者请使用set(DEVELOPMENT ON)或者在cmake中添加-DDEVELOPMENT=ON将选项打开
 option(DEVELOPMENT ON)
 if (${DEVELOPMENT})

@@ -46,7 +46,7 @@ InferStatus ExpressionLayer::Forward(
   const uint32_t batch_size = outputs.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
-      LOG(ERROR) << "The output tensor array in the expression layer has an "
+      DLOG(ERROR) << "The output tensor array in the expression layer has an "
                     "empty tensor "
                  << i << "th";
       return InferStatus::kInferFailedOutputEmpty;

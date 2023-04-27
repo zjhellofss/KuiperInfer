@@ -45,7 +45,7 @@
 ![](https://i.imgur.com/7myOrcY.png)
 
 ## 课程大纲
-我在b站上开了一门教学课程，目前是课程的前12次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
+我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
 
 | 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
 |-------|----------------------------------|-----|----------------------------------------------|
@@ -75,7 +75,7 @@
 1. docker pull registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest
 2. sudo docker run -t -i registry.cn-hangzhou.aliyuncs.com/hellofss/kuiperinfer:latest /bin/bash
 3. cd code 
-4. git clone  https://github.com/zjhellofss/KuiperInfer.git 
+4. git clone --recursive https://github.com/zjhellofss/KuiperInfer.git 
 5. cd KuiperInfer
 6. **git checkout -b 你的新分支 study_version_0.02 (如果想抄本项目的代码，请使用这一步切换到study tag)**
 7. mkdir build 
@@ -163,15 +163,16 @@ source是源码目录
 gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 
 ### 性能结果
+耗时通过连续五次运行,并以求平均的方式计算
 
 | **input size**         | **模型名称**     | **计算设备**              | **耗时**           |
 |------------------------| ---------------- | ------------------------- |------------------|
-| 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 7.02ms / image   |
-| 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 21.99ms / image  |
-| 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 13.51ms / image  |
-| 320×320 batch = 8      | Yolov5nano       | CPU(armadillo + openblas) | 13.39ms / image  |
-| **640×640** batch = 8  | **Yolov5s**      | CPU(armadillo + openblas) | 190.29ms / image |
-| **640×640** batch = 16 | **Yolov5s**      | CPU(armadillo + openblas) | 137.62ms / image |
+| 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 6.76ms / image   |
+| 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 23.53ms / image  |
+| 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 13.52ms / image  |
+| 640×640 batch = 8      | Yolov5nano       | CPU(armadillo + openblas) | 78.37ms / image  |
+| **640×640** batch = 8  | **Yolov5s**      | CPU(armadillo + openblas) | 177.54ms / image |
+| **640×640** batch = 16 | **Yolov5s**      | CPU(armadillo + openblas) | 134.57ms / image |
 
 ## 致谢
 
