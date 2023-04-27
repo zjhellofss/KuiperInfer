@@ -44,6 +44,7 @@ LayerTimeLogging::~LayerTimeLogging() {
   CHECK(layer_time_states_ != nullptr);
   if (layer_time_states_->find(layer_type_) != layer_time_states_->end()) {
     auto& layer_state = layer_time_states_->at(layer_type_);
+    CHECK(layer_state != nullptr);
     std::lock_guard<std::mutex> lock_guard(layer_state->time_mutex_);
     const auto end_time = Time::now();
     const std::chrono::milliseconds duration =
@@ -57,15 +58,14 @@ LayerTimeLogging::~LayerTimeLogging() {
 }
 
 void LayerTimeLogging::SummaryLogging() {
-  if (layer_time_states_ == nullptr) {
-    layer_time_states_ = LayerTimeStatesSingleton::SingletonInstance();
-  }
   CHECK(layer_time_states_ != nullptr);
   int64_t total_time_costs = 0;
   if (layer_time_states_ != nullptr) {
     for (const auto& layer_time_state_pair : *(layer_time_states_.get())) {
       auto layer_time_state = layer_time_state_pair.second;
       CHECK(layer_time_state != nullptr);
+
+      std::lock_guard<std::mutex> lock(layer_time_state->time_mutex_);
       auto time_cost = std::chrono::duration_cast<std::chrono::milliseconds>(
                            layer_time_state->duration_time_)
                            .count();
