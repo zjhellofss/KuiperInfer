@@ -22,8 +22,8 @@ PtrLayerTimeStates LayerTimeStatesSingleton::SingletonInstance() {
 }
 
 void LayerTimeStatesSingleton::LayerTimeStatesInit() {
-  std::lock_guard<std::mutex> lock_(mutex_);
   if (layer_time_states_ != nullptr) {
+    std::lock_guard<std::mutex> lock_(mutex_);
     layer_time_states_ = nullptr;
   }
   layer_time_states_ = LayerTimeStatesSingleton::SingletonInstance();
@@ -48,9 +48,10 @@ LayerTimeLogging::~LayerTimeLogging() {
     CHECK(layer_state != nullptr);
     std::lock_guard<std::mutex> lock_guard(layer_state->time_mutex_);
     const auto end_time = Time::now();
-    const std::chrono::milliseconds duration =
-        std::chrono::duration_cast<std::chrono::milliseconds>(end_time -
-                                                              start_time_);
+
+    const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+                              end_time - start_time_)
+                              .count();
     layer_state->duration_time_ += duration;
   } else {
     if (!layer_type_.empty())
@@ -60,18 +61,16 @@ LayerTimeLogging::~LayerTimeLogging() {
 
 void LayerTimeLogging::SummaryLogging() {
   CHECK(layer_time_states_ != nullptr);
-  int64_t total_time_costs = 0;
+  long total_time_costs = 0;
   if (layer_time_states_ != nullptr) {
     for (const auto& layer_time_state_pair : *(layer_time_states_.get())) {
       auto layer_time_state = layer_time_state_pair.second;
       CHECK(layer_time_state != nullptr);
 
       std::lock_guard<std::mutex> lock(layer_time_state->time_mutex_);
-      auto time_cost = std::chrono::duration_cast<std::chrono::milliseconds>(
-                           layer_time_state->duration_time_)
-                           .count();
+      auto time_cost = layer_time_state->duration_time_;
       total_time_costs += time_cost;
-      if (layer_time_state->duration_time_ != std::chrono::milliseconds(0)) {
+      if (layer_time_state->duration_time_ != 0) {
         LOG(INFO) << "Layer type: " << layer_time_state_pair.first
                   << " time cost: " << time_cost << "ms";
       }

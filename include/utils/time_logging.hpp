@@ -11,13 +11,13 @@
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 namespace utils {
-using Time = std::chrono::high_resolution_clock;
+using Time = std::chrono::steady_clock;
 
 struct LayerTimeState {
-  explicit LayerTimeState(uint64_t duration_time, const std::string& layer_type)
+  explicit LayerTimeState(long duration_time, const std::string& layer_type)
       : duration_time_(duration_time), layer_type_(layer_type) {}
 
-  std::chrono::milliseconds duration_time_;
+  long duration_time_;
   std::mutex time_mutex_;
   std::string layer_type_;
 };
@@ -50,7 +50,7 @@ class LayerTimeLogging {
 
  private:
   std::string layer_type_;
-  std::chrono::system_clock::time_point start_time_;
+  std::chrono::steady_clock::time_point start_time_;
   PtrLayerTimeStates layer_time_states_;
 };
 }  // namespace utils
