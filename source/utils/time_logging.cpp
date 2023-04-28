@@ -22,6 +22,7 @@ PtrLayerTimeStates LayerTimeStatesSingleton::SingletonInstance() {
 }
 
 void LayerTimeStatesSingleton::LayerTimeStatesInit() {
+  std::lock_guard<std::mutex> lock_(mutex_);
   if (layer_time_states_ != nullptr) {
     layer_time_states_ = nullptr;
   }

@@ -241,8 +241,6 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
                                       uint32_t(num_classes + 5));
     stage_tensors.push_back(stages_tensor);
 
-    TensorCreate(stages_number * uint32_t(num_classes + 5), nx, ny);
-
     conv_layers.at(i) = std::make_shared<ConvolutionLayer>(
         out_channels, in_channels, kernel_h, kernel_w, 0, 0, 1, 1, 1);
     const std::vector<float>& weights = conv_attr->get<float>();
