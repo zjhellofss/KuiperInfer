@@ -22,6 +22,8 @@
 - [mlmz](https://github.com/minleminzui)
 - [Tigerrr07](https://github.com/Tigerrr07)
 - [zyt1024](https://github.com/zyt1024)
+- [zpye](https://github.com/zpye)
+
 
 ### 如何参与项目贡献？
 1. 提交代码增加新功能或修改bug；
