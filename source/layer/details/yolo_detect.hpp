@@ -11,7 +11,8 @@ namespace kuiper_infer {
 class YoloDetectLayer : public Layer {
  public:
   explicit YoloDetectLayer(
-      int32_t stages, int32_t num_classes, const std::vector<float>& strides,
+      int32_t stages, int32_t num_classes, int32_t num_anchors,
+      const std::vector<float>& strides,
       const std::vector<arma::fmat>& anchor_grids,
       const std::vector<arma::fmat>& grids,
       const std::vector<std::shared_ptr<ConvolutionLayer>>& conv_layers);
@@ -29,6 +30,7 @@ class YoloDetectLayer : public Layer {
  private:
   int32_t stages_ = 0;
   int32_t num_classes_ = 0;
+  int32_t num_anchors_ = 0;
   std::vector<float> strides_;
   std::vector<arma::fmat> anchor_grids_;
   std::vector<arma::fmat> grids_;
