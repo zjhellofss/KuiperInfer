@@ -24,5 +24,5 @@ static void BM_MobilenetV3_Batch8_224x224(benchmark::State &state) {
   }
 }
 
-BENCHMARK(BM_MobilenetV3_Batch8_224x224);
+BENCHMARK(BM_MobilenetV3_Batch8_224x224)->Unit(benchmark::kMillisecond);
 

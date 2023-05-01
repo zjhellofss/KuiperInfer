@@ -35,5 +35,5 @@ static void BM_ReshapeColMajor(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_ReshapeRowMajor);
-BENCHMARK(BM_ReshapeColMajor);
+BENCHMARK(BM_ReshapeRowMajor)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ReshapeColMajor)->Unit(benchmark::kMillisecond);

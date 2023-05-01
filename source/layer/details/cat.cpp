@@ -15,8 +15,8 @@ InferStatus CatLayer::Forward(
   }
 
   if (inputs.size() == outputs.size()) {
-    LOG(ERROR)
-        << "The input and output tensor array size of the cat layer do not match";
+    LOG(ERROR) << "The input and output tensor array size of the cat layer do "
+                  "not match";
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
@@ -89,9 +89,9 @@ InferStatus CatLayer::Forward(
           << "The output tensor array in the cat layer "
              "has an incorrectly sized tensor "
           << i << " th";
-      for (uint32_t c = 0; c < in_channels; ++c) {
-        output->slice(start_channel + c) = input->slice(c);
-      }
+      const uint32_t plane_size = rows * cols;
+      memcpy((float*)output->raw_ptr() + start_channel * plane_size,
+             input->raw_ptr(), sizeof(float) * plane_size * in_channels);
       start_channel += input->channels();
     }
   }

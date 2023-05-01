@@ -8,6 +8,7 @@
 #include "../source/layer/details/maxpooling.hpp"
 #include "../source/layer/details/sigmoid.hpp"
 #include "../source/layer/details/silu.hpp"
+#include "../source/layer/details/upsample.hpp"
 #include "../source/layer/details/view.hpp"
 
 static void BM_Sigmoid(benchmark::State& state) {
@@ -30,10 +31,10 @@ static void BM_Sigmoid(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_Sigmoid)->Args({3, 320, 320});
-BENCHMARK(BM_Sigmoid)->Args({32, 160, 160});
-BENCHMARK(BM_Sigmoid)->Args({64, 80, 80});
-BENCHMARK(BM_Sigmoid)->Args({128, 40, 40});
+BENCHMARK(BM_Sigmoid)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Sigmoid)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Sigmoid)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Sigmoid)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_Linear(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -62,11 +63,11 @@ static void BM_Linear(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_Linear)->Args({3, 32, 1000});
-BENCHMARK(BM_Linear)->Args({32, 64, 1000});
-BENCHMARK(BM_Linear)->Args({64, 128, 1000});
-BENCHMARK(BM_Linear)->Args({128, 512, 1000});
-BENCHMARK(BM_Linear)->Args({512, 1024, 1000});
+BENCHMARK(BM_Linear)->Args({3, 32, 1000})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({32, 64, 1000})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({64, 128, 1000})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({128, 512, 1000})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({512, 1024, 1000})->Unit(benchmark::kMillisecond);
 
 static void BM_Expression(benchmark::State& state) {
   const int32_t channels = (int32_t)state.range(0);
@@ -128,10 +129,10 @@ static void BM_HardSwish(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_HardSwish)->Args({3, 320, 320});
-BENCHMARK(BM_HardSwish)->Args({32, 160, 160});
-BENCHMARK(BM_HardSwish)->Args({64, 80, 80});
-BENCHMARK(BM_HardSwish)->Args({128, 40, 40});
+BENCHMARK(BM_HardSwish)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSwish)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSwish)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSwish)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_SiLU(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -153,10 +154,10 @@ static void BM_SiLU(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_SiLU)->Args({3, 320, 320});
-BENCHMARK(BM_SiLU)->Args({32, 160, 160});
-BENCHMARK(BM_SiLU)->Args({64, 80, 80});
-BENCHMARK(BM_SiLU)->Args({128, 40, 40});
+BENCHMARK(BM_SiLU)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SiLU)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SiLU)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SiLU)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_MaxPooling_k3x3s1x1(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -183,17 +184,25 @@ static void BM_MaxPooling_k3x3s1x1(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({3, 320, 320});
-BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({32, 160, 160});
-BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({64, 80, 80});
-BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({128, 40, 40});
+BENCHMARK(BM_MaxPooling_k3x3s1x1)
+    ->Args({3, 320, 320})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)
+    ->Args({32, 160, 160})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)
+    ->Args({64, 80, 80})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)
+    ->Args({128, 40, 40})
+    ->Unit(benchmark::kMillisecond);
 
 static void BM_View(benchmark::State& state) {
   using namespace kuiper_infer;
 
-  uint32_t channels = 32;
-  uint32_t rows = 128;
-  uint32_t cols = 128;
+  uint32_t channels = state.range(0);
+  uint32_t rows = state.range(1);
+  uint32_t cols = state.range(2);
 
   sftensor input = std::make_shared<ftensor>(channels, rows, cols);
   input->Fill(1.f);
@@ -202,10 +211,39 @@ static void BM_View(benchmark::State& state) {
   std::vector<sftensor> inputs;
   inputs.push_back(input);
 
-  ViewLayer view_layer({1, 128, 32, 128});
+  ViewLayer view_layer({1, int(channels * rows * cols)});
   for (auto _ : state) {
     const auto status = view_layer.Forward(inputs, outputs);
   }
 }
 
-BENCHMARK(BM_View);
+BENCHMARK(BM_View)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_View)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_View)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_View)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
+static void BM_Upsample(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t channels = state.range(0);
+  uint32_t rows = state.range(1);
+  uint32_t cols = state.range(2);
+
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  input->Rand();
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  inputs.push_back(input);
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+  UpSampleLayer layer(2.f, 2.f);
+
+  for (auto _ : state) {
+    const auto status = layer.Forward(inputs, outputs);
+  }
+}
+
+BENCHMARK(BM_Upsample)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
