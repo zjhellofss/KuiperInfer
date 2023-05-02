@@ -4,7 +4,8 @@
 #include "upsample.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
-UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode)
+UpSampleLayer::UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
+                             UpSampleMode mode)
     : Layer("upsample"), scale_h_(scale_h), scale_w_(scale_w), mode_(mode) {}
 
 InferStatus UpSampleLayer::Forward(
@@ -42,8 +43,8 @@ InferStatus UpSampleLayer::Forward(
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(
-          input_data.n_slices, uint32_t((float)input_data.n_rows * scale_h_),
-          uint32_t((float)input_data.n_cols * scale_w_));
+          input_data.n_slices, uint32_t(input_data.n_rows * scale_h_),
+          uint32_t(input_data.n_cols * scale_w_));
       outputs.at(i) = output;
     }
     auto& output_data = output->data();
@@ -68,21 +69,22 @@ InferStatus UpSampleLayer::Forward(
       const uint32_t output_w = output_channel.n_cols;
       const uint32_t output_h = output_channel.n_rows;
 
-      for (uint32_t w = 0; w < output_w; ++w) {
-        const uint32_t src_w = uint32_t((float)w / this->scale_w_);
+      for (uint32_t w = 0; w < output_w; w += scale_w_) {
+        const uint32_t src_w = uint32_t(w / this->scale_w_);
         CHECK(src_w < input_channel.n_cols)
             << "The input tensor has an incorrectly sized channel";
-        float* output_channel_ptr = output_channel.colptr(w);
         const float* input_channel_ptr = input_channel.colptr(src_w);
+        for (uint32_t w_ = 0; w_ < scale_w_; ++w_) {
+          float* output_channel_ptr = output_channel.colptr(w_ + w);
+          for (uint32_t h = 0; h < output_h; h += uint32_t(scale_h_)) {
+            const uint32_t src_h = uint32_t(h / this->scale_h_);
+            CHECK(src_h < input_channel.n_rows)
+                << "The input tensor has an incorrectly sized channel";
 
-        for (uint32_t h = 0; h < output_h; h += uint32_t(scale_h_)) {
-          const uint32_t src_h = uint32_t((float)h / this->scale_h_);
-          CHECK(src_h < input_channel.n_rows)
-              << "The input tensor has an incorrectly sized channel";
-
-          const float src_value = *(input_channel_ptr + src_h);
-          for (uint32_t h_ = 0; h_ < uint32_t(scale_h_); ++h_) {
-            *(output_channel_ptr + h_ + h) = src_value;
+            const float src_value = *(input_channel_ptr + src_h);
+            for (uint32_t h_ = 0; h_ < scale_h_; ++h_) {
+              *(output_channel_ptr + h_ + h) = src_value;
+            }
           }
         }
       }
@@ -119,8 +121,10 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
   const auto& mode = dynamic_cast<RuntimeParameterString*>(params.at("mode"));
   CHECK(mode->value == "nearest")
       << "The mode " << mode->value << " is not supported!";
-  upsample_layer =
-      std::make_shared<UpSampleLayer>(scales->value.at(0), scales->value.at(1));
+
+  uint32_t scale_h = (uint32_t)(scales->value.at(0));
+  uint32_t scale_w = (uint32_t)(scales->value.at(1));
+  upsample_layer = std::make_shared<UpSampleLayer>(scale_h, scale_w);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 

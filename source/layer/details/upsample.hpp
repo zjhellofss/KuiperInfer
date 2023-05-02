@@ -8,22 +8,26 @@
 
 namespace kuiper_infer {
 enum class UpSampleMode {
-  kModeNearest = 0, // 目前上采样层只支持邻近采样
+  kModeNearest = 0,  // 目前上采样层只支持邻近采样
 };
 
 class UpSampleLayer : public Layer {
  public:
-  explicit UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode = UpSampleMode::kModeNearest);
+  explicit UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
+                         UpSampleMode mode = UpSampleMode::kModeNearest);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
+  InferStatus Forward(
+      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                              std::shared_ptr<Layer> &upsample_layer);
+  static ParseParameterAttrStatus GetInstance(
+      const std::shared_ptr<RuntimeOperator>& op,
+      std::shared_ptr<Layer>& upsample_layer);
+
  private:
-  float scale_h_ = 0.f;
-  float scale_w_ = 0.f;
+  uint32_t scale_h_ = 0.f;
+  uint32_t scale_w_ = 0.f;
   UpSampleMode mode_ = UpSampleMode::kModeNearest;
 };
-}
-#endif //KUIPER_INFER_SOURCE_LAYER_DETAILS_UPSAMPLE_HPP_
+}  // namespace kuiper_infer
+#endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_UPSAMPLE_HPP_

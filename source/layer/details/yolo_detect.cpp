@@ -63,7 +63,6 @@ InferStatus YoloDetectLayer::Forward(
   }
 
   std::vector<std::vector<sftensor>> stage_outputs(stages);
-#pragma omp parallel for num_threads(stages)
   for (uint32_t stage = 0; stage < stages; ++stage) {
     const std::vector<std::shared_ptr<Tensor<float>>>& stage_input =
         batches.at(stage);
