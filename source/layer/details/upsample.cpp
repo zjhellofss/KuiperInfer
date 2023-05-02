@@ -75,13 +75,15 @@ InferStatus UpSampleLayer::Forward(
         float* output_channel_ptr = output_channel.colptr(w);
         const float* input_channel_ptr = input_channel.colptr(src_w);
 
-        for (uint32_t h = 0; h < output_h; ++h) {
+        for (uint32_t h = 0; h < output_h; h += uint32_t(scale_h_)) {
           const uint32_t src_h = uint32_t((float)h / this->scale_h_);
           CHECK(src_h < input_channel.n_rows)
               << "The input tensor has an incorrectly sized channel";
 
           const float src_value = *(input_channel_ptr + src_h);
-          *(output_channel_ptr + h) = src_value;
+          for (uint32_t h_ = 0; h_ < uint32_t(scale_h_); ++h_) {
+            *(output_channel_ptr + h_ + h) = src_value;
+          }
         }
       }
     }
