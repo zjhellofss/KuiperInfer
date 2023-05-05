@@ -10,6 +10,7 @@
 #include "../source/layer/details/silu.hpp"
 #include "../source/layer/details/upsample.hpp"
 #include "../source/layer/details/view.hpp"
+#include "../source/layer/details/hardsigmoid.hpp"
 
 static void BM_Sigmoid(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -35,6 +36,33 @@ BENCHMARK(BM_Sigmoid)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Sigmoid)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Sigmoid)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Sigmoid)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
+
+static void BM_HardSigmoid(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t channels = state.range(0);
+  uint32_t rows = state.range(1);
+  uint32_t cols = state.range(2);
+
+  sftensor input = std::make_shared<ftensor>(channels, rows, cols);
+  input->Fill(1.f);
+
+  std::vector<sftensor> outputs(1);
+  std::vector<sftensor> inputs;
+  inputs.push_back(input);
+
+  HardSigmoid hardsigmoid_layer;
+  for (auto _ : state) {
+    hardsigmoid_layer.Forward(inputs, outputs);
+  }
+}
+
+BENCHMARK(BM_HardSigmoid)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSigmoid)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSigmoid)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_HardSigmoid)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
 
 static void BM_Linear(benchmark::State& state) {
   using namespace kuiper_infer;

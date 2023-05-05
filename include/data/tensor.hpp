@@ -6,7 +6,7 @@
 #define KUIPER_INFER_DATA_BLOB_HPP_
 #include <memory>
 #include <vector>
-#include "armadillo"
+#include <armadillo>
 
 namespace kuiper_infer {
 template <typename T>

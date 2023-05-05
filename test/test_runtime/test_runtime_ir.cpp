@@ -493,6 +493,57 @@ TEST(test_runtime, runtime_graph_output_init8) {
 }
 
 
+TEST(test_runtime, runtime_graph_output_init9) {
+  using namespace kuiper_infer;
+  std::vector<pnnx::Operator*> pnnx_operators;
+  std::vector<std::shared_ptr<RuntimeOperator>> run_ops;
+  for (int i = 0; i < 4; ++i) {
+    pnnx::Operator* pnnx_op = new pnnx::Operator;
+    pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->shape = std::vector<int>{7, 31, 32};
+    pnnx_op->outputs.push_back(pnnx_number);
+    pnnx_operators.push_back(pnnx_op);
+    run_ops.push_back(std::make_shared<RuntimeOperator>());
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 3);
+    ASSERT_EQ(output_datas->datas.size(), 7);
+    for (auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 31);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
+      ASSERT_EQ(output_data->rows(), 31);
+      ASSERT_EQ(output_data->cols(), 32);
+      ASSERT_EQ(output_data->channels(), 1);
+      output_data->data().resize(16 * 31, 1, 2);
+    }
+  }
+
+  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+
+  for (const auto& run_op : run_ops) {
+    const auto& output_datas = run_op->output_operands;
+    ASSERT_EQ(output_datas->shapes.size(), 3);
+    ASSERT_EQ(output_datas->datas.size(), 7);
+    for (const auto& output_data : output_datas->datas) {
+      const auto& raw_shapes = output_data->raw_shapes();
+      ASSERT_EQ(raw_shapes.size(), 2);
+      ASSERT_EQ(raw_shapes.at(0), 31);
+      ASSERT_EQ(raw_shapes.at(1), 32);
+
+      ASSERT_EQ(output_data->rows(), 31);
+      ASSERT_EQ(output_data->cols(), 32);
+      ASSERT_EQ(output_data->channels(), 1);
+    }
+  }
+}
+
 TEST(test_runtime, set_param_path) {
   using namespace kuiper_infer;
   RuntimeGraph graph("xx.param", "yy.bin");
