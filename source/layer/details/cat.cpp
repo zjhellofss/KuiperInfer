@@ -72,12 +72,12 @@ InferStatus CatLayer::Forward(
       CHECK(input != nullptr && !input->empty())
           << "The input tensor array in the cat layer has "
              "an empty tensor "
-          << i << " th";
+          << j << " th";
       const uint32_t in_channels = input->channels();
       CHECK(rows == input->rows() && cols == input->cols())
           << "The input tensor array in the cat layer "
              "has an incorrectly sized tensor "
-          << i << " th";
+          << j << " th";
 
       if (output == nullptr || output->empty()) {
         output = std::make_shared<Tensor<float>>(in_channels * packet_size,

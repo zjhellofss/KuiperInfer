@@ -392,9 +392,15 @@ void RuntimeGraph::ProbeNextLayer(
        */
       std::vector<std::shared_ptr<ftensor>>& next_input_datas =
           next_input_operands.at(current_op->name)->datas;
-      CHECK(next_input_datas.size() == layer_output_datas.size());
+      CHECK(next_input_datas.size() == layer_output_datas.size())
+          << "Input data size do not match with output data size";
       // 将当前current_op的输出赋值到next_input_datas中
       for (int i = 0; i < next_input_datas.size(); ++i) {
+        if (next_input_datas.at(i) != nullptr) {
+          CHECK(next_input_datas.at(i)->shapes() ==
+                layer_output_datas.at(i)->shapes())
+              << "Input data shape do not match with output data shapes";
+        }
         next_input_datas.at(i) = layer_output_datas.at(i);
       }
     }
