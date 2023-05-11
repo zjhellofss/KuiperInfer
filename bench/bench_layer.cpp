@@ -2,7 +2,9 @@
 // Created by fss on 23-4-27.
 //
 #include <benchmark/benchmark.h>
+#include "../source/layer/details/adaptive_avgpooling.hpp"
 #include "../source/layer/details/expression.hpp"
+#include "../source/layer/details/hardsigmoid.hpp"
 #include "../source/layer/details/hardswish.hpp"
 #include "../source/layer/details/linear.hpp"
 #include "../source/layer/details/maxpooling.hpp"
@@ -10,7 +12,6 @@
 #include "../source/layer/details/silu.hpp"
 #include "../source/layer/details/upsample.hpp"
 #include "../source/layer/details/view.hpp"
-#include "../source/layer/details/hardsigmoid.hpp"
 
 static void BM_Sigmoid(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -37,7 +38,6 @@ BENCHMARK(BM_Sigmoid)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Sigmoid)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Sigmoid)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
-
 static void BM_HardSigmoid(benchmark::State& state) {
   using namespace kuiper_infer;
 
@@ -62,7 +62,6 @@ BENCHMARK(BM_HardSigmoid)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_HardSigmoid)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_HardSigmoid)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_HardSigmoid)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
-
 
 static void BM_Linear(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -257,7 +256,8 @@ static void BM_Upsample(benchmark::State& state) {
   uint32_t rows = state.range(1);
   uint32_t cols = state.range(2);
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -275,3 +275,42 @@ BENCHMARK(BM_Upsample)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Upsample)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Upsample)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Upsample)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
+static void BM_AdaptivePooling(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t input_c = state.range(0);
+  uint32_t input_h = state.range(1);
+  uint32_t input_w = state.range(2);
+
+  const uint32_t output_h = input_h / 2;
+  const uint32_t output_w = input_w / 2;
+
+  std::vector<sftensor> inputs;
+  const uint32_t input_size = 3;
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+  AdaptiveAveragePoolingLayer average_layer(output_h, output_w);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(input_size);
+
+  for (auto _ : state) {
+    average_layer.Forward(inputs, outputs);
+  }
+}
+
+BENCHMARK(BM_AdaptivePooling)
+    ->Args({3, 320, 320})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)
+    ->Args({32, 160, 160})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)
+    ->Args({64, 80, 80})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)
+    ->Args({128, 40, 40})
+    ->Unit(benchmark::kMillisecond);
