@@ -343,7 +343,7 @@ void RuntimeGraph::InitGraphParams(
         break;
       }
       default: {
-        LOG(FATAL) << "Unknown parameter type";
+        LOG(FATAL) << "Unknown parameter type: " << type;
       }
     }
   }
@@ -364,7 +364,7 @@ void RuntimeGraph::InitGraphAttrs(
         break;
       }
       default: {
-        LOG(FATAL) << "Unknown attribute type";
+        LOG(FATAL) << "Unknown attribute type: " << attr.type;
       }
     }
   }
