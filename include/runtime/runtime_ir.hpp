@@ -140,12 +140,14 @@ class RuntimeGraph {
     NeedBuild = -1,
     Complete = 0,
   };
+
  public:
   /**
    * 返回模型当前的状态
    * @return 返回模型当前的状态
    */
   GraphState graph_state() const;
+
  private:
   GraphState graph_state_ = GraphState::NeedInit;
   std::string input_name_;   /// 计算图输入节点的名称
@@ -156,11 +158,12 @@ class RuntimeGraph {
   //       input_operators_maps_;  /// 保存输入节点
   //   std::map<std::string, std::shared_ptr<RuntimeOperator>>
   //       output_operators_maps_;  /// 保存输出节点
-  std::map<std::string, std::shared_ptr<RuntimeOperator>>
-      operators_maps_;  /// 保存所有节点，根据唯一的name索引
+
+  /// 保存所有节点，根据唯一的name索引
+  std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
   std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
-  std::vector<std::shared_ptr<RuntimeOperator>>
-      operators_;                       /// 计算图的计算节点
+  /// 计算图的计算节点
+  std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   std::unique_ptr<pnnx::Graph> graph_;  /// pnnx的graph
 };
 

@@ -3,6 +3,7 @@
 //
 #include <benchmark/benchmark.h>
 #include "../source/layer/details/adaptive_avgpooling.hpp"
+#include "../source/layer/details/cat.hpp"
 #include "../source/layer/details/expression.hpp"
 #include "../source/layer/details/hardsigmoid.hpp"
 #include "../source/layer/details/hardswish.hpp"
@@ -12,6 +13,33 @@
 #include "../source/layer/details/silu.hpp"
 #include "../source/layer/details/upsample.hpp"
 #include "../source/layer/details/view.hpp"
+
+static void BM_Concat16to8(benchmark::State& state) {
+  using namespace kuiper_infer;
+  int input_size = 16;
+  int output_size = 8;
+  int input_channels = state.range(0);
+
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+  for (int i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
+        input_channels, state.range(1), state.range(2));
+    input->Rand();
+    inputs.push_back(input);
+  }
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
+  CatLayer cat_layer(1);
+
+  for (auto _ : state) {
+    cat_layer.Forward(inputs, outputs);
+  }
+}
+
+// 8 channel to 4 channel
+BENCHMARK(BM_Concat16to8)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Concat16to8)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Concat16to8)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Concat16to8)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_Sigmoid(benchmark::State& state) {
   using namespace kuiper_infer;

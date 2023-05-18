@@ -111,11 +111,10 @@ void RuntimeGraph::Build(const std::string& input_name,
   for (const auto& current_op : this->operators_) {
     // 获取当前节点的所有后继节点的names，遍历根据next_op_name从operators_maps_中插入所需要的节点
     const std::vector<std::string>& output_names = current_op->output_names;
-    for (const auto& next_op_name : output_names) {
-      if (const auto& next_op_pair = this->operators_maps_.find(next_op_name);
-          next_op_pair != this->operators_maps_.end()) {
-        current_op->output_operators.insert(
-            {next_op_name, next_op_pair->second});
+    for (const auto& kOutputName : output_names) {
+      if (const auto& output_op = this->operators_maps_.find(kOutputName);
+          output_op != this->operators_maps_.end()) {
+        current_op->output_operators.insert({kOutputName, output_op->second});
       }
     }
   }

@@ -2,15 +2,16 @@
 // Created by fss on 22-11-21.
 //
 #include "data/load_data.hpp"
-#include <string>
-#include <fstream>
-#include <armadillo>
-#include <utility>
 #include <glog/logging.h>
+#include <armadillo>
+#include <fstream>
+#include <string>
+#include <utility>
 
 namespace kuiper_infer {
 
-arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char split_char) {
+arma::fmat CSVDataLoader::LoadData(const std::string& file_path,
+                                   const char split_char) {
   arma::fmat data;
   if (file_path.empty()) {
     LOG(ERROR) << "CSV file path is empty: " << file_path;
@@ -26,7 +27,7 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   std::string line_str;
   std::stringstream line_stream;
 
-  const auto &[rows, cols] = CSVDataLoader::GetMatrixSize(in, split_char);
+  const auto& [rows, cols] = CSVDataLoader::GetMatrixSize(in, split_char);
   data.zeros(rows, cols);
 
   size_t row = 0;
@@ -45,9 +46,9 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
       std::getline(line_stream, token, split_char);
       try {
         data.at(row, col) = std::stof(token);
-      }
-      catch (std::exception &e) {
-        DLOG(ERROR) << "Parse CSV File meet error: " << e.what() << " row:" << row << " col:" << col;
+      } catch (std::exception& e) {
+        DLOG(ERROR) << "Parse CSV File meet error: " << e.what()
+                    << " row:" << row << " col:" << col;
       }
       col += 1;
       CHECK(col <= cols) << "There are excessive elements on the column";
@@ -59,7 +60,8 @@ arma::fmat CSVDataLoader::LoadData(const std::string &file_path, const char spli
   return data;
 }
 
-std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &file, char split_char) {
+std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream& file,
+                                                       char split_char) {
   bool load_ok = file.good();
   file.clear();
   size_t fn_rows = 0;
@@ -95,4 +97,4 @@ std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream &file, char
   file.seekg(start_pos);
   return {fn_rows, fn_cols};
 }
-}
+}  // namespace kuiper_infer
