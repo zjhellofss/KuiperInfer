@@ -24,7 +24,7 @@ Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
 
   uint32_t remaining = 3 - shapes.size();
   std::vector<uint32_t> shapes_(3, 1);
-  std::copy(shapes.begin() ,shapes.end(), shapes_.begin() + remaining);
+  std::copy(shapes.begin(), shapes.end(), shapes_.begin() + remaining);
 
   uint32_t channels = shapes_.at(0);
   uint32_t rows = shapes_.at(1);
@@ -289,7 +289,8 @@ std::vector<float> Tensor<float>::values(bool row_major) {
 
 float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
   CHECK_LT(index, this->channels());
-  float* mem_ptr = this->slice(index).memptr();
+  float* mem_ptr = this->raw_ptr() + index * this->rows() * this->cols();
   return mem_ptr;
 }
+
 }  // namespace kuiper_infer
