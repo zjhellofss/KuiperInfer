@@ -70,7 +70,7 @@ InferStatus BatchNorm2dLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
-      LOG(ERROR) << "The output tensor array in the batchnorm2d layer has an "
+      DLOG(ERROR) << "The output tensor array in the batchnorm2d layer has an "
                     "empty tensor "
                  << b << " th";
       output = std::make_shared<Tensor<float>>(input->shapes());

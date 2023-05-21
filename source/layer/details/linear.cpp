@@ -64,7 +64,7 @@ InferStatus LinearLayer::Forward(
   }
   uint32_t batch = inputs.size();
   const std::shared_ptr<Tensor<float>>& weight = weights_.front();
-  arma::fmat weight_data(weight->data().memptr(), out_features_, in_features_,
+  arma::fmat weight_data(weight->raw_ptr(), out_features_, in_features_,
                          false, true);
 
 #pragma omp parallel for num_threads(batch)
@@ -82,7 +82,7 @@ InferStatus LinearLayer::Forward(
     CHECK(weight_data.n_cols == in_features && in_features == in_features_)
         << "The col of weight tensor should be same to input_features_";
 
-    arma::fmat input_vec(input->data().memptr(), feature_dims, in_features_,
+    arma::fmat input_vec((float*)input->raw_ptr(), feature_dims, in_features_,
                          false, true);
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);

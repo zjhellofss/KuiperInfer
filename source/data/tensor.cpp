@@ -20,10 +20,15 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
 }
 
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
-  CHECK(shapes.size() == 3);
-  uint32_t channels = shapes.at(0);
-  uint32_t rows = shapes.at(1);
-  uint32_t cols = shapes.at(2);
+  CHECK(!shapes.empty() && shapes.size() <= 3);
+
+  uint32_t remaining = 3 - shapes.size();
+  std::vector<uint32_t> shapes_(3, 1);
+  std::copy(shapes.begin() ,shapes.end(), shapes_.begin() + remaining);
+
+  uint32_t channels = shapes_.at(0);
+  uint32_t rows = shapes_.at(1);
+  uint32_t cols = shapes_.at(2);
 
   data_ = arma::fcube(rows, cols, channels);
   if (channels == 1 && rows == 1) {
@@ -251,9 +256,16 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   }
 }
 
-const float* Tensor<float>::raw_ptr() const {
+float* Tensor<float>::raw_ptr() {
   CHECK(!this->data_.empty());
   return this->data_.memptr();
+}
+
+float* Tensor<float>::raw_ptr(uint32_t offset) {
+  const uint32_t size = this->size();
+  CHECK(!this->data_.empty());
+  CHECK_LT(offset, size);
+  return this->data_.memptr() + offset;
 }
 
 std::vector<float> Tensor<float>::values(bool row_major) {
@@ -273,5 +285,11 @@ std::vector<float> Tensor<float>::values(bool row_major) {
     CHECK_EQ(index, values.size());
   }
   return values;
+}
+
+float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
+  CHECK_LT(index, this->channels());
+  float* mem_ptr = this->slice(index).memptr();
+  return mem_ptr;
 }
 }  // namespace kuiper_infer

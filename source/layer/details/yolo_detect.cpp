@@ -111,7 +111,7 @@ InferStatus YoloDetectLayer::Forward(
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
 #if __SSE2__
-      float* ptr = const_cast<float*>(input->raw_ptr());
+      float* ptr = input->raw_ptr();
       __m128 _one1 = _mm_set1_ps(1.f);
       __m128 _one2 = _mm_set1_ps(1.f);
       __m128 _zero = _mm_setzero_ps();

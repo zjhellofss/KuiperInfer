@@ -90,8 +90,8 @@ InferStatus CatLayer::Forward(
              "has an incorrectly sized tensor "
           << i << " th";
       const uint32_t plane_size = rows * cols;
-      memcpy((float*)output->raw_ptr() + start_channel * plane_size,
-             input->raw_ptr(), sizeof(float) * plane_size * in_channels);
+      memcpy(output->raw_ptr(start_channel * plane_size), input->raw_ptr(),
+             sizeof(float) * plane_size * in_channels);
       start_channel += input->channels();
     }
   }

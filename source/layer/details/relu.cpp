@@ -66,8 +66,8 @@ InferStatus ReluLayer::Forward(
       output->index(j) = value > 0.f ? value : 0.f;
     }
 #else
-    float* in_ptr = const_cast<float*>(input->raw_ptr());
-    float* out_ptr = const_cast<float*>(output->raw_ptr());
+    float* in_ptr = input->raw_ptr();
+    float* out_ptr = output->raw_ptr();
     __m128 _zero = _mm_setzero_ps();
     const uint32_t size = output->size();
     const uint32_t packet_size = 4;

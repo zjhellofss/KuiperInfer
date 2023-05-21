@@ -4,12 +4,12 @@
 
 #ifndef KUIPER_INFER_DATA_BLOB_HPP_
 #define KUIPER_INFER_DATA_BLOB_HPP_
+#include <armadillo>
 #include <memory>
 #include <vector>
-#include <armadillo>
 
 namespace kuiper_infer {
-template <typename T>
+template <typename T = float>
 class Tensor {};
 
 template <>
@@ -165,7 +165,6 @@ class Tensor<float> {
    */
   void Fill(const std::vector<float>& values, bool row_major = true);
 
-
   /**
    * 返回Tensor内的所有数据
    * @param row_major 是否是行主序列的
@@ -210,7 +209,21 @@ class Tensor<float> {
    * 返回数据的原始指针
    * @return 返回数据的原始指针
    */
-  const float* raw_ptr() const;
+  float* raw_ptr();
+
+  /**
+   * 返回数据的原始指针
+   * @param offset 数据指针的偏移量
+   * @return 返回数据的原始指针
+   */
+  float* raw_ptr(uint32_t offset);
+
+  /**
+   * 返回第index个矩阵的起始地址
+   * @param index 第index个矩阵
+   * @return 第index个矩阵的起始地址
+   */
+  float* matrix_raw_ptr(uint32_t index);
 
  private:
   std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
