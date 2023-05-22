@@ -23,16 +23,16 @@ struct RuntimeAttribute {
    * @return 权重参数数组
    */
   template <class T>  //
-  std::vector<T> get(bool need_clear = true);
+  std::vector<T> get(bool need_clear_weight = true);
 
   /**
    * 清除权重
    */
-  void clear();
+  void ClearWeight();
 };
 
 template <class T>
-std::vector<T> RuntimeAttribute::get(bool need_clear) {
+std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
   /// 检查节点属性中的权重类型
   CHECK(!weight_data.empty());
   CHECK(type != RuntimeDataType::kTypeUnknown);
@@ -50,11 +50,11 @@ std::vector<T> RuntimeAttribute::get(bool need_clear) {
       break;
     }
     default: {
-      LOG(FATAL) << "Unknown weight data type";
+      LOG(FATAL) << "Unknown weight data type: " << int(type);
     }
   }
-  if (need_clear) {
-    this->clear();
+  if (need_clear_weight) {
+    this->ClearWeight();
   }
   return weights;
 }

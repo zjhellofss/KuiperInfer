@@ -30,6 +30,10 @@ class Tensor<float> {
    */
   explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
+  /**
+   * 创建张量
+   * @param shapes 张量的维度
+   */
   explicit Tensor(const std::vector<uint32_t>& shapes);
 
   Tensor(const Tensor& tensor);
