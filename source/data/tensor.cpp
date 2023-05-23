@@ -292,5 +292,4 @@ float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
   float* mem_ptr = this->raw_ptr() + index * this->rows() * this->cols();
   return mem_ptr;
 }
-
 }  // namespace kuiper_infer

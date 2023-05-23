@@ -4,21 +4,62 @@
 
 #ifndef KUIPER_INFER_DATA_BLOB_HPP_
 #define KUIPER_INFER_DATA_BLOB_HPP_
+#include <glog/logging.h>
+#include <algorithm>
 #include <armadillo>
 #include <memory>
 #include <vector>
 
 namespace kuiper_infer {
+
 template <typename T = float>
-class Tensor {};
+class BaseTensor {
+ public:
+  /**
+   * 返回数据的原始指针
+   * @return 返回数据的原始指针
+   */
+  virtual float* raw_ptr() = 0;
+
+  /**
+   * 返回数据的原始指针
+   * @param offset 数据指针的偏移量
+   * @return 返回数据的原始指针
+   */
+  virtual float* raw_ptr(uint32_t offset) = 0;
+
+  /**
+   * 张量的实际尺寸大小
+   * @return 张量的实际尺寸大小
+   */
+  virtual const std::vector<uint32_t>& raw_shapes() const = 0;
+
+  /**
+   * 使用value值去初始化向量
+   * @param value
+   */
+  virtual void Fill(float value) = 0;
+
+  /**
+   * 返回张量中元素的数量
+   * @return 张量的元素数量
+   */
+  virtual uint32_t size() const = 0;
+
+ protected:
+  std::vector<uint32_t> raw_shapes_;
+};
+
+template <typename T = float>
+class Tensor : public BaseTensor<T> {};
 
 template <>
-class Tensor<uint8_t> {
+class Tensor<uint8_t> : public BaseTensor<uint8_t> {
   // 待实现
 };
 
 template <>
-class Tensor<float> {
+class Tensor<float> : public BaseTensor<float> {
  public:
   explicit Tensor() = default;
 
@@ -44,6 +85,22 @@ class Tensor<float> {
 
   Tensor<float>& operator=(const Tensor& tensor);
 
+  uint32_t size() const override;
+
+  float* raw_ptr() override;
+
+  float* raw_ptr(uint32_t offset) override;
+
+  const std::vector<uint32_t>& raw_shapes() const override;
+
+  void Fill(float value) override;
+
+  /**
+   * 使用values中的数据初始化张量
+   * @param values 用来初始化张量的数据
+   */
+  void Fill(const std::vector<float>& values, bool row_major = true);
+
   /**
    * 返回张量的行数
    * @return 张量的行数
@@ -61,12 +118,6 @@ class Tensor<float> {
    * @return 张量的通道数
    */
   uint32_t channels() const;
-
-  /**
-   * 返回张量中元素的数量
-   * @return 张量的元素数量
-   */
-  uint32_t size() const;
 
   /**
    * 设置张量中的具体数据
@@ -99,12 +150,6 @@ class Tensor<float> {
    * @return 张量的尺寸大小
    */
   std::vector<uint32_t> shapes() const;
-
-  /**
-   * 张量的实际尺寸大小
-   * @return 张量的实际尺寸大小
-   */
-  const std::vector<uint32_t>& raw_shapes() const;
 
   /**
    * 返回张量中的数据
@@ -158,18 +203,6 @@ class Tensor<float> {
   void Padding(const std::vector<uint32_t>& pads, float padding_value);
 
   /**
-   * 使用value值去初始化向量
-   * @param value
-   */
-  void Fill(float value);
-
-  /**
-   * 使用values中的数据初始化张量
-   * @param values 用来初始化张量的数据
-   */
-  void Fill(const std::vector<float>& values, bool row_major = true);
-
-  /**
    * 返回Tensor内的所有数据
    * @param row_major 是否是行主序列的
    * @return Tensor内的所有数据
@@ -210,19 +243,6 @@ class Tensor<float> {
   void Transform(const std::function<float(float)>& filter);
 
   /**
-   * 返回数据的原始指针
-   * @return 返回数据的原始指针
-   */
-  float* raw_ptr();
-
-  /**
-   * 返回数据的原始指针
-   * @param offset 数据指针的偏移量
-   * @return 返回数据的原始指针
-   */
-  float* raw_ptr(uint32_t offset);
-
-  /**
    * 返回第index个矩阵的起始地址
    * @param index 第index个矩阵
    * @return 第index个矩阵的起始地址
@@ -230,12 +250,111 @@ class Tensor<float> {
   float* matrix_raw_ptr(uint32_t index);
 
  private:
-  std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
-  arma::fcube data_;                  // 张量数据
+  arma::fcube data_;  // 张量数据
 };
 
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
+
+template <uint32_t HeadShape, uint32_t... TailShapes>
+void StoreShape(std::vector<uint32_t>& shapes) {
+  shapes.push_back(HeadShape);
+  if constexpr (sizeof...(TailShapes) > 0) {
+    StoreShape<TailShapes...>(shapes);
+  }
+}
+
+template <typename T = float, uint32_t... Shapes>
+class TensorNd : public BaseTensor<T> {};
+
+template <uint32_t... Shapes>
+class TensorNd<float, Shapes...> : public BaseTensor<float> {
+ public:
+  explicit TensorNd() {
+    StoreShape<Shapes...>(this->raw_shapes_);
+    if (!raw_shapes_.empty()) {
+      const uint32_t size = std::accumulate(
+          raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
+      float* data_ptr = new float[size];
+      data_ = std::shared_ptr<float>(
+          data_ptr, [](const float* data_ptr) { delete[] data_ptr; });
+    }
+  }
+
+  float* raw_ptr() override {
+    CHECK(this->data_ != nullptr);
+    float* data_ptr = this->data_.get();
+    return data_ptr;
+  }
+
+  const std::vector<uint32_t>& raw_shapes() const override {
+    return this->raw_shapes_;
+  }
+
+  float* raw_ptr(uint32_t offset) override {
+    float* data_ptr = this->data_.get();
+    CHECK(data_ptr != nullptr);
+    return data_ptr + offset;
+  }
+
+  float* raw_ptr(const std::vector<uint32_t>& offsets) {
+    CHECK_LT(offsets.size(), this->raw_shapes_.size());
+
+    std::vector<uint32_t> offsets_;
+    for (int i = 0; i < raw_shapes_.size(); ++i) {
+      if (i < offsets.size()) {
+        offsets_.push_back(offsets.at(i));
+      } else {
+        offsets_.push_back(0);
+      }
+    }
+    CHECK_EQ(offsets_.size(), this->raw_shapes_.size());
+
+    uint32_t total_offset = 0;
+    for (int i = 0; i < offsets_.size(); ++i) {
+      total_offset *= raw_shapes_.at(i);
+      CHECK_GE(offsets_[i], 0);
+      CHECK_LT(offsets_[i], raw_shapes_.at(i));
+      total_offset += offsets_[i];
+    }
+    return this->raw_ptr(total_offset);
+  }
+
+  void Fill(float value) override {
+    CHECK_NE(this->data_, nullptr);
+    CHECK_GT(this->raw_shapes_.size(), 0);
+    const uint32_t size = this->size();
+    float* data = this->raw_ptr();
+    for (uint32_t i = 0; i < size; ++i) {
+      *(data + i) = value;
+    }
+  }
+
+  void Fill(const std::vector<float>& values) {
+    CHECK_NE(this->data_, nullptr);
+    CHECK_GT(this->raw_shapes_.size(), 0);
+    const uint32_t size = this->size();
+    const uint32_t value_size = values.size();
+    CHECK_EQ(size, value_size);
+    std::copy(values.begin(), values.end(), this->data_.get());
+  }
+
+  uint32_t size() const override {
+    CHECK_GT(this->raw_shapes().size(), 0);
+    const uint32_t size = std::accumulate(
+        raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
+    return size;
+  }
+
+ private:
+  std::shared_ptr<float> data_ = nullptr;
+};
+
+template <uint32_t... Shapes>
+using ftensor_nd = TensorNd<float, Shapes...>;
+
+template <uint32_t... Shapes>
+using sftensor_nd = std::shared_ptr<TensorNd<float, Shapes...>>;
 
 }  // namespace kuiper_infer
 
