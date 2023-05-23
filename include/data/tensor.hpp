@@ -2,14 +2,16 @@
 // Created by fss on 22-11-12.
 //
 
-#ifndef KUIPER_INFER_DATA_BLOB_HPP_
-#define KUIPER_INFER_DATA_BLOB_HPP_
-#include <armadillo>
+#pragma once
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <memory>
 #include <vector>
-
+#include "../utils/gpu_utils.cuh"
 namespace kuiper_infer {
-template <typename T = float>
+
+template <typename T>
 class Tensor {};
 
 template <>
@@ -17,10 +19,14 @@ class Tensor<uint8_t> {
   // 待实现
 };
 
+
+
 template <>
 class Tensor<float> {
+
+
  public:
-  explicit Tensor() = default;
+  explicit Tensor() { this->gpu_data_ = nullptr; };
 
   /**
    * 创建张量
@@ -28,21 +34,42 @@ class Tensor<float> {
    * @param rows 张量的行数
    * @param cols 张量的列数
    */
-  explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
+  explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
   /**
    * 创建张量
-   * @param shapes 张量的维度
+   * @param nums 张量的数量
+   * @param channels 张量的通道数
+   * @param rows 张量的行数
+   * @param cols 张量的列数
    */
+  explicit Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
+                  uint32_t cols);
+
+
+
   explicit Tensor(const std::vector<uint32_t>& shapes);
 
   Tensor(const Tensor& tensor);
 
-  Tensor(Tensor&& tensor) noexcept;
-
-  Tensor<float>& operator=(Tensor&& tensor) noexcept;
-
   Tensor<float>& operator=(const Tensor& tensor);
+
+  Tensor(Tensor<float>&&) = delete;  // 禁止移动构造函数
+  Tensor<float>& operator=(Tensor&& tensor) = delete;  // 禁止移动构造运算符
+
+
+   ~Tensor();
+  /**
+   * 返回图片的数量
+   * @return 图片的数量问题
+   */
+  uint32_t nums() const;
+
+  /**
+   * 返回张量的通道数
+   * @return 张量的通道数
+   */
+  uint32_t channels() const;
 
   /**
    * 返回张量的行数
@@ -57,22 +84,10 @@ class Tensor<float> {
   uint32_t cols() const;
 
   /**
-   * 返回张量的通道数
-   * @return 张量的通道数
-   */
-  uint32_t channels() const;
-
-  /**
-   * 返回张量中元素的数量
-   * @return 张量的元素数量
-   */
-  uint32_t size() const;
-
-  /**
    * 设置张量中的具体数据
    * @param data 数据
    */
-  void set_data(const arma::fcube& data);
+  //    void set_data(const arma::fcube& data);
 
   /**
    * 返回张量是否为空
@@ -107,30 +122,10 @@ class Tensor<float> {
   const std::vector<uint32_t>& raw_shapes() const;
 
   /**
-   * 返回张量中的数据
-   * @return 张量中的数据
+   * 返回张量中的数据指针
+   * @return 张量中的数据指针
    */
-  arma::fcube& data();
-
-  /**
-   * 返回张量中的数据
-   * @return 张量中的数据
-   */
-  const arma::fcube& data() const;
-
-  /**
-   * 返回张量第channel通道中的数据
-   * @param channel 需要返回的通道
-   * @return 返回的通道
-   */
-  arma::fmat& slice(uint32_t channel);
-
-  /**
-   * 返回张量第channel通道中的数据
-   * @param channel 需要返回的通道
-   * @return 返回的通道
-   */
-  const arma::fmat& slice(uint32_t channel) const;
+  float* data();
 
   /**
    * 返回特定位置的元素
@@ -203,35 +198,25 @@ class Tensor<float> {
    */
   void Flatten(bool row_major = false);
 
-  /**
-   * 对张量中的元素进行过滤
-   * @param filter 过滤函数
-   */
-  void Transform(const std::function<float(float)>& filter);
+  // /**
+  //  * 对张量中的元素进行过滤
+  //  * @param filter 过滤函数
+  //  */
+  // void Transform(const std::function<float(float)>& filter);
+
+  float* gpu_data();
 
   /**
-   * 返回数据的原始指针
-   * @return 返回数据的原始指针
+   *
    */
-  float* raw_ptr();
 
-  /**
-   * 返回数据的原始指针
-   * @param offset 数据指针的偏移量
-   * @return 返回数据的原始指针
-   */
-  float* raw_ptr(uint32_t offset);
-
-  /**
-   * 返回第index个矩阵的起始地址
-   * @param index 第index个矩阵
-   * @return 第index个矩阵的起始地址
-   */
-  float* matrix_raw_ptr(uint32_t index);
+  uint32_t size();
 
  private:
-  std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
-  arma::fcube data_;                  // 张量数据
+  std::vector<uint32_t> shapes_;  // 张量数据的实际尺寸大小
+  float* gpu_data_;
+  float* cpu_data_;  // 张量数据
+  uint32_t size_;
 };
 
 using ftensor = Tensor<float>;
@@ -239,4 +224,3 @@ using sftensor = std::shared_ptr<Tensor<float>>;
 
 }  // namespace kuiper_infer
 
-#endif  // KUIPER_INFER_DATA_BLOB_HPP_

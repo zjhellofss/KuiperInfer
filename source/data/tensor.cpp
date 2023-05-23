@@ -4,231 +4,219 @@
 
 #include "data/tensor.hpp"
 #include <glog/logging.h>
+#include <functional>
 #include <memory>
 #include <numeric>
 
 namespace kuiper_infer {
+
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
-  data_ = arma::fcube(rows, cols, channels);
-  if (channels == 1 && rows == 1) {
-    this->raw_shapes_ = std::vector<uint32_t>{cols};
-  } else if (channels == 1) {
-    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
-  } else {
-    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
-  }
+  this->size_ = channels * rows * cols;
+
+  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  // cudaMemset();
+  this->shapes_ = std::vector<uint32_t>{channels, rows, cols};
+}
+
+Tensor<float>::Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
+                      uint32_t cols) {
+  this->size_ = nums * channels * rows * cols;
+
+  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  // cudaMemset();
+  this->shapes_ = std::vector<uint32_t>{nums, channels, rows, cols};
+}
+
+Tensor<float>::~Tensor() {
+  // if()
+  cudaFree(this->gpu_data_);
 }
 
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
-  CHECK(!shapes.empty() && shapes.size() <= 3);
+  CHECK(shapes.size() == 4);
+  uint32_t channels = shapes.at(0);
+  uint32_t rows = shapes.at(1);
+  uint32_t cols = shapes.at(2);
 
-  uint32_t remaining = 3 - shapes.size();
-  std::vector<uint32_t> shapes_(3, 1);
-  std::copy(shapes.begin(), shapes.end(), shapes_.begin() + remaining);
-
-  uint32_t channels = shapes_.at(0);
-  uint32_t rows = shapes_.at(1);
-  uint32_t cols = shapes_.at(2);
-
-  data_ = arma::fcube(rows, cols, channels);
   if (channels == 1 && rows == 1) {
-    this->raw_shapes_ = std::vector<uint32_t>{cols};
+    this->shapes_ = std::vector<uint32_t>{cols};
   } else if (channels == 1) {
-    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+    this->shapes_ = std::vector<uint32_t>{rows, cols};
   } else {
-    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+    this->shapes_ = std::vector<uint32_t>{channels, rows, cols};
   }
+
+  this->size_ =
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<int>());
+
+  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  this->shapes_ = shapes;
 }
 
 Tensor<float>::Tensor(const Tensor& tensor) {
   if (this != &tensor) {
-    this->data_ = tensor.data_;
-    this->raw_shapes_ = tensor.raw_shapes_;
+    this->gpu_data_ = tensor.gpu_data_;
+    this->shapes_ = tensor.shapes_;
   }
-}
-
-Tensor<float>::Tensor(Tensor<float>&& tensor) noexcept {
-  if (this != &tensor) {
-    this->data_ = std::move(tensor.data_);
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-}
-
-Tensor<float>& Tensor<float>::operator=(Tensor<float>&& tensor) noexcept {
-  if (this != &tensor) {
-    this->data_ = std::move(tensor.data_);
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-  return *this;
 }
 
 Tensor<float>& Tensor<float>::operator=(const Tensor& tensor) {
   if (this != &tensor) {
-    this->data_ = tensor.data_;
-    this->raw_shapes_ = tensor.raw_shapes_;
+    this->gpu_data_ = tensor.gpu_data_;
+    this->shapes_ = tensor.shapes_;
   }
   return *this;
 }
 
 uint32_t Tensor<float>::rows() const {
-  CHECK(!this->data_.empty());
-  return this->data_.n_rows;
+  //  CHECK(!this->gpu_data_.empty());
+  return this->shapes_[2];
 }
 
 uint32_t Tensor<float>::cols() const {
-  CHECK(!this->data_.empty());
-  return this->data_.n_cols;
+  //  CHECK(!this->gpu_data_.empty());
+  return this->shapes_[3];
 }
 
 uint32_t Tensor<float>::channels() const {
-  CHECK(!this->data_.empty());
-  return this->data_.n_slices;
+  //  CHECK(!this->gpu_data_.empty());
+  return this->shapes_[1];
 }
 
-uint32_t Tensor<float>::size() const {
-  CHECK(!this->data_.empty());
-  return this->data_.size();
+uint32_t Tensor<float>::nums() const {
+  CHECK(!this->empty());
+  return this->shapes_[0];
 }
 
-void Tensor<float>::set_data(const arma::fcube& data) {
-  CHECK(data.n_rows == this->data_.n_rows)
-      << data.n_rows << " != " << this->data_.n_rows;
-  CHECK(data.n_cols == this->data_.n_cols)
-      << data.n_cols << " != " << this->data_.n_cols;
-  CHECK(data.n_slices == this->data_.n_slices)
-      << data.n_slices << " != " << this->data_.n_slices;
-  this->data_ = data;
-}
+// void Tensor<float>::set_data(const arma::fcube& data) {
+//   CHECK(data.n_rows == this->gpu_data_.n_rows)
+//       << data.n_rows << " != " << this->gpu_data_.n_rows;
+//   CHECK(data.n_cols == this->gpu_data_.n_cols)
+//       << data.n_cols << " != " << this->gpu_data_.n_cols;
+//   CHECK(data.n_slices == this->gpu_data_.n_slices)
+//       << data.n_slices << " != " << this->gpu_data_.n_slices;
+//   this->gpu_data_ = data;
+// }
 
-bool Tensor<float>::empty() const { return this->data_.empty(); }
+bool Tensor<float>::empty() const { return this->gpu_data_ != nullptr; }
 
 float Tensor<float>::index(uint32_t offset) const {
-  CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
-  return this->data_.at(offset);
+  CHECK(offset < this->size_) << "Tensor index out of bound!";
+  return this->gpu_data_[offset];
 }
 
 float& Tensor<float>::index(uint32_t offset) {
-  CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
-  return this->data_.at(offset);
+  CHECK(offset < this->size_) << "Tensor index out of bound!";
+  return this->gpu_data_[offset];
 }
 
 std::vector<uint32_t> Tensor<float>::shapes() const {
-  CHECK(!this->data_.empty());
-  return {this->channels(), this->rows(), this->cols()};
+  //  CHECK(!this->gpu_data_.empty());
+  return this->shapes_;
 }
 
-arma::fcube& Tensor<float>::data() { return this->data_; }
+float* Tensor<float>::data() { return this->gpu_data_; }
 
-const arma::fcube& Tensor<float>::data() const { return this->data_; }
+// float Tensor<float>::at(uint32_t nums, int32_t channel, uint32_t row,
+//                         uint32_t col) const {
+//   CHECK_LT(row, this->rows());
+//   CHECK_LT(col, this->cols());
+//   CHECK_LT(channel, this->channels());
 
-arma::fmat& Tensor<float>::slice(uint32_t channel) {
-  CHECK_LT(channel, this->channels());
-  return this->data_.slice(channel);
-}
+//   return this->gpu_data_.at(row, col, channel);
+// }
 
-const arma::fmat& Tensor<float>::slice(uint32_t channel) const {
-  CHECK_LT(channel, this->channels());
-  return this->data_.slice(channel);
-}
+// float& Tensor<float>::at(uint32_t num,uint32_t channel, uint32_t row,
+// uint32_t col) {
+//   CHECK_LT(row, this->rows());
+//   CHECK_LT(col, this->cols());
+//   CHECK_LT(channel, this->channels());
 
-float Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) const {
-  CHECK_LT(row, this->rows());
-  CHECK_LT(col, this->cols());
-  CHECK_LT(channel, this->channels());
-  return this->data_.at(row, col, channel);
-}
-
-float& Tensor<float>::at(uint32_t channel, uint32_t row, uint32_t col) {
-  CHECK_LT(row, this->rows());
-  CHECK_LT(col, this->cols());
-  CHECK_LT(channel, this->channels());
-  return this->data_.at(row, col, channel);
-}
+//   return this->gpu_data_.at(row, col, channel);
+// }
 
 void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
                             float padding_value) {
-  CHECK(!this->data_.empty());
-  CHECK_EQ(pads.size(), 4);
-  uint32_t pad_rows1 = pads.at(0);  // up
-  uint32_t pad_rows2 = pads.at(1);  // bottom
-  uint32_t pad_cols1 = pads.at(2);  // left
-  uint32_t pad_cols2 = pads.at(3);  // right
-
-  arma::fcube new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
-                       this->data_.n_cols + pad_cols1 + pad_cols2,
-                       this->data_.n_slices);
-  new_data.fill(padding_value);
-
-  new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows2 - 1,
-                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) =
-      this->data_;
-  this->data_ = std::move(new_data);
+  //  CHECK(!this->gpu_data_.empty());
+  //  CHECK_EQ(pads.size(), 4);
+  //  uint32_t pad_rows1 = pads.at(0);  // up
+  //  uint32_t pad_rows2 = pads.at(1);  // bottom
+  //  uint32_t pad_cols1 = pads.at(2);  // left
+  //  uint32_t pad_cols2 = pads.at(3);  // right
+  //
+  //  arma::fcube new_data(this->gpu_data_.n_rows + pad_rows1 + pad_rows2,
+  //                       this->gpu_data_.n_cols + pad_cols1 + pad_cols2,
+  //                       this->gpu_data_.n_slices);
+  //  new_data.fill(padding_value);
+  //
+  //  new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows2 - 1,
+  //                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) =
+  //      this->gpu_data_;
+  //  this->gpu_data_ = std::move(new_data);
 }
 
 void Tensor<float>::Fill(float value) {
-  CHECK(!this->data_.empty());
-  this->data_.fill(value);
+  CHECK(!this->empty());
+
+  element_wise_fill(this->size_, this->gpu_data_, value);
+
 }
 
 void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
-  CHECK(!this->data_.empty());
-  const uint32_t total_elems = this->data_.size();
+  CHECK(!this->empty());
+  const uint32_t total_elems = this->size();
   CHECK_EQ(values.size(), total_elems);
-  if (row_major) {
-    const uint32_t rows = this->rows();
-    const uint32_t cols = this->cols();
-    const uint32_t planes = rows * cols;
-    const uint32_t channels = this->data_.n_slices;
 
-    for (uint32_t i = 0; i < channels; ++i) {
-      auto& channel_data = this->data_.slice(i);
-      const arma::fmat& channel_data_t =
-          arma::fmat(values.data() + i * planes, this->cols(), this->rows());
-      channel_data = channel_data_t.t();
-    }
-  } else {
-    std::copy(values.begin(), values.end(), this->data_.memptr());
-  }
+  const uint32_t rows = this->rows();
+  const uint32_t cols = this->cols();
+  const uint32_t planes = rows * cols;
+  const uint32_t channels = this->channels();
+
+  // 在CUDA设备上分配内存
+  cudaMalloc((void**)&this->gpu_data_, values.size() * sizeof(float));
+  // 将数据从主机复制到设备
+  cudaMemcpy(this->gpu_data_, values.data(), values.size() * sizeof(float),
+             cudaMemcpyHostToDevice);
 }
 
 void Tensor<float>::Show() {
-  for (uint32_t i = 0; i < this->channels(); ++i) {
-    LOG(INFO) << "Channel: " << i;
-    LOG(INFO) << "\n" << this->data_.slice(i);
-  }
+  //  for (uint32_t i = 0; i < this->channels(); ++i) {
+  //    LOG(INFO) << "Channel: " << i;
+  //    LOG(INFO) << "\n" << this->gpu_data_.slice(i);
+  //  }void
 }
 
-void Tensor<float>::Flatten(bool row_major) {
-  CHECK(!this->data_.empty());
-  const uint32_t size = this->data_.size();
-  this->Reshape({size}, row_major);
-}
+// void Tensor<float>::Flatten(bool row_major) {
+//   CHECK(!this->empty());
+//   const uint32_t size = this->gpu_data_.size();
+//   this->Reshape({size}, row_major);
+// }
 
-void Tensor<float>::Rand() {
-  CHECK(!this->data_.empty());
-  this->data_.randn();
-}
+// void Tensor<float>::Rand() {
+//   CHECK(!this->empty());
+//   this->gpu_data_.randn();
+// }
 
 void Tensor<float>::Ones() {
-  CHECK(!this->data_.empty());
+  CHECK(!this->empty());
   this->Fill(1.f);
 }
 
-void Tensor<float>::Transform(const std::function<float(float)>& filter) {
-  CHECK(!this->data_.empty());
-  this->data_.transform(filter);
-}
+// void Tensor<float>::Transform(const std::function<float(float)>& filter) {
+//   CHECK(!this->gpu_data_.empty());
+//   this->gpu_data_.transform(filter);
+// }
 
 const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
-  CHECK(!this->raw_shapes_.empty());
-  CHECK_LE(this->raw_shapes_.size(), 3);
-  CHECK_GE(this->raw_shapes_.size(), 1);
-  return this->raw_shapes_;
+  CHECK(!this->shapes_.empty());
+  CHECK_LE(this->shapes_.size(), 3);
+  CHECK_GE(this->shapes_.size(), 1);
+  return this->shapes_;
 }
 
 void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
                             bool row_major) {
-  CHECK(!this->data_.empty());
+  CHECK(!this->empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
   const uint32_t current_size =
@@ -236,61 +224,33 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
-  std::vector<float> values;
-  if (row_major) {
-    values = this->values(true);
-  }
-  if (shapes.size() == 3) {
-    this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1), shapes.at(2)};
-  } else if (shapes.size() == 2) {
-    this->data_.reshape(shapes.at(0), shapes.at(1), 1);
-    this->raw_shapes_ = {shapes.at(0), shapes.at(1)};
-  } else {
-    this->data_.reshape(1, shapes.at(0), 1);
-    this->raw_shapes_ = {shapes.at(0)};
-  }
-
-  if (row_major) {
-    this->Fill(values, true);
-  }
+  this->shapes_ = shapes;
 }
 
-float* Tensor<float>::raw_ptr() {
-  CHECK(!this->data_.empty());
-  return this->data_.memptr();
-}
+// std::vector<float> Tensor<float>::values(bool row_major) {
+//   CHECK_EQ(this->gpu_data_.empty(), false);
+//   std::vector<float> values(this->gpu_data_.size());
 
-float* Tensor<float>::raw_ptr(uint32_t offset) {
-  const uint32_t size = this->size();
-  CHECK(!this->data_.empty());
-  CHECK_LT(offset, size);
-  return this->data_.memptr() + offset;
-}
+//   if (!row_major) {
+//     std::copy(this->gpu_data_.mem, this->gpu_data_.mem +
+//     this->gpu_data_.size(),
+//               values.begin());
+//   } else {
+//     uint32_t index = 0;
+//     for (uint32_t c = 0; c < this->gpu_data_.n_slices; ++c) {
+//       const arma::fmat& channel = this->gpu_data_.slice(c).t();
+//       std::copy(channel.begin(), channel.end(), values.begin() + index);
+//       index += channel.size();
+//     }
+//     CHECK_EQ(index, values.size());
+//   }
+//   return values;
+// }
 
-std::vector<float> Tensor<float>::values(bool row_major) {
-  CHECK_EQ(this->data_.empty(), false);
-  std::vector<float> values(this->data_.size());
+float* Tensor<float>::gpu_data() { return this->gpu_data_; }
 
-  if (!row_major) {
-    std::copy(this->data_.mem, this->data_.mem + this->data_.size(),
-              values.begin());
-  } else {
-    uint32_t index = 0;
-    for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
-      const arma::fmat& channel = this->data_.slice(c).t();
-      std::copy(channel.begin(), channel.end(), values.begin() + index);
-      index += channel.size();
-    }
-    CHECK_EQ(index, values.size());
-  }
-  return values;
-}
-
-float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
-  CHECK_LT(index, this->channels());
-  float* mem_ptr = this->raw_ptr() + index * this->rows() * this->cols();
-  return mem_ptr;
-}
+uint32_t Tensor<float>::size() { return this->size_; }
 
 }  // namespace kuiper_infer
+
+// namespace kuiper_infer
