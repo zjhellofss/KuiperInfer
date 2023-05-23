@@ -181,6 +181,7 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   const uint32_t input_padded_h = input_h + 2 * padding_h_;
   const uint32_t input_padded_w = input_w + 2 * padding_w_;
   const float padding_value = 0.f;
+#pragma omp parallel for schedule(dynamic)
   for (uint32_t ic = 0; ic < input_c_group; ++ic) {
     const arma::fmat& input_channel = input->slice(ic + group * input_c_group);
     int current_col = 0;
@@ -457,7 +458,11 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
 
   const std::vector<float>& weight_values = weight->get<float>();
   conv_layer->set_weights(weight_values);
-  std::dynamic_pointer_cast<ConvolutionLayer>(conv_layer)->InitIm2ColWeight();
+
+  auto conv_layer_derived =
+      std::dynamic_pointer_cast<ConvolutionLayer>(conv_layer);
+  CHECK(conv_layer_derived != nullptr);
+  conv_layer_derived->InitIm2ColWeight();
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
