@@ -14,12 +14,6 @@ namespace kuiper_infer {
 template <typename T>
 class Tensor {};
 
-template <>
-class Tensor<uint8_t> {
-  // 待实现
-};
-
-
 
 template <>
 class Tensor<float> {
@@ -100,14 +94,14 @@ class Tensor<float> {
    * @param offset 需要访问的位置
    * @return offset位置的元素
    */
-  float index(uint32_t offset) const;
+  float index(uint32_t nums,uint32_t channels,uint32_t rows,uint32_t);
 
-  /**
-   * 返回张量中offset位置的元素
-   * @param offset 需要访问的位置
-   * @return offset位置的元素
-   */
-  float& index(uint32_t offset);
+  // /**
+  //  * 返回张量中offset位置的元素
+  //  * @param offset 需要访问的位置
+  //  * @return offset位置的元素
+  //  */
+  // float& index(uint32_t offset);
 
   /**
    * 张量的尺寸大小
@@ -203,7 +197,7 @@ class Tensor<float> {
   //  * @param filter 过滤函数
   //  */
   // void Transform(const std::function<float(float)>& filter);
-
+  void slice_fill(uint32_t channel, float val);
   float* gpu_data();
 
   /**

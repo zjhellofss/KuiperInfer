@@ -15,7 +15,7 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
 
   cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
   // cudaMemset();
-  this->shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  this->shapes_ = std::vector<uint32_t>{1, channels, rows, cols};
 }
 
 Tensor<float>::Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
@@ -100,13 +100,15 @@ uint32_t Tensor<float>::nums() const {
 
 bool Tensor<float>::empty() const { return this->gpu_data_ != nullptr; }
 
-float Tensor<float>::index(uint32_t offset) const {
-  CHECK(offset < this->size_) << "Tensor index out of bound!";
-  return this->gpu_data_[offset];
-}
 
-float& Tensor<float>::index(uint32_t offset) {
+float Tensor<float>::index(uint32_t nums, uint32_t channels, uint32_t rows,
+                           uint32_t cols) {
+  uint32_t offset = nums * shapes_[1] * shapes_[2] * shapes_[3] +
+                    channels * shapes_[2] * shapes_[3] + rows * shapes_[3] +
+                    cols;
+
   CHECK(offset < this->size_) << "Tensor index out of bound!";
+
   return this->gpu_data_[offset];
 }
 
@@ -159,7 +161,6 @@ void Tensor<float>::Fill(float value) {
   CHECK(!this->empty());
 
   element_wise_fill(this->size_, this->gpu_data_, value);
-
 }
 
 void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
@@ -214,13 +215,18 @@ const std::vector<uint32_t>& Tensor<float>::raw_shapes() const {
   return this->shapes_;
 }
 
+void Tensor<float>::slice_fill(uint32_t channel, float val) {
+  // CHECK_LT(channel, this->channels());
+  // return this->data_.slice(channel);
+}
+
 void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
                             bool row_major) {
   CHECK(!this->empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
   const uint32_t current_size =
-      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies());
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<uint32_t>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 

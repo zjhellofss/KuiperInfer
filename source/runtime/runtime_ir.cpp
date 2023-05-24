@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <algorithm>
 #include <vector>
 #include "layer/abstract/layer_factory.hpp"
 #include "utils/time_logging.hpp"

@@ -91,6 +91,12 @@ void RuntimeOperatorUtils::InitOperatorOutput(
       output_operand->type = RuntimeDataType::kTypeFloat32;
       output_operand->name = operand->name + "_output";
       // 输出空间初始化
+
+#ifdef GPU_ONLY
+      output_operand->datas.push_back(TensorCreate(operand_shapes.at(0),
+          operand_shapes.at(1), operand_shapes.at(2), operand_shapes.at(3)));
+
+#elif
       for (int j = 0; j < batch; ++j) {
         if (operand_shapes.size() == 4) {
           output_operand->datas.push_back(TensorCreate(operand_shapes.at(1),
@@ -105,6 +111,8 @@ void RuntimeOperatorUtils::InitOperatorOutput(
               TensorCreate(1, operand_shapes.at(1), operand_shapes.at(2)));
         }
       }
+#endif
+
       runtime_op->output_operands = std::move(output_operand);
     } else {
       // 如果输出空间不为空

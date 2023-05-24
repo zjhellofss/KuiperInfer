@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
-set(CMAKE_CUDA_COMPILER /usr/local/cuda-12/bin/nvcc)
+# set(CMAKE_CUDA_COMPILER /usr/local/cuda-12/bin/nvcc)
 
 project(kuiper_infer CXX CUDA)
 #set(CMAKE_CXX_STANDARD 17)
@@ -14,8 +14,6 @@ add_definitions(-DGPU_ONLY)
 # add_definitions(-)
 
 #CUDA需要的头文件
-find_package(CUDA)
-include_directories(${CUDA_INCLUDE_DIRS})
 
 
 
@@ -72,13 +70,15 @@ set(SOURCES other.cpp)
 # find_package(benchmark REQUIRED)
 # find_package(OpenMP REQUIRED)
 # find_package(Armadillo REQUIRED)
- find_package(glog REQUIRED)
+#  find_package(glog REQUIRED)
 # find_package(BLAS REQUIRED)
 # find_package(LAPACK REQUIRED)
 
 include_directories(./include)
 
 if (USE_GPU)
+find_package(CUDA)
+include_directories(${CUDA_INCLUDE_DIRS})
 
 
 
@@ -145,11 +145,8 @@ endif ()
 # mathfun library defines
 add_compile_definitions(SSE_MATHFUN_WITH_CODE USE_SSE_AUTO)
 # 本项目的开发者请使用set(DEVELOPMENT ON)或者在cmake中添加-DDEVELOPMENT=ON将选项打开
-option(DEVELOPMENT ON)
-if (${DEVELOPMENT})
-    message(STATUS "DEVELOPMENT MODE ON")
-    enable_testing()
-    add_subdirectory(bench)
-    add_subdirectory(test)
-endif ()
+message(STATUS "DEVELOPMENT MODE ON")
+enable_testing()
+add_subdirectory(bench)
+add_subdirectory(test)
 
