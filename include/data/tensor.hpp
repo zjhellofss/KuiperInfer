@@ -255,7 +255,9 @@ template <uint32_t... Shapes>
 class TensorNd<float, Shapes...> {
  public:
   explicit TensorNd() {
-    StoreShape<Shapes...>(this->raw_shapes_);
+    if constexpr (sizeof...(Shapes) > 0) {
+      StoreShape<Shapes...>(this->raw_shapes_);
+    }
     if (!raw_shapes_.empty()) {
       const uint32_t size = std::accumulate(
           raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
@@ -265,21 +267,31 @@ class TensorNd<float, Shapes...> {
     }
   }
 
+  explicit TensorNd(const std::vector<uint32_t>& shapes) {
+    static_assert(sizeof...(Shapes) == 0);
+    this->raw_shapes_ = shapes;
+    const uint32_t size = std::accumulate(
+        raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
+    float* data_ptr = new float[size];
+    data_ = std::shared_ptr<float>(
+        data_ptr, [](const float* data_ptr) { delete[] data_ptr; });
+  }
+
   const std::vector<uint32_t>& raw_shapes() const { return this->raw_shapes_; }
 
-  float* raw_ptr() {
+  float* raw_ptr() const {
     CHECK(this->data_ != nullptr);
     float* data_ptr = this->data_.get();
     return data_ptr;
   }
 
-  float* raw_ptr(uint32_t offset) {
+  float* raw_ptr(uint32_t offset) const {
     float* data_ptr = this->data_.get();
     CHECK(data_ptr != nullptr);
     return data_ptr + offset;
   }
 
-  float* raw_ptr(const std::vector<uint32_t>& offsets) {
+  float* raw_ptr(const std::vector<uint32_t>& offsets) const {
     CHECK_LE(offsets.size(), this->raw_shapes_.size());
     std::vector<uint32_t> offsets_;
     for (int i = 0; i < raw_shapes_.size(); ++i) {
@@ -306,6 +318,10 @@ class TensorNd<float, Shapes...> {
     return this->raw_ptr(offsets);
   }
 
+  bool empty() const {
+    return this->data_ == nullptr || this->raw_shapes_.empty();
+  }
+
   void Fill(float value) {
     CHECK_NE(this->data_, nullptr);
     CHECK_GT(this->raw_shapes_.size(), 0);
@@ -314,6 +330,18 @@ class TensorNd<float, Shapes...> {
     for (uint32_t i = 0; i < size; ++i) {
       *(data + i) = value;
     }
+  }
+
+  float index(uint32_t offset) const {
+    float* raw_ptr = this->raw_ptr(offset);
+    CHECK_NE(raw_ptr, nullptr);
+    return *raw_ptr;
+  }
+
+  float& index(uint32_t offset) {
+    float* raw_ptr = this->raw_ptr(offset);
+    CHECK_NE(raw_ptr, nullptr);
+    return *raw_ptr;
   }
 
   void Fill(const std::vector<float>& values) {
@@ -367,6 +395,8 @@ using ftensor_nd = TensorNd<float, Shapes...>;
 
 template <uint32_t... Shapes>
 using sftensor_nd = std::shared_ptr<TensorNd<float, Shapes...>>;
+
+using ftensor_nd0 = TensorNd<float>;
 
 }  // namespace kuiper_infer
 
