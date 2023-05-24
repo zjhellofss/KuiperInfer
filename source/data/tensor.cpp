@@ -112,7 +112,7 @@ float Tensor<float>::index(uint32_t nums, uint32_t channels, uint32_t rows,
   return this->gpu_data_[offset];
 }
 
-std::vector<uint32_t> Tensor<float>::shapes() const {
+std::vector<uint32_t> Tensor<float>::shapes() {
   //  CHECK(!this->gpu_data_.empty());
   return this->shapes_;
 }

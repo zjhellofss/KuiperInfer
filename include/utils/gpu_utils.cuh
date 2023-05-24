@@ -55,14 +55,8 @@ inline int KUIPER_GET_BLOCKS(const int N) {
 
 
 
-
-
-
-
-
 void element_wise_fill(int n, float* input, float value);
-
-
-
+void element_wise_add(int n, const float* input1, const float* input2,
+                            float* output);
 
 }  // namespace kuiper_infer

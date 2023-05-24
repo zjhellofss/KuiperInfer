@@ -86,14 +86,15 @@ include_directories(${CUDA_INCLUDE_DIRS})
     # aux_source_directory(./source/data DIR_DATA)
     aux_source_directory(./source/runtime DIR_PARSER)
     aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
-
+    
 #    aux_source_directory(./source/layer/details DIR_BINOCULAR_LAYER)
 
     file(GLOB LAYER_DETAILS "./source/layer/details/*.hpp" "./source/layer/details/*.cu")
     # add_library(DIR_BINOCULAR_LAYER ${LAYER_DETAILS_SOURCES})
    
+  
 
-    file(GLOB DIR_DATA "./source/data/tensor.cpp" "./source/data/tensor_utils.cu")
+    file(GLOB DIR_DATA "./source/data/tensor.cpp" "./source/data/tensor_utils.cpp")
     # add_library(DIR_DATA ${DIR_DATA_SOURCES})
 
     aux_source_directory(./source/parser DIR_PARSER)
@@ -147,6 +148,6 @@ add_compile_definitions(SSE_MATHFUN_WITH_CODE USE_SSE_AUTO)
 # 本项目的开发者请使用set(DEVELOPMENT ON)或者在cmake中添加-DDEVELOPMENT=ON将选项打开
 message(STATUS "DEVELOPMENT MODE ON")
 enable_testing()
-add_subdirectory(bench)
+# add_subdirectory(bench)
 add_subdirectory(test)
 
