@@ -19,7 +19,8 @@ TEST(test_multi_tensor, size) {
   using namespace kuiper_infer;
   ftensor_nd<3, 4, 5> tensor;
   const auto& shapes = tensor.raw_shapes();
-  CHECK(shapes.size() == 60);
+  CHECK(shapes.size() == 3);
+  CHECK(tensor.size() == 60);
 }
 
 TEST(test_multi_tensor, raw_ptr1) {
@@ -47,8 +48,8 @@ TEST(test_multi_tensor, fill1) {
   tensor.Fill(values);
 
   float* ptr = tensor.raw_ptr(0);
-  for (uint32_t i = 1; i <= 12; ++i) {
-    ASSERT_EQ(*(ptr + i), i);
+  for (uint32_t i = 0; i < 12; ++i) {
+    ASSERT_EQ(*(ptr + i), i + 1);
   }
 }
 
@@ -58,7 +59,7 @@ TEST(test_multi_tensor, fill2) {
   tensor.Fill(3.f);
 
   float* ptr = tensor.raw_ptr(0);
-  for (uint32_t i = 1; i <= 12; ++i) {
+  for (uint32_t i = 0; i < 12; ++i) {
     ASSERT_EQ(*(ptr + i), 3.f);
   }
 }
@@ -80,7 +81,7 @@ TEST(test_multi_tensor, raw_ptr2) {
 
   float* ptr = tensor.raw_ptr(std::vector<uint32_t>{1});
   for (uint32_t i = 0; i < 6; ++i) {
-    ASSERT_EQ(*(ptr + i), i + 2);
+    ASSERT_EQ(*(ptr + i), i + 7);
   }
 }
 
@@ -183,7 +184,7 @@ TEST(test_multi_tensor, raw_ptr7) {
 
   float* ptr = tensor.raw_ptr(std::vector<uint32_t>{2, 2});
   for (uint32_t i = 0; i < 3; ++i) {
-    ASSERT_EQ(*(ptr + i), 10 + i);
+    ASSERT_EQ(*(ptr + i), 9 + i);
   }
 }
 

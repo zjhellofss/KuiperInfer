@@ -13,53 +13,15 @@
 namespace kuiper_infer {
 
 template <typename T = float>
-class BaseTensor {
- public:
-  /**
-   * 返回数据的原始指针
-   * @return 返回数据的原始指针
-   */
-  virtual float* raw_ptr() = 0;
-
-  /**
-   * 返回数据的原始指针
-   * @param offset 数据指针的偏移量
-   * @return 返回数据的原始指针
-   */
-  virtual float* raw_ptr(uint32_t offset) = 0;
-
-  /**
-   * 张量的实际尺寸大小
-   * @return 张量的实际尺寸大小
-   */
-  virtual const std::vector<uint32_t>& raw_shapes() const = 0;
-
-  /**
-   * 使用value值去初始化向量
-   * @param value
-   */
-  virtual void Fill(float value) = 0;
-
-  /**
-   * 返回张量中元素的数量
-   * @return 张量的元素数量
-   */
-  virtual uint32_t size() const = 0;
-
- protected:
-  std::vector<uint32_t> raw_shapes_;
-};
-
-template <typename T = float>
-class Tensor : public BaseTensor<T> {};
+class Tensor;
 
 template <>
-class Tensor<uint8_t> : public BaseTensor<uint8_t> {
+class Tensor<uint8_t> {
   // 待实现
 };
 
 template <>
-class Tensor<float> : public BaseTensor<float> {
+class Tensor<float> {
  public:
   explicit Tensor() = default;
 
@@ -85,15 +47,36 @@ class Tensor<float> : public BaseTensor<float> {
 
   Tensor<float>& operator=(const Tensor& tensor);
 
-  uint32_t size() const override;
+  /**
+   * 返回张量中元素的数量
+   * @return 张量的元素数量
+   */
+  uint32_t size() const;
 
-  float* raw_ptr() override;
+  /**
+   * 返回数据的原始指针
+   * @param offset 数据指针的偏移量
+   * @return 返回数据的原始指针
+   */
+  float* raw_ptr();
 
-  float* raw_ptr(uint32_t offset) override;
+  /**
+   * 返回数据的原始指针
+   * @return 返回数据的原始指针
+   */
+  float* raw_ptr(uint32_t offset);
 
-  const std::vector<uint32_t>& raw_shapes() const override;
+  /**
+   * 张量的实际尺寸大小
+   * @return 张量的实际尺寸大小
+   */
+  const std::vector<uint32_t>& raw_shapes() const;
 
-  void Fill(float value) override;
+  /**
+   * 使用value值去初始化向量
+   * @param value
+   */
+  void Fill(float value);
 
   /**
    * 使用values中的数据初始化张量
@@ -250,7 +233,8 @@ class Tensor<float> : public BaseTensor<float> {
   float* matrix_raw_ptr(uint32_t index);
 
  private:
-  arma::fcube data_;  // 张量数据
+  arma::fcube data_;                  // 张量数据
+  std::vector<uint32_t> raw_shapes_;  // 维度数据
 };
 
 using ftensor = Tensor<float>;
@@ -265,10 +249,10 @@ void StoreShape(std::vector<uint32_t>& shapes) {
 }
 
 template <typename T = float, uint32_t... Shapes>
-class TensorNd : public BaseTensor<T> {};
+class TensorNd;
 
 template <uint32_t... Shapes>
-class TensorNd<float, Shapes...> : public BaseTensor<float> {
+class TensorNd<float, Shapes...> {
  public:
   explicit TensorNd() {
     StoreShape<Shapes...>(this->raw_shapes_);
@@ -281,25 +265,22 @@ class TensorNd<float, Shapes...> : public BaseTensor<float> {
     }
   }
 
-  float* raw_ptr() override {
+  const std::vector<uint32_t>& raw_shapes() const { return this->raw_shapes_; }
+
+  float* raw_ptr() {
     CHECK(this->data_ != nullptr);
     float* data_ptr = this->data_.get();
     return data_ptr;
   }
 
-  const std::vector<uint32_t>& raw_shapes() const override {
-    return this->raw_shapes_;
-  }
-
-  float* raw_ptr(uint32_t offset) override {
+  float* raw_ptr(uint32_t offset) {
     float* data_ptr = this->data_.get();
     CHECK(data_ptr != nullptr);
     return data_ptr + offset;
   }
 
   float* raw_ptr(const std::vector<uint32_t>& offsets) {
-    CHECK_LT(offsets.size(), this->raw_shapes_.size());
-
+    CHECK_LE(offsets.size(), this->raw_shapes_.size());
     std::vector<uint32_t> offsets_;
     for (int i = 0; i < raw_shapes_.size(); ++i) {
       if (i < offsets.size()) {
@@ -308,8 +289,8 @@ class TensorNd<float, Shapes...> : public BaseTensor<float> {
         offsets_.push_back(0);
       }
     }
-    CHECK_EQ(offsets_.size(), this->raw_shapes_.size());
 
+    CHECK_EQ(offsets_.size(), this->raw_shapes_.size());
     uint32_t total_offset = 0;
     for (int i = 0; i < offsets_.size(); ++i) {
       total_offset *= raw_shapes_.at(i);
@@ -320,7 +301,7 @@ class TensorNd<float, Shapes...> : public BaseTensor<float> {
     return this->raw_ptr(total_offset);
   }
 
-  void Fill(float value) override {
+  void Fill(float value) {
     CHECK_NE(this->data_, nullptr);
     CHECK_GT(this->raw_shapes_.size(), 0);
     const uint32_t size = this->size();
@@ -339,7 +320,7 @@ class TensorNd<float, Shapes...> : public BaseTensor<float> {
     std::copy(values.begin(), values.end(), this->data_.get());
   }
 
-  uint32_t size() const override {
+  uint32_t size() const {
     CHECK_GT(this->raw_shapes().size(), 0);
     const uint32_t size = std::accumulate(
         raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
@@ -347,6 +328,7 @@ class TensorNd<float, Shapes...> : public BaseTensor<float> {
   }
 
  private:
+  std::vector<uint32_t> raw_shapes_;
   std::shared_ptr<float> data_ = nullptr;
 };
 
