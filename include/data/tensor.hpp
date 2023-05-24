@@ -301,6 +301,11 @@ class TensorNd<float, Shapes...> {
     return this->raw_ptr(total_offset);
   }
 
+  float* slice_ptr(uint32_t slice_index) {
+    std::vector<uint32_t> offsets{slice_index};
+    return this->raw_ptr(offsets);
+  }
+
   void Fill(float value) {
     CHECK_NE(this->data_, nullptr);
     CHECK_GT(this->raw_shapes_.size(), 0);
@@ -320,11 +325,36 @@ class TensorNd<float, Shapes...> {
     std::copy(values.begin(), values.end(), this->data_.get());
   }
 
+  void Fill(const float* ptr, uint32_t size) {
+    CHECK_NE(this->data_, nullptr);
+    CHECK_EQ(size, this->size());
+    float* data_ptr = this->data_.get();
+    CHECK_NE(data_ptr, nullptr);
+    for (uint32_t i = 0; i < size; ++i) {
+      *(data_ptr + i) = *(ptr + i);
+    }
+  }
+
   uint32_t size() const {
     CHECK_GT(this->raw_shapes().size(), 0);
     const uint32_t size = std::accumulate(
         raw_shapes_.begin(), raw_shapes_.end(), 1, std::multiplies());
     return size;
+  }
+
+  uint32_t channels() const {
+    CHECK_GE(raw_shapes_.size(), 1);
+    return raw_shapes_.at(0);
+  }
+
+  uint32_t rows() const {
+    CHECK_GE(raw_shapes_.size(), 2);
+    return raw_shapes_.at(1);
+  }
+
+  uint32_t cols() const {
+    CHECK_GE(raw_shapes_.size(), 3);
+    return raw_shapes_.at(2);
   }
 
  private:
