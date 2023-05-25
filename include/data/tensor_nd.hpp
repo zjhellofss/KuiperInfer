@@ -5,8 +5,10 @@
 #ifndef KUIPER_INFER_INCLUDE_DATA_TENSOR_ND_HPP_
 #define KUIPER_INFER_INCLUDE_DATA_TENSOR_ND_HPP_
 
+#include <glog/logging.h>
+#include <algorithm>
+#include <armadillo>
 #include <memory>
-#include <numeric>
 #include <vector>
 
 template <uint32_t HeadShape, uint32_t... TailShapes>
