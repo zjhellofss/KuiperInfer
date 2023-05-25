@@ -5,6 +5,10 @@
 #ifndef KUIPER_INFER_INCLUDE_DATA_TENSOR_ND_HPP_
 #define KUIPER_INFER_INCLUDE_DATA_TENSOR_ND_HPP_
 
+#include <memory>
+#include <numeric>
+#include <vector>
+
 template <uint32_t HeadShape, uint32_t... TailShapes>
 static void StoreShape(std::vector<uint32_t>& shapes) {
   shapes.push_back(HeadShape);
