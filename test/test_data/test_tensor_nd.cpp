@@ -6,6 +6,8 @@
 #include <gtest/gtest.h>
 #include <vector>
 #include "data/tensor.hpp"
+#include "data/tensor_nd.hpp"
+
 TEST(test_multi_tensor, tensor_create) {
   using namespace kuiper_infer;
   ftensor_nd<3, 4> tensor;

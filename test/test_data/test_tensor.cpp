@@ -31,7 +31,7 @@ TEST(test_tensor, tensor_init3) {
   ASSERT_EQ(f1.channels(), 1);
   ASSERT_EQ(f1.rows(), 13);
   ASSERT_EQ(f1.cols(), 14);
-  ASSERT_EQ(f1.size(), 13*14);
+  ASSERT_EQ(f1.size(), 13 * 14);
 }
 
 TEST(test_tensor, tensor_init4) {
