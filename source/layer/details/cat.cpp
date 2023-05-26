@@ -4,7 +4,7 @@
 #include "cat.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
-CatLayer::CatLayer(int dim) : Layer("cat"), dim_(dim) {}
+CatLayer::CatLayer(int dim) : NonParamLayer("cat"), dim_(dim) {}
 
 InferStatus CatLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

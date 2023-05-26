@@ -5,7 +5,7 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-HardSwishLayer::HardSwishLayer() : Layer("HardSwish") {}
+HardSwishLayer::HardSwishLayer() : NonParamLayer("HardSwish") {}
 
 InferStatus HardSwishLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

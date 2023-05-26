@@ -11,7 +11,7 @@
 #endif
 namespace kuiper_infer {
 
-SiLULayer::SiLULayer() : Layer("SiLU") {}
+SiLULayer::SiLULayer() : NonParamLayer("SiLU") {}
 
 InferStatus SiLULayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

@@ -4,10 +4,10 @@
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_SOFTMAX_HPP_
 #define KUIPER_INFER_SOURCE_LAYER_SOFTMAX_HPP_
-#include "layer/abstract/layer.hpp"
+#include "layer/abstract/non_param_layer.hpp"
 
 namespace kuiper_infer {
-class SoftmaxLayer : public Layer {
+class SoftmaxLayer : public NonParamLayer {
  public:
   explicit SoftmaxLayer(int dim = -1);
 
