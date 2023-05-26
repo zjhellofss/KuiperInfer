@@ -8,7 +8,7 @@
 
 namespace kuiper_infer {
 FlattenLayer::FlattenLayer(int start_dim, int end_dim)
-    : Layer("Flatten"), start_dim_(start_dim), end_dim_(end_dim) {}
+    : NonParamLayer("Flatten"), start_dim_(start_dim), end_dim_(end_dim) {}
 
 InferStatus FlattenLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

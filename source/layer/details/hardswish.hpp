@@ -4,18 +4,20 @@
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_HARDSWISH_HPP_
 #define KUIPER_INFER_SOURCE_LAYER_DETAILS_HARDSWISH_HPP_
-#include "layer/abstract/layer.hpp"
+#include "layer/abstract/non_param_layer.hpp"
 
-#endif //KUIPER_INFER_SOURCE_LAYER_DETAILS_HARDSWISH_HPP_
+#endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_HARDSWISH_HPP_
 namespace kuiper_infer {
-class HardSwishLayer : public Layer {
+class HardSwishLayer : public NonParamLayer {
  public:
   explicit HardSwishLayer();
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
-                      std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
+  InferStatus Forward(
+      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                              std::shared_ptr<Layer> &hardswish_layer);
+  static ParseParameterAttrStatus GetInstance(
+      const std::shared_ptr<RuntimeOperator>& op,
+      std::shared_ptr<Layer>& hardswish_layer);
 };
-}
+}  // namespace kuiper_infer

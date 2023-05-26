@@ -8,7 +8,8 @@
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
-SoftmaxLayer::SoftmaxLayer(int dim) : Layer("Softmax"), softmax_dim_(dim) {}
+SoftmaxLayer::SoftmaxLayer(int dim)
+    : NonParamLayer("Softmax"), softmax_dim_(dim) {}
 
 InferStatus SoftmaxLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

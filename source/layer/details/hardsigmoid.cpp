@@ -5,7 +5,7 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-HardSigmoid::HardSigmoid() : Layer("HardSigmoid") {}
+HardSigmoid::HardSigmoid() : NonParamLayer("HardSigmoid") {}
 
 InferStatus HardSigmoid::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

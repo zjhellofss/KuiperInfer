@@ -12,7 +12,7 @@ MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
                                  uint32_t pooling_size_h,
                                  uint32_t pooling_size_w, uint32_t stride_h,
                                  uint32_t stride_w)
-    : Layer("MaxPooling"),
+    : NonParamLayer("MaxPooling"),
       padding_h_(padding_h),
       padding_w_(padding_w),
       pooling_size_h_(pooling_size_h),
@@ -92,10 +92,10 @@ InferStatus MaxPoolingLayer::Forward(
 
     const uint32_t input_c = input_data->channels();
 
-    const uint32_t output_h =
-        uint32_t(std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
-    const uint32_t output_w =
-        uint32_t(std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
+    const uint32_t output_h = uint32_t(
+        std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
+    const uint32_t output_w = uint32_t(
+        std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {

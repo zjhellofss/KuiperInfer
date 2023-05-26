@@ -9,7 +9,7 @@ namespace kuiper_infer {
 
 AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h,
                                                          uint32_t output_w)
-    : Layer("AdaptiveAveragePooling"),
+    : NonParamLayer("AdaptiveAveragePooling"),
       output_h_(output_h),
       output_w_(output_w) {}
 

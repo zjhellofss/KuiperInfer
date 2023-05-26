@@ -6,7 +6,7 @@
 namespace kuiper_infer {
 UpSampleLayer::UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
                              UpSampleMode mode)
-    : Layer("upsample"), scale_h_(scale_h), scale_w_(scale_w), mode_(mode) {}
+    : NonParamLayer("upsample"), scale_h_(scale_h), scale_w_(scale_w), mode_(mode) {}
 
 InferStatus UpSampleLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

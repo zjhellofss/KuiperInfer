@@ -65,7 +65,8 @@ InferStatus ViewLayer::Forward(
     }
 
     CHECK(dynamic_index == -1 || dynamic_index == shapes_.size() - 1)
-        << "-1 appears in the wrong dimension, it can only be on the last dimension";
+        << "-1 appears in the wrong dimension, it can only be on the last "
+           "dimension";
     if (dynamic_index != -1) {
       CHECK(total_size >= current_size);
       shapes.push_back(uint32_t(total_size / current_size));
@@ -101,7 +102,8 @@ ParseParameterAttrStatus ViewLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-ViewLayer::ViewLayer(const std::vector<int32_t>& shapes) : Layer("view") {
+ViewLayer::ViewLayer(const std::vector<int32_t>& shapes)
+    : NonParamLayer("view") {
   for (int shape : shapes) {
     shapes_.push_back(shape);
   }
