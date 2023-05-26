@@ -29,16 +29,14 @@ class ConvolutionLayer : public ParamLayer {
   void InitIm2ColWeight();
 
  private:
-  arma::fmat ConvGemm(const arma::fmat& input_matrix, sftensor output_tensor,
-                      uint32_t group, uint32_t kernel_index,
-                      uint32_t kernel_count_group, const arma::frowvec& kernel,
-                      uint32_t output_w, uint32_t output_h) const;
+  void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
+                    uint32_t group, uint32_t kernel_index,
+                    uint32_t kernel_count_group, const arma::frowvec& kernel,
+                    uint32_t output_w, uint32_t output_h) const;
 
   arma::fmat Im2Col(sftensor input, uint32_t kernel_w, uint32_t kernel_h,
                     uint32_t input_w, uint32_t input_h, uint32_t input_c_group,
                     uint32_t group, uint32_t row_len, uint32_t col_len) const;
-
-  void AddBias(arma::fmat& output, uint32_t kernel_index);
 
  private:
   bool use_bias_ = false;

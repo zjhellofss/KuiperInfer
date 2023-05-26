@@ -162,10 +162,8 @@ InferStatus ConvolutionLayer::Forward(
         } else {
           kernel = kernel_matrix_arr_group.at(k);
         }
-        arma::fmat output =
-            ConvGemm(input_matrix, output_tensor, g, k, kernel_count_group,
+        ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
                      kernel, output_w, output_h);
-        AddBias(output, k);
       }
     }
   }
@@ -211,29 +209,28 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   return input_matrix;
 }
 
-arma::fmat ConvolutionLayer::ConvGemm(
+void ConvolutionLayer::ConvGemmBias(
     const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
     uint32_t kernel_index, uint32_t kernel_count_group,
     const arma::frowvec& kernel, uint32_t output_w, uint32_t output_h) const {
   arma::fmat output(
       output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
       output_h, output_w, false, true);
-  output = kernel * input_matrix;
+
+  if (!this->bias_.empty() && this->use_bias_) {
+    std::shared_ptr<Tensor<float>> bias;
+    bias = this->bias_.at(kernel_index);
+    if (bias != nullptr && !bias->empty()) {
+      float bias_value = bias->index(0);
+      output = kernel * input_matrix + bias_value;
+    }
+  } else {
+    output = kernel * input_matrix;
+  }
+
   CHECK(output.size() == output_h * output_w)
       << "Output_h x output_w for the convolution layer "
          "should be output tensor size";
-  return output;
-}
-
-void ConvolutionLayer::AddBias(arma::fmat& output, uint32_t kernel_index) {
-  std::shared_ptr<Tensor<float>> bias;
-  if (!this->bias_.empty() && this->use_bias_) {
-    bias = this->bias_.at(kernel_index);
-  }
-  if (bias != nullptr && !bias->empty()) {
-    float bias_value = bias->index(0);
-    output += bias_value;
-  }
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
