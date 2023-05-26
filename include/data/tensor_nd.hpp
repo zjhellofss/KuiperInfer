@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <armadillo>
 #include <memory>
+#include <numeric>
 #include <vector>
 
 template <uint32_t HeadShape, uint32_t... TailShapes>
