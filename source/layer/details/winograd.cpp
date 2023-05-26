@@ -39,7 +39,8 @@ static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
   }
 }
 
-static void Winograd4x32(const arma::fmat& transform_g, float* in[6], float Y[16]) {
+static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
+                         float Y[16]) {
   CHECK_EQ(transform_g.empty(), false);
   CHECK(transform_g.n_cols == 6 && transform_g.n_rows == 6);
 

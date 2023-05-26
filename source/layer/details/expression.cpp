@@ -9,7 +9,7 @@
 
 namespace kuiper_infer {
 ExpressionLayer::ExpressionLayer(const std::string& statement)
-    : Layer("Expression"),
+    : NonParamLayer("Expression"),
       statement_(statement),
       parser_(std::make_unique<ExpressionParser>(statement)) {}
 
@@ -47,8 +47,8 @@ InferStatus ExpressionLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
       DLOG(ERROR) << "The output tensor array in the expression layer has an "
-                    "empty tensor "
-                 << i << "th";
+                     "empty tensor "
+                  << i << "th";
       return InferStatus::kInferFailedOutputEmpty;
     }
     outputs.at(i)->Fill(0.f);

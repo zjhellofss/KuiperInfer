@@ -223,8 +223,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
 
     if (num_anchors == -1) {
       num_anchors = anchor_shapes.at(1);
-      CHECK(num_anchors > 0)
-          << "The number of anchors must greater than zero";
+      CHECK(num_anchors > 0) << "The number of anchors must greater than zero";
     } else {
       CHECK(num_anchors == anchor_shapes.at(1))
           << "The number of anchors must be the same";
@@ -259,8 +258,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
 
     if (num_anchors == -1) {
       num_anchors = shapes.at(1);
-      CHECK(num_anchors > 0)
-          << "The number of anchors must greater than zero";
+      CHECK(num_anchors > 0) << "The number of anchors must greater than zero";
     } else {
       CHECK(num_anchors == shapes.at(1))
           << "The number of anchors must be the same";
@@ -328,7 +326,8 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   }
 
   yolo_detect_layer = std::make_shared<YoloDetectLayer>(
-      stages_number, num_classes, num_anchors, strides, anchor_grids, grids, conv_layers);
+      stages_number, num_classes, num_anchors, strides, anchor_grids, grids,
+      conv_layers);
   auto yolo_detect_layer_ =
       std::dynamic_pointer_cast<YoloDetectLayer>(yolo_detect_layer);
 

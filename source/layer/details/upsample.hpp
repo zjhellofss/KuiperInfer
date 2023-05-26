@@ -4,14 +4,14 @@
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_UPSAMPLE_HPP_
 #define KUIPER_INFER_SOURCE_LAYER_DETAILS_UPSAMPLE_HPP_
-#include "layer/abstract/layer.hpp"
+#include "layer/abstract/non_param_layer.hpp"
 
 namespace kuiper_infer {
 enum class UpSampleMode {
   kModeNearest = 0,  // 目前上采样层只支持邻近采样
 };
 
-class UpSampleLayer : public Layer {
+class UpSampleLayer : public NonParamLayer {
  public:
   explicit UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
                          UpSampleMode mode = UpSampleMode::kModeNearest);
