@@ -5,7 +5,6 @@
 #ifndef KUIPER_INFER_SOURCE_NONPRARM_LAYER_LAYER_HPP_
 #define KUIPER_INFER_SOURCE_NONPRARM_LAYER_LAYER_HPP_
 #include "layer.hpp"
-
 namespace kuiper_infer {
 class RuntimeOperator;
 class NonParamLayer : public Layer {
@@ -17,4 +16,4 @@ class NonParamLayer : public Layer {
 };
 
 }  // namespace kuiper_infer
-#endif  // KUIPER_INFER_SOURCE_NONPRARM_LAYER_LAYER_HPP_
+#endif  // KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_
