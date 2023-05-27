@@ -1,41 +1,36 @@
-find_package(GTest REQUIRED)
-#find_package(OpenMP REQUIRED)
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
+
+
 find_package(glog REQUIRED)
-find_package(Armadillo REQUIRED)
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
-
-aux_source_directory(../test/test_data DIR_TEST_DATA)
-aux_source_directory(../test/test_layer DIR_TEST_LAYER)
-aux_source_directory(../test/test_net DIR_TEST_NET)
-aux_source_directory(../test/test_runtime DIR_TEST_RUNTIME)
-
-set(link_lib glog::glog GTest::gtest)
-if(!WIN32)
-    set(link_lib "${link_lib} pthread")
-endif()
-set(link_math_lib  ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
-
-add_executable(test_kuiper test_main.cpp ${DIR_TEST_DATA} ${DIR_TEST_LAYER} ${DIR_TEST_NET} ${DIR_TEST_RUNTIME})
-if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O0")
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -fopenmp -march=native")
-endif()
-
-target_link_libraries(test_kuiper ${link_lib} ${link_math_lib})
-target_link_directories(test_kuiper PUBLIC ${PROJECT_SOURCE_DIR}/lib)
-target_link_libraries(test_kuiper kuiper)
-
-if (MSVC)
-    add_custom_command(TARGET test_kuiper POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "$<TARGET_FILE_DIR:kuiper>/kuiper.dll"
-            $<TARGET_FILE_DIR:test_kuiper>)
-endif()
-
-target_include_directories(test_kuiper PUBLIC ${glog_INCLUDE_DIR})
-target_include_directories(test_kuiper PUBLIC ${GTest_INCLUDE_DIR})
-target_include_directories(test_kuiper PUBLIC ${Armadillo_INCLUDE_DIR})
 
 
+
+enable_testing()
+
+add_executable(
+  hello_test
+  ./test_data/test_tensor.cpp
+)
+target_link_libraries(
+  hello_test
+  GTest::gtest_main
+  kuiper
+  glog::glog 
+)
+
+include(GoogleTest)
+gtest_discover_tests(hello_test)
+
+# add_test(multiply_gtests multiply_test)
+
+# add_executable(example   )
+# # target_link_directories(test_kuiper PUBLIC ${PROJECT_SOURCE_DIR}/lib)
+# target_link_libraries(example  GTest::GTest)
+# target_link_libraries(example )
