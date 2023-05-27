@@ -6,14 +6,6 @@
 #define KUIPER_INFER_SOURCE_NONPRARM_LAYER_LAYER_HPP_
 #include "layer.hpp"
 namespace kuiper_infer {
-class RuntimeOperator;
-class NonParamLayer : public Layer {
- public:
-  explicit NonParamLayer(std::string layer_name)
-      : Layer(std::move(layer_name)) {}
-
-  virtual ~NonParamLayer() = default;
-};
-
+using NonParamLayer = Layer;
 }  // namespace kuiper_infer
-#endif  // KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_
+#endif  // KUIPER_INFER_SOURCE_NONPRARM_LAYER_LAYER_HPP_

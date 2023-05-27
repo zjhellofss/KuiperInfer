@@ -223,6 +223,8 @@ void ConvolutionLayer::ConvGemmBias(
     if (bias != nullptr && !bias->empty()) {
       float bias_value = bias->index(0);
       output = kernel * input_matrix + bias_value;
+    } else {
+      LOG(FATAL) << "Bias tensor is empty or nullptr";
     }
   } else {
     output = kernel * input_matrix;
