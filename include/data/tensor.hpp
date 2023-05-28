@@ -4,16 +4,13 @@
 
 #ifndef KUIPER_INFER_DATA_BLOB_HPP_
 #define KUIPER_INFER_DATA_BLOB_HPP_
-#include <glog/logging.h>
-#include <algorithm>
 #include <armadillo>
 #include <memory>
 #include <vector>
 
 namespace kuiper_infer {
-
 template <typename T = float>
-class Tensor;
+class Tensor {};
 
 template <>
 class Tensor<uint8_t> {
@@ -48,43 +45,6 @@ class Tensor<float> {
   Tensor<float>& operator=(const Tensor& tensor);
 
   /**
-   * 返回张量中元素的数量
-   * @return 张量的元素数量
-   */
-  uint32_t size() const;
-
-  /**
-   * 返回数据的原始指针
-   * @param offset 数据指针的偏移量
-   * @return 返回数据的原始指针
-   */
-  float* raw_ptr();
-
-  /**
-   * 返回数据的原始指针
-   * @return 返回数据的原始指针
-   */
-  float* raw_ptr(uint32_t offset);
-
-  /**
-   * 张量的实际尺寸大小
-   * @return 张量的实际尺寸大小
-   */
-  const std::vector<uint32_t>& raw_shapes() const;
-
-  /**
-   * 使用value值去初始化向量
-   * @param value
-   */
-  void Fill(float value);
-
-  /**
-   * 使用values中的数据初始化张量
-   * @param values 用来初始化张量的数据
-   */
-  void Fill(const std::vector<float>& values, bool row_major = true);
-
-  /**
    * 返回张量的行数
    * @return 张量的行数
    */
@@ -101,6 +61,12 @@ class Tensor<float> {
    * @return 张量的通道数
    */
   uint32_t channels() const;
+
+  /**
+   * 返回张量中元素的数量
+   * @return 张量的元素数量
+   */
+  uint32_t size() const;
 
   /**
    * 设置张量中的具体数据
@@ -133,6 +99,12 @@ class Tensor<float> {
    * @return 张量的尺寸大小
    */
   std::vector<uint32_t> shapes() const;
+
+  /**
+   * 张量的实际尺寸大小
+   * @return 张量的实际尺寸大小
+   */
+  const std::vector<uint32_t>& raw_shapes() const;
 
   /**
    * 返回张量中的数据
@@ -186,6 +158,18 @@ class Tensor<float> {
   void Padding(const std::vector<uint32_t>& pads, float padding_value);
 
   /**
+   * 使用value值去初始化向量
+   * @param value
+   */
+  void Fill(float value);
+
+  /**
+   * 使用values中的数据初始化张量
+   * @param values 用来初始化张量的数据
+   */
+  void Fill(const std::vector<float>& values, bool row_major = true);
+
+  /**
    * 返回Tensor内的所有数据
    * @param row_major 是否是行主序列的
    * @return Tensor内的所有数据
@@ -226,6 +210,19 @@ class Tensor<float> {
   void Transform(const std::function<float(float)>& filter);
 
   /**
+   * 返回数据的原始指针
+   * @return 返回数据的原始指针
+   */
+  float* raw_ptr();
+
+  /**
+   * 返回数据的原始指针
+   * @param offset 数据指针的偏移量
+   * @return 返回数据的原始指针
+   */
+  float* raw_ptr(uint32_t offset);
+
+  /**
    * 返回第index个矩阵的起始地址
    * @param index 第index个矩阵
    * @return 第index个矩阵的起始地址
@@ -233,8 +230,8 @@ class Tensor<float> {
   float* matrix_raw_ptr(uint32_t index);
 
  private:
+  std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
   arma::fcube data_;                  // 张量数据
-  std::vector<uint32_t> raw_shapes_;  // 维度数据
 };
 
 using ftensor = Tensor<float>;
