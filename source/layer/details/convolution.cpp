@@ -217,6 +217,10 @@ void ConvolutionLayer::ConvGemmBias(
       output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
       output_h, output_w, false, true);
 
+  CHECK(output.size() == output_h * output_w)
+      << "Output_h x output_w for the convolution layer "
+         "should be output tensor size";
+
   if (!this->bias_.empty() && this->use_bias_) {
     std::shared_ptr<Tensor<float>> bias;
     bias = this->bias_.at(kernel_index);
@@ -229,10 +233,6 @@ void ConvolutionLayer::ConvGemmBias(
   } else {
     output = kernel * input_matrix;
   }
-
-  CHECK(output.size() == output_h * output_w)
-      << "Output_h x output_w for the convolution layer "
-         "should be output tensor size";
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
