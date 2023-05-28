@@ -5,15 +5,17 @@
 #include "data/tensor.hpp"
 #include <glog/logging.h>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <numeric>
+#include "utils/gpu_utils.cuh"
 
 namespace kuiper_infer {
 
 Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   this->size_ = channels * rows * cols;
 
-  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
   // cudaMemset();
   this->shapes_ = std::vector<uint32_t>{1, channels, rows, cols};
 }
@@ -22,15 +24,12 @@ Tensor<float>::Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
                       uint32_t cols) {
   this->size_ = nums * channels * rows * cols;
 
-  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
   // cudaMemset();
   this->shapes_ = std::vector<uint32_t>{nums, channels, rows, cols};
 }
 
-Tensor<float>::~Tensor() {
-  // if()
-  cudaFree(this->gpu_data_);
-}
+Tensor<float>::~Tensor() { cudaFree(this->gpu_data_); }
 
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
   CHECK(shapes.size() == 4);
@@ -49,7 +48,7 @@ Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
   this->size_ =
       std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<int>());
 
-  cudaMalloc(&this->gpu_data_, sizeof(float) * this->size_);
+  cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
   this->shapes_ = shapes;
 }
 
@@ -98,8 +97,7 @@ uint32_t Tensor<float>::nums() const {
 //   this->gpu_data_ = data;
 // }
 
-bool Tensor<float>::empty() const { return this->gpu_data_ != nullptr; }
-
+bool Tensor<float>::empty() const { return this->gpu_data_ == nullptr; }
 
 float Tensor<float>::index(uint32_t nums, uint32_t channels, uint32_t rows,
                            uint32_t cols) {
@@ -115,6 +113,15 @@ float Tensor<float>::index(uint32_t nums, uint32_t channels, uint32_t rows,
 std::vector<uint32_t> Tensor<float>::shapes() {
   //  CHECK(!this->gpu_data_.empty());
   return this->shapes_;
+}
+
+/**
+ * 初始化GPU中的数据
+ */
+void Tensor<float>::Rand() {
+  CHECK(!this->empty());
+  
+  rand_array(this->size_, this->gpu_data_);
 }
 
 float* Tensor<float>::data() { return this->gpu_data_; }
@@ -225,38 +232,33 @@ void Tensor<float>::Reshape(const std::vector<uint32_t>& shapes,
   CHECK(!this->empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
-  const uint32_t current_size =
-      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<uint32_t>());
+  const uint32_t current_size = std::accumulate(shapes.begin(), shapes.end(), 1,
+                                                std::multiplies<uint32_t>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
   this->shapes_ = shapes;
 }
 
-// std::vector<float> Tensor<float>::values(bool row_major) {
-//   CHECK_EQ(this->gpu_data_.empty(), false);
-//   std::vector<float> values(this->gpu_data_.size());
-
-//   if (!row_major) {
-//     std::copy(this->gpu_data_.mem, this->gpu_data_.mem +
-//     this->gpu_data_.size(),
-//               values.begin());
-//   } else {
-//     uint32_t index = 0;
-//     for (uint32_t c = 0; c < this->gpu_data_.n_slices; ++c) {
-//       const arma::fmat& channel = this->gpu_data_.slice(c).t();
-//       std::copy(channel.begin(), channel.end(), values.begin() + index);
-//       index += channel.size();
-//     }
-//     CHECK_EQ(index, values.size());
-//   }
-//   return values;
-// }
-
 float* Tensor<float>::gpu_data() { return this->gpu_data_; }
 
 uint32_t Tensor<float>::size() { return this->size_; }
 
-}  // namespace kuiper_infer
+//
+std::shared_ptr<float> Tensor<float>::to_cpu_data() {
+  CHECK(!this->empty());
 
-// namespace kuiper_infer
+  float* data = new float[this->size_];
+  std::cout << this->gpu_data_ << std::endl;
+  cudaMemcpy(data, this->gpu_data_, this->size_*sizeof(float), cudaMemcpyDeviceToHost);
+
+  for (int i = 0; i < this->size_; i++) {
+    std::cout<<data[i]<<"   df"<<std::endl;
+  }
+  std::shared_ptr<float> cpu_data_ptr(data, [](float* ptr) {
+    delete[] ptr;  // 使用delete[]释放数组内存
+  });
+  return cpu_data_ptr;
+}
+
+}  // namespace kuiper_infer

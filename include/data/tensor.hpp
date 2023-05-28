@@ -8,17 +8,13 @@
 #include <stdlib.h>
 #include <memory>
 #include <vector>
-#include "../utils/gpu_utils.cuh"
 namespace kuiper_infer {
 
 template <typename T>
 class Tensor {};
 
-
 template <>
 class Tensor<float> {
-
-
  public:
   explicit Tensor() { this->gpu_data_ = nullptr; };
 
@@ -40,8 +36,6 @@ class Tensor<float> {
   explicit Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
                   uint32_t cols);
 
-
-
   explicit Tensor(const std::vector<uint32_t>& shapes);
 
   Tensor(const Tensor& tensor);
@@ -52,7 +46,7 @@ class Tensor<float> {
   Tensor<float>& operator=(Tensor&& tensor) = delete;  // 禁止移动构造运算符
 
 
-   ~Tensor();
+ ~Tensor();
   /**
    * 返回图片的数量
    * @return 图片的数量问题
@@ -94,7 +88,7 @@ class Tensor<float> {
    * @param offset 需要访问的位置
    * @return offset位置的元素
    */
-  float index(uint32_t nums,uint32_t channels,uint32_t rows,uint32_t);
+  float index(uint32_t nums, uint32_t channels, uint32_t rows, uint32_t);
 
   // /**
   //  * 返回张量中offset位置的元素
@@ -200,10 +194,8 @@ class Tensor<float> {
   void slice_fill(uint32_t channel, float val);
   float* gpu_data();
 
-  /**
-   *
-   */
-
+  // 将gpu中的数据copy到cpu中用来检验计算的正确性
+  std::shared_ptr<float> to_cpu_data();
   uint32_t size();
 
  private:
@@ -217,4 +209,3 @@ using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
 }  // namespace kuiper_infer
-
