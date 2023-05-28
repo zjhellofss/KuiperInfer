@@ -16,6 +16,8 @@ class ReluLayer : public Layer {
 
   static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &relu_layer);
+
+                ~ReluLayer() override = default;                             
 };
 }
 #endif //KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <memory>
 #include <vector>
+#include "utils/gpu_utils.cuh"
 namespace kuiper_infer {
 
 template <typename T>

@@ -249,12 +249,7 @@ std::shared_ptr<float> Tensor<float>::to_cpu_data() {
   CHECK(!this->empty());
 
   float* data = new float[this->size_];
-  std::cout << this->gpu_data_ << std::endl;
   cudaMemcpy(data, this->gpu_data_, this->size_*sizeof(float), cudaMemcpyDeviceToHost);
-
-  for (int i = 0; i < this->size_; i++) {
-    std::cout<<data[i]<<"   df"<<std::endl;
-  }
   std::shared_ptr<float> cpu_data_ptr(data, [](float* ptr) {
     delete[] ptr;  // 使用delete[]释放数组内存
   });
