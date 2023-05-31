@@ -381,8 +381,8 @@ void RuntimeGraph::ProbeNextLayer(
     // 确定后继节点的输入来自于current_op
     if (next_input_operands.find(current_op->name) !=
         next_input_operands.end()) {
-      // 得到后继节点的关于current_op输出的输入空间 next_input_datas
       /**
+       * 得到后继节点的关于current_op输出的输入空间 next_input_datas
        * next_input_operands:
        * {
        *    输入1 -- current_op.name: current_op对应的输出空间
