@@ -5,12 +5,14 @@
 #include "../source/layer/details/adaptive_avgpooling.hpp"
 #include "../source/layer/details/cat.hpp"
 #include "../source/layer/details/expression.hpp"
+#include "../source/layer/details/flatten.hpp"
 #include "../source/layer/details/hardsigmoid.hpp"
 #include "../source/layer/details/hardswish.hpp"
 #include "../source/layer/details/linear.hpp"
 #include "../source/layer/details/maxpooling.hpp"
 #include "../source/layer/details/sigmoid.hpp"
 #include "../source/layer/details/silu.hpp"
+#include "../source/layer/details/softmax.hpp"
 #include "../source/layer/details/upsample.hpp"
 #include "../source/layer/details/view.hpp"
 
@@ -342,3 +344,89 @@ BENCHMARK(BM_AdaptivePooling)
 BENCHMARK(BM_AdaptivePooling)
     ->Args({128, 40, 40})
     ->Unit(benchmark::kMillisecond);
+
+static void BM_Flatten(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t input_c = state.range(0);
+  uint32_t input_h = state.range(1);
+  uint32_t input_w = state.range(2);
+
+  std::vector<sftensor> inputs;
+  const uint32_t input_size = 1;
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+  FlattenLayer flatten_layer(1, 3);
+  for (auto _ : state) {
+    flatten_layer.Forward(inputs, outputs);
+  }
+}
+
+BENCHMARK(BM_Flatten)->Args({1, 224, 224})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Flatten)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Flatten)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Flatten)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Flatten)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
+static void BM_Softmax(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t input_c = state.range(0);
+
+  std::vector<sftensor> inputs;
+  const uint32_t input_size = 1;
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(std::vector<uint32_t>{input_c});
+    input->Rand();
+    inputs.push_back(input);
+  }
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
+  SoftmaxLayer softmax_layer(-1);
+  for (auto _ : state) {
+    softmax_layer.Forward(inputs, outputs);
+  }
+}
+
+
+static void BM_SoftmaxDim1Batch8(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t input_c = state.range(0);
+  uint32_t input_h = state.range(1);
+  uint32_t input_w = state.range(2);
+
+  std::vector<sftensor> inputs;
+  const uint32_t input_size = 8;
+  for (uint32_t i = 0; i < input_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+    input->Rand();
+    inputs.push_back(input);
+  }
+
+  std::vector<std::shared_ptr<Tensor<float>>> outputs(8);
+  SoftmaxLayer softmax_layer(1);
+  for (auto _ : state) {
+    softmax_layer.Forward(inputs, outputs);
+  }
+}
+
+
+BENCHMARK(BM_Softmax)->Args({32})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Softmax)->Args({512})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Softmax)->Args({1024})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Softmax)->Args({4096})->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({1, 224, 224})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);

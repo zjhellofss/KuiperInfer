@@ -8,6 +8,9 @@
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
+#define POS_INDEX(outer_size, inner_size, axis_size) \
+  outer_size* axis_sizes* inner_sizes + axis_size* inner_sizes + inner_size;
+
 SoftmaxLayer::SoftmaxLayer(int dim)
     : NonParamLayer("Softmax"), softmax_dim_(dim) {}
 
@@ -59,40 +62,53 @@ InferStatus SoftmaxLayer::Forward(
       raw_shapes.push_back(1);
     }
 
+    /**
+     * [...(inner size) dim ...(outer_size)
+     * 将输入的数据按dim维度拆分为两部分，分别为inner和outer
+     * 开始位置到dim轴位置的数据量是inner_size,
+     * dim轴位置到结束位置的数据量是outer_sizes
+     */
     const uint32_t inner_sizes = std::accumulate(
         raw_shapes.begin() + dim + 1, raw_shapes.end(), 1, std::multiplies());
     const uint32_t outer_sizes = std::accumulate(
         raw_shapes.begin(), raw_shapes.begin() + dim, 1, std::multiplies());
+
+    // dim轴数据的数量
     const uint32_t axis_sizes = raw_shapes.at(dim);
     CHECK_EQ(axis_sizes * outer_sizes * inner_sizes, input->size());
 
     const auto& input_values = input->values(true);
     std::vector<float> output_values(input_values.size());
+#pragma omp parallel for collapse(2)
     for (uint32_t outer_size = 0; outer_size < outer_sizes; ++outer_size) {
       for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
         float max_value = std::numeric_limits<float>::lowest();
-        float sum_value = 0.f;
+        // 迭代当前dim中的数据，并找到其中的最大值
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = outer_size * axis_sizes * inner_sizes +
-                           axis_size * inner_sizes + inner_size;
+          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
           float cur_value = input_values.at(index);
           if (cur_value > max_value) {
             max_value = cur_value;
           }
         }
 
+        float sum_value = 0.f;
+        // 迭代当前dim中的数据，并进行求和
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = outer_size * axis_sizes * inner_sizes +
-                           axis_size * inner_sizes + inner_size;
+          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
           float cur_value = input_values.at(index);
-          sum_value += std::exp(cur_value - max_value);
+          float exp_sub_value = std::exp(cur_value - max_value);
+
+          sum_value += exp_sub_value;
+          output_values.at(index) = exp_sub_value;
         }
 
+        // 迭代当前dim中的数据，求exp(cur_value - max_value) / sum_value
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = outer_size * axis_sizes * inner_sizes +
-                           axis_size * inner_sizes + inner_size;
-          float cur_value = input_values.at(index);
-          output_values.at(index) = std::exp(cur_value - max_value) / sum_value;
+          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
+
+          float exp_sub_value = output_values.at(index);
+          output_values.at(index) = exp_sub_value / sum_value;
         }
       }
     }
@@ -108,7 +124,12 @@ ParseParameterAttrStatus SoftmaxLayer::GetInstance(
   if (params.find("dim") == params.end()) {
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
+
   auto dim_param = params.at("dim");
+  if (dim_param == nullptr) {
+    return ParseParameterAttrStatus::kParameterMissingDim;
+  }
+
   auto dim = dynamic_cast<RuntimeParameterInt*>(dim_param);
   if (dim == nullptr) {
     return ParseParameterAttrStatus::kParameterMissingDim;

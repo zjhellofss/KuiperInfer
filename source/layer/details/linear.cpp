@@ -94,7 +94,7 @@ InferStatus LinearLayer::Forward(
     }
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
-        << "The row of output tensor should be same to feature_dims_ and the"
+        << "The row of output tensor should be same to feature_dims_ and the "
            "col of output tensor should be same to output_features_ "
         << i << " th";
     const auto& output_raw_shapes = output->raw_shapes();
