@@ -4,7 +4,7 @@
 
 #include "layer/abstract/param_layer.hpp"
 #include <glog/logging.h>
-
+#include<iostream>
 namespace kuiper_infer {
 ParamLayer::ParamLayer(const std::string& layer_name) : Layer(layer_name) {}
 
@@ -52,6 +52,8 @@ void ParamLayer::set_weights(
 
 void ParamLayer::set_bias(
     const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
+ 
+   std::cout<<"set_bias"<<bias.at(0)->size()<<std::endl;
   if (!this->bias_.empty()) {
     CHECK(bias.size() == bias_.size());
     for (uint32_t i = 0; i < bias.size(); ++i) {
@@ -68,6 +70,7 @@ void ParamLayer::set_weights(const std::vector<float>& weights) {
   const uint32_t elem_size = weights.size();
 
   uint32_t weight_size = 0;
+  
   const uint32_t batch_size = this->weights_.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     weight_size += this->weights_.at(i)->size();
@@ -88,8 +91,9 @@ void ParamLayer::set_weights(const std::vector<float>& weights) {
 void ParamLayer::set_bias(const std::vector<float>& bias) {
   const uint32_t elem_size = bias.size();
 
-  uint32_t bias_size = 0;
   const uint32_t batch_size = this->bias_.size();
+
+  uint32_t bias_size = 0;
   for (uint32_t i = 0; i < batch_size; ++i) {
     bias_size += this->bias_.at(i)->size();
   }

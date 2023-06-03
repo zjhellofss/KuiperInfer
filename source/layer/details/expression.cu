@@ -91,19 +91,7 @@ InferStatus ExpressionLayer::Forward(
 
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(
           batch_size);
-#pragma omp parallel for num_threads(batch_size)
-      for (uint32_t i = 0; i < batch_size; ++i) {
-        // do execution
-        if (op == int(TokenType::TokenAdd)) {
-          output_token_nodes.at(i) =
-              TensorElementAdd(input_node1.at(i), input_node2.at(i));
-        } else if (op == int(TokenType::TokenMul)) {
-          output_token_nodes.at(i) =
-              TensorElementMultiply(input_node1.at(i), input_node2.at(i));
-        } else {
-          LOG(FATAL) << "Unknown operator type: " << op;
-        }
-      }
+
       op_stack.push(output_token_nodes);
     }
   }

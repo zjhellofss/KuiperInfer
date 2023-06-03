@@ -5,9 +5,11 @@
 #include <float.h>
 #include <glog/logging.h>
 #include <numeric>
-#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "softmax.hpp"
+#include "utils/gpu_utils.cuh"
+
+
 namespace kuiper_infer {
 
 __global__ void kernel_channel_max(const int num, const int channels,
@@ -81,8 +83,8 @@ __global__ void kernel_channel_dot(const int num, const int channels,
 SoftmaxLayer::SoftmaxLayer(int dim) : Layer("Softmax"), softmax_dim_(dim) {}
 
 InferStatus SoftmaxLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor>>& inputs,
-    std::vector<std::shared_ptr<Tensor>>& outputs) {
+    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the softmax layer is empty";
     return InferStatus::kInferFailedInputEmpty;
@@ -98,15 +100,22 @@ InferStatus SoftmaxLayer::Forward(
 
 //   auto top_data = outputs[0]->mutable_data<float>();
 
-  uint32_t count = input->count();
+  uint32_t count = inputs.at(0)->size();
 
   
   uint32_t channels = inputs.at(0)->nums();
   uint32_t outer_num_ = inputs.at(0)->nums();
-  uint32_t inner_num_ =inputs.at(0)->row();
+  uint32_t inner_num_ =inputs.at(0)->rows();
   
-  Tensor<float>scale{std::vector<uint32_t>{outer_num_ * inner_num_}};
+
+  auto top_data = outputs[0]->gpu_data();
+  auto bottom_data=inputs[0]->gpu_data();
+
   
+
+  auto scale_data=std::make_shared<Tensor<float>>(std::vector<uint32_t>{outer_num_ * inner_num_}).get()->gpu_data();
+
+
   kernel_channel_max<<<KUIPER_GET_BLOCKS(outer_num_ * inner_num_),
                        KUIPER_CUDA_NUM_THREADS>>>(
       outer_num_, channels, inner_num_, top_data, scale_data);

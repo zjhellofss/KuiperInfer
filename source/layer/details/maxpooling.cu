@@ -2,19 +2,21 @@
 // Created by fss on 22-11-18.
 //
 
-#include "maxpooling.hpp"
+#include <float.h>
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "maxpooling.hpp"
 #include "runtime/runtime_ir.hpp"
+#include "utils/gpu_utils.cuh"
+
 namespace kuiper_infer {
 
-
-__global__ void MaxPoolForward(const int nthreads,
-    const float* const input,float* const output, const int num, const int channels,
-    const int height, const int width, const int pooled_height,
-    const int pooled_width,
-    const int stride_h, const int stride_w, const int pad_h, const int pad_w) {
- 
+__global__ void MaxPoolForward(
+    const int nthreads, const float* const bottom_data, const int num,
+    const int channels, const int height, const int width,
+    const int pooled_height, const int pooled_width, const int kernel_h,
+    const int kernel_w, const int stride_h, const int stride_w, const int pad_h,
+    const int pad_w, float* const top_data, int* mask, float* top_mask) {
   CUDA_KERNEL_LOOP(index, nthreads) {
     const int pw = index % pooled_width;
     const int ph = (index / pooled_width) % pooled_height;
@@ -115,12 +117,6 @@ InferStatus MaxPoolingLayer::Forward(
       }
     }
   }
-
-
-
-
-
-
 
   return InferStatus::kInferSuccess;
 }

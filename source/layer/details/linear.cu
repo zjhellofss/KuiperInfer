@@ -3,8 +3,11 @@
 //
 
 #include <glog/logging.h>
+#include <stdio.h>
+#include <iostream>
 #include "layer/abstract/layer_factory.hpp"
 #include "linear.hpp"
+#include "utils/gpu_utils.cuh"
 
 namespace kuiper_infer {
 
@@ -12,24 +15,38 @@ namespace kuiper_infer {
  * w h代表最终生成的矩阵的宽和高
  *
  */
-__global__ void operator_matmul(const float* input, const float* weight,
-                                float* output, int w, int k, int h) {
-  float sum = 0;
+__global__ void LinearForward(int n, float* output, const float* input,
+                              const float* weight, int channels, int w, int k,
+                              int h) {
+  // weight h * k
+  // input  batch *channel w * k
+  // output batch *channel* w * h
+  CUDA_KERNEL_LOOP(index, n) {
+    int batch = index / (channels * w * h);
+    int channel = (index / (w * h)) % channels;
+    int row = (index / h) % w;
+    int col = index % h;
+    const float* input_base =
+        input + batch * channels * w * k + channel * w * k + row * k;
 
-  float* input_base =
-      input + blockIdx.x * blockDim.y * w * k + blockIdx.y * w * k;
-
-  int row = threadIdx.y;
-  int col = threadIdx.x;
-
-  for (int ki = 0; ki < k; ++ki) {
-    sum += input_base[row * k + ki] * weight[ki * h + col];
+    const float* wegiht_base = weight + col * h;
+    float sum = 0.0;
+    // weight 采用列存储的方式
+    for (int ki = 0; ki < k; ++ki) {
+      sum += input_base[ki] * weight[ki];
+    }
+    int loc = batch * channels * w * h + channel * w * h + row * h + col;
+    output[loc] = sum;
   }
+}
 
-  int loc =
-      blockIdx.x * blockDim.y * w * h + blockIdx.y * w * h + row * h + col;
-  
-  output[loc] = sum;
+__global__ void add_bias(int n, float* output, const float* input,
+                         const float* bias, int w, int h) {
+  CUDA_KERNEL_LOOP(index, n) {
+    int col = index % h;
+
+    output[index] = input[index] + bias[col];
+  }
 }
 
 LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
@@ -42,15 +59,6 @@ LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
   if (use_bias) {
     this->InitBiasParam(1, 1, 1, out_features);
   }
-  // std::shared_ptr<Tensor<float>> weight =
-  //     std::make_shared<Tensor<float>>(1, out_features, in_features);
-  // this->weights_.push_back(weight);
-  // if (use_bias) {
-  //   std::shared_ptr<Tensor<float>> bias =
-  //       std::make_shared<Tensor<float>>(1, out_features, 1);
-  //   bias->ReRawshape(std::vector<uint32_t>{(uint32_t)(out_features)});
-  //   this->bias_.push_back(bias);
-  // }
 }
 
 InferStatus LinearLayer::Forward(
@@ -76,38 +84,42 @@ InferStatus LinearLayer::Forward(
       return InferStatus::kInferFailedBiasParameterError;
     }
   }
-
-  if (this->weights_.size() != 1) {
-    LOG(ERROR) << "Need one weight tensor in the linear layer";
-    return InferStatus::kInferFailedWeightParameterError;
-  }
-
-  if (use_bias_ && this->bias_.size() != 1) {
-    LOG(ERROR) << "Need one bias tensor in the linear layer";
-    return InferStatus::kInferFailedBiasParameterError;
-  }
-
-  float* weight_data = this->weights_.at(0).get()->gpu_data();
-
   uint32_t batch = inputs.at(0).get()->nums();
   uint32_t channels = inputs.at(0).get()->channels();
   uint32_t w = inputs.at(0).get()->rows();
   uint32_t k = inputs.at(0).get()->cols();
-  uint32_t h = this->weights_.at(0).get()->cols();
 
-  const std::shared_ptr<Tensor<float>>& weight = weights_.front();
+  CHECK(k == in_features_);
+  uint32_t h = this->weights_.at(0).get()->rows();
+  CHECK(h == out_features_);
 
-  CHECKEQ(inputs.at(0).get()->cols(), this->weights_.at(0).get()->rows());
-
-  if (output == nullptr || output->empty()) {
-    output = std::make_shared<Tensor<float>>(1, out_features_, feature_dims);
-    outputs.at(i) = output;
+  if (outputs.empty()) {
+    auto output =
+        std::make_shared<Tensor<float>>(batch, channels, w, out_features_);
+    outputs.push_back(output);
   }
 
-  dim3 gridSize(batch, channels);
-  dim3 blockSize(rows, cols);
+  float* weight_data = this->weights_.at(0).get()->gpu_data();
+  CHECK(weight_data != nullptr);
 
-  operator_matmul<<<gridSize, blockSize>>>(inputs_data, weight_data, );
+  dim3 gridSize(batch, channels);
+  dim3 blockSize(w, h);
+
+  float* top_data = outputs.at(0)->gpu_data();
+  float* bottom_data = inputs.at(0)->gpu_data();
+
+  auto count = batch * channels * w * h;
+
+  LinearForward<<<KUIPER_GET_BLOCKS(count), KUIPER_CUDA_NUM_THREADS>>>(
+      count, top_data, bottom_data, weight_data, channels, w, k, h);
+  if (use_bias_) {
+    float* bias_data = this->bias_.at(0)->gpu_data();
+    float* bottom_data = outputs.at(0).get()->gpu_data();
+    int count = outputs.at(0)->size();
+
+    add_bias<<<KUIPER_GET_BLOCKS(count), KUIPER_CUDA_NUM_THREADS>>>(
+        count, bottom_data, bottom_data, bias_data, w, h);
+  }
 
   return InferStatus::kInferSuccess;
 }
@@ -151,9 +163,8 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
     return ParseParameterAttrStatus::kAttrMissingOutFeatures;
   }
 
-  int32_t in_features = shapes.at(0);
-  int32_t out_features = shapes.at(1);
-
+  int32_t out_features = shapes.at(0);
+  int32_t in_features = shapes.at(1);
   const bool use_bias = use_bias_param->value;
 
   linear_layer =
