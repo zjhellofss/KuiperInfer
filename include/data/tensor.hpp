@@ -31,6 +31,19 @@ class Tensor<float> {
   explicit Tensor(uint32_t channels, uint32_t rows, uint32_t cols);
 
   /**
+   * 创建一个一维向量
+   * @param size 一维向量中元素的个数
+   */
+  explicit Tensor(uint32_t size);
+
+  /**
+   * 创建一个二维向量
+   * @param rows 二维向量的高度
+   * @param cols 二维向量的宽度
+   */
+  explicit Tensor(uint32_t rows, uint32_t cols);
+
+  /**
    * 创建张量
    * @param shapes 张量的维度
    */

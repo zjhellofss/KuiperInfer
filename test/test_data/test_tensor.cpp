@@ -16,6 +16,23 @@ TEST(test_tensor, tensor_init1) {
   ASSERT_EQ(f1.size(), 224 * 224 * 3);
 }
 
+TEST(test_tensor, tensor_init1_1d) {
+  using namespace kuiper_infer;
+  Tensor<float> f1(3);
+  const auto& raw_shapes = f1.raw_shapes();
+  ASSERT_EQ(raw_shapes.size(), 1);
+  ASSERT_EQ(raw_shapes.at(0), 3);
+}
+
+TEST(test_tensor, tensor_init1_2d) {
+  using namespace kuiper_infer;
+  Tensor<float> f1(32,24);
+  const auto& raw_shapes = f1.raw_shapes();
+  ASSERT_EQ(raw_shapes.size(), 2);
+  ASSERT_EQ(raw_shapes.at(0), 32);
+  ASSERT_EQ(raw_shapes.at(1), 24);
+}
+
 TEST(test_tensor, tensor_init2) {
   using namespace kuiper_infer;
   Tensor<float> f1(std::vector<uint32_t>{3, 224, 224});

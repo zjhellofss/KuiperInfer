@@ -19,6 +19,16 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
+Tensor<float>::Tensor(uint32_t size) {
+  data_ = arma::fcube(1, size, 1);
+  this->raw_shapes_ = std::vector<uint32_t>{size};
+}
+
+Tensor<float>::Tensor(uint32_t rows, uint32_t cols) {
+  data_ = arma::fcube(rows, cols, 1);
+  this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+}
+
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
   CHECK(!shapes.empty() && shapes.size() <= 3);
 
@@ -289,7 +299,9 @@ std::vector<float> Tensor<float>::values(bool row_major) {
 
 float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
   CHECK_LT(index, this->channels());
-  float* mem_ptr = this->raw_ptr() + index * this->rows() * this->cols();
+  uint32_t offset = index * this->rows() * this->cols();
+  CHECK_LE(offset, this->size());
+  float* mem_ptr = this->raw_ptr() + offset;
   return mem_ptr;
 }
 }  // namespace kuiper_infer

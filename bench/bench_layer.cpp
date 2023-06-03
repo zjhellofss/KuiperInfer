@@ -10,6 +10,7 @@
 #include "../source/layer/details/hardswish.hpp"
 #include "../source/layer/details/linear.hpp"
 #include "../source/layer/details/maxpooling.hpp"
+#include "../source/layer/details/relu.hpp"
 #include "../source/layer/details/sigmoid.hpp"
 #include "../source/layer/details/silu.hpp"
 #include "../source/layer/details/softmax.hpp"
@@ -123,7 +124,9 @@ static void BM_Linear(benchmark::State& state) {
 BENCHMARK(BM_Linear)->Args({3, 32, 1000})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Linear)->Args({32, 64, 1000})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Linear)->Args({64, 128, 1000})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Linear)->Args({128, 512, 1000})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({128, 512, 512})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({128, 1000, 512})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Linear)->Args({128, 2048, 512})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Linear)->Args({512, 1024, 1000})->Unit(benchmark::kMillisecond);
 
 static void BM_Expression(benchmark::State& state) {
@@ -215,6 +218,32 @@ BENCHMARK(BM_SiLU)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiLU)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiLU)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiLU)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+
+
+static void BM_ReLU(benchmark::State& state) {
+  using namespace kuiper_infer;
+
+  uint32_t channels = state.range(0);
+  uint32_t rows = state.range(1);
+  uint32_t cols = state.range(2);
+
+  sftensor input = std::make_shared<ftensor>(channels, rows, cols);
+  input->Fill(1.f);
+
+  std::vector<sftensor> outputs(1);
+  std::vector<sftensor> inputs;
+  inputs.push_back(input);
+
+  ReluLayer relu_layer;
+  for (auto _ : state) {
+    relu_layer.Forward(inputs, outputs);
+  }
+}
+
+BENCHMARK(BM_ReLU)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ReLU)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ReLU)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_ReLU)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_MaxPooling_k3x3s1x1(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -395,7 +424,6 @@ static void BM_Softmax(benchmark::State& state) {
   }
 }
 
-
 static void BM_SoftmaxDim1Batch8(benchmark::State& state) {
   using namespace kuiper_infer;
 
@@ -419,14 +447,26 @@ static void BM_SoftmaxDim1Batch8(benchmark::State& state) {
   }
 }
 
-
 BENCHMARK(BM_Softmax)->Args({32})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Softmax)->Args({512})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Softmax)->Args({1024})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Softmax)->Args({4096})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_SoftmaxDim1Batch8)->Args({1, 224, 224})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({1, 224, 224})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({8, 128, 128})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({3, 320, 320})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({32, 160, 160})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({64, 80, 80})
+    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)
+    ->Args({128, 40, 40})
+    ->Unit(benchmark::kMillisecond);
