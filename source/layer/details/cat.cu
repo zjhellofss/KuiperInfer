@@ -5,24 +5,20 @@
 namespace kuiper_infer {
 
 __global__ void Concat(const int nthreads, const float* in_data,
-                       const bool forward, const int num_concats 3,
-                       const int concat_size 2, const int top_concat_axis 5,
+                       const int concat_size, const int top_concat_axis,
                        const int bottom_concat_axis,
                        const int offset_concat_axis, float* out_data) {
-
-
   CUDA_KERNEL_LOOP(index, nthreads) {
-    const int total_concat_size = concat_size 2* bottom_concat_axis 2;
+    // bottom_concat_axis 指的是当前需要合并的维度
+    // concat_size 指的是当前合并的维度下一维的矩阵的大小
+    const int total_concat_size = concat_size * bottom_concat_axis;
     const int concat_num = index / total_concat_size;
     const int concat_index = index % total_concat_size;
     const int top_index =
         concat_index +
-        (concat_num * 5top_concat_axis + offset_concat_axis) * concat_size;
-    if (forward) {
-      out_data[top_index] = in_data[index];
-    } else {
-      out_data[index] = in_data[top_index];
-    }
+        (concat_num * top_concat_axis + offset_concat_axis) * concat_size;
+
+    out_data[top_index] = in_data[index];
   }
 }
 
@@ -31,15 +27,9 @@ CatLayer::CatLayer(int dim) : Layer("cat"), dim_(dim) {}
 InferStatus CatLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
-  if (inputs.empty()) {
+  if (inputs.empty() || inputs.size() < 2) {
     LOG(ERROR) << "The input tensor array in the cat layer is empty";
     return InferStatus::kInferFailedInputEmpty;
-  }
-
-  if (inputs.size() == outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the cat layer do "
-                  "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
   if (dim_ != 1 && dim_ != -3) {
@@ -47,27 +37,58 @@ InferStatus CatLayer::Forward(
     return InferStatus::kInferFailedDimensionParameterError;
   }
 
-  const uint32_t output_size = outputs.size();
-  if (inputs.size() % output_size != 0) {
-    LOG(ERROR)
-        << "The input and output tensor array size of cat layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+  auto past_shape = inputs[0]->shapes();
+
+  for (int i = 1; i < inputs.size(); i++) {
+    auto input_item = inputs[i];
+    for (int j = 0; j < past_shape.size(); j++) {
+      if (j == dim_) {
+        continue;
+      }
+      if (past_shape[j] != input_item->shapes()[j]) {
+        LOG(ERROR) << "The input tensor shape is not match";
+        return InferStatus::kInferFailedInputEmpty;
+      }
+    }
+    past_shape = input_item->shapes();
   }
 
-  const int top_concat_axis = top[0]->shape(dim_);
-  const bool kForward = true;
-    
-  float *top_data = outputs.at(0)->gpu_data();
+
+  // 计算需要合并后，合并维度维度的大小
+  uint32_t concat_axis_size = 0;
+
+  for (auto tensor : inputs) {
+    concat_axis_size += tensor->shapes()[dim_];
+  }
+
+  // 合并的下一维的矩阵的大小
+  uint32_t concat_input_size = 1;
+
+  for (int i = dim_ + 1; i < inputs[0]->shapes().size(); i++) {
+    concat_input_size *=inputs[0]->shapes()[i];
+  }
+
+  if (outputs.size() == 0) {
+    auto output_shape = inputs.at(0)->shapes();
+    output_shape[dim_] = concat_axis_size;
+
+    std::shared_ptr<Tensor<float>> output =
+        std::make_shared<Tensor<float>>(output_shape);
+    outputs.push_back(output);
+  }
+
+
+  float* top_data = outputs.at(0)->gpu_data();
+  uint32_t offset_concat_axis = 0;
 
   for (int i = 0; i < inputs.size(); ++i) {
     const float* bottom_data = inputs[i]->gpu_data();
     const int bottom_concat_axis = inputs[i]->shapes()[dim_];
-    const int bottom_concat_size = bottom_concat_axis  * concat_input_size_ ;
-    const int nthreads = bottom_concat_size * num_concats_;
-                         
-    Concat<<<KUIPER_GET_BLOCKS(nthreads), KUIPER_CUDA_NUM_THREADS>>>(
-        nthreads, bottom_data, kForward, num_concats_ , concat_input_size_ ,
-        top_concat_axis, bottom_concat_axis, offset_concat_axis , top_data);
+    const int bottom_concat_size = bottom_concat_axis * concat_input_size;
+    const int count = inputs[i]->size();
+    Concat<<<KUIPER_GET_BLOCKS(count), KUIPER_CUDA_NUM_THREADS>>>(
+        count, bottom_data, concat_input_size, concat_axis_size,
+        bottom_concat_axis, offset_concat_axis, top_data);
     offset_concat_axis += bottom_concat_axis;
   }
   return InferStatus::kInferSuccess;
