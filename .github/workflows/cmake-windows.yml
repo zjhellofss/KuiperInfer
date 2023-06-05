@@ -47,7 +47,7 @@ jobs:
         id: runvcpkg
         with:
           vcpkgDirectory: C:/vcpkg
-          doNotUpdateVcpkg: true
+          doNotUpdateVcpkg: false
           runVcpkgInstall: true
 
       - name: Configure CMake
