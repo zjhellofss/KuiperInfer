@@ -26,7 +26,7 @@ TEST(test_tensor, tensor_init1_1d) {
 
 TEST(test_tensor, tensor_init1_2d) {
   using namespace kuiper_infer;
-  Tensor<float> f1(32,24);
+  Tensor<float> f1(32, 24);
   const auto& raw_shapes = f1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 2);
   ASSERT_EQ(raw_shapes.at(0), 32);
@@ -1009,4 +1009,28 @@ TEST(test_tensor, tensor_values_col1) {
   ASSERT_EQ(values_output.at(1), 2);
   ASSERT_EQ(values_output.at(2), 1);
   ASSERT_EQ(values_output.at(3), 3);
+}
+
+TEST(test_tensor, tensor_create1) {
+  using namespace kuiper_infer;
+  sftensor tensor = TensorCreate(std::vector<uint32_t>{1, 2});
+  ASSERT_EQ(tensor->raw_shapes().size(), 2);
+  ASSERT_EQ(tensor->raw_shapes().at(0), 1);
+  ASSERT_EQ(tensor->raw_shapes().at(1), 2);
+}
+
+TEST(test_tensor, tensor_create2) {
+  using namespace kuiper_infer;
+  sftensor tensor = TensorCreate(std::vector<uint32_t>{3});
+  ASSERT_EQ(tensor->raw_shapes().size(), 1);
+  ASSERT_EQ(tensor->raw_shapes().at(0), 3);
+}
+
+TEST(test_tensor, tensor_create3) {
+  using namespace kuiper_infer;
+  sftensor tensor = TensorCreate(std::vector<uint32_t>{3, 12, 32});
+  ASSERT_EQ(tensor->raw_shapes().size(), 3);
+  ASSERT_EQ(tensor->raw_shapes().at(0), 3);
+  ASSERT_EQ(tensor->raw_shapes().at(1), 12);
+  ASSERT_EQ(tensor->raw_shapes().at(2), 32);
 }
