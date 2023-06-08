@@ -379,8 +379,9 @@ void RuntimeGraph::ProbeNextLayer(
     // 得到后继节点的输入next_input_operands
     const auto& next_input_operands = next_rt_operator->input_operands;
     // 确定后继节点的输入来自于current_op
-    if (next_input_operands.find(current_op->name) !=
-        next_input_operands.end()) {
+    const auto& next_input_operands_iter =
+        next_input_operands.find(current_op->name);
+    if (next_input_operands_iter != next_input_operands.end()) {
       /**
        * 得到后继节点的关于current_op输出的输入空间 next_input_datas
        * next_input_operands:
@@ -390,7 +391,7 @@ void RuntimeGraph::ProbeNextLayer(
        * }
        */
       std::vector<std::shared_ptr<ftensor>>& next_input_datas =
-          next_input_operands.at(current_op->name)->datas;
+          next_input_operands_iter->second->datas;
       CHECK(next_input_datas.size() == layer_output_datas.size())
           << "Input data size do not match with output data size";
       // 将当前current_op的输出赋值到next_input_datas中

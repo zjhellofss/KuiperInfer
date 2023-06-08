@@ -93,7 +93,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
       // 输出空间初始化
       for (int j = 0; j < batch; ++j) {
         if (operand_shapes.size() == 4) {
-          auto output_tensor = TensorCreate(
+          sftensor output_tensor = TensorCreate(
               operand_shapes.at(1), operand_shapes.at(2), operand_shapes.at(3));
           output_operand->datas.push_back(output_tensor);
         } else if (operand_shapes.size() == 2) {

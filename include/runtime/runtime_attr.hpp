@@ -24,11 +24,6 @@ struct RuntimeAttribute {
    */
   template <class T>  //
   std::vector<T> get(bool need_clear_weight = true);
-
-  /**
-   * 清除权重
-   */
-  void ClearWeight();
 };
 
 template <class T>
@@ -54,7 +49,8 @@ std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
     }
   }
   if (need_clear_weight) {
-    this->ClearWeight();
+    std::vector<char> empty_vec = std::vector<char>();
+    this->weight_data.swap(empty_vec);
   }
   return weights;
 }
