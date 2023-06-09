@@ -31,15 +31,17 @@ std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
   /// 检查节点属性中的权重类型
   CHECK(!weight_data.empty());
   CHECK(type != RuntimeDataType::kTypeUnknown);
+  const uint32_t elem_size = sizeof(T);
+  CHECK_EQ(weight_data.size() % elem_size, 0);
+
   std::vector<T> weights;
   switch (type) {
     case RuntimeDataType::kTypeFloat32: {  /// 加载的数据类型是float
-      const bool is_float = std::is_same<T, float>::value;
-      CHECK_EQ(is_float, true);
-      const uint32_t float_size = sizeof(float);
-      CHECK_EQ(weight_data.size() % float_size, 0);
-      for (uint32_t i = 0; i < weight_data.size() / float_size; ++i) {
-        float weight = *((float*)weight_data.data() + i);
+      static_assert(std::is_same<T, float>::value == true);
+      float* weight_data_ptr = reinterpret_cast<float*>(weight_data.data());
+      const uint32_t weight_data_size = weight_data.size() / elem_size;
+      for (uint32_t i = 0; i < weight_data_size; ++i) {
+        float weight = *(weight_data_ptr + i);
         weights.push_back(weight);
       }
       break;
