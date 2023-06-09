@@ -59,7 +59,7 @@ class RuntimeGraph {
   const std::string& bin_path() const;
 
   /**
-   * 计算图的执行,根据广度优先搜索的顺序执行
+   * 计算图的执行,根据深度优先搜索的顺序执行
    * @param inputs 计算图的输入张量
    * @param debug 是否调试，如果调试则输出一些中间信息
    * @return 计算图的输出张量
@@ -154,17 +154,15 @@ class RuntimeGraph {
   std::string output_name_;  /// 计算图输出节点的名称
   std::string param_path_;   /// 计算图的结构文件
   std::string bin_path_;     /// 计算图的权重文件
-  //   std::map<std::string, std::shared_ptr<RuntimeOperator>>
-  //       input_operators_maps_;  /// 保存输入节点
-  //   std::map<std::string, std::shared_ptr<RuntimeOperator>>
-  //       output_operators_maps_;  /// 保存输出节点
 
   /// 保存所有节点，根据唯一的name索引
   std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
+  /// 拓扑排序后的计算图节点
   std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
   /// 计算图的计算节点
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
-  std::unique_ptr<pnnx::Graph> graph_;  /// pnnx的graph
+  /// pnnx的graph
+  std::unique_ptr<pnnx::Graph> graph_;
 };
 
 }  // namespace kuiper_infer
