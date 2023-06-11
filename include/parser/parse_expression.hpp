@@ -94,8 +94,11 @@ class ExpressionParser {
 
  private:
   std::shared_ptr<TokenNode> Generate_(int32_t &index);
+  // 被分割的词语数组
   std::vector<Token> tokens_;
+  // 被分割的字符串数组
   std::vector<std::string> token_strs_;
+  // 待分割的表达式
   std::string statement_;
 };
 }
