@@ -63,8 +63,8 @@ InferStatus UpSampleLayer::Forward(
     }
   };
 
-  test_scale_factor(inputs.at(i)->data().n_rows, scale_h_);
-  test_scale_factor(inputs.at(i)->data().n_cols, scale_w_);
+  test_scale_factor(inputs.at(0)->data().n_rows, scale_h_);
+  test_scale_factor(inputs.at(0)->data().n_cols, scale_w_);
 
   LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest)
       << "Unsupported upsample mode: " << int(mode_);
