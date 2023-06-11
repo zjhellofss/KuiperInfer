@@ -18,14 +18,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
 #include "upsample.hpp"
+#include <cmath>
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
-UpSampleLayer::UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
-                             UpSampleMode mode)
-    : NonParamLayer("upsample"), scale_h_(scale_h), scale_w_(scale_w), mode_(mode) {}
+
+UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode)
+    : NonParamLayer("upsample"),
+      scale_h_(scale_h),
+      scale_w_(scale_w),
+      mode_(mode) {}
 
 InferStatus UpSampleLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -51,6 +55,16 @@ InferStatus UpSampleLayer::Forward(
       return InferStatus::kInferFailedInputEmpty;
     }
   }
+
+  auto test_scale_factor = [](int origin, float scale_factor) {
+    float result = origin * scale_factor;
+    if (std::abs(result - std::round(result)) > 0.0001) {
+      LOG(ERROR) << "The input scale_factor is wrong";
+    }
+  };
+
+  test_scale_factor(inputs.at(0)->data().n_rows, scale_h_);
+  test_scale_factor(inputs.at(0)->data().n_cols, scale_w_);
 
   LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest)
       << "Unsupported upsample mode: " << int(mode_);
