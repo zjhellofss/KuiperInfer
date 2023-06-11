@@ -15,13 +15,13 @@ void rand_array(int n, float* array) {
                                                                        array);
 }
 
-__global__ void element_wise_fill_kernel(int n, float* input, float value) {
-  CUDA_KERNEL_LOOP(index, n) { input[index] = value; }
+__global__ void element_wise_fill_kernel(int n, float* output, float value) {
+  CUDA_KERNEL_LOOP(index, n) { output[index] = value; }
 }
 
-void element_wise_fill(int n, float* input, float value) {
+void element_wise_fill(int n, float* output, float value) {
   int num_blocks = KUIPER_GET_BLOCKS(n);
-  element_wise_fill_kernel<<<num_blocks, KUIPER_CUDA_NUM_THREADS>>>(n, input,
+  element_wise_fill_kernel<<<num_blocks, KUIPER_CUDA_NUM_THREADS>>>(n, output,
                                                                     value);
 }
 

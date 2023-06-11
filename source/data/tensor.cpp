@@ -16,55 +16,66 @@ Tensor<float>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   this->size_ = channels * rows * cols;
 
   cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
-  // cudaMemset();
+
   this->shapes_ = std::vector<uint32_t>{1, channels, rows, cols};
 }
 
 Tensor<float>::Tensor(uint32_t nums, uint32_t channels, uint32_t rows,
                       uint32_t cols) {
   this->size_ = nums * channels * rows * cols;
-
   cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
-  // cudaMemset();
+
   this->shapes_ = std::vector<uint32_t>{nums, channels, rows, cols};
-}
-
-Tensor<float>::~Tensor() { cudaFree(this->gpu_data_); }
-
-Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
-  CHECK(shapes.size() == 4);
-  uint32_t channels = shapes.at(0);
-  uint32_t rows = shapes.at(1);
-  uint32_t cols = shapes.at(2);
-
-  if (channels == 1 && rows == 1) {
-    this->shapes_ = std::vector<uint32_t>{cols};
-  } else if (channels == 1) {
-    this->shapes_ = std::vector<uint32_t>{rows, cols};
-  } else {
-    this->shapes_ = std::vector<uint32_t>{channels, rows, cols};
-  }
-
-  this->size_ =
-      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<int>());
-
-  cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
-  this->shapes_ = shapes;
 }
 
 Tensor<float>::Tensor(const Tensor& tensor) {
   if (this != &tensor) {
-    this->gpu_data_ = tensor.gpu_data_;
+    cudaMemcpy(this->gpu_data_, tensor.gpu_data_, tensor.size_ * sizeof(float),
+               cudaMemcpyDeviceToDevice);
     this->shapes_ = tensor.shapes_;
   }
 }
 
+Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
+  CHECK(shapes.size() > 0);
+  switch (shapes.size()) {
+    case 1:
+      this->shapes_ = std::vector<uint32_t>{1, 1, 1, shapes[0]};
+      break;
+    case 2:
+      this->shapes_ = std::vector<uint32_t>{1, 1, shapes[0], shapes[1]};
+      break;
+    case 3:
+      this->shapes_ = std::vector<uint32_t>{1, shapes[0], shapes[1], shapes[2]};
+      break;
+    case 4:
+      this->shapes_ = shapes;
+    default:
+      break;
+  }
+  this->size_ =
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<int>());
+  cudaMalloc((void**)&this->gpu_data_, sizeof(float) * this->size_);
+}
+
+Tensor<float>::~Tensor() { cudaFree(this->gpu_data_); }
+
 Tensor<float>& Tensor<float>::operator=(const Tensor& tensor) {
   if (this != &tensor) {
-    this->gpu_data_ = tensor.gpu_data_;
+    cudaMemcpy(this->gpu_data_, tensor.gpu_data_, tensor.size_ * sizeof(float),
+               cudaMemcpyDeviceToDevice);
     this->shapes_ = tensor.shapes_;
   }
   return *this;
+}
+uint32_t Tensor<float>::nums() const {
+  CHECK(!this->empty());
+  return this->shapes_[0];
+}
+
+uint32_t Tensor<float>::channels() const {
+  //  CHECK(!this->gpu_data_.empty());
+  return this->shapes_[1];
 }
 
 uint32_t Tensor<float>::rows() const {
@@ -76,27 +87,6 @@ uint32_t Tensor<float>::cols() const {
   //  CHECK(!this->gpu_data_.empty());
   return this->shapes_[3];
 }
-
-uint32_t Tensor<float>::channels() const {
-  //  CHECK(!this->gpu_data_.empty());
-  return this->shapes_[1];
-}
-
-uint32_t Tensor<float>::nums() const {
-  CHECK(!this->empty());
-  return this->shapes_[0];
-}
-
-// void Tensor<float>::set_data(const arma::fcube& data) {
-//   CHECK(data.n_rows == this->gpu_data_.n_rows)
-//       << data.n_rows << " != " << this->gpu_data_.n_rows;
-//   CHECK(data.n_cols == this->gpu_data_.n_cols)
-//       << data.n_cols << " != " << this->gpu_data_.n_cols;
-//   CHECK(data.n_slices == this->gpu_data_.n_slices)
-//       << data.n_slices << " != " << this->gpu_data_.n_slices;
-//   this->gpu_data_ = data;
-// }
-
 bool Tensor<float>::empty() const { return this->gpu_data_ == nullptr; }
 
 float Tensor<float>::index(uint32_t nums, uint32_t channels, uint32_t rows,
@@ -120,29 +110,11 @@ std::vector<uint32_t> Tensor<float>::shapes() {
  */
 void Tensor<float>::Rand() {
   CHECK(!this->empty());
-  
+
   rand_array(this->size_, this->gpu_data_);
 }
 
 float* Tensor<float>::data() { return this->gpu_data_; }
-
-// float Tensor<float>::at(uint32_t nums, int32_t channel, uint32_t row,
-//                         uint32_t col) const {
-//   CHECK_LT(row, this->rows());
-//   CHECK_LT(col, this->cols());
-//   CHECK_LT(channel, this->channels());
-
-//   return this->gpu_data_.at(row, col, channel);
-// }
-
-// float& Tensor<float>::at(uint32_t num,uint32_t channel, uint32_t row,
-// uint32_t col) {
-//   CHECK_LT(row, this->rows());
-//   CHECK_LT(col, this->cols());
-//   CHECK_LT(channel, this->channels());
-
-//   return this->gpu_data_.at(row, col, channel);
-// }
 
 void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
                             float padding_value) {
@@ -170,7 +142,7 @@ void Tensor<float>::Fill(float value) {
   element_wise_fill(this->size_, this->gpu_data_, value);
 }
 
-void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
+void Tensor<float>::Fill(const std::vector<float>& values) {
   CHECK(!this->empty());
   const uint32_t total_elems = this->size();
   CHECK_EQ(values.size(), total_elems);
@@ -185,6 +157,10 @@ void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
   // 将数据从主机复制到设备
   cudaMemcpy(this->gpu_data_, values.data(), values.size() * sizeof(float),
              cudaMemcpyHostToDevice);
+
+  // for (auto item : values) {
+  //   std::cout << item << " " << std::endl;
+  // }
 }
 
 void Tensor<float>::Show() {
@@ -249,11 +225,15 @@ std::shared_ptr<float> Tensor<float>::to_cpu_data() {
   CHECK(!this->empty());
 
   float* data = new float[this->size_];
-  cudaMemcpy(data, this->gpu_data_, this->size_*sizeof(float), cudaMemcpyDeviceToHost);
+  cudaMemcpy(data, this->gpu_data_, this->size_ * sizeof(float),
+             cudaMemcpyDeviceToHost);
   std::shared_ptr<float> cpu_data_ptr(data, [](float* ptr) {
     delete[] ptr;  // 使用delete[]释放数组内存
   });
+
   return cpu_data_ptr;
 }
+
+
 
 }  // namespace kuiper_infer

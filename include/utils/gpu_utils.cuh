@@ -6,7 +6,7 @@
 #include <cuda_runtime.h>
 #include <curand.h>
 #include <driver_types.h>
-
+#include <curand_kernel.h>
 #define BLOCK_SIZE 256
 #define TILE_SIZE 16
 
@@ -52,6 +52,11 @@ const int KUIPER_CUDA_NUM_THREADS = 512;
 inline int KUIPER_GET_BLOCKS(const int N) {
   return (N + KUIPER_CUDA_NUM_THREADS - 1) / KUIPER_CUDA_NUM_THREADS;
 }
+
+
+
+
+void rand_array(int n,float *array);
 
 
 

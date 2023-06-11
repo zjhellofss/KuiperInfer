@@ -151,7 +151,7 @@ class Tensor<float> {
    * 使用values中的数据初始化张量
    * @param values 用来初始化张量的数据
    */
-  void Fill(const std::vector<float>& values, bool row_major = true);
+  void Fill(const std::vector<float>& values);
 
   /**
    * 返回Tensor内的所有数据

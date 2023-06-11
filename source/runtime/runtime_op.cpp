@@ -71,7 +71,7 @@ void RuntimeOperatorUtils::InitOperatorOutput(
     pnnx::Operand* operand = operands.front();
     const auto& runtime_op = operators.at(i);
     CHECK(operand != nullptr) << "Operand output is null";
-    const std::vector<int32_t>& operand_shapes = operand->shape;
+    const std::vector<uint32_t>& operand_shapes = operand->shape;
     // 得到需要初始化的输出空间
     const auto& output_tensors = runtime_op->output_operands;
     // 获取节点的输出张量应有形状
@@ -93,8 +93,8 @@ void RuntimeOperatorUtils::InitOperatorOutput(
       // 输出空间初始化
 
 #ifdef GPU_ONLY
-      output_operand->datas.push_back(TensorCreate(operand_shapes.at(0),
-          operand_shapes.at(1), operand_shapes.at(2), operand_shapes.at(3)));
+     
+      output_operand->datas.push_back(std::make_shared<Tensor<float>>(operand_shapes));
 
 #elif
       for (int j = 0; j < batch; ++j) {

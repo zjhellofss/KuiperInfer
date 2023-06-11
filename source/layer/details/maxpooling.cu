@@ -11,17 +11,18 @@
 
 namespace kuiper_infer {
 
-__global__ void MaxPoolForward(
-    const int nthreads, const float* const bottom_data, const int num,
-    const int channels, const int height, const int width,
-    const int pooled_height, const int pooled_width, const int kernel_h,
-    const int kernel_w, const int stride_h, const int stride_w, const int pad_h,
-    const int pad_w, float* const top_data, int* mask, float* top_mask) {
+__global__ void MaxPoolForward(const int nthreads, const float* const input,
+                               float* const output, const int channels,
+                               const int height, const int width,
+                               const int output_h, const int output_w,
+                               const int kernel_h, const int kernel_w,
+                               const int stride_h, const int stride_w,
+                               const int pad_h, const int pad_w) {
   CUDA_KERNEL_LOOP(index, nthreads) {
-    const int pw = index % pooled_width;
-    const int ph = (index / pooled_width) % pooled_height;
-    const int c = (index / pooled_width / pooled_height) % channels;
-    const int n = index / pooled_width / pooled_height / channels;
+    const int pw = index % output_w;
+    const int ph = (index / output_w) % output_h;
+    const int c = (index / output_w / output_h) % channels;
+    const int n = index / output_w / output_h / channels;
     int hstart = ph * stride_h - pad_h;
     int wstart = pw * stride_w - pad_w;
     const int hend = min(hstart + kernel_h, height);
@@ -30,34 +31,29 @@ __global__ void MaxPoolForward(
     wstart = max(wstart, 0);
     float maxval = -FLT_MAX;
     int maxidx = -1;
-    const float* const bottom_slice =
-        bottom_data + (n * channels + c) * height * width;
+    const float* const input_slice =
+        input + (n * channels + c) * height * width;
     for (int h = hstart; h < hend; ++h) {
       for (int w = wstart; w < wend; ++w) {
-        if (bottom_slice[h * width + w] > maxval) {
+        if (input_slice[h * width + w] > maxval) {
           maxidx = h * width + w;
-          maxval = bottom_slice[maxidx];
+        
+          maxval = input_slice[maxidx];
         }
       }
     }
-    top_data[index] = maxval;
-    if (mask) {
-      mask[index] = maxidx;
-    } else {
-      top_mask[index] = maxidx;
-    }
+    output[index] = maxval;
   }
 }
 
 MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
-                                 uint32_t pooling_size_h,
-                                 uint32_t pooling_size_w, uint32_t stride_h,
-                                 uint32_t stride_w)
+                                 uint32_t pooling_h, uint32_t pooling_w,
+                                 uint32_t stride_h, uint32_t stride_w)
     : Layer("MaxPooling"),
       padding_h_(padding_h),
       padding_w_(padding_w),
-      pooling_size_h_(pooling_size_h),
-      pooling_size_w_(pooling_size_w),
+      kernel_h_(pooling_h),
+      kernel_w_(pooling_w),
       stride_h_(stride_h),
       stride_w_(stride_w) {}
 
@@ -69,54 +65,44 @@ InferStatus MaxPoolingLayer::Forward(
     return InferStatus::kInferFailedInputEmpty;
   }
 
-  if (inputs.size() != outputs.size()) {
-    LOG(ERROR)
-        << "The input and output tensor array size of the max pooling layer "
-           "do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
-  }
-
-  const uint32_t batch = inputs.size();
-  const uint32_t pooling_h = pooling_size_h_;
-  const uint32_t pooling_w = pooling_size_w_;
   if (!stride_h_ || !stride_w_) {
     LOG(ERROR) << "The stride parameter is set incorrectly. It must always be "
                   "greater than 0";
     return InferStatus::kInferFailedStrideParameterError;
   }
+  uint32_t input_h = inputs.at(0).get()->rows();
+  uint32_t input_w = inputs.at(0).get()->cols();
 
-  for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<ftensor>& input_data = inputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the max pooling layer has an "
-                    "empty tensor "
-                 << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
-    } else {
-      uint32_t input_h = input_data->rows();
-      uint32_t input_w = input_data->cols();
-      uint32_t output_h = uint32_t(std::floor(
-          (int(input_h) - int(pooling_h) + 2 * padding_h_) / stride_h_ + 1));
-      uint32_t output_w = uint32_t(std::floor(
-          (int(input_w) - int(pooling_w) + 2 * padding_w_) / stride_w_ + 1));
-      if (!output_w || !output_h) {
-        LOG(ERROR) << "The output size of tensor " << i << "th"
-                   << " in the max pooling layer is less than zero";
-        return InferStatus::kInferFailedOutputSizeError;
-      } else {
-        const std::shared_ptr<ftensor>& output_data = outputs.at(i);
-        if (output_data != nullptr && !output_data->empty()) {
-          if (output_data->rows() != output_h ||
-              output_data->cols() != output_w) {
-            LOG(ERROR) << "The output tensor array in the max pooling layer "
-                          "has an incorrectly sized tensor "
-                       << i << "th";
-            return InferStatus::kInferFailedOutputSizeError;
-          }
-        }
-      }
+  uint32_t output_h = uint32_t(std::floor(
+      (int(input_h) - int(kernel_h_) + 2 * padding_h_) / stride_h_ + 1));
+  uint32_t output_w = uint32_t(std::floor(
+      (int(input_w) - int(kernel_w_) + 2 * padding_w_) / stride_w_ + 1));
+
+  if (!output_w || !output_h) {
+    LOG(ERROR) << "The output size of tensor "
+               << " in the max pooling layer is less than zero";
+    return InferStatus::kInferFailedOutputSizeError;
+  }
+  if (outputs.empty()) {
+    // 如果不是从计算图读入会经过这一部分
+    std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(
+        inputs.at(0)->nums(), inputs.at(0)->channels(), output_h, output_w);
+    outputs.push_back(output);
+  } else {
+    if (outputs.at(0)->rows() != output_h ||
+        outputs.at(0)->cols() != output_w) {
+      LOG(ERROR) << "The output size of tensor is wrong";
+      return InferStatus::kInferFailedOutputSizeError;
     }
   }
+
+  uint32_t count =
+      inputs.at(0)->nums() * inputs.at(0)->channels() * output_h * output_w;
+
+  MaxPoolForward<<<KUIPER_GET_BLOCKS(count), KUIPER_CUDA_NUM_THREADS>>>(
+      count, inputs.at(0)->gpu_data(), outputs.at(0)->gpu_data(),
+      inputs.at(0)->channels(), input_h, input_w, output_h, output_w,
+      kernel_h_, kernel_w_, stride_h_, stride_w_, padding_h_, padding_w_);
 
   return InferStatus::kInferSuccess;
 }

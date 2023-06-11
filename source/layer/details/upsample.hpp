@@ -13,7 +13,7 @@ enum class UpSampleMode {
 
 class UpSampleLayer : public Layer {
  public:
-  explicit UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
+  explicit UpSampleLayer(float scale_h, float scale_w,
                          UpSampleMode mode = UpSampleMode::kModeNearest);
 
   InferStatus Forward(
@@ -25,8 +25,8 @@ class UpSampleLayer : public Layer {
       std::shared_ptr<Layer>& upsample_layer);
 
  private:
-  uint32_t scale_h_ = 0.f;
-  uint32_t scale_w_ = 0.f;
+  float scale_h_ = 0.f;
+  float scale_w_ = 0.f;
   UpSampleMode mode_ = UpSampleMode::kModeNearest;
 };
 }  // namespace kuiper_infer

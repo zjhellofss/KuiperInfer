@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 # set(CMAKE_CUDA_COMPILER /usr/local/cuda-12/bin/nvcc)
 
 project(kuiper_infer CXX CUDA)
-#set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 17)
 
 
 set(BUILD_DEMO OFF)
@@ -70,7 +70,7 @@ set(SOURCES other.cpp)
 # find_package(benchmark REQUIRED)
 # find_package(OpenMP REQUIRED)
 # find_package(Armadillo REQUIRED)
-#  find_package(glog REQUIRED)
+ find_package(glog REQUIRED)
 # find_package(BLAS REQUIRED)
 # find_package(LAPACK REQUIRED)
 
@@ -83,7 +83,7 @@ include_directories(${CUDA_INCLUDE_DIRS})
 
 
     MESSAGE(STATUS "BUILD  PROJECT  WITH GPU")
-    # aux_source_directory(./source/data DIR_DATA)
+    aux_source_directory(./source/data DIR_DATA)
     aux_source_directory(./source/runtime DIR_PARSER)
     aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
     
@@ -94,17 +94,16 @@ include_directories(${CUDA_INCLUDE_DIRS})
    
   
 
-    file(GLOB DIR_DATA "./source/data/tensor.cpp" "./source/data/tensor_utils.cpp")
+    # file(GLOB DIR_DATA "./source/data/tensor.cpp" "./source/data/tensor_utils.cpp")
     # add_library(DIR_DATA ${DIR_DATA_SOURCES})
 
     aux_source_directory(./source/parser DIR_PARSER)
     aux_source_directory(./source/utils DIR_UTILS)
 
 
-    add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_UTILS} ${DIR_ABSTRACT_LAYER} ${DIR_LAYER_DETAILS} ${DIR_PARSER})
+    add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_UTILS} ${DIR_ABSTRACT_LAYER} ${LAYER_DETAILS} ${DIR_PARSER})
 
 #    add_library(kuiper SHARED ${DIR_DATA})
-#    target_link_libraries(kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
     target_include_directories(kuiper PUBLIC ${glog_INCLUDE_DIR})
 
 
@@ -135,16 +134,6 @@ else ()
 endif ()
 
 
-# find_package(benchmark REQUIRED)
-# find_package(OpenMP REQUIRED)
-# find_package(Armadillo REQUIRED)
-# find_package(glog REQUIRED)
-# find_package(BLAS REQUIRED)
-# find_package(LAPACK REQUIRED)
-
-
-# mathfun library defines
-add_compile_definitions(SSE_MATHFUN_WITH_CODE USE_SSE_AUTO)
 # 本项目的开发者请使用set(DEVELOPMENT ON)或者在cmake中添加-DDEVELOPMENT=ON将选项打开
 message(STATUS "DEVELOPMENT MODE ON")
 enable_testing()
