@@ -46,6 +46,16 @@ InferStatus UpSampleLayer::Forward(
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
+  auto test_scale_factor = [](uint32_t origin, float scale_factor) {
+    float result = origin * scale_factor;
+    if (std::abs(result - std::round(result)) > 0.0001) {
+      LOG(ERROR) << "The input scale_factor is wrong";
+    }
+  };
+
+  LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest)
+      << "Unsupported upsample mode: " << int(mode_);
+
   for (uint32_t i = 0; i < inputs.size(); ++i) {
     const sftensor& input_data = inputs.at(i);
     if (input_data == nullptr || input_data->empty()) {
@@ -54,20 +64,9 @@ InferStatus UpSampleLayer::Forward(
           << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
+    test_scale_factor(inputs.at(i)->data().n_rows, scale_h_);
+    test_scale_factor(inputs.at(i)->data().n_cols, scale_w_);
   }
-
-  auto test_scale_factor = [](int origin, float scale_factor) {
-    float result = origin * scale_factor;
-    if (std::abs(result - std::round(result)) > 0.0001) {
-      LOG(ERROR) << "The input scale_factor is wrong";
-    }
-  };
-
-  test_scale_factor(inputs.at(0)->data().n_rows, scale_h_);
-  test_scale_factor(inputs.at(0)->data().n_cols, scale_w_);
-
-  LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest)
-      << "Unsupported upsample mode: " << int(mode_);
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
