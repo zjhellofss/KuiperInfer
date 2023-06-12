@@ -195,7 +195,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     op->has_forward = false;
   }
   if (debug) {
-    utils::LayerTimeStatesSingleton::LayerTimeStatesInit();
+    utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
 
   for (const auto& current_op : topo_operators_) {

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-4-27.
 
 #ifndef KUIPER_INFER_INCLUDE_UTILS_TIME_LOGGING_HPP_
@@ -27,50 +27,74 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <utility>
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 namespace utils {
 using Time = std::chrono::steady_clock;
 
+// 每个类型的层执行时间消耗
 struct LayerTimeState {
-  explicit LayerTimeState(long duration_time, const std::string& layer_type)
-      : duration_time_(duration_time), layer_type_(layer_type) {}
+  explicit LayerTimeState(long duration_time, std::string layer_type)
+      : duration_time_(duration_time), layer_type_(std::move(layer_type)) {}
 
-  long duration_time_;
-  std::mutex time_mutex_;
-  std::string layer_type_;
+  long duration_time_;      // 时间消耗
+  std::mutex time_mutex_;   // 修改duration_time_时，所需要获取的锁
+  std::string layer_type_;  // 层的类型
 };
 
-using PtrLayerTimeStates =
-    std::shared_ptr<std::map<std::string, std::shared_ptr<LayerTimeState>>>;
+// 各类型层的时间消耗记录map类型
+using LayerTimeStatesCollector =
+    std::map<std::string, std::shared_ptr<LayerTimeState>>;
+
+// 各类型层的时间消耗记录map指针类型
+using PtrLayerTimeStatesCollector = std::shared_ptr<LayerTimeStatesCollector>;
 
 class LayerTimeStatesSingleton {
  public:
   LayerTimeStatesSingleton() = default;
 
-  static PtrLayerTimeStates SingletonInstance();
+  /**
+   * 初始化各类型层的时间消耗记录map
+   */
+  static void LayerTimeStatesCollectorInit();
 
-  static void LayerTimeStatesInit();
+  /**
+   * 初始化各类型层的时间消耗记录map
+   * @return 记录各类型层的时间消耗map
+   */
+  static PtrLayerTimeStatesCollector SingletonInstance();
 
  private:
+  // 修改时间消耗记录map必须获取的锁
   static std::mutex mutex_;
-  static PtrLayerTimeStates layer_time_states_;
+  // 各类型层的时间消耗记录map
+  static PtrLayerTimeStatesCollector layer_time_states_;
 };
 
-
-
+// 记录一个层的执行时间
 class LayerTimeLogging {
  public:
-  explicit LayerTimeLogging(const std::string& layer_type);
+  /**
+   * 记录一个层的开始执行时间
+   */
+  explicit LayerTimeLogging(std::string layer_type);
 
+  /**
+   * 记录一个层的结束执行时间
+   */
   ~LayerTimeLogging();
 
+  /**
+   * 输出所有类型层的运行执行时间
+   */
   void SummaryLogging();
 
  private:
+  // 层的类型
   std::string layer_type_;
+  // 层的开始执行时间
   std::chrono::steady_clock::time_point start_time_;
-  PtrLayerTimeStates layer_time_states_;
 };
 }  // namespace utils
 }  // namespace kuiper_infer
