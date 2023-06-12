@@ -48,7 +48,7 @@ InferStatus UpSampleLayer::Forward(
 
   auto test_scale_factor = [](uint32_t origin, float scale_factor) {
     float result = origin * scale_factor;
-    if (std::abs(result - std::round(result)) > 0.0001) {
+    if (std::abs(result - std::round(result)) > 1e-4f) {
       LOG(ERROR) << "The input scale_factor is wrong";
     }
   };
@@ -69,22 +69,25 @@ InferStatus UpSampleLayer::Forward(
   }
 
   const uint32_t batch_size = inputs.size();
+  const uint32_t scale_w = uint32_t(scale_w_);
+  const uint32_t scale_h = uint32_t(scale_h_);
+
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube& input_data = inputs.at(i)->data();
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(
-          input_data.n_slices, uint32_t(input_data.n_rows * scale_h_),
-          uint32_t(input_data.n_cols * scale_w_));
+          input_data.n_slices, uint32_t(input_data.n_rows * scale_h),
+          uint32_t(input_data.n_cols * scale_w));
       outputs.at(i) = output;
     }
     auto& output_data = output->data();
-    CHECK(output_data.n_rows == input_data.n_rows * scale_h_)
+    CHECK(output_data.n_rows == input_data.n_rows * scale_h)
         << "The input and output tensor height of the upsample layer do not "
            "match "
         << i << "th";
-    CHECK(output_data.n_cols == input_data.n_cols * scale_w_)
+    CHECK(output_data.n_cols == input_data.n_cols * scale_w)
         << "The input and output tensor width of the upsample layer do not "
            "match "
         << i << "th";
@@ -100,21 +103,20 @@ InferStatus UpSampleLayer::Forward(
       arma::fmat& output_channel = output_data.slice(c);
       const uint32_t output_w = output_channel.n_cols;
       const uint32_t output_h = output_channel.n_rows;
-
-      for (uint32_t w = 0; w < output_w; w += scale_w_) {
-        const uint32_t src_w = uint32_t(w / this->scale_w_);
+      for (uint32_t w = 0; w < output_w; w += scale_w) {
+        const uint32_t src_w = uint32_t(w / scale_w);
         CHECK(src_w < input_channel.n_cols)
             << "The input tensor has an incorrectly sized channel";
         const float* input_channel_ptr = input_channel.colptr(src_w);
-        for (uint32_t w_ = 0; w_ < scale_w_; ++w_) {
+        for (uint32_t w_ = 0; w_ < scale_w; ++w_) {
           float* output_channel_ptr = output_channel.colptr(w_ + w);
-          for (uint32_t h = 0; h < output_h; h += uint32_t(scale_h_)) {
-            const uint32_t src_h = uint32_t(h / this->scale_h_);
+          for (uint32_t h = 0; h < output_h; h += scale_h) {
+            const uint32_t src_h = uint32_t(h / scale_h);
             CHECK(src_h < input_channel.n_rows)
                 << "The input tensor has an incorrectly sized channel";
 
             const float src_value = *(input_channel_ptr + src_h);
-            for (uint32_t h_ = 0; h_ < scale_h_; ++h_) {
+            for (uint32_t h_ = 0; h_ < scale_h; ++h_) {
               *(output_channel_ptr + h_ + h) = src_value;
             }
           }
@@ -154,8 +156,8 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
   CHECK(mode->value == "nearest")
       << "The mode " << mode->value << " is not supported!";
 
-  uint32_t scale_h = (uint32_t)(scales->value.at(0));
-  uint32_t scale_w = (uint32_t)(scales->value.at(1));
+  float scale_h = scales->value.at(0);
+  float scale_w = scales->value.at(1);
   upsample_layer = std::make_shared<UpSampleLayer>(scale_h, scale_w);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
