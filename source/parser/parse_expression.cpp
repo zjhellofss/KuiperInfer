@@ -38,8 +38,8 @@ void ReversePolish(const std::shared_ptr<TokenNode> &root_node,
   }
 }
 
-void ExpressionParser::Tokenizer(bool re_tokenize) {
-  if (!re_tokenize && !this->tokens_.empty()) {
+void ExpressionParser::Tokenizer(bool retokenize) {
+  if (!retokenize && !this->tokens_.empty()) {
     return;
   }
 

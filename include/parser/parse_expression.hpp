@@ -70,9 +70,9 @@ class ExpressionParser {
 
   /**
    * 词法分析
-   * @param re_tokenize 是否需要重新进行语法分析
+   * @param retokenize 是否需要重新进行语法分析
    */
-  void Tokenizer(bool re_tokenize = false);
+  void Tokenizer(bool retokenize = false);
 
   /**
    * 语法分析
