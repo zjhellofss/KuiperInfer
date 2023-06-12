@@ -63,9 +63,9 @@ void ExpressionParser::Tokenizer(bool re_tokenize) {
       i = i + 3;
     } else if (c == 'm') {
       CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'u')
-              << "Parse add token failed, illegal character: " << statement_.at(i + 1);
+              << "Parse multiply token failed, illegal character: " << statement_.at(i + 1);
       CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'l')
-              << "Parse add token failed, illegal character: " << statement_.at(i + 2);
+              << "Parse multiply token failed, illegal character: " << statement_.at(i + 2);
       Token token(TokenType::TokenMul, i, i + 3);
       tokens_.push_back(token);
       std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
