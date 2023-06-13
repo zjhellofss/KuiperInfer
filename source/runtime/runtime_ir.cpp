@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 #include "runtime/runtime_ir.hpp"
 #include <deque>
 #include <iostream>
@@ -226,8 +226,7 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
   }
 
   if (debug) {
-    utils::LayerTimeLogging time_summary("");
-    time_summary.SummaryLogging();
+    utils::LayerTimeLogging::SummaryLogging();
   }
 
   for (const auto& op : topo_operators_) {

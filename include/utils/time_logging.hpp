@@ -28,7 +28,6 @@
 #include <memory>
 #include <mutex>
 #include <utility>
-#include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 namespace utils {
 using Time = std::chrono::steady_clock;
@@ -69,7 +68,7 @@ class LayerTimeStatesSingleton {
   // 修改时间消耗记录map必须获取的锁
   static std::mutex mutex_;
   // 各类型层的时间消耗记录map
-  static PtrLayerTimeStatesCollector layer_time_states_;
+  static PtrLayerTimeStatesCollector time_states_collector_;
 };
 
 // 记录一个层的执行时间
@@ -88,7 +87,7 @@ class LayerTimeLogging {
   /**
    * 输出所有类型层的运行执行时间
    */
-  void SummaryLogging();
+  static void SummaryLogging();
 
  private:
   // 层的类型

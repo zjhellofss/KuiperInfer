@@ -23,33 +23,34 @@
 
 #include "utils/time_logging.hpp"
 #include <utility>
+#include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
 namespace utils {
 PtrLayerTimeStatesCollector LayerTimeStatesSingleton::SingletonInstance() {
   std::lock_guard<std::mutex> lock_(mutex_);
-  if (layer_time_states_ == nullptr) {
-    layer_time_states_ = std::make_shared<LayerTimeStatesCollector>();
+  if (time_states_collector_ == nullptr) {
+    time_states_collector_ = std::make_shared<LayerTimeStatesCollector>();
     const auto& layer_types = LayerRegisterer::layer_types();
     for (const auto& layer_type : layer_types) {
-      layer_time_states_->emplace(
+      time_states_collector_->emplace(
           layer_type, std::make_shared<LayerTimeState>(0l, layer_type));
     }
   }
-  return layer_time_states_;
+  return time_states_collector_;
 }
 
 void LayerTimeStatesSingleton::LayerTimeStatesCollectorInit() {
-  if (layer_time_states_ != nullptr) {
+  if (time_states_collector_ != nullptr) {
     std::lock_guard<std::mutex> lock_(mutex_);
-    layer_time_states_.reset();
-    layer_time_states_ = nullptr;
+    time_states_collector_.reset();
+    time_states_collector_ = nullptr;
   }
-  layer_time_states_ = LayerTimeStatesSingleton::SingletonInstance();
+  time_states_collector_ = LayerTimeStatesSingleton::SingletonInstance();
 }
 
 std::mutex LayerTimeStatesSingleton::mutex_;
-PtrLayerTimeStatesCollector LayerTimeStatesSingleton::layer_time_states_;
+PtrLayerTimeStatesCollector LayerTimeStatesSingleton::time_states_collector_;
 
 LayerTimeLogging::LayerTimeLogging(std::string layer_type)
     : layer_type_(std::move(layer_type)), start_time_(Time::now()) {}
