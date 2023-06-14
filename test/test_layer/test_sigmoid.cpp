@@ -18,18 +18,18 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-18.
 
-#include <gtest/gtest.h>
 #include <glog/logging.h>
-
-#include "data/tensor.hpp"
+#include <gtest/gtest.h>
 #include "../../source/layer/details/sigmoid.hpp"
+#include "data/tensor.hpp"
 
 TEST(test_layer, forward_sigmoid1) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 4);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(1, 1, 4);
   input->index(0) = 1.f;
   input->index(1) = 2.f;
   input->index(2) = 3.f;
@@ -38,7 +38,8 @@ TEST(test_layer, forward_sigmoid1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  std::shared_ptr<Tensor<float>> output1 = std::make_shared<Tensor<float>>(1, 1, 4);
+  std::shared_ptr<Tensor<float>> output1 =
+      std::make_shared<Tensor<float>>(1, 1, 4);
   outputs.push_back(output1);
 
   SigmoidLayer sigmoid_layer;
@@ -52,7 +53,8 @@ TEST(test_layer, forward_sigmoid1) {
 
 TEST(test_layer, forward_sigmoid2) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 4);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(1, 1, 4);
   input->index(0) = 11.f;
   input->index(1) = 22.f;
   input->index(2) = 33.f;
@@ -61,7 +63,8 @@ TEST(test_layer, forward_sigmoid2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
-  std::shared_ptr<Tensor<float>> output1 = std::make_shared<Tensor<float>>(1, 1, 4);
+  std::shared_ptr<Tensor<float>> output1 =
+      std::make_shared<Tensor<float>>(1, 1, 4);
   outputs.push_back(output1);
 
   SigmoidLayer sigmoid_layer;
@@ -75,7 +78,8 @@ TEST(test_layer, forward_sigmoid2) {
 
 TEST(test_layer, forward_sigmoid3) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 224, 512);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(32, 224, 512);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -90,14 +94,17 @@ TEST(test_layer, forward_sigmoid3) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_EQ(output_->index(j), 1.f / (1 + std::exp(-input_->index(j))));
+      ASSERT_LE(
+          std::abs(output_->index(j) - 1.f / (1 + std::exp(-input_->index(j)))),
+          1e-6f);
     }
   }
 }
 
 TEST(test_layer, forward_sigmoid4) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 32, 128);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(1, 32, 128);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -112,14 +119,17 @@ TEST(test_layer, forward_sigmoid4) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_EQ(output_->index(j), 1.f / (1 + std::exp(-input_->index(j))));
+      ASSERT_LE(
+          std::abs(output_->index(j) - 1.f / (1 + std::exp(-input_->index(j)))),
+          1e-6f);
     }
   }
 }
 
 TEST(test_layer, forward_sigmoid5) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 128);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(1, 1, 128);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -134,7 +144,9 @@ TEST(test_layer, forward_sigmoid5) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_EQ(output_->index(j), 1.f / (1 + std::exp(-input_->index(j))));
+      ASSERT_LE(
+          std::abs(output_->index(j) - 1.f / (1 + std::exp(-input_->index(j)))),
+          1e-6f);
     }
   }
 }

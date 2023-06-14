@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #include "convolution.hpp"
@@ -148,14 +148,6 @@ InferStatus ConvolutionLayer::Forward(
                                         "matrix and input tensor do not match";
 
     for (uint32_t g = 0; g < groups_; ++g) {
-      std::vector<arma::fmat> kernel_matrix_arr_group;
-      if (groups_ != 1) {
-        kernel_matrix_arr_group = std::vector<arma::fmat>(
-            kernel_matrix_arr_.begin() + kernel_count_group * g,
-            kernel_matrix_arr_.begin() + kernel_count_group * (g + 1));
-        CHECK(kernel_matrix_arr_group.size() == kernel_count_group);
-      }
-
       const auto& input_matrix =
           Im2Col(input, kernel_w, kernel_h, input->cols(), input->rows(),
                  input_c_group, g, row_len, col_len);
@@ -173,13 +165,14 @@ InferStatus ConvolutionLayer::Forward(
              "incorrectly sized tensor "
           << i << "th";
 
+      const uint32_t kernel_count_group_start = kernel_count_group * g;
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
         arma::frowvec kernel;
         if (groups_ == 1) {
           kernel = kernel_matrix_arr_.at(k);
         } else {
-          kernel = kernel_matrix_arr_group.at(k);
+          kernel = kernel_matrix_arr_.at(kernel_count_group_start + k);
         }
         ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
                      kernel, output_w, output_h);

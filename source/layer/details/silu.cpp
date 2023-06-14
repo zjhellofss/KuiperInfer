@@ -105,10 +105,8 @@ InferStatus SiLULayer::Forward(
       }
     }
 #else
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float value = input->index(j);
-      output->index(j) = value / (1.f + expf(-value));
-    }
+    arma::fcube& input_data = input->data();
+    output->set_data(input_data / (1.f + arma::exp(-input_data)));
 #endif
   }
   return InferStatus::kInferSuccess;

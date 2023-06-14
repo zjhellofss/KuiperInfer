@@ -18,12 +18,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #include "sigmoid.hpp"
 #include <glog/logging.h>
 #include "layer/abstract/layer_factory.hpp"
+#if __SSE2__
+#include <emmintrin.h>
+#include "sse_mathfun.hpp"
+#endif
 
 namespace kuiper_infer {
 
@@ -59,10 +63,31 @@ InferStatus SigmoidLayer::Forward(
         << "The input and output tensor shapes of the sigmoid layer do not "
            "match "
         << i << " th";
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float value = input->index(j);
-      output->index(j) = 1.f / (1 + expf(-value));
+#if __SSE2__
+    const uint32_t size = input->size();
+    float* in_ptr = input->raw_ptr();
+    float* out_ptr = output->raw_ptr();
+    __m128 _one = _mm_set1_ps(1.f);
+    __m128 _zero = _mm_setzero_ps();
+    const uint32_t packet_size = 4;
+    uint32_t j = 0;
+    for (j = 0; j < size - 3; j += packet_size) {
+      __m128 _p = _mm_load_ps(in_ptr);
+      _p = _mm_div_ps(_one, _mm_add_ps(_one, exp_ps(_mm_sub_ps(_zero, _p))));
+      _mm_store_ps(out_ptr, _p);
+      in_ptr += packet_size;
+      out_ptr += packet_size;
     }
+    if (j < size) {
+      while (j < size) {
+        float value = input->index(j);
+        output->index(j) = 1 / (1.f + expf(-value));
+        j += 1;
+      }
+    }
+#else
+    output->set_data(1.f / (1.f + arma::exp(-input->data())));
+#endif
   }
   return InferStatus::kInferSuccess;
 }

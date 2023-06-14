@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-26.
 #include "yolo_detect.hpp"
 #include "layer/abstract/layer_factory.hpp"
@@ -123,42 +123,18 @@ InferStatus YoloDetectLayer::Forward(
       CHECK_EQ(input->rows(), nx);
       CHECK_EQ(input->cols(), ny);
       input->Reshape({stages, uint32_t(classes_info), ny * nx}, true);
-      const uint32_t size = input->size();
 
       CHECK_EQ(stages_tensor->channels(), batch_size);
       CHECK_EQ(stages_tensor->rows(), stages_ * nx * ny);
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
-#if __SSE2__
-      float* ptr = input->raw_ptr();
-      __m128 _one1 = _mm_set1_ps(1.f);
-      __m128 _one2 = _mm_set1_ps(1.f);
-      __m128 _zero = _mm_setzero_ps();
-      const uint32_t packet_size = 4;
-      uint32_t j = 0;
-      for (j = 0; j < size - 3; j += packet_size) {
-        __m128 _p = _mm_load_ps(ptr);
-        _p =
-            _mm_div_ps(_one1, _mm_add_ps(_one2, exp_ps(_mm_sub_ps(_zero, _p))));
-        _mm_store_ps(ptr, _p);
-        ptr += packet_size;
-      }
-      if (j < size) {
-        while (j < size) {
-          float value = input->index(j);
-          input->index(j) = 1.f / (1.f + expf(-value));
-          j += 1;
-        }
-      }
-#else
-      input->Transform(
-          [](const float value) { return 1.f / (1.f + expf(-value)); });
-#endif
+      const arma::fcube& input_data = input->data();
+      const arma::fcube& input_data_exp = 1.f / (1.f + arma::exp(-input_data));
 
       arma::fmat& x_stages = stages_tensor->slice(b);
       for (uint32_t na = 0; na < num_anchors_; ++na) {
         x_stages.submat(ny * nx * na, 0, ny * nx * (na + 1) - 1,
-                        classes_info - 1) = input->slice(na).t();
+                        classes_info - 1) = input_data_exp.slice(na).t();
       }
 
       const arma::fmat& xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
@@ -173,7 +149,7 @@ InferStatus YoloDetectLayer::Forward(
 
   uint32_t current_rows = 0;
   arma::fcube f1(concat_rows, classes_info, batch_size);
-  for (auto stages_tensor : this->stages_tensors_) {
+  for (std::shared_ptr<ftensor> stages_tensor : this->stages_tensors_) {
     f1.subcube(current_rows, 0, 0, current_rows + stages_tensor->rows() - 1,
                classes_info - 1, batch_size - 1) = stages_tensor->data();
     current_rows += stages_tensor->rows();
