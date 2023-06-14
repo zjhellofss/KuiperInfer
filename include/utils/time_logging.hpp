@@ -28,6 +28,7 @@
 #include <memory>
 #include <mutex>
 #include <utility>
+#include <string>
 namespace kuiper_infer {
 namespace utils {
 using Time = std::chrono::steady_clock;
