@@ -395,9 +395,9 @@ void RuntimeGraph::ProbeNextLayer(
   // 当前节点的后继节点next_ops
   const auto& next_ops = current_op->output_operators;
   // 对所有后继节点进行遍历
-  for (const auto& [_, next_rt_operator] : next_ops) {
+  for (const auto& [_, next_op] : next_ops) {
     // 得到后继节点的输入next_input_operands
-    const auto& next_input_operands = next_rt_operator->input_operands;
+    const auto& next_input_operands = next_op->input_operands;
     // 确定后继节点的输入来自于current_op
     const auto& next_input_operands_iter =
         next_input_operands.find(current_op->name);
@@ -416,12 +416,13 @@ void RuntimeGraph::ProbeNextLayer(
           << "Input data size do not match with output data size";
       // 将当前current_op的输出赋值到next_input_datas中
       for (int i = 0; i < next_input_datas.size(); ++i) {
+        sftensor layer_output_data = layer_output_datas.at(i);
+        CHECK(layer_output_data != nullptr);
         if (next_input_datas.at(i) != nullptr) {
-          CHECK(next_input_datas.at(i)->shapes() ==
-                layer_output_datas.at(i)->shapes())
+          CHECK(next_input_datas.at(i)->shapes() == layer_output_data->shapes())
               << "Input data shape do not match with output data shapes";
         }
-        next_input_datas.at(i) = layer_output_datas.at(i);
+        next_input_datas.at(i) = layer_output_data;
       }
     }
   }

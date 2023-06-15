@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-15.
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
@@ -69,15 +69,17 @@ InferStatus Layer::Forward() {
     }
   }
 
+  const std::shared_ptr<RuntimeOperand>& output_operand_datas =
+      runtime_operator->output_operands;
+
   CHECK(!layer_input_datas.empty())
       << runtime_operator->name << " Layer input data is empty";
-  CHECK(runtime_operator->output_operands != nullptr &&
-        !runtime_operator->output_operands->datas.empty())
+  CHECK(output_operand_datas != nullptr && !output_operand_datas->datas.empty())
       << "Layer output data is empty";
   // 执行operator当中的layer计算过程
   // layer的计算结果存放在current_op->output_operands->datas中
   InferStatus status = runtime_operator->layer->Forward(
-      layer_input_datas, runtime_operator->output_operands->datas);
+      layer_input_datas, output_operand_datas->datas);
   return status;
 }
 
