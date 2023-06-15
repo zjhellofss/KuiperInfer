@@ -22,11 +22,8 @@
 // Created by fss on 22-12-26.
 #include "yolo_detect.hpp"
 #include "layer/abstract/layer_factory.hpp"
-#if __SSE2__
-#include <emmintrin.h>
 #include "data/tensor_util.hpp"
-#include "sse_mathfun.hpp"
-#endif
+
 namespace kuiper_infer {
 
 YoloDetectLayer::YoloDetectLayer(
