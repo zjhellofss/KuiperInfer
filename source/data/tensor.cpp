@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 
 #include "data/tensor.hpp"
@@ -45,7 +45,11 @@ Tensor<float>::Tensor(uint32_t size) {
 
 Tensor<float>::Tensor(uint32_t rows, uint32_t cols) {
   data_ = arma::fcube(rows, cols, 1);
-  this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  if (rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  }
 }
 
 Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
