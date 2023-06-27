@@ -51,6 +51,16 @@ target_link_libraries(
   glog::glog 
 )
 
+add_executable(
+  adaptive_avgpooling_test
+  ./test_layer/test_adaptive_avgpooling.cpp
+)
+target_link_libraries(
+  adaptive_avgpooling_test
+  GTest::gtest_main
+  kuiper
+  glog::glog 
+)
 
 
 
