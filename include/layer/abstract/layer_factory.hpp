@@ -31,12 +31,15 @@
 
 namespace kuiper_infer {
 class LayerRegisterer {
- public:
+ private:
   typedef ParseParameterAttrStatus (*Creator)(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& layer);
 
   typedef std::map<std::string, Creator> CreateRegistry;
+
+ public:
+  friend class LayerRegistererWrapper;
 
   /**
    * 向注册表注册算子
