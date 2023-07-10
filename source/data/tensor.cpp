@@ -73,36 +73,6 @@ Tensor<float>::Tensor(const std::vector<uint32_t>& shapes) {
   }
 }
 
-Tensor<float>::Tensor(const Tensor& tensor) {
-  if (this != &tensor) {
-    this->data_ = tensor.data_;
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-}
-
-Tensor<float>::Tensor(Tensor<float>&& tensor) noexcept {
-  if (this != &tensor) {
-    this->data_ = std::move(tensor.data_);
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-}
-
-Tensor<float>& Tensor<float>::operator=(Tensor<float>&& tensor) noexcept {
-  if (this != &tensor) {
-    this->data_ = std::move(tensor.data_);
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-  return *this;
-}
-
-Tensor<float>& Tensor<float>::operator=(const Tensor& tensor) {
-  if (this != &tensor) {
-    this->data_ = tensor.data_;
-    this->raw_shapes_ = tensor.raw_shapes_;
-  }
-  return *this;
-}
-
 uint32_t Tensor<float>::rows() const {
   CHECK(!this->data_.empty());
   return this->data_.n_rows;
@@ -215,8 +185,8 @@ void Tensor<float>::Fill(const std::vector<float>& values, bool row_major) {
 
     for (uint32_t i = 0; i < channels; ++i) {
       auto& channel_data = this->data_.slice(i);
-      const arma::fmat& channel_data_t =
-          arma::fmat(values.data() + i * planes, this->cols(), this->rows());
+      arma::fmat channel_data_t((float*)values.data() + i * planes,
+                                this->cols(), this->rows(), false, true);
       channel_data = channel_data_t.t();
     }
   } else {

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-28.
 #ifndef KUIPER_INFER_INCLUDE_PARSER_RUNTIME_OPERATOR_HPP_
 #define KUIPER_INFER_INCLUDE_PARSER_RUNTIME_OPERATOR_HPP_
@@ -42,8 +42,8 @@ struct RuntimeOperator {
   virtual ~RuntimeOperator();
 
   bool has_forward = false;
-  std::string name;      /// 计算节点的名称
-  std::string type;      /// 计算节点的类型
+  std::string name;              /// 计算节点的名称
+  std::string type;              /// 计算节点的类型
   std::shared_ptr<Layer> layer;  /// 节点对应的计算Layer
 
   std::vector<std::string> output_names;  /// 节点的输出节点名称

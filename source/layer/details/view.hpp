@@ -27,7 +27,7 @@
 namespace kuiper_infer {
 class ViewLayer : public NonParamLayer {
  public:
-  explicit ViewLayer(const std::vector<int32_t>& shapes);
+  explicit ViewLayer( std::vector<int32_t> shapes);
 
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

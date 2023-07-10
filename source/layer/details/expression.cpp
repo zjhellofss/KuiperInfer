@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-18.
 
 #include "expression.hpp"
@@ -27,10 +27,10 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-ExpressionLayer::ExpressionLayer(const std::string& statement)
-    : NonParamLayer("Expression"),
-      statement_(statement),
-      parser_(std::make_unique<ExpressionParser>(statement)) {}
+ExpressionLayer::ExpressionLayer(std::string statement)
+    : NonParamLayer("Expression"), statement_(std::move(statement)) {
+  parser_ = std::make_unique<ExpressionParser>(statement_);
+}
 
 InferStatus ExpressionLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

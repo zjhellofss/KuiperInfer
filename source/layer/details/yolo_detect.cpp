@@ -21,25 +21,24 @@
 
 // Created by fss on 22-12-26.
 #include "yolo_detect.hpp"
-#include "layer/abstract/layer_factory.hpp"
 #include "data/tensor_util.hpp"
+#include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
 
 YoloDetectLayer::YoloDetectLayer(
     int32_t stages, int32_t num_classes, int32_t num_anchors,
-    const std::vector<float>& strides,
-    const std::vector<arma::fmat>& anchor_grids,
-    const std::vector<arma::fmat>& grids,
-    const std::vector<std::shared_ptr<ConvolutionLayer>>& conv_layers)
+    std::vector<float> strides, std::vector<arma::fmat> anchor_grids,
+    std::vector<arma::fmat> grids,
+    std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers)
     : Layer("yolo"),
       stages_(stages),
       num_classes_(num_classes),
       num_anchors_(num_anchors),
-      strides_(strides),
-      anchor_grids_(anchor_grids),
-      grids_(grids),
-      conv_layers_(conv_layers) {}
+      strides_(std::move(strides)),
+      anchor_grids_(std::move(anchor_grids)),
+      grids_(std::move(grids)),
+      conv_layers_(std::move(conv_layers)) {}
 
 InferStatus YoloDetectLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -193,7 +192,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   CHECK(stages_number == 3) << "Only support three stages yolo detect head";
   CHECK(op->input_operands_seq.size() == stages_number);
 
-  const std::vector<float>& strides = stages_attr->get<float>();
+  std::vector<float> strides = stages_attr->get<float>();
   CHECK(strides.size() == stages_number)
       << "Stride number is not equal to strides";
 
@@ -318,8 +317,8 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   }
 
   yolo_detect_layer = std::make_shared<YoloDetectLayer>(
-      stages_number, num_classes, num_anchors, strides, anchor_grids, grids,
-      conv_layers);
+      stages_number, num_classes, num_anchors, std::move(strides),
+      std::move(anchor_grids), std::move(grids), std::move(conv_layers));
   auto yolo_detect_layer_ =
       std::dynamic_pointer_cast<YoloDetectLayer>(yolo_detect_layer);
 

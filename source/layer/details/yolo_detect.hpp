@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-26.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_YOLO_DETECT_HPP_
@@ -31,10 +31,9 @@ class YoloDetectLayer : public Layer {
  public:
   explicit YoloDetectLayer(
       int32_t stages, int32_t num_classes, int32_t num_anchors,
-      const std::vector<float>& strides,
-      const std::vector<arma::fmat>& anchor_grids,
-      const std::vector<arma::fmat>& grids,
-      const std::vector<std::shared_ptr<ConvolutionLayer>>& conv_layers);
+      std::vector<float> strides, std::vector<arma::fmat> anchor_grids,
+      std::vector<arma::fmat> grids,
+      std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers);
 
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

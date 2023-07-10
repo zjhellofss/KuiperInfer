@@ -68,14 +68,6 @@ class Tensor<float> {
    */
   explicit Tensor(const std::vector<uint32_t>& shapes);
 
-  Tensor(const Tensor& tensor);
-
-  Tensor(Tensor&& tensor) noexcept;
-
-  Tensor<float>& operator=(Tensor&& tensor) noexcept;
-
-  Tensor<float>& operator=(const Tensor& tensor);
-
   /**
    * 返回张量的行数
    * @return 张量的行数

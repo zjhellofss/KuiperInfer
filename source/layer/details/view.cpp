@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 #include "view.hpp"
 #include <glog/logging.h>
@@ -121,12 +121,8 @@ ParseParameterAttrStatus ViewLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-ViewLayer::ViewLayer(const std::vector<int32_t>& shapes)
-    : NonParamLayer("view") {
-  for (int shape : shapes) {
-    shapes_.push_back(shape);
-  }
-}
+ViewLayer::ViewLayer(std::vector<int32_t> shapes)
+    : NonParamLayer("view"), shapes_(std::move(shapes)) {}
 
 LayerRegistererWrapper kViewGetInstance("Tensor.view", ViewLayer::GetInstance);
 

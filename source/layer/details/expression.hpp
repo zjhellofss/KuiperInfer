@@ -29,7 +29,7 @@
 namespace kuiper_infer {
 class ExpressionLayer : public NonParamLayer {
  public:
-  explicit ExpressionLayer(const std::string& statement);
+  explicit ExpressionLayer( std::string statement);
 
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
