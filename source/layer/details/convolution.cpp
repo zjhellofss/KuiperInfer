@@ -193,7 +193,9 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   const float padding_value = 0.f;
 #pragma omp parallel for schedule(dynamic)
   for (uint32_t ic = 0; ic < input_c_group; ++ic) {
-    const arma::fmat& input_channel = input->slice(ic + group * input_c_group);
+    float* input_channel_ptr =
+        input->matrix_raw_ptr(ic + group * input_c_group);
+    uint32_t input_channel_height = input_h;
     int current_col = 0;
     for (uint32_t w = 0; w < input_padded_w - kernel_w + 1; w += stride_w_) {
       for (uint32_t r = 0; r < input_padded_h - kernel_h + 1; r += stride_h_) {
@@ -205,9 +207,9 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
             if ((kh + r >= padding_h_ && kw + w >= padding_w_) &&
                 (kh + r < input_h + padding_h_ &&
                  kw + w < input_w + padding_w_)) {
-              const float* region_ptr =
-                  input_channel.colptr(w + kw - padding_w_) + r + kh -
-                  padding_h_;
+              float* region_ptr = input_channel_ptr +
+                                  input_channel_height * (w + kw - padding_w_) +
+                                  r + kh - padding_h_;
               *input_matrix_c_ptr = *region_ptr;
             } else {
               *input_matrix_c_ptr = padding_value;  // only support zero mode
