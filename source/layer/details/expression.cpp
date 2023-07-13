@@ -92,6 +92,9 @@ InferStatus ExpressionLayer::Forward(
     } else {
       // process operation
       const int32_t op = token_node->num_index;
+      if (op != int(TokenType::TokenAdd) && op != int(TokenType::TokenMul)) {
+        LOG(FATAL) << "Unknown operator type: " << op;
+      }
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
 

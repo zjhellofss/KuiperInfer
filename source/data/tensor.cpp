@@ -166,6 +166,8 @@ void Tensor<float>::Padding(const std::vector<uint32_t>& pads,
                    new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) =
       this->data_;
   this->data_ = std::move(new_data);
+  this->raw_shapes_ =
+      std::vector<uint32_t>{this->channels(), this->rows(), this->cols()};
 }
 
 void Tensor<float>::Fill(float value) {
@@ -296,5 +298,15 @@ float* Tensor<float>::matrix_raw_ptr(uint32_t index) {
   CHECK_LE(offset, this->size());
   float* mem_ptr = this->raw_ptr() + offset;
   return mem_ptr;
+}
+
+void Tensor<float>::set_data(arma::fcube&& data) {
+  CHECK(data.n_rows == this->data_.n_rows)
+      << data.n_rows << " != " << this->data_.n_rows;
+  CHECK(data.n_cols == this->data_.n_cols)
+      << data.n_cols << " != " << this->data_.n_cols;
+  CHECK(data.n_slices == this->data_.n_slices)
+      << data.n_slices << " != " << this->data_.n_slices;
+  this->data_ = std::move(data);
 }
 }  // namespace kuiper_infer

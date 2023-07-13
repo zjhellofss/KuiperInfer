@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 
 #ifndef KUIPER_INFER_DATA_BLOB_HPP_
@@ -97,6 +97,12 @@ class Tensor<float> {
    * @param data 数据
    */
   void set_data(const arma::fcube& data);
+
+  /**
+   * 设置张量中的具体数据
+   * @param data 数据
+   */
+  void set_data(arma::fcube&& data);
 
   /**
    * 返回张量是否为空
