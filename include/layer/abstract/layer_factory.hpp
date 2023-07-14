@@ -40,6 +40,7 @@ class LayerRegisterer {
 
  public:
   friend class LayerRegistererWrapper;
+  friend class RegistryGarbageCollector;
 
   /**
    * 向注册表注册算子
@@ -61,21 +62,41 @@ class LayerRegisterer {
    * 返回算子的注册表
    * @return 算子的注册表
    */
-  static CreateRegistry& Registry();
+  static CreateRegistry* Registry();
 
   /**
    * 返回所有已被注册算子的类型
    * @return 注册算子的类型列表
    */
   static std::vector<std::string> layer_types();
+
+ private:
+  static CreateRegistry* registry_;
 };
 
+/// 算子注册的工具类
 class LayerRegistererWrapper {
  public:
   LayerRegistererWrapper(const std::string& layer_type,
                          const LayerRegisterer::Creator& creator) {
     LayerRegisterer::RegisterCreator(layer_type, creator);
   }
+};
+
+/// 管理全局算子注册表所用的内存，在退出时释放
+class RegistryGarbageCollector {
+ public:
+  ~RegistryGarbageCollector() {
+    if (LayerRegisterer::registry_ != nullptr) {
+      delete LayerRegisterer::registry_;
+      LayerRegisterer::registry_ = nullptr;
+    }
+  }
+  friend class LayerRegisterer;
+
+ private:
+  RegistryGarbageCollector() = default;
+  RegistryGarbageCollector(const RegistryGarbageCollector&) = default;
 };
 
 }  // namespace kuiper_infer
