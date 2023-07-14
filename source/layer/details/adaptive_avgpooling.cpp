@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 #include "adaptive_avgpooling.hpp"
 #include <glog/logging.h>
@@ -142,8 +142,8 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
 
-  const auto& output_hw =
-      dynamic_cast<RuntimeParameterIntArray*>(params.at("output_size"));
+  auto output_hw = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
+      params.at("output_size"));
   if (!output_hw) {
     LOG(ERROR) << "Can not find the output size parameter";
     return ParseParameterAttrStatus::kParameterMissingOutHW;

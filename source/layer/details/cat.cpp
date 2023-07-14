@@ -128,7 +128,7 @@ ParseParameterAttrStatus CatLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
 
-  const auto& dim_param = dynamic_cast<RuntimeParameterInt*>(params.at("dim"));
+  auto dim_param = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
   if (!dim_param) {
     LOG(ERROR) << "Can not find the dim parameter";
     return ParseParameterAttrStatus::kParameterMissingDim;

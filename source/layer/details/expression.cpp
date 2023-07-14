@@ -151,8 +151,8 @@ ParseParameterAttrStatus ExpressionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingExpr;
   }
 
-  const auto& statement_param =
-      dynamic_cast<RuntimeParameterString*>(params.at("expr"));
+  auto statement_param =
+      std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
   if (statement_param == nullptr) {
     LOG(ERROR) << "Can not find the expression parameter";
     return ParseParameterAttrStatus::kParameterMissingExpr;

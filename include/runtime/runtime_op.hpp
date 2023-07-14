@@ -39,8 +39,6 @@ class Layer;
 
 /// 计算图中的计算节点
 struct RuntimeOperator {
-  virtual ~RuntimeOperator();
-
   bool has_forward = false;
   std::string name;              /// 计算节点的名称
   std::string type;              /// 计算节点的类型
@@ -56,7 +54,8 @@ struct RuntimeOperator {
   std::map<std::string, std::shared_ptr<RuntimeOperator>>
       output_operators;  /// 输出节点的名字和节点对应
 
-  std::map<std::string, RuntimeParameter*> params;  /// 算子的参数信息
+  std::map<std::string, std::shared_ptr<RuntimeParameter>>
+      params;  /// 算子的参数信息
   std::map<std::string, std::shared_ptr<RuntimeAttribute>>
       attribute;  /// 算子的属性信息，内含权重信息
 };

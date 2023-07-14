@@ -154,8 +154,8 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-  const auto& use_bias_param =
-      dynamic_cast<RuntimeParameterBool*>(params.at("bias"));
+  auto use_bias_param =
+      std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;

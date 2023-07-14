@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-17.
 #include "batchnorm2d.hpp"
 #include "layer/abstract/layer_factory.hpp"
@@ -131,7 +131,7 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingEps;
   }
 
-  const auto& eps = dynamic_cast<RuntimeParameterFloat*>(params.at("eps"));
+  auto eps = std::dynamic_pointer_cast<RuntimeParameterFloat>(params.at("eps"));
   if (!eps) {
     LOG(ERROR) << "Can not find the eps parameter";
     return ParseParameterAttrStatus::kParameterMissingEps;
@@ -142,8 +142,8 @@ ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;
   }
 
-  const auto& num_features =
-      dynamic_cast<RuntimeParameterInt*>(params.at("num_features"));
+  auto num_features =
+      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("num_features"));
   if (!num_features) {
     LOG(ERROR) << "Can not find the num features parameter";
     return ParseParameterAttrStatus::kParameterMissingNumFeatures;

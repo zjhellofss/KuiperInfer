@@ -52,6 +52,7 @@ InferStatus Layer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
+  return InferStatus::kInferLayerNotImplement;
 }
 
 InferStatus Layer::Forward() {
@@ -59,14 +60,11 @@ InferStatus Layer::Forward() {
       << "Runtime operator is expired or nullptr";
   const auto& runtime_operator = this->runtime_operator_.lock();
   // 准备节点layer计算所需要的输入
-  const std::vector<std::shared_ptr<RuntimeOperand>>& input_operand_datas =
-      runtime_operator->input_operands_seq;
-  // layer的输入
   std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
-  for (const auto& input_operand_data : input_operand_datas) {
-    for (const auto& input_data : input_operand_data->datas) {
-      layer_input_datas.push_back(input_data);
-    }
+  for (const auto& input_operand_data : runtime_operator->input_operands_seq) {
+    std::copy(input_operand_data->datas.begin(),
+              input_operand_data->datas.end(),
+              std::back_inserter(layer_input_datas));
   }
 
   const std::shared_ptr<RuntimeOperand>& output_operand_datas =

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-18.
 
 #include "maxpooling.hpp"
@@ -163,14 +163,15 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& max_layer) {
   CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
-  const std::map<std::string, RuntimeParameter*>& params = op->params;
+  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
+      op->params;
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
   }
 
-  const auto& stride =
-      dynamic_cast<RuntimeParameterIntArray*>(params.at("stride"));
+  auto stride =
+      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
@@ -181,8 +182,8 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingPadding;
   }
 
-  const auto& padding =
-      dynamic_cast<RuntimeParameterIntArray*>(params.at("padding"));
+ auto padding =
+      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
     return ParseParameterAttrStatus::kParameterMissingPadding;
@@ -193,8 +194,8 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
 
-  const auto& kernel_size =
-      dynamic_cast<RuntimeParameterIntArray*>(params.at("kernel_size"));
+  auto kernel_size =
+      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
   if (!kernel_size) {
     LOG(ERROR) << "Can not find the kernel size parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;

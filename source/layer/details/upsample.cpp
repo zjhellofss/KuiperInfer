@@ -139,8 +139,8 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
   }
 
   const auto& scale_param = params.at("scale_factor");
-  const auto& scales =
-      dynamic_cast<RuntimeParameterFloatArray*>(params.at("scale_factor"));
+  auto scales =
+      std::dynamic_pointer_cast<RuntimeParameterFloatArray>(params.at("scale_factor"));
   if (scales == nullptr) {
     LOG(ERROR) << "Can not find the scale factor parameter";
     return ParseParameterAttrStatus::kParameterMissingScale;
@@ -152,7 +152,7 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingResizeMode;
   }
 
-  const auto& mode = dynamic_cast<RuntimeParameterString*>(params.at("mode"));
+  auto mode = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
   CHECK(mode->value == "nearest")
       << "The mode " << mode->value << " is not supported!";
 

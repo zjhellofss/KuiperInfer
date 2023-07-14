@@ -40,11 +40,11 @@ TEST(test_layer_factory, init) {
 
 TEST(test_layer_factory, registerer) {
   using namespace kuiper_infer;
-  const uint32_t size1 = LayerRegisterer::Registry().size();
+  const uint32_t size1 = LayerRegisterer::Registry()->size();
   LayerRegisterer::RegisterCreator("test1", TestCreateLayer);
-  const uint32_t size2 = LayerRegisterer::Registry().size();
+  const uint32_t size2 = LayerRegisterer::Registry()->size();
   LayerRegisterer::RegisterCreator("test2", TestCreateLayer);
-  const uint32_t size3 = LayerRegisterer::Registry().size();
+  const uint32_t size3 = LayerRegisterer::Registry()->size();
 
   ASSERT_EQ(size2 - size1, 1);
   ASSERT_EQ(size3 - size1, 2);

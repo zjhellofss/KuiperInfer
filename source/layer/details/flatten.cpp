@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-9.
 #include "flatten.hpp"
 #include <numeric>
@@ -115,11 +115,11 @@ ParseParameterAttrStatus FlattenLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
 
-  const auto& start_dim =
-      dynamic_cast<RuntimeParameterInt*>(params.at("start_dim"));
+  auto start_dim =
+      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("start_dim"));
 
-  const auto& end_dim =
-      dynamic_cast<RuntimeParameterInt*>(params.at("end_dim"));
+  auto end_dim =
+      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("end_dim"));
 
   if (start_dim == nullptr || end_dim == nullptr) {
     return ParseParameterAttrStatus::kParameterMissingDim;

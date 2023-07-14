@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 
 #ifndef KUIPER_INFER_INCLUDE_COMMON_HPP_
@@ -53,6 +53,7 @@ enum class InferStatus {
   kInferFailedChannelParameterError = 10,
   kInferFailedOutputEmpty = 11,
 
+  kInferLayerNotImplement = 12,
 };
 
 enum class ParseParameterAttrStatus {

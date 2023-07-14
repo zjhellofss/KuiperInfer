@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #include "softmax.hpp"
@@ -149,7 +149,7 @@ ParseParameterAttrStatus SoftmaxLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
 
-  auto dim = dynamic_cast<RuntimeParameterInt*>(dim_param);
+  auto dim = std::dynamic_pointer_cast<RuntimeParameterInt>(dim_param);
   if (dim == nullptr) {
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
