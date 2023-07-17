@@ -27,19 +27,23 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <utility>
 #include <string>
+#include <utility>
 namespace kuiper_infer {
 namespace utils {
 using Time = std::chrono::steady_clock;
 
 // 每个类型的层执行时间消耗
 struct LayerTimeState {
-  explicit LayerTimeState(long duration_time, std::string layer_type)
-      : duration_time_(duration_time), layer_type_(std::move(layer_type)) {}
+  explicit LayerTimeState(long duration_time, std::string layer_name,
+                          std::string layer_type)
+      : duration_time_(duration_time),
+        layer_name_(std::move(layer_name)),
+        layer_type_(std::move(layer_type)) {}
 
   long duration_time_;      // 时间消耗
   std::mutex time_mutex_;   // 修改duration_time_时，所需要获取的锁
+  std::string layer_name_;  // 层的名称
   std::string layer_type_;  // 层的类型
 };
 
@@ -78,7 +82,7 @@ class LayerTimeLogging {
   /**
    * 记录一个层的开始执行时间
    */
-  explicit LayerTimeLogging(std::string layer_type);
+  explicit LayerTimeLogging(std::string layer_name, std::string layer_type);
 
   /**
    * 记录一个层的结束执行时间
@@ -91,6 +95,8 @@ class LayerTimeLogging {
   static void SummaryLogging();
 
  private:
+  // 层的名称
+  std::string layer_name_;
   // 层的类型
   std::string layer_type_;
   // 层的开始执行时间

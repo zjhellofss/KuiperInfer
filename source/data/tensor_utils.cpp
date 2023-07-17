@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 2023/3/20.
 #include <glog/logging.h>
 #include "data/tensor.hpp"
@@ -203,7 +203,9 @@ std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tensor1,
           TensorCreate(tensor2->channels(), tensor1->rows(), tensor1->cols());
       CHECK(tensor2->size() == tensor2->channels());
       for (uint32_t c = 0; c < tensor2->channels(); ++c) {
-        new_tensor->slice(c).fill(tensor2->index(c));
+        arma::fmat& new_tensor_channel = new_tensor->slice(c);
+        std::fill(new_tensor_channel.begin(), new_tensor_channel.end(),
+                  tensor2->index(c));
       }
       return {tensor1, new_tensor};
     } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
@@ -211,7 +213,9 @@ std::tuple<sftensor, sftensor> TensorBroadcast(const sftensor& tensor1,
           TensorCreate(tensor1->channels(), tensor2->rows(), tensor2->cols());
       CHECK(tensor1->size() == tensor1->channels());
       for (uint32_t c = 0; c < tensor1->channels(); ++c) {
-        new_tensor->slice(c).fill(tensor1->index(c));
+        arma::fmat& new_tensor_channel = new_tensor->slice(c);
+        std::fill(new_tensor_channel.begin(), new_tensor_channel.end(),
+                  tensor1->index(c));
       }
       return {new_tensor, tensor2};
     } else {

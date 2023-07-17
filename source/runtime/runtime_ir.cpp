@@ -210,7 +210,8 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
       InferStatus status;
       if (debug) {
         {
-          utils::LayerTimeLogging layer_time_logging(current_op->type);
+          utils::LayerTimeLogging layer_time_logging(current_op->name,
+                                                     current_op->type);
           status = current_op->layer->Forward();
         }
       } else {

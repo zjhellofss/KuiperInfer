@@ -31,11 +31,6 @@ PtrLayerTimeStatesCollector LayerTimeStatesSingleton::SingletonInstance() {
   std::lock_guard<std::mutex> lock_(mutex_);
   if (time_states_collector_ == nullptr) {
     time_states_collector_ = std::make_shared<LayerTimeStatesCollector>();
-    const auto& layer_types = LayerRegisterer::layer_types();
-    for (const auto& layer_type : layer_types) {
-      time_states_collector_->emplace(
-          layer_type, std::make_shared<LayerTimeState>(0l, layer_type));
-    }
   }
   return time_states_collector_;
 }
@@ -50,14 +45,22 @@ void LayerTimeStatesSingleton::LayerTimeStatesCollectorInit() {
 }
 
 std::mutex LayerTimeStatesSingleton::mutex_;
+
 PtrLayerTimeStatesCollector LayerTimeStatesSingleton::time_states_collector_;
 
-LayerTimeLogging::LayerTimeLogging(std::string layer_type)
-    : layer_type_(std::move(layer_type)), start_time_(Time::now()) {}
+LayerTimeLogging::LayerTimeLogging(std::string layer_name,
+                                   std::string layer_type)
+    : layer_name_(std::move(layer_name)),
+      layer_type_(std::move(layer_type)),
+      start_time_(Time::now()) {
+  auto layer_time_states = LayerTimeStatesSingleton::SingletonInstance();
+  layer_time_states->insert({layer_name_, std::make_shared<LayerTimeState>(
+                                              0l, layer_name_, layer_type_)});
+}
 
 LayerTimeLogging::~LayerTimeLogging() {
   auto layer_time_states = LayerTimeStatesSingleton::SingletonInstance();
-  const auto layer_state_iter = layer_time_states->find(layer_type_);
+  const auto layer_state_iter = layer_time_states->find(layer_name_);
   if (layer_state_iter != layer_time_states->end()) {
     auto& layer_state = layer_state_iter->second;
     CHECK(layer_state != nullptr);
@@ -69,9 +72,8 @@ LayerTimeLogging::~LayerTimeLogging() {
                               .count();
     layer_state->duration_time_ += duration;
   } else {
-    if (!layer_type_.empty()) {
-      LOG(ERROR) << "Unknown layer type: " << layer_type_;
-    }
+    LOG(ERROR) << "Can not find the layer: " << layer_name_
+               << " in the time logging.";
   }
 }
 
@@ -82,7 +84,7 @@ void LayerTimeLogging::SummaryLogging() {
       *layer_time_states.get();
 
   long total_time_costs = 0;
-  for (const auto& [layer_type, layer_time_state] :
+  for (const auto& [layer_name, layer_time_state] :
        layer_time_states_collector) {
     CHECK(layer_time_state != nullptr);
 
@@ -90,8 +92,9 @@ void LayerTimeLogging::SummaryLogging() {
     const auto time_cost = layer_time_state->duration_time_;
     total_time_costs += time_cost;
     if (layer_time_state->duration_time_ != 0) {
-      LOG(INFO) << "Layer type: " << layer_type << " time cost: " << time_cost
-                << "ms";
+      LOG(INFO) << "Layer name: " << layer_name << "\t"
+                << "layer type: " << layer_time_state->layer_type_ << "\t"
+                << "time cost: " << time_cost << "ms";
     }
   }
   LOG(INFO) << "Total time: " << total_time_costs << "ms";
