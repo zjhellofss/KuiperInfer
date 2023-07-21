@@ -195,26 +195,26 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   for (uint32_t ic = 0; ic < input_c_group; ++ic) {
     float* input_channel_ptr =
         input->matrix_raw_ptr(ic + group * input_c_group);
-    uint32_t input_channel_height = input_h;
-    int current_col = 0;
+    uint32_t current_col = 0;
+    uint32_t channel_row = ic * row_len;
     for (uint32_t w = 0; w < input_padded_w - kernel_w + 1; w += stride_w_) {
       for (uint32_t r = 0; r < input_padded_h - kernel_h + 1; r += stride_h_) {
-        float* input_matrix_c_ptr =
-            input_matrix.colptr(current_col) + ic * row_len;
+        float* input_matrix_ptr =
+            input_matrix.colptr(current_col) + channel_row;
         current_col += 1;
         for (uint32_t kw = 0; kw < kernel_w; ++kw) {
+          const uint32_t region_w = input_h * (w + kw - padding_w_);
           for (uint32_t kh = 0; kh < kernel_h; ++kh) {
             if ((kh + r >= padding_h_ && kw + w >= padding_w_) &&
                 (kh + r < input_h + padding_h_ &&
                  kw + w < input_w + padding_w_)) {
-              float* region_ptr = input_channel_ptr +
-                                  input_channel_height * (w + kw - padding_w_) +
-                                  r + kh - padding_h_;
-              *input_matrix_c_ptr = *region_ptr;
+              float* region_ptr =
+                  input_channel_ptr + region_w + (r + kh - padding_h_);
+              *input_matrix_ptr = *region_ptr;
             } else {
-              *input_matrix_c_ptr = padding_value;  // only support zero mode
+              *input_matrix_ptr = padding_value;  // only support zero mode
             }
-            input_matrix_c_ptr += 1;
+            input_matrix_ptr += 1;
           }
         }
       }
@@ -339,7 +339,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingOutChannel;
   }
 
- auto out_channel =
+  auto out_channel =
       std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("out_channels"));
   if (!out_channel) {
     LOG(ERROR) << "Can not find the out channel parameter";
@@ -362,7 +362,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
   }
-   auto use_bias = std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
+  auto use_bias =
+      std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (!use_bias) {
     LOG(ERROR) << "Can not find the bias parameter";
     return ParseParameterAttrStatus::kParameterMissingUseBias;
@@ -372,7 +373,7 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the stride parameter";
     return ParseParameterAttrStatus::kParameterMissingStride;
   }
- auto stride =
+  auto stride =
       std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
@@ -383,16 +384,16 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
-  auto kernel =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
+  auto kernel = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
+      params.at("kernel_size"));
   if (!kernel) {
     LOG(ERROR) << "Can not find the kernel parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
 
   if (params.find("padding_mode") != params.end()) {
-   auto padding_mode =
-        std::dynamic_pointer_cast<RuntimeParameterString>(params.at("padding_mode"));
+    auto padding_mode = std::dynamic_pointer_cast<RuntimeParameterString>(
+        params.at("padding_mode"));
     if (padding_mode == nullptr) {
       LOG(ERROR) << "Can not find the padding parameter";
       return ParseParameterAttrStatus::kParameterMissingPaddingMode;
@@ -408,7 +409,8 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingPaddingMode;
   }
 
-  auto groups = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("groups"));
+  auto groups =
+      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("groups"));
   if (!groups) {
     LOG(ERROR) << "Can not find the groups parameter";
     return ParseParameterAttrStatus::kParameterMissingGroups;

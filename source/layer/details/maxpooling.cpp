@@ -133,17 +133,19 @@ InferStatus MaxPoolingLayer::Forward(
       const arma::fmat& input_channel = input_data->slice(ic);
       arma::fmat& output_channel = output_data->slice(ic);
       for (uint32_t c = 0; c < input_padded_w - pooling_w + 1; c += stride_w_) {
+        int output_col = int(c / stride_w_);
         for (uint32_t r = 0; r < input_padded_h - pooling_h + 1;
              r += stride_h_) {
-          float* output_channel_ptr = output_channel.colptr(int(c / stride_w_));
+          int output_row = int(r / stride_h_);
+          float* output_channel_ptr = output_channel.colptr(output_col);
           float max_value = std::numeric_limits<float>::lowest();
           for (uint32_t w = 0; w < pooling_w; ++w) {
+            const float* col_ptr = input_channel.colptr(c + w - padding_w_);
             for (uint32_t h = 0; h < pooling_h; ++h) {
               float current_value = 0.f;
               if ((h + r >= padding_h_ && w + c >= padding_w_) &&
                   (h + r < input_h + padding_h_ &&
                    w + c < input_w + padding_w_)) {
-                const float* col_ptr = input_channel.colptr(c + w - padding_w_);
                 current_value = *(col_ptr + r + h - padding_h_);
               } else {
                 current_value = std::numeric_limits<float>::lowest();
@@ -151,7 +153,7 @@ InferStatus MaxPoolingLayer::Forward(
               max_value = max_value > current_value ? max_value : current_value;
             }
           }
-          *(output_channel_ptr + int(r / stride_h_)) = max_value;
+          *(output_channel_ptr + output_row) = max_value;
         }
       }
     }
@@ -182,7 +184,7 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingPadding;
   }
 
- auto padding =
+  auto padding =
       std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
@@ -194,8 +196,8 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingKernel;
   }
 
-  auto kernel_size =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
+  auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
+      params.at("kernel_size"));
   if (!kernel_size) {
     LOG(ERROR) << "Can not find the kernel size parameter";
     return ParseParameterAttrStatus::kParameterMissingKernel;
