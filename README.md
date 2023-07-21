@@ -1,5 +1,9 @@
+
 # KuiperInfer
+
 ![](https://github.com/zjhellofss/kuiperinfer/actions/workflows/cmake.yml/badge.svg)
+
+![](./imgs/logo.jpg)
 
 **News:** 和datawhale合作的第二次开课正在进行中，内容更充实，讲解更充分，**带你自制一个深度学习推理框架**。请关注[我b站空间](https://space.bilibili.com/1822828582)的视频更新。
 
@@ -7,9 +11,15 @@
 
 项目整体风格和结构都具有C++项目的现代感，供大家学习参考。 
 
-**视频课程链接：**[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
-![](./imgs/logo.jpg)
+## Demo效果
+> Demo使用yolov5-s的预训练权重，使用KuiperInfer推理
+
+![](./imgs/demo_car.jpg)
+## 视频课程链接
+[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
+
+课程大纲请见下方
 
 ## 项目贡献
 
