@@ -23,10 +23,8 @@
 
 #include "convolution.hpp"
 #include <glog/logging.h>
-#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
-#include "tick.hpp"
 
 namespace kuiper_infer {
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
