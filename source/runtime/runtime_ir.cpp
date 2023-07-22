@@ -315,55 +315,48 @@ void RuntimeGraph::InitGraphParams(
 
       case int(RuntimeParameterType::kParameterBool): {
         std::shared_ptr<RuntimeParameterBool> runtime_parameter =
-            std::make_shared<RuntimeParameterBool>();
-        runtime_parameter->value = parameter.b;
+            std::make_shared<RuntimeParameterBool>(parameter.b);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterInt): {
         std::shared_ptr<RuntimeParameterInt> runtime_parameter =
-            std::make_shared<RuntimeParameterInt>();
-        runtime_parameter->value = parameter.i;
+            std::make_shared<RuntimeParameterInt>(parameter.i);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterFloat): {
         std::shared_ptr<RuntimeParameterFloat> runtime_parameter =
-            std::make_shared<RuntimeParameterFloat>();
-        runtime_parameter->value = parameter.f;
+            std::make_shared<RuntimeParameterFloat>(parameter.f);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterString): {
         std::shared_ptr<RuntimeParameterString> runtime_parameter =
-            std::make_shared<RuntimeParameterString>();
-        runtime_parameter->value = parameter.s;
+            std::make_shared<RuntimeParameterString>(parameter.s);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterIntArray): {
         std::shared_ptr<RuntimeParameterIntArray> runtime_parameter =
-            std::make_shared<RuntimeParameterIntArray>();
-        runtime_parameter->value = parameter.ai;
+            std::make_shared<RuntimeParameterIntArray>(parameter.ai);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
 
       case int(RuntimeParameterType::kParameterFloatArray): {
         std::shared_ptr<RuntimeParameterFloatArray> runtime_parameter =
-            std::make_shared<RuntimeParameterFloatArray>();
-        runtime_parameter->value = parameter.af;
+            std::make_shared<RuntimeParameterFloatArray>(parameter.af);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
       case int(RuntimeParameterType::kParameterStringArray): {
         std::shared_ptr<RuntimeParameterStringArray> runtime_parameter =
-            std::make_shared<RuntimeParameterStringArray>();
-        runtime_parameter->value = parameter.as;
+            std::make_shared<RuntimeParameterStringArray>(parameter.as);
         runtime_operator->params.insert({name, runtime_parameter});
         break;
       }
