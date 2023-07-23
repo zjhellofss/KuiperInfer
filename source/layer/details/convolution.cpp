@@ -137,10 +137,6 @@ InferStatus ConvolutionLayer::Forward(
     }
 
     uint32_t col_len = output_h * output_w;
-    CHECK(col_len > 0) << "Output_h x output_w for the convolution layer "
-                          "should be greater than zero "
-                       << i << " th";
-
     uint32_t input_c_group = input_c / groups_;
     CHECK(input_c_group == kernel_c) << "The number of channel for the kernel "
                                         "matrix and input tensor do not match";
@@ -228,10 +224,6 @@ void ConvolutionLayer::ConvGemmBias(
   arma::fmat output(
       output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
       output_h, output_w, false, true);
-
-  CHECK(output.size() == output_h * output_w)
-      << "Output_h x output_w for the convolution layer "
-         "should be output tensor size";
 
   if (!this->bias_.empty() && this->use_bias_) {
     std::shared_ptr<Tensor<float>> bias;
