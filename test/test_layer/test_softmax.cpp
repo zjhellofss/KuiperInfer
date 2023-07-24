@@ -33,7 +33,7 @@ TEST(test_layer, forward_softmax_dim1) {
   RuntimeGraph graph("tmp/softmax/softmax_dim1.pnnx.param",
                      "tmp/softmax/softmax_dim1.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t size = 24;
   std::vector<sftensor> inputs;
   std::vector<float> values;
@@ -47,7 +47,10 @@ TEST(test_layer, forward_softmax_dim1) {
     input->Fill(values);
     inputs.push_back(input);
   }
-  const auto& outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
 
   arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {
@@ -66,7 +69,7 @@ TEST(test_layer, forward_softmax_dim1_minus2) {
   RuntimeGraph graph("tmp/softmax/softmax_dim1_-2.pnnx.param",
                      "tmp/softmax/softmax_dim1_-2.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t size = 24;
   std::vector<sftensor> inputs;
   std::vector<float> values;
@@ -80,7 +83,10 @@ TEST(test_layer, forward_softmax_dim1_minus2) {
     input->Fill(values);
     inputs.push_back(input);
   }
-  const auto& outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
 
   arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {

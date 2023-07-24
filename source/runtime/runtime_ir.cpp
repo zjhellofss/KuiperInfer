@@ -111,8 +111,7 @@ bool RuntimeGraph::Init() {
   return true;
 }
 
-void RuntimeGraph::Build(const std::string& input_name,
-                         const std::string& output_name) {
+void RuntimeGraph::Build() {
   if (graph_state_ == GraphState::Complete) {
     LOG(INFO) << "Model has been built already!";
     return;
@@ -161,7 +160,7 @@ void RuntimeGraph::Build(const std::string& input_name,
   topo_operators_.clear();
   for (const auto& [_, op] : operators_maps_) {
     // 根据输入节点构建拓扑排序
-    if (op->type == "pnnx.Input" && !op->has_forward) {
+    if (!op->has_forward) {
       this->ReverseTopo(op);
     }
   }
@@ -171,16 +170,14 @@ void RuntimeGraph::Build(const std::string& input_name,
   std::reverse(topo_operators_.begin(), topo_operators_.end());
 
   graph_state_ = GraphState::Complete;
-  input_name_ = input_name;
-  output_name_ = output_name;
   if (graph_ != nullptr) {
     graph_.reset();
     graph_ = nullptr;
   }
 }
 
-std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs, bool debug) {
+void RuntimeGraph::Forward(bool debug) {
+  using namespace utils;
   // 检查当前的执行图是否已经初始化完毕
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!";
@@ -195,55 +192,46 @@ std::vector<std::shared_ptr<Tensor<float>>> RuntimeGraph::Forward(
     op->has_forward = false;
   }
   if (debug) {
-    utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
+    LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
 
   for (const auto& current_op : topo_operators_) {
-    if (current_op->type == "pnnx.Input") {
+    InferStatus status;
+    if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
-      ProbeNextLayer(current_op, inputs);
-    } else if (current_op->type == "pnnx.Output") {
-      current_op->has_forward = true;
-      CHECK(current_op->input_operands_seq.size() == 1);
-      current_op->output_operands = current_op->input_operands_seq.front();
-    } else {
-      InferStatus status;
-      if (debug) {
-        {
-          utils::LayerTimeLogging layer_time_logging(current_op->name,
-                                                     current_op->type);
-          status = current_op->layer->Forward();
-        }
-      } else {
-        status = current_op->layer->Forward();
-      }
-      CHECK(status == InferStatus::kInferSuccess)
-          << current_op->layer->layer_name()
-          << " layer forward failed, error code: " << int(status);
-      current_op->has_forward = true;
-
-      ProbeNextLayer(current_op, current_op->output_operands->datas);
+      continue;
     }
+
+    CHECK(current_op->layer != nullptr)
+        << "The layer corresponding to the op " << current_op->name
+        << " is empty, indicating that it may not have been created.";
+    std::shared_ptr<Layer> layer = current_op->layer;
+    if (debug) {
+      {
+        LayerTimeLogging layer_time_logging(current_op->name, current_op->type);
+        status = layer->Forward();
+        CHECK(status == InferStatus::kInferSuccess)
+            << layer->layer_name()
+            << " layer forward failed, error code: " << int(status);
+      }
+    } else {
+      status = layer->Forward();
+      CHECK(status == InferStatus::kInferSuccess)
+          << layer->layer_name()
+          << " layer forward failed, error code: " << int(status);
+    }
+
+    current_op->has_forward = true;
+    ProbeNextLayer(current_op, current_op->output_operands->datas);
   }
 
   if (debug) {
-    utils::LayerTimeLogging::SummaryLogging();
+    LayerTimeLogging::SummaryLogging();
   }
 
   for (const auto& op : topo_operators_) {
     LOG_IF(FATAL, !op->has_forward)
         << "The operator: " << op->name << " has not been forward yet!";
-  }
-
-  if (operators_maps_.find(output_name_) != operators_maps_.end()) {
-    const auto& output_op = operators_maps_.at(output_name_);
-    CHECK(output_op->output_operands != nullptr)
-        << "Output from" << output_op->name << " is empty";
-    const auto& output_operand = output_op->output_operands;
-    return output_operand->datas;
-  } else {
-    LOG(FATAL) << "Can not find the output operator " << output_name_;
-    return std::vector<std::shared_ptr<Tensor<float>>>{};
   }
 }
 
@@ -430,6 +418,13 @@ void RuntimeGraph::ProbeNextLayer(
 void RuntimeGraph::ReverseTopo(
     const std::shared_ptr<RuntimeOperator>& root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
+  if (root_op->input_operands.empty() && !root_op->has_forward) {
+    this->input_ops_.push_back(root_op);
+  }
+  if (root_op->output_names.empty() && !root_op->has_forward) {
+    this->output_ops_.push_back(root_op);
+  }
+
   root_op->has_forward = true;
   const auto& next_ops = root_op->output_operators;
   for (const auto& [_, op] : next_ops) {
@@ -445,14 +440,64 @@ void RuntimeGraph::ReverseTopo(
   this->topo_operators_.push_back(root_op);
 }
 
-void RuntimeGraph::ReBuildGraph(const std::string& input_name,
-                                const std::string& output_name) {
-  this->graph_state_ = GraphState::NeedInit;
-  this->Build(input_name, output_name);
-}
-
 RuntimeGraph::GraphState RuntimeGraph::graph_state() const {
   return this->graph_state_;
+}
+
+void RuntimeGraph::set_inputs(const std::string& input_name,
+                              const std::vector<sftensor>& inputs) {
+  CHECK(this->graph_state_ == GraphState::Complete);
+  std::shared_ptr<RuntimeOperator> input_op;
+  for (auto op : this->input_ops_) {
+    if (op->name == input_name) {
+      input_op = op;
+      break;
+    }
+  }
+  CHECK(input_op != nullptr)
+      << "Can not find the input operator: " << input_name;
+  ProbeNextLayer(input_op, inputs);
+}
+
+std::vector<sftensor> RuntimeGraph::get_outputs(
+    const std::string& output_name) const {
+  CHECK(this->graph_state_ == GraphState::Complete);
+  std::shared_ptr<RuntimeOperator> output_op;
+  for (auto op : this->output_ops_) {
+    if (op->name == output_name) {
+      output_op = op;
+    }
+  }
+
+  CHECK(output_op != nullptr)
+      << "Can not find the output operator: " << output_name;
+  CHECK(output_op->input_operands_seq.size() == 1)
+      << "KuiperInfer only supports one output per operator.";
+
+  output_op->output_operands = output_op->input_operands_seq.front();
+  CHECK(output_op->output_operands != nullptr)
+      << "Output from " << output_op->name << " is empty";
+  return output_op->output_operands->datas;
+}
+
+bool RuntimeGraph::is_input_op(const std::string& op_name) const {
+  for (auto op : this->input_ops_) {
+    CHECK(op != nullptr);
+    if (op->name == op_name) {
+      return true;
+    }
+  }
+  return false;
+}
+
+bool RuntimeGraph::is_output_op(const std::string& op_name) const {
+  for (auto op : this->output_ops_) {
+    CHECK(op != nullptr);
+    if (op->name == op_name) {
+      return true;
+    }
+  }
+  return false;
 }
 
 }  // namespace kuiper_infer

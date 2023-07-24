@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-23.
 #include <glog/logging.h>
 #include <gtest/gtest.h>
@@ -214,7 +214,7 @@ TEST(test_layer, forward_linear7) {
   RuntimeGraph graph("tmp/linear/linear_512_1000.pnnx.param",
                      "tmp/linear/linear_512_1000.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<sftensor> inputs;
 
@@ -224,7 +224,9 @@ TEST(test_layer, forward_linear7) {
     inputs.push_back(input);
   }
   std::vector<sftensor> outputs;
-  outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
       CSVDataLoader::LoadData("tmp/linear/linear_512x1000.csv");
   for (const auto& output : outputs) {
@@ -241,7 +243,7 @@ TEST(test_layer, forward_linear8) {
   RuntimeGraph graph("tmp/linear/linear_1305_2407.pnnx.param",
                      "tmp/linear/linear_1305_2407.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<sftensor> inputs;
 
@@ -250,8 +252,11 @@ TEST(test_layer, forward_linear8) {
     input->Fill(1.f);
     inputs.push_back(input);
   }
-  std::vector<sftensor> outputs;
-  outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
+
   arma::fmat real_data =
       CSVDataLoader::LoadData("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
@@ -268,7 +273,7 @@ TEST(test_layer, forward_linear9) {
   RuntimeGraph graph("tmp/linear/linear_1305_2407.pnnx.param",
                      "tmp/linear/linear_1305_2407.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<sftensor> inputs;
 
@@ -277,8 +282,10 @@ TEST(test_layer, forward_linear9) {
     input->Fill(1.f);
     inputs.push_back(input);
   }
-  std::vector<sftensor> outputs;
-  outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
       CSVDataLoader::LoadData("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
@@ -295,7 +302,7 @@ TEST(test_layer, forward_linear10) {
   RuntimeGraph graph("tmp/linear/linear_1305_2407.pnnx.param",
                      "tmp/linear/linear_1305_2407.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<sftensor> inputs;
   std::vector<float> values;
@@ -308,8 +315,10 @@ TEST(test_layer, forward_linear10) {
     inputs.push_back(input);
   }
 
-  std::vector<sftensor> outputs;
-  outputs = graph.Forward(inputs);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
       CSVDataLoader::LoadData("tmp/linear/linear_1305x2047_arange.csv");
   for (const auto& output : outputs) {

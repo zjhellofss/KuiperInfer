@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-1.
 #include <gtest/gtest.h>
 #include "../../source/layer/details/expression.hpp"
@@ -31,7 +31,7 @@ TEST(test_layer, add1) {
   RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
                      "tmp/add/resnet_add.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -41,9 +41,10 @@ TEST(test_layer, add1) {
     input->Fill(1.);
     inputs.push_back(input);
   }
-
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
-      graph.Forward(inputs, false);
+      graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
@@ -61,7 +62,7 @@ TEST(test_layer, add2) {
   RuntimeGraph graph("tmp/add/resnet_add2.pnnx.param",
                      "tmp/add/resnet_add2.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+    graph.Build();
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -72,8 +73,10 @@ TEST(test_layer, add2) {
     inputs.push_back(input);
   }
 
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
-      graph.Forward(inputs, false);
+      graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
@@ -91,7 +94,7 @@ TEST(test_layer, mul1) {
   RuntimeGraph graph("tmp/add/resnet_add3.pnnx.param",
                      "tmp/add/resnet_add3.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
 
   const int batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -102,8 +105,10 @@ TEST(test_layer, mul1) {
     inputs.push_back(input);
   }
 
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
   std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
-      graph.Forward(inputs, false);
+      graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
@@ -438,7 +443,6 @@ TEST(test_expression, complex6) {
   ASSERT_TRUE(
       arma::approx_equal(output1->data(), output2->data(), "absdiff", 1e-5));
 }
-
 
 TEST(test_parser, tokenizer) {
   using namespace kuiper_infer;

@@ -30,7 +30,7 @@ TEST(test_net, forward_yolo1) {
   RuntimeGraph graph("tmp/yolo/demo/yolov5n_small.pnnx.param",
                      "tmp/yolo/demo/yolov5n_small.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
@@ -39,7 +39,11 @@ TEST(test_net, forward_yolo1) {
     input->Fill(127.f);
     inputs.push_back(input);
   }
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   for (int i = 0; i < batch_size; ++i) {
     std::string file_path = "tmp/yolo/" + std::to_string(i + 1) + ".csv";
     const auto &output1 = CSVDataLoader::LoadData(file_path);
@@ -59,7 +63,7 @@ TEST(test_net, forward_yolo2) {
   RuntimeGraph graph("tmp/yolo/demo/yolov5n_small.pnnx.param",
                      "tmp/yolo/demo/yolov5n_small.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   const uint32_t batch_size = 4;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
@@ -68,7 +72,10 @@ TEST(test_net, forward_yolo2) {
     input->Fill(42.f);
     inputs.push_back(input);
   }
-  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs, false);
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   for (int i = 0; i < batch_size; ++i) {
     std::string file_path = "tmp/yolo/" + std::to_string((i + 1) * 10 + 1) + ".csv";
     const auto &output1 = CSVDataLoader::LoadData(file_path);

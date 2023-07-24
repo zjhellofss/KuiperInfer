@@ -179,8 +179,11 @@ TEST(test_layer, forward_batchnorm6) {
 
   RuntimeGraph graph("tmp/batchnorm/bn1.pnnx.param",
                      "tmp/batchnorm/bn1.pnnx.bin");
-  graph.Build("pnnx_input_0", "pnnx_output_0");
-  const std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs);
+  graph.Build();
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 8);
   const auto &output_ = outputs.at(0);
   ASSERT_EQ(output_->channels(), 32);
@@ -205,8 +208,11 @@ TEST(test_layer, forward_batchnorm7) {
 
   RuntimeGraph graph("tmp/batchnorm/bn2.pnnx.param",
                      "tmp/batchnorm/bn2.pnnx.bin");
-  graph.Build("pnnx_input_0", "pnnx_output_0");
-  const std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.Forward(inputs);
+  graph.Build();
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 8);
   const auto &output_ = outputs.at(0);
   ASSERT_EQ(output_->channels(), 32);

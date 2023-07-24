@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-2-2.
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
@@ -30,7 +30,7 @@ static void BM_Resnet18_Batch8_224x224(benchmark::State& state) {
   RuntimeGraph graph("tmp/resnet/resnet18_batch8.pnnx.param",
                      "tmp/resnet/resnet18_batch8.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   const uint32_t batch_size = 8;
@@ -40,10 +40,9 @@ static void BM_Resnet18_Batch8_224x224(benchmark::State& state) {
     input1->Fill(1.);
     inputs.push_back(input1);
   }
-
+  graph.set_inputs("pnnx_input_0", inputs);
   for (auto _ : state) {
-    std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
-        graph.Forward(inputs, false);
+    graph.Forward(false);
   }
 }
 
@@ -52,7 +51,7 @@ static void BM_Resnet18_Batch16_224x224(benchmark::State& state) {
   RuntimeGraph graph("tmp/resnet/resnet18_batch16.pnnx.param",
                      "tmp/resnet/resnet18_batch16.pnnx.bin");
 
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   const uint32_t batch_size = 16;
   for (int i = 0; i < batch_size; ++i) {
@@ -61,10 +60,9 @@ static void BM_Resnet18_Batch16_224x224(benchmark::State& state) {
     input1->Fill(1.);
     inputs.push_back(input1);
   }
-
+  graph.set_inputs("pnnx_input_0", inputs);
   for (auto _ : state) {
-    std::vector<std::shared_ptr<Tensor<float>>> output_tensors =
-        graph.Forward(inputs, false);
+    graph.Forward(false);
   }
 }
 

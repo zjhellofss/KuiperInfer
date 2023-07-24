@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-1-4.
 
 #include <glog/logging.h>
@@ -77,7 +77,7 @@ void YoloDemo(const std::vector<std::string>& image_paths,
   const int32_t input_w = 640;
 
   RuntimeGraph graph(param_path, bin_path);
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
 
   assert(batch_size == image_paths.size());
   std::vector<sftensor> inputs;
@@ -90,10 +90,11 @@ void YoloDemo(const std::vector<std::string>& image_paths,
   }
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
+  graph.set_inputs("pnnx_input_0", inputs);
   for (int i = 0; i < 1; ++i) {
-    outputs = graph.Forward(inputs, true);
+    graph.Forward(true);
   }
-
+  outputs = graph.get_outputs("pnnx_output_0");
   assert(outputs.size() == inputs.size());
   assert(outputs.size() == batch_size);
 

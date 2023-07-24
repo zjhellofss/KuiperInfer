@@ -92,11 +92,14 @@ int main(int argc, char* argv[]) {
   const std::string& param_path = "tmp/resnet/demo/resnet18_batch1.pnnx.param";
   const std::string& weight_path = "tmp/resnet/demo/resnet18_batch1.pnnx.bin";
   RuntimeGraph graph(param_path, weight_path);
-  graph.Build("pnnx_input_0", "pnnx_output_0");
+  graph.Build();
+  graph.set_inputs("pnnx_input_0", inputs);
 
   // 推理
   TICK(forward)
-  const std::vector<sftensor> outputs = graph.Forward(inputs, true);
+  graph.Forward(false);
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
   TOCK(forward)
 
   assert(outputs.size() == batch_size);

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 #include <glog/logging.h>
 #include <map>
 #include <memory>
@@ -42,18 +42,21 @@ class RuntimeGraph {
    */
   RuntimeGraph(std::string param_path, std::string bin_path);
 
-  /**
-   * 对模型重新进行build
-   */
-  void ReBuildGraph(const std::string& input_name,
-                    const std::string& output_name);
+  void set_inputs(const std::string& input_name,
+                  const std::vector<sftensor>& inputs);
+
+  std::vector<sftensor> get_outputs(const std::string& output_name) const;
+
+  bool is_input_op(const std::string& op_name) const;
+
+  bool is_output_op(const std::string& op_name) const;
 
   /**
    * 构建计算图
    * @param input_name 计算图输入节点的名称
    * @param output_name  计算图输出节点的名称
    */
-  void Build(const std::string& input_name, const std::string& output_name);
+  void Build();
 
   /**
    * 设置权重文件
@@ -81,13 +84,9 @@ class RuntimeGraph {
 
   /**
    * 计算图的执行,根据深度优先搜索的顺序执行
-   * @param inputs 计算图的输入张量
    * @param debug 是否调试，如果调试则输出一些中间信息
-   * @return 计算图的输出张量
    */
-  std::vector<std::shared_ptr<Tensor<float>>> Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      bool debug = false);
+  void Forward(bool debug = false);
 
  private:
   /**
@@ -171,10 +170,13 @@ class RuntimeGraph {
 
  private:
   GraphState graph_state_ = GraphState::NeedInit;
-  std::string input_name_;   /// 计算图输入节点的名称
-  std::string output_name_;  /// 计算图输出节点的名称
-  std::string param_path_;   /// 计算图的结构文件
-  std::string bin_path_;     /// 计算图的权重文件
+  std::vector<std::shared_ptr<RuntimeOperator>>
+      input_ops_;  /// 计算图中的输入节点
+  std::vector<std::shared_ptr<RuntimeOperator>>
+      output_ops_;  /// 计算图中的输出节点
+
+  std::string param_path_;  /// 计算图的结构文件
+  std::string bin_path_;    /// 计算图的权重文件
 
   /// 保存所有节点，根据唯一的name索引
   std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
