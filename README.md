@@ -16,6 +16,7 @@
 > Demo使用yolov5-s的预训练权重，使用KuiperInfer推理
 
 ![](./imgs/demo_car.jpg)
+![](./imgs/demo_car_.jpg)
 ## 视频课程链接
 [https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
