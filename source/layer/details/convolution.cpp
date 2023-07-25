@@ -23,8 +23,10 @@
 
 #include "convolution.hpp"
 #include <glog/logging.h>
+#include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
+#include "tick.hpp"
 
 namespace kuiper_infer {
 ConvolutionLayer::ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
@@ -137,6 +139,10 @@ InferStatus ConvolutionLayer::Forward(
     }
 
     uint32_t col_len = output_h * output_w;
+    CHECK(col_len > 0) << "Output_h x output_w for the convolution layer "
+                          "should be greater than zero "
+                       << i << " th";
+
     uint32_t input_c_group = input_c / groups_;
     CHECK(input_c_group == kernel_c) << "The number of channel for the kernel "
                                         "matrix and input tensor do not match";
@@ -168,16 +174,8 @@ InferStatus ConvolutionLayer::Forward(
         } else {
           kernel = kernel_matrix_arr_.at(kernel_count_group_start + k);
         }
-
-        // 卷积有bias的情况
-        if (this->use_bias_ && this->bias_.size() > k) {
-          const arma::fmat& bias = this->bias_.at(k)->slice(0);
-          ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
-                       kernel, bias, output_w, output_h);
-        } else {
-          ConvGemm(input_matrix, output_tensor, g, k, kernel_count_group,
-                   kernel, output_w, output_h);
-        }
+        ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
+                     kernel, output_w, output_h);
       }
     }
   }
@@ -225,31 +223,30 @@ arma::fmat ConvolutionLayer::Im2Col(sftensor input, uint32_t kernel_w,
   return input_matrix;
 }
 
-void ConvolutionLayer::ConvGemm(const arma::fmat& input_matrix,
-                                sftensor output_tensor, uint32_t group,
-                                uint32_t kernel_index,
-                                uint32_t kernel_count_group,
-                                const arma::frowvec& kernel, uint32_t output_w,
-                                uint32_t output_h) const {
+void ConvolutionLayer::ConvGemmBias(
+    const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
+    uint32_t kernel_index, uint32_t kernel_count_group,
+    const arma::frowvec& kernel, uint32_t output_w, uint32_t output_h) const {
   arma::fmat output(
       output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
       output_h, output_w, false, true);
-  CHECK(!kernel.empty() && !input_matrix.empty());
-  output = kernel * input_matrix;
-}
 
-void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
-                                    sftensor output_tensor, uint32_t group,
-                                    uint32_t kernel_index,
-                                    uint32_t kernel_count_group,
-                                    const arma::frowvec& kernel,
-                                    const arma::fmat& bias, uint32_t output_w,
-                                    uint32_t output_h) const {
-  arma::fmat output(
-      output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
-      output_h, output_w, false, true);
-  CHECK(!bias.empty() && !kernel.empty() && !input_matrix.empty());
-  output = kernel * input_matrix + bias;
+  CHECK(output.size() == output_h * output_w)
+      << "Output_h x output_w for the convolution layer "
+         "should be output tensor size";
+
+  if (!this->bias_.empty() && this->use_bias_) {
+    std::shared_ptr<Tensor<float>> bias;
+    bias = this->bias_.at(kernel_index);
+    if (bias != nullptr && !bias->empty()) {
+      float bias_value = bias->index(0);
+      output = kernel * input_matrix + bias_value;
+    } else {
+      LOG(FATAL) << "Bias tensor is empty or nullptr";
+    }
+  } else {
+    output = kernel * input_matrix;
+  }
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
