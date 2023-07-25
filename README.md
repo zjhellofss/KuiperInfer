@@ -1,26 +1,50 @@
 
-# KuiperInfer
+# KuiperInfer (自制深度学习推理框架)
 
 ![](https://github.com/zjhellofss/kuiperinfer/actions/workflows/cmake.yml/badge.svg)
 
 ![](./imgs/logo.jpg)
 
-**News:** 和datawhale合作的第二次开课正在进行中，内容更充实，讲解更充分，**带你自制一个深度学习推理框架**。请关注[我b站空间](https://space.bilibili.com/1822828582)的视频更新。
+**News**： 正在进行第二次与datawhale合作的开课项目，内容更加丰富，讲解更加深入，将带领你亲手打造一个深度学习推理框架。关注我的[B站空间](https://space.bilibili.com/1822828582)，获取最新视频更新。
 
-从零自制深度学习推理框架，学会深度学习框架背后的知识，学会怎么上手一个中等规模的C++项目。对于以后的面试和求职都是一个不错的项目哦！
-
-项目整体风格和结构都具有C++项目的现代感，供大家学习参考。 
-
+跟随本项目，从零开始自制深度学习推理框架，你将有以下收获：
+1. 学习一个深度学习框架背后的知识，掌握现代C++项目的写法，调试技巧和工程经验；
+2. 如何设计、编写一个计算图；
+3. 实现常见的算子，卷积算子、池化算子、全连接算子等；
+4. 在3的基础上，学会常见的优化手段加速算子的执行；
+5. 最后你将获得一个属于自己的推理框架，对面试和知识进阶大有裨益。
 
 ## Demo效果
-> Demo使用yolov5-s的预训练权重，使用KuiperInfer推理
+> Demo直接使用yolov5-s的预训练权重(coco数据集)，使用KuiperInfer推理
 
 ![](./imgs/demo_car.jpg)
-![](./imgs/demo_car_.jpg)
+
 ## 视频课程链接
 [https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
 课程大纲请见下方
+
+
+
+## 课程大纲
+我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
+
+| 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
+|-------|----------------------------------|-----|----------------------------------------------|
+| 第一次课  | 整体框架解读和开发环境配置                    | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课  | 张量Tensor类的解析和输入数据的内存排布           | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课  | 从CSV文件中初始化张量Tensor一个实例           | 完成  | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课  | 手写第一个算子Relu并完成算子注册工厂类            | 完成  | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课  | Im2col的原理和卷积算子的实现                | 完成  |      https://www.bilibili.com/video/BV1F841137Ct                                        |
+| 第六次课  | 照猫画虎，完成MaxPooling算子              | 完成  |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
+| 第七次课  | 图结构(PNNX)讲解和计算图初步                | 完成  |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
+| 第八次课  | 读取PNNX并构建自己的计算图                  | 完成  |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
+| 第九次课  | 卷积算子的实现和im2col加速计算的原理            | 完成  |         https://www.bilibili.com/video/BV1F841137Ct                                    |
+| 第十次课  | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成  | https://www.bilibili.com/video/BV1M54y1K7AG |
+| 第十一次课 | 算子的执行流程                          | 完成  | https://www.bilibili.com/video/BV1wY411C7Kv|
+| 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类    | 完成  | https://www.bilibili.com/video/BV1jD4y1M772|
+| 第十三次课 | 用自制的推理框架支持Yolov5模型的推理    | 完成  | https://www.bilibili.com/video/BV1xs4y1J7t2|
+
 
 ## 项目贡献
 
@@ -47,26 +71,6 @@
 - 本项目相当于课程的上游或者预研项目
 
 - 这里的每一个功能都有可能成为视频课程中的知识点，无论是我开发的还是其他同学完善的。
-
-## 课程大纲
-我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
-
-| 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
-|-------|----------------------------------|-----|----------------------------------------------|
-| 第一次课  | 整体框架解读和开发环境配置                    | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
-| 第二次课  | 张量Tensor类的解析和输入数据的内存排布           | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
-| 第三次课  | 从CSV文件中初始化张量Tensor一个实例           | 完成  | https://www.bilibili.com/video/BV1Pg411J7V5/ |
-| 第四次课  | 手写第一个算子Relu并完成算子注册工厂类            | 完成  | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
-| 第五次课  | Im2col的原理和卷积算子的实现                | 完成  |      https://www.bilibili.com/video/BV1F841137Ct                                        |
-| 第六次课  | 照猫画虎，完成MaxPooling算子              | 完成  |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
-| 第七次课  | 图结构(PNNX)讲解和计算图初步                | 完成  |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课  | 读取PNNX并构建自己的计算图                  | 完成  |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
-| 第九次课  | 卷积算子的实现和im2col加速计算的原理            | 完成  |         https://www.bilibili.com/video/BV1F841137Ct                                    |
-| 第十次课  | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成  | https://www.bilibili.com/video/BV1M54y1K7AG |
-| 第十一次课 | 算子的执行流程                          | 完成  | https://www.bilibili.com/video/BV1wY411C7Kv|
-| 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类    | 完成  | https://www.bilibili.com/video/BV1jD4y1M772|
-| 第十三次课 | 用自制的推理框架支持Yolov5模型的推理    | 完成  | https://www.bilibili.com/video/BV1xs4y1J7t2|
-
 
 ## 使用的技术和开发环境
 * 开发语言：C++ 17
@@ -123,8 +127,6 @@ const std::string& bin_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 
 - 编译完成后，在项目目录调用 `./build/demos/yolo_test`
 
-### 效果图
-<img src="https://i.imgur.com/JkZ9KiE.jpg" alt="output0" style="zoom:50%;" />
 
 ## 已经支持的算子
 **总体理念：逐步优化已经有的算子；有需要的时候再对未实现的算子进行开发**
@@ -146,7 +148,7 @@ const std::string& bin_path = "tmp/yolo/demo/yolov5s_batch8.pnnx.bin";
 - Concat
 
 ## 目录
-source是源码目录
+**source**是源码目录
 
 1. **data/** 是张量类Tensor的实现和Tensor初始化方法
 2. **layer/** 是算子的实现
