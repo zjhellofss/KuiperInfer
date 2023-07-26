@@ -60,7 +60,7 @@ InferStatus SigmoidLayer::Forward(
         << "The input and output tensor shapes of the sigmoid layer do not "
            "match "
         << i << " th";
-    using namespace kuiper_infer::math;
+    using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationSigmoid)(input, output);
   }
   return InferStatus::kInferSuccess;

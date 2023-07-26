@@ -28,7 +28,7 @@
 #include "data/tensor.hpp"
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
-namespace math {
+namespace activation {
 enum class ActivationType {
   kActivatetionUnknown = -1,
   kActivationRelu = 0,
@@ -46,6 +46,6 @@ static void ReluSSE(sftensor input, sftensor output);
 
 static void SiluSSE(sftensor input, sftensor output);
 
-}  // namespace math
+}  // namespace activation
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_INCLUDE_MATH_ARMA_SSE

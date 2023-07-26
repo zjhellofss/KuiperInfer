@@ -27,7 +27,7 @@
 
 namespace kuiper_infer {
 
-namespace math {
+namespace activation {
 
 static void SigmoidSSE(sftensor input, sftensor output) {
   CHECK(input != nullptr && output != nullptr)
@@ -196,5 +196,5 @@ ActivationFunc ApplySSEActivation(ActivationType act_type) {
     }
   }
 }
-}  // namespace math
+}  // namespace activation
 }  // namespace kuiper_infer

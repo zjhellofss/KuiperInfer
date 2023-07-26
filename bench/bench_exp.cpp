@@ -13,7 +13,7 @@ static void BM_ExpSimd(benchmark::State& state) {
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
 
-  using namespace kuiper_infer::math;
+  using namespace kuiper_infer::activation;
   const uint32_t size = input->size();
   arma::fcube input_data = input->data();
   for (auto _ : state) {

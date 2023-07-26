@@ -1,13 +1,13 @@
 #pragma once
 /**
-	@brief fast math library for float
+	@brief fast activation library for float
 	@author herumi
 	@url https://github.com/herumi/fmath/
 	@note modified new BSD license
 	http://opensource.org/licenses/BSD-3-Clause
 
 	cl /Ox /Ob2 /arch:SSE2 /fp:fast bench.cpp -I../xbyak /EHsc /DNOMINMAX
-	g++ -O3 -fomit-frame-pointer -fno-operator-names -march=core2 -mssse3 -mfpmath=sse -ffast-math -fexcess-precision=fast
+	g++ -O3 -fomit-frame-pointer -fno-operator-names -march=core2 -mssse3 -mfpmath=sse -ffast-activation -fexcess-precision=fast
 */
 /*
 	function prototype list
@@ -457,7 +457,7 @@ inline double expd(double x)
 	return y * did;
 #else
 /*
-	remark : -ffast-math option of gcc may generate bad code for fmath::expd
+	remark : -ffast-activation option of gcc may generate bad code for fmath::expd
 */
 	const uint64_t b = 3ULL << 51;
 	di di;

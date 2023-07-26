@@ -125,7 +125,7 @@ InferStatus YoloDetectLayer::Forward(
       CHECK_EQ(stages_tensor->rows(), stages_ * nx * ny);
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
-      using namespace kuiper_infer::math;
+      using namespace kuiper_infer::activation;
       ApplySSEActivation(ActivationType::kActivationSigmoid)(input, input);
       const arma::fcube& input_data = input->data();
 

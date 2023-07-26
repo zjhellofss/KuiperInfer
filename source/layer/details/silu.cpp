@@ -80,7 +80,7 @@ InferStatus SiLULayer::Forward(
     CHECK(output->shapes() == input->shapes())
         << "The input and output tensor shapes of the silu layer do not match "
         << i << " th";
-    using namespace kuiper_infer::math;
+    using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationSilu)(input, output);
   }
   return InferStatus::kInferSuccess;

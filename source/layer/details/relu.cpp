@@ -76,7 +76,7 @@ InferStatus ReluLayer::Forward(
     CHECK(output->shapes() == input->shapes())
         << "The input and output tensor shapes of the relu layer do not match "
         << i << " th";
-    using namespace kuiper_infer::math;
+    using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationRelu)(input, output);
   }
   return InferStatus::kInferSuccess;
