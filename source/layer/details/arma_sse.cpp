@@ -22,7 +22,7 @@
 //
 // Created by fss on 23-7-26.
 //
-#include "utils/math/arma_sse.hpp"
+#include "arma_sse.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
@@ -66,7 +66,7 @@ void ArmaSigmoid(const arma::fcube& input_data, arma::fcube& output_data) {
   if (index < in_size) {
     while (index < in_size) {
       float value = input_data.at(index);
-      output_data.at(index) = 1 / (1.f + expf(-value));
+      output_data.at(index) = 1 / (1.f + fmath::exp(-value));
       index += 1;
     }
   }
@@ -166,7 +166,7 @@ void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data) {
   if (j < size) {
     while (j < size) {
       float value = input_data.at(j);
-      output_data.at(j) = value / (1.f + expf(-value));
+      output_data.at(j) = value / (1.f + fmath::exp(-value));
       j += 1;
     }
   }

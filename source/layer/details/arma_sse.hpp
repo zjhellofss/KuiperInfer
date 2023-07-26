@@ -22,10 +22,10 @@
 // Created by fss on 23-7-26.
 //
 
-#ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SIGMOID
-#define KUIPER_INFER_INCLUDE_MATH_ARMA_SIGMOID
+#ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
+#define KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #include <armadillo>
-#include "fmath.hpp"
+#include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 namespace math {
 void ArmaSigmoid(const arma::fcube& input_data, arma::fcube& output_data);
@@ -35,4 +35,4 @@ void ArmaReLU(const arma::fcube& input_data, arma::fcube& output_data);
 void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data);
 }  // namespace math
 }  // namespace kuiper_infer
-#endif  // KUIPER_INFER_INCLUDE_MATH_ARMA_SIGMOID
+#endif  // KUIPER_INFER_INCLUDE_MATH_ARMA_SSE

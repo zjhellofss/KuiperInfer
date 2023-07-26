@@ -21,8 +21,8 @@
 
 // Created by fss on 22-11-18.
 #include "relu.hpp"
+#include "arma_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
-#include "utils/math/arma_sse.hpp"
 
 namespace kuiper_infer {
 InferStatus ReluLayer::Forward(

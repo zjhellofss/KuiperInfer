@@ -412,7 +412,7 @@ inline float exp(float x)
 	using namespace local;
 	const ExpVar<>& expVar = C<>::expVar;
 
-#if 1
+#if __SSE2__
 	__m128 x1 = _mm_set_ss(x);
 
 	int limit = _mm_cvtss_si32(x1) & 0x7fffffff;
@@ -429,19 +429,7 @@ inline float exp(float x)
 	fi.i = ((u + 127) << 23) | expVar.tbl[v];
 	return (1 + t) * fi.f;
 #else
-	x = std::min(x, expVar.maxX[0]);
-	x = std::max(x, expVar.minX[0]);
-	float t = x * expVar.a[0];
-	const float magic = (1 << 23) + (1 << 22); // to round
-	t += magic;
-	fi fi;
-	fi.f = t;
-	t = x - (t - magic) * expVar.b[0];
-	int u = ((fi.i + (127 << expVar.s)) >> expVar.s) << 23;
-	unsigned int v = fi.i & mask(expVar.s);
-	fi.i = u | expVar.tbl[v];
-	return (1 + t) * fi.f;
-//	return (1 + t) * pow(2, (float)u) * pow(2, (float)v / n);
+    return std::exp(x);
 #endif
 }
 

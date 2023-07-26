@@ -23,8 +23,8 @@
 
 #include "sigmoid.hpp"
 #include <glog/logging.h>
+#include "arma_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
-#include "utils/math/arma_sse.hpp"
 
 namespace kuiper_infer {
 

@@ -22,9 +22,9 @@
 // Created by fss on 22-12-25.
 
 #include "silu.hpp"
+#include "arma_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "tick.hpp"
-#include "utils/math/arma_sse.hpp"
 
 namespace kuiper_infer {
 

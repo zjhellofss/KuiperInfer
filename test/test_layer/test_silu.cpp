@@ -21,15 +21,15 @@
 
 // Created by fss on 22-12-25.
 
-#include <glog/logging.h>
 #include <gtest/gtest.h>
-#include "../../source/layer/details/silu.hpp"
+#include <glog/logging.h>
+
 #include "data/tensor.hpp"
+#include "../../source/layer/details/silu.hpp"
 
 TEST(test_layer, forward_silu1) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(32, 224, 512);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 224, 512);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -44,17 +44,14 @@ TEST(test_layer, forward_silu1) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) -
-                         input_->index(j) / (1 + std::exp(-input_->index(j)))),
-                1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
     }
   }
 }
 
 TEST(test_layer, forward_silu2) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, 32, 128);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 32, 128);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -69,17 +66,14 @@ TEST(test_layer, forward_silu2) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) -
-                         input_->index(j) / (1 + std::exp(-input_->index(j)))),
-                1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
     }
   }
 }
 
 TEST(test_layer, forward_silu3) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, 1, 16);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 16);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -94,17 +88,14 @@ TEST(test_layer, forward_silu3) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) -
-                         input_->index(j) / (1 + std::exp(-input_->index(j)))),
-                1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
     }
   }
 }
 
 TEST(test_layer, forward_silu4) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, 320, 1);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 320, 1);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -119,17 +110,14 @@ TEST(test_layer, forward_silu4) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) -
-                         input_->index(j) / (1 + std::exp(-input_->index(j)))),
-                1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
     }
   }
 }
 
 TEST(test_layer, forward_silu5) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, 1, 15);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 15);
   input->Rand();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -144,10 +132,7 @@ TEST(test_layer, forward_silu5) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) -
-                         input_->index(j) / (1 + std::exp(-input_->index(j)))),
-                1e-6)
-          << j;
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
     }
   }
 }

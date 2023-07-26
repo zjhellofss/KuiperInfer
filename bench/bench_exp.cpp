@@ -4,9 +4,8 @@
 
 #include <benchmark/benchmark.h>
 #include <armadillo>
-#include "../source/layer/details/sse_mathfun.hpp"
+#include "../source/layer/details/arma_sse.hpp"
 #include "data/tensor.hpp"
-#include "utils/math/arma_sse.hpp"
 static void BM_ExpSimd(benchmark::State& state) {
   using namespace kuiper_infer;
   uint32_t input_c = state.range(0);
