@@ -192,7 +192,7 @@ ActivationFunc ApplySSEActivation(ActivationType act_type) {
       return function;
     }
     default: {
-      LOG(FATAL) << "Unknown activation type: " << int(act_type);
+      LOG(FATAL) << "Unknown SSE activation type: " << int(act_type);
     }
   }
 }
