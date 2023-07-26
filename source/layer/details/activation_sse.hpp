@@ -25,14 +25,27 @@
 #ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #define KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #include <armadillo>
+#include "data/tensor.hpp"
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 namespace math {
-void ArmaSigmoid(const arma::fcube& input_data, arma::fcube& output_data);
+enum class ActivationType {
+  kActivatetionUnknown = -1,
+  kActivationRelu = 0,
+  kActivationSilu = 1,
+  kActivationSigmoid = 2,
+};
 
-void ArmaReLU(const arma::fcube& input_data, arma::fcube& output_data);
+using ActivationFunc = std::function<void(sftensor, sftensor)>;
 
-void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data);
+ActivationFunc ApplySSEActivation(ActivationType act_type);
+
+static void SigmoidSSE(sftensor input, sftensor output);
+
+static void ReluSSE(sftensor input, sftensor output);
+
+static void SiluSSE(sftensor input, sftensor output);
+
 }  // namespace math
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_INCLUDE_MATH_ARMA_SSE

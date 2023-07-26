@@ -21,7 +21,7 @@
 
 // Created by fss on 22-12-26.
 #include "yolo_detect.hpp"
-#include "arma_sse.hpp"
+#include "activation_sse.hpp"
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
@@ -125,9 +125,9 @@ InferStatus YoloDetectLayer::Forward(
       CHECK_EQ(stages_tensor->rows(), stages_ * nx * ny);
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
-      arma::fcube input_data = input->data();
       using namespace kuiper_infer::math;
-      ArmaSigmoid(input_data, input_data);
+      ApplySSEActivation(ActivationType::kActivationSigmoid)(input, input);
+      const arma::fcube& input_data = input->data();
 
       arma::fmat& x_stages = stages_tensor->slice(b);
       for (uint32_t na = 0; na < num_anchors_; ++na) {

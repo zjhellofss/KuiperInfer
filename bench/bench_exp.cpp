@@ -4,7 +4,7 @@
 
 #include <benchmark/benchmark.h>
 #include <armadillo>
-#include "../source/layer/details/arma_sse.hpp"
+#include "../source/layer/details/activation_sse.hpp"
 #include "data/tensor.hpp"
 static void BM_ExpSimd(benchmark::State& state) {
   using namespace kuiper_infer;

@@ -21,7 +21,7 @@
 
 // Created by fss on 22-11-18.
 #include "relu.hpp"
-#include "arma_sse.hpp"
+#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -77,7 +77,7 @@ InferStatus ReluLayer::Forward(
         << "The input and output tensor shapes of the relu layer do not match "
         << i << " th";
     using namespace kuiper_infer::math;
-    ArmaReLU(input->data(), output->data());
+    ApplySSEActivation(ActivationType::kActivationRelu)(input, output);
   }
   return InferStatus::kInferSuccess;
 }

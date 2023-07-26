@@ -23,7 +23,7 @@
 
 #include "sigmoid.hpp"
 #include <glog/logging.h>
-#include "arma_sse.hpp"
+#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -61,7 +61,7 @@ InferStatus SigmoidLayer::Forward(
            "match "
         << i << " th";
     using namespace kuiper_infer::math;
-    ArmaSigmoid(input->data(), output->data());
+    ApplySSEActivation(ActivationType::kActivationSigmoid)(input, output);
   }
   return InferStatus::kInferSuccess;
 }

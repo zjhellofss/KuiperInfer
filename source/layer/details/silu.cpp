@@ -22,7 +22,7 @@
 // Created by fss on 22-12-25.
 
 #include "silu.hpp"
-#include "arma_sse.hpp"
+#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "tick.hpp"
 
@@ -81,7 +81,7 @@ InferStatus SiLULayer::Forward(
         << "The input and output tensor shapes of the silu layer do not match "
         << i << " th";
     using namespace kuiper_infer::math;
-    ArmaSiLU(input->data(), output->data());
+    ApplySSEActivation(ActivationType::kActivationSilu)(input, output);
   }
   return InferStatus::kInferSuccess;
 }

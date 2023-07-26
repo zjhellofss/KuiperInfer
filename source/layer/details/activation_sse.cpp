@@ -22,23 +22,26 @@
 //
 // Created by fss on 23-7-26.
 //
-#include "arma_sse.hpp"
+#include "activation_sse.hpp"
 #include <glog/logging.h>
 
 namespace kuiper_infer {
 
 namespace math {
-void ArmaSigmoid(const arma::fcube& input_data, arma::fcube& output_data) {
-  CHECK(!input_data.empty() && !output_data.empty())
+
+static void SigmoidSSE(sftensor input, sftensor output) {
+  CHECK(input != nullptr && output != nullptr)
       << "The input or output tensor is empty.";
-  const uint32_t in_size = input_data.size();
-  const uint32_t out_size = output_data.size();
-  CHECK(in_size == out_size) << "The input and output sizes are not equal.";
+  CHECK(!input->empty() && !output->empty())
+      << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size())
+      << "The input and output sizes are not equal.";
 #ifdef __SSE2__
-  int32_t packet_size = 4;
   int32_t index = 0;
-  const float* in_ptr = input_data.memptr();
-  float* out_ptr = output_data.memptr();
+  int32_t packet_size = 4;
+  const uint32_t in_size = input->size();
+  const float* in_ptr = input->raw_ptr();
+  float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
   packet_size = 8;
   __m256 _one = _mm256_set1_ps(1.f);
@@ -65,34 +68,36 @@ void ArmaSigmoid(const arma::fcube& input_data, arma::fcube& output_data) {
 #endif
   if (index < in_size) {
     while (index < in_size) {
-      float value = input_data.at(index);
-      output_data.at(index) = 1 / (1.f + fmath::exp(-value));
+      float value = input->index(index);
+      output->index(index) = 1 / (1.f + fmath::exp(-value));
       index += 1;
     }
   }
 #else
-  output_data = 1.f / (1.f + arma::exp(-input_data));
+  output->data() = 1.f / (1.f + arma::exp(-input->data()));
 #endif
 }
 
-void ArmaReLU(const arma::fcube& input_data, arma::fcube& output_data) {
-  CHECK(!input_data.empty() && !output_data.empty())
+static void ReluSSE(sftensor input, sftensor output) {
+  CHECK(input != nullptr && output != nullptr)
       << "The input or output tensor is empty.";
-  CHECK(input_data.size() == output_data.size())
+  CHECK(!input->empty() && !output->empty())
+      << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
 #ifndef __SSE2__
-  for (uint32_t j = 0; j < input_data.size(); ++j) {
-    float value = input_data.at(j);
-    output_data.at(j) = value > 0.f ? value : 0.f;
+  for (uint32_t j = 0; j < input->size(); ++j) {
+    float value = input->index(j);
+    output->index(j) = value > 0.f ? value : 0.f;
   }
 #else
   int32_t j = 0;
   int32_t packet_size = 4;
-  const uint32_t size = output_data.size();
+  const uint32_t size = input->size();
+  const float* in_ptr = input->raw_ptr();
+  float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
   packet_size = 8;
-  const float* in_ptr = input_data.memptr();
-  float* out_ptr = output_data.memptr();
   __m256 _zero = _mm256_setzero_ps();
   for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
@@ -102,8 +107,6 @@ void ArmaReLU(const arma::fcube& input_data, arma::fcube& output_data) {
     out_ptr += packet_size;
   }
 #else
-  const float* in_ptr = input_data.memptr();
-  float* out_ptr = output_data.memptr();
   __m128 _zero = _mm_setzero_ps();
   for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
     __m128 _p = _mm_load_ps(in_ptr);
@@ -115,29 +118,31 @@ void ArmaReLU(const arma::fcube& input_data, arma::fcube& output_data) {
 #endif
   if (j < size) {
     while (j < size) {
-      float value = input_data.at(j);
-      output_data.at(j) = value > 0.f ? value : 0.f;
+      float value = input->index(j);
+      output->index(j) = value > 0.f ? value : 0.f;
       j += 1;
     }
   }
 #endif
 }
 
-void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data) {
-  CHECK(!input_data.empty() && !output_data.empty())
+static void SiluSSE(sftensor input, sftensor output) {
+  CHECK(input != nullptr && output != nullptr)
       << "The input or output tensor is empty.";
-  CHECK(input_data.size() == output_data.size())
+  CHECK(!input->empty() && !output->empty())
+      << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
 #ifndef __SSE2__
-  output_data = input_data / (1 + arma::exp(-input_data));
+  output->data() = input->data() / (1 + arma::exp(-input->data()));
 #else
   int32_t j = 0;
   int32_t packet_size = 4;
-  const uint32_t size = output_data.size();
+  const uint32_t size = input->size();
+  const float* in_ptr = input->raw_ptr();
+  float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
   packet_size = 8;
-  const float* in_ptr = input_data.memptr();
-  float* out_ptr = output_data.memptr();
   __m256 _one = _mm256_set1_ps(1.f);
   __m256 _zero = _mm256_setzero_ps();
 
@@ -150,8 +155,6 @@ void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data) {
     out_ptr += packet_size;
   }
 #else
-  const float* in_ptr = input_data.memptr();
-  float* out_ptr = output_data.memptr();
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
 
@@ -165,13 +168,33 @@ void ArmaSiLU(const arma::fcube& input_data, arma::fcube& output_data) {
 #endif
   if (j < size) {
     while (j < size) {
-      float value = input_data.at(j);
-      output_data.at(j) = value / (1.f + fmath::exp(-value));
+      float value = input->index(j);
+      output->index(j) = value / (1.f + fmath::exp(-value));
       j += 1;
     }
   }
 #endif
 }
 
+ActivationFunc ApplySSEActivation(ActivationType act_type) {
+  ActivationFunc function;
+  switch (act_type) {
+    case ActivationType::kActivationRelu: {
+      function = ReluSSE;
+      return function;
+    }
+    case ActivationType::kActivationSigmoid: {
+      function = SigmoidSSE;
+      return function;
+    }
+    case ActivationType::kActivationSilu: {
+      function = SiluSSE;
+      return function;
+    }
+    default: {
+      LOG(FATAL) << "Unknown activation type: " << int(act_type);
+    }
+  }
+}
 }  // namespace math
 }  // namespace kuiper_infer
