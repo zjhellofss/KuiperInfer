@@ -25,8 +25,8 @@
 #include <queue>
 #include <string>
 #include <vector>
-#include "ir.h"
 #include "layer/abstract/layer.hpp"
+#include "runtime/pnnx/ir.h"
 #include "runtime/runtime_operand.hpp"
 #include "runtime_op.hpp"
 

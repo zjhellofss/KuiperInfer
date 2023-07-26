@@ -6,7 +6,7 @@
 #include <armadillo>
 #include "../source/layer/details/sse_mathfun.hpp"
 #include "data/tensor.hpp"
-
+#include "utils/math/arma_sse.hpp"
 static void BM_ExpSimd(benchmark::State& state) {
   using namespace kuiper_infer;
   uint32_t input_c = state.range(0);
@@ -14,27 +14,11 @@ static void BM_ExpSimd(benchmark::State& state) {
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
 
+  using namespace kuiper_infer::math;
   const uint32_t size = input->size();
+  arma::fcube input_data = input->data();
   for (auto _ : state) {
-    float* ptr = input->raw_ptr();
-    __m128 _one1 = _mm_set1_ps(1.f);
-    __m128 _one2 = _mm_set1_ps(1.f);
-    __m128 _zero = _mm_setzero_ps();
-    const uint32_t packet_size = 4;
-    uint32_t j = 0;
-    for (j = 0; j < size - 3; j += packet_size) {
-      __m128 _p = _mm_load_ps(ptr);
-      _p = _mm_div_ps(_one1, _mm_add_ps(_one2, exp_ps(_mm_sub_ps(_zero, _p))));
-      _mm_store_ps(ptr, _p);
-      ptr += packet_size;
-    }
-    if (j < size) {
-      while (j < size) {
-        float value = input->index(j);
-        input->index(j) = 1.f / (1.f + expf(-value));
-        j += 1;
-      }
-    }
+    ArmaSigmoid(input_data, input_data);
   }
 }
 

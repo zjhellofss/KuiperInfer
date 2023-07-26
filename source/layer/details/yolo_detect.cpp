@@ -23,6 +23,7 @@
 #include "yolo_detect.hpp"
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "utils/math/arma_sse.hpp"
 
 namespace kuiper_infer {
 
@@ -124,13 +125,14 @@ InferStatus YoloDetectLayer::Forward(
       CHECK_EQ(stages_tensor->rows(), stages_ * nx * ny);
       CHECK_EQ(stages_tensor->cols(), classes_info);
 
-      const arma::fcube& input_data = input->data();
-      const arma::fcube& input_data_exp = 1.f / (1.f + arma::exp(-input_data));
+      arma::fcube input_data = input->data();
+      using namespace kuiper_infer::math;
+      ArmaSigmoid(input_data, input_data);
 
       arma::fmat& x_stages = stages_tensor->slice(b);
       for (uint32_t na = 0; na < num_anchors_; ++na) {
         x_stages.submat(ny * nx * na, 0, ny * nx * (na + 1) - 1,
-                        classes_info - 1) = input_data_exp.slice(na).t();
+                        classes_info - 1) = input_data.slice(na).t();
       }
 
       const arma::fmat& xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);

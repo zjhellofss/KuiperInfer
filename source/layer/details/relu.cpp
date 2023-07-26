@@ -18,15 +18,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-18.
 #include "relu.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "utils/math/arma_sse.hpp"
 
-#if __SSE2__
-#include <emmintrin.h>
-#include "sse_mathfun.hpp"
-#endif
 namespace kuiper_infer {
 InferStatus ReluLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -79,34 +76,8 @@ InferStatus ReluLayer::Forward(
     CHECK(output->shapes() == input->shapes())
         << "The input and output tensor shapes of the relu layer do not match "
         << i << " th";
-#ifndef __SSE2__
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float value = input->index(j);
-      output->index(j) = value > 0.f ? value : 0.f;
-    }
-#else
-    float* in_ptr = input->raw_ptr();
-    float* out_ptr = output->raw_ptr();
-    __m128 _zero = _mm_setzero_ps();
-    const uint32_t size = output->size();
-    const uint32_t packet_size = 4;
-    uint32_t j = 0;
-    for (j = 0; j < size - 3; j += packet_size) {
-      __m128 _p = _mm_load_ps(in_ptr);
-      __m128 _value = _mm_max_ps(_zero, _p);
-      _mm_store_ps(out_ptr, _value);
-      in_ptr += 4;
-      out_ptr += 4;
-    }
-
-    if (j < size) {
-      while (j < size) {
-        float value = input->index(j);
-        output->index(j) = value > 0.f ? value : 0.f;
-        j += 1;
-      }
-    }
-#endif
+    using namespace kuiper_infer::math;
+    ArmaReLU(input->data(), output->data());
   }
   return InferStatus::kInferSuccess;
 }

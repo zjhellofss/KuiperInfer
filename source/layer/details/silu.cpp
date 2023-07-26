@@ -18,16 +18,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
 
 #include "silu.hpp"
 #include "layer/abstract/layer_factory.hpp"
 #include "tick.hpp"
-#if __SSE2__
-#include <emmintrin.h>
-#include "sse_mathfun.hpp"
-#endif
+#include "utils/math/arma_sse.hpp"
+
 namespace kuiper_infer {
 
 SiLULayer::SiLULayer() : NonParamLayer("SiLU") {}
@@ -82,32 +80,8 @@ InferStatus SiLULayer::Forward(
     CHECK(output->shapes() == input->shapes())
         << "The input and output tensor shapes of the silu layer do not match "
         << i << " th";
-    uint32_t size = output->size();
-#if __SSE2__
-    float* in_ptr = input->raw_ptr();
-    float* out_ptr = output->raw_ptr();
-    __m128 _one = _mm_set1_ps(1.f);
-    __m128 _zero = _mm_setzero_ps();
-    const uint32_t packet_size = 4;
-    uint32_t j = 0;
-    for (j = 0; j < size - 3; j += packet_size) {
-      __m128 _p = _mm_load_ps(in_ptr);
-      _p = _mm_div_ps(_p, _mm_add_ps(_one, exp_ps(_mm_sub_ps(_zero, _p))));
-      _mm_store_ps(out_ptr, _p);
-      in_ptr += packet_size;
-      out_ptr += packet_size;
-    }
-    if (j < size) {
-      while (j < size) {
-        float value = input->index(j);
-        output->index(j) = value / (1.f + expf(-value));
-        j += 1;
-      }
-    }
-#else
-    arma::fcube& input_data = input->data();
-    output->set_data(input_data / (1.f + arma::exp(-input_data)));
-#endif
+    using namespace kuiper_infer::math;
+    ArmaSiLU(input->data(), output->data());
   }
   return InferStatus::kInferSuccess;
 }

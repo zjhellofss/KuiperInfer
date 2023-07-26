@@ -26,7 +26,7 @@
 #include <utility>
 #include <vector>
 #include "layer/abstract/layer_factory.hpp"
-#include "utils/time_logging.hpp"
+#include "utils/time/time_logging.hpp"
 
 namespace kuiper_infer {
 RuntimeGraph::RuntimeGraph(std::string param_path, std::string bin_path)
@@ -269,6 +269,7 @@ void RuntimeGraph::InitGraphOperatorsInput(
         LOG(FATAL) << "Unknown input operand type: " << input->type;
       }
     }
+
     runtime_operator->input_operands.insert({producer->name, runtime_operand});
     runtime_operator->input_operands_seq.push_back(runtime_operand);
   }

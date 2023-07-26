@@ -37,11 +37,15 @@ find_package(BLAS REQUIRED)
 find_package(LAPACK REQUIRED)
 
 aux_source_directory(./source/data DIR_DATA)
-aux_source_directory(./source/runtime DIR_PARSER)
+aux_source_directory(./source/runtime DIR_RUNTIME)
+aux_source_directory(./source/runtime/pnnx DIR_RUNTIME)
+
 aux_source_directory(./source/layer/abstract DIR_ABSTRACT_LAYER)
 aux_source_directory(./source/layer/details DIR_BINOCULAR_LAYER)
 aux_source_directory(./source/parser DIR_PARSER)
-aux_source_directory(./source/utils DIR_UTILS)
+aux_source_directory(./source/utils/time DIR_UTILS)
+aux_source_directory(./source/utils/math DIR_MATH)
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -52,7 +56,7 @@ ENDIF ()
 
 set(link_math_lib ${ARMADILLO_LIBRARIES} ${BLAS_LIBRARIES} ${LAPACK_LIBRARIES})
 
-add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_UTILS} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} source/layer/details/platform.hpp)
+add_library(kuiper SHARED ${DIR_DATA} ${DIR_PARSER} ${DIR_MATH} ${DIR_UTILS} ${DIR_RUNTIME} ${DIR_ABSTRACT_LAYER} ${DIR_BINOCULAR_LAYER} ${DIR_PARSER} source/layer/details/platform.hpp)
 target_link_libraries(kuiper ${link_lib} ${link_math_lib} OpenMP::OpenMP_CXX)
 
 target_include_directories(kuiper PUBLIC ${benchmark_INCLUDE_DIRS})
