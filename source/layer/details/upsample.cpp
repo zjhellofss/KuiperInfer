@@ -101,23 +101,29 @@ InferStatus UpSampleLayer::Forward(
     for (uint32_t c = 0; c < channels; ++c) {
       const arma::fmat& input_channel = input_data.slice(c);
       arma::fmat& output_channel = output_data.slice(c);
+
+      const uint32_t input_w = input_channel.n_cols;
+      const uint32_t input_h = input_channel.n_rows;
       const uint32_t output_w = output_channel.n_cols;
       const uint32_t output_h = output_channel.n_rows;
-      for (uint32_t w = 0; w < output_w; w += scale_w) {
-        const uint32_t src_w = uint32_t(w / scale_w);
-        CHECK(src_w < input_channel.n_cols)
-            << "The input tensor has an incorrectly sized channel";
-        const float* input_channel_ptr = input_channel.colptr(src_w);
-        for (uint32_t w_ = 0; w_ < scale_w; ++w_) {
-          float* output_channel_ptr = output_channel.colptr(w_ + w);
-          for (uint32_t h = 0; h < output_h; h += scale_h) {
-            const uint32_t src_h = uint32_t(h / scale_h);
-            CHECK(src_h < input_channel.n_rows)
-                << "The input tensor has an incorrectly sized channel";
 
-            const float src_value = *(input_channel_ptr + src_h);
-            for (uint32_t h_ = 0; h_ < scale_h; ++h_) {
-              *(output_channel_ptr + h_ + h) = src_value;
+      for (uint32_t w = 0; w < input_w; ++w) {
+        const float* input_col_ptr = input_channel.colptr(w);
+        const uint32_t scaled_w = w * scale_w;
+        for (uint32_t sw = 0; sw < scale_w; ++sw) {
+          if (scaled_w + sw >= output_w) {
+            continue;
+          }
+          float* output_col_ptr = output_channel.colptr(scaled_w + sw);
+          for (uint32_t h = 0; h < input_h; ++h) {
+            const uint32_t scaled_h = h * scale_h;
+            float* output_ptr = output_col_ptr + scaled_h;
+            float input_value = *(input_col_ptr + h);
+            for (uint32_t sh = 0; sh < scale_h; ++sh) {
+              if (scaled_h + sh >= output_h) {
+                continue;
+              }
+              *(output_ptr + sh) = input_value;
             }
           }
         }
@@ -139,8 +145,8 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
   }
 
   const auto& scale_param = params.at("scale_factor");
-  auto scales =
-      std::dynamic_pointer_cast<RuntimeParameterFloatArray>(params.at("scale_factor"));
+  auto scales = std::dynamic_pointer_cast<RuntimeParameterFloatArray>(
+      params.at("scale_factor"));
   if (scales == nullptr) {
     LOG(ERROR) << "Can not find the scale factor parameter";
     return ParseParameterAttrStatus::kParameterMissingScale;
@@ -152,7 +158,8 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
     return ParseParameterAttrStatus::kParameterMissingResizeMode;
   }
 
-  auto mode = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
+  auto mode =
+      std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
   CHECK(mode->value == "nearest")
       << "The mode " << mode->value << " is not supported!";
 
