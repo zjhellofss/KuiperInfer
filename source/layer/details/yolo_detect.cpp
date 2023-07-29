@@ -135,7 +135,6 @@ InferStatus YoloDetectLayer::Forward(
                         classes_info - 1) = input_data.slice(na).t();
       }
 
-      const arma::fmat& wh = x_stages.submat(0, 2, x_stages.n_rows - 1, 3);
       const float stride = strides_[stage];
       const arma::fmat& grid = grids_[stage];
       const arma::fmat& anchor_grid = anchor_grids_[stage];
