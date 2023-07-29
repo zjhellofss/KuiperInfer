@@ -120,10 +120,9 @@ InferStatus UpSampleLayer::Forward(
             float* output_ptr = output_col_ptr + scaled_h;
             float input_value = *(input_col_ptr + h);
             for (uint32_t sh = 0; sh < scale_h; ++sh) {
-              if (scaled_h + sh >= output_h) {
-                continue;
+              if (scaled_h + sh < output_h) {
+                *(output_ptr + sh) = input_value;
               }
-              *(output_ptr + sh) = input_value;
             }
           }
         }

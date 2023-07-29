@@ -135,12 +135,25 @@ InferStatus YoloDetectLayer::Forward(
                         classes_info - 1) = input_data.slice(na).t();
       }
 
-      const arma::fmat& xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
       const arma::fmat& wh = x_stages.submat(0, 2, x_stages.n_rows - 1, 3);
-      x_stages.submat(0, 0, x_stages.n_rows - 1, 1) =
-          (xy * 2 + grids_[stage]) * strides_[stage];
-      x_stages.submat(0, 2, x_stages.n_rows - 1, 3) =
-          arma::pow((wh * 2), 2) % anchor_grids_[stage];
+      const float stride = strides_[stage];
+      const arma::fmat& grid = grids_[stage];
+      const arma::fmat& anchor_grid = anchor_grids_[stage];
+#pragma omp unroll
+      for (uint32_t i = 0; i < 2; ++i) {
+        arma::fvec xy_vec(x_stages.colptr(i), x_stages.n_rows, false, true);
+        arma::fvec grid_vec(const_cast<float*>(grid.colptr(i)), x_stages.n_rows,
+                            false, true);
+        xy_vec = (xy_vec * 2 + grid_vec) * stride;
+      }
+#pragma omp unroll
+      for (uint32_t i = 2; i < 4; ++i) {
+        arma::fvec wh_vec(x_stages.colptr(i), x_stages.n_rows, false, true);
+        arma::fvec anchor_grid_vec(
+            const_cast<float*>(anchor_grid.colptr(i - 2)), x_stages.n_rows,
+            false, true);
+        wh_vec = arma::pow((wh_vec * 2), 2) % anchor_grid_vec;
+      }
     }
     concat_rows += stages_tensor->rows();
   }
