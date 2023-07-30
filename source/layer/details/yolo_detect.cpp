@@ -134,35 +134,14 @@ InferStatus YoloDetectLayer::Forward(
 
       arma::fmat& x_stages = stages_tensor->slice(b);
       for (uint32_t na = 0; na < num_anchors_; ++na) {
-        const arma::fmat& input_data_t = input_data.slice(na).t();
-        for (uint32_t class_idx = 0; class_idx < classes_info; ++class_idx) {
-          uint32_t ny_nx = ny * nx;
-          uint32_t row_start = ny_nx * na;
-          float* x_stages_ptr = x_stages.colptr(class_idx);
-          const float* input_data_t_ptr = input_data_t.colptr(class_idx);
-          memcpy(x_stages_ptr + row_start, input_data_t_ptr,
-                 sizeof(float) * ny_nx);
-        }
+        x_stages.submat(ny * nx * na, 0, ny * nx * (na + 1) - 1,
+                        classes_info - 1) = input_data.slice(na).t();
       }
 
-      const float stride = strides_[stage];
-      const arma::fmat& grid = grids_[stage];
-      const arma::fmat& anchor_grid = anchor_grids_[stage];
-
-      for (uint32_t i = 0; i < 2; ++i) {
-        arma::fvec xy_vec(x_stages.colptr(i), x_stages.n_rows, false, true);
-        arma::fvec grid_vec(const_cast<float*>(grid.colptr(i)), x_stages.n_rows,
-                            false, true);
-        xy_vec = (xy_vec * 2 + grid_vec) * stride;
-      }
-
-      for (uint32_t i = 2; i < 4; ++i) {
-        arma::fvec wh_vec(x_stages.colptr(i), x_stages.n_rows, false, true);
-        arma::fvec anchor_grid_vec(
-            const_cast<float*>(anchor_grid.colptr(i - 2)), x_stages.n_rows,
-            false, true);
-        wh_vec = arma::pow((wh_vec * 2), 2) % anchor_grid_vec;
-      }
+      auto xy = x_stages.submat(0, 0, x_stages.n_rows - 1, 1);
+      auto wh = x_stages.submat(0, 2, x_stages.n_rows - 1, 3);
+      xy = (xy * 2 + grids_[stage]) * strides_[stage];
+      wh = arma::pow((wh * 2), 2) % anchor_grids_[stage];
     }
     concat_rows += stages_tensor->rows();
   }
