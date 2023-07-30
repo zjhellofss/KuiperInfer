@@ -266,38 +266,17 @@ void ConvolutionLayer::InitIm2ColWeight() {
     CHECK(kernel->channels() == kernel_c);
   }
 
-  if (groups_ == 1) {
-    const uint32_t kernel_count_group = kernel_count / groups_;
-    std::vector<arma::frowvec> kernel_matrix_arr(kernel_count_group);
-    arma::frowvec kernel_matrix_c(row_len * kernel_c);
-    for (uint32_t k = 0; k < kernel_count_group; ++k) {
-      const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
-      for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
-        memcpy(kernel_matrix_c.memptr() + row_len * ic,
-               kernel->matrix_raw_ptr(ic), row_len * sizeof(float));
-      }
-      kernel_matrix_arr.at(k) = kernel_matrix_c;
+  std::vector<arma::frowvec> kernel_matrix_arr(kernel_count);
+  arma::frowvec kernel_matrix_c(row_len * kernel_c);
+  for (uint32_t k = 0; k < kernel_count; ++k) {
+    const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
+    for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
+      memcpy(kernel_matrix_c.memptr() + row_len * ic,
+             kernel->matrix_raw_ptr(ic), row_len * sizeof(float));
     }
-    this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
-  } else {
-    // group != 1
-    const uint32_t kernel_count_group = kernel_count / groups_;
-    std::vector<arma::frowvec> kernel_matrix_arr;
-    for (uint32_t g = 0; g < groups_; ++g) {
-      arma::fmat kernel_matrix_c(1, row_len * kernel_c);
-      for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        const std::shared_ptr<Tensor<float>>& kernel =
-            this->weights_.at(k + g * kernel_count_group);
-        for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
-          memcpy(kernel_matrix_c.memptr() + row_len * ic,
-                 kernel->matrix_raw_ptr(ic), row_len * sizeof(float));
-        }
-        kernel_matrix_arr.emplace_back(kernel_matrix_c);
-      }
-    }
-    CHECK(kernel_matrix_arr.size() == kernel_count);
-    this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
+    kernel_matrix_arr.at(k) = kernel_matrix_c;
   }
+  this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
 }
 
 ParseParameterAttrStatus ConvolutionLayer::GetInstance(
