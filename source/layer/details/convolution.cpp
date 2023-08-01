@@ -125,10 +125,9 @@ InferStatus ConvolutionLayer::Forward(
     const uint32_t input_padded_h = input->rows() + 2 * padding_h_;
     const uint32_t input_padded_w = input->cols() + 2 * padding_w_;
 
-    const uint32_t output_h =
-        std::floor((int(input_padded_h) - int(kernel_h)) / stride_h_ + 1);
-    const uint32_t output_w =
-        std::floor((int(input_padded_w) - int(kernel_w)) / stride_w_ + 1);
+    CHECK(input_padded_h >= kernel_h && input_padded_w >= kernel_w);
+    const uint32_t output_h = (input_padded_h - kernel_h) / stride_h_ + 1;
+    const uint32_t output_w = (input_padded_w - kernel_w) / stride_w_ + 1;
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i
         << " th";
@@ -139,10 +138,6 @@ InferStatus ConvolutionLayer::Forward(
     }
 
     uint32_t col_len = output_h * output_w;
-    CHECK(col_len > 0) << "Output_h x output_w for the convolution layer "
-                          "should be greater than zero "
-                       << i << " th";
-
     uint32_t input_c_group = input_c / groups_;
     CHECK(input_c_group == kernel_c) << "The number of channel for the kernel "
                                         "matrix and input tensor do not match";
@@ -165,17 +160,12 @@ InferStatus ConvolutionLayer::Forward(
              "incorrectly sized tensor "
           << i << "th";
 
-      const uint32_t kernel_count_group_start = kernel_count_group * g;
+      const uint32_t kernel_group_start = kernel_count_group * g;
 #pragma omp parallel for schedule(dynamic)
       for (uint32_t k = 0; k < kernel_count_group; ++k) {
-        arma::frowvec kernel;
-        if (groups_ == 1) {
-          kernel = kernel_matrix_arr_.at(k);
-        } else {
-          kernel = kernel_matrix_arr_.at(kernel_count_group_start + k);
-        }
         ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
-                     kernel, output_w, output_h);
+                     kernel_matrix_arr_.at(kernel_group_start + k), output_w,
+                     output_h);
       }
     }
   }
@@ -227,25 +217,20 @@ void ConvolutionLayer::ConvGemmBias(
     const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
     uint32_t kernel_index, uint32_t kernel_count_group,
     const arma::frowvec& kernel, uint32_t output_w, uint32_t output_h) const {
-  arma::fmat output(
-      output_tensor->matrix_raw_ptr(kernel_index + group * kernel_count_group),
-      output_h, output_w, false, true);
-
-  CHECK(output.size() == output_h * output_w)
-      << "Output_h x output_w for the convolution layer "
-         "should be output tensor size";
+  kernel_index = kernel_index + group * kernel_count_group;
+  arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h,
+                    output_w, false, true);
+  output = kernel * input_matrix;
 
   if (!this->bias_.empty() && this->use_bias_) {
     std::shared_ptr<Tensor<float>> bias;
     bias = this->bias_.at(kernel_index);
     if (bias != nullptr && !bias->empty()) {
       float bias_value = bias->index(0);
-      output = kernel * input_matrix + bias_value;
+      output += bias_value;
     } else {
       LOG(FATAL) << "Bias tensor is empty or nullptr";
     }
-  } else {
-    output = kernel * input_matrix;
   }
 }
 
