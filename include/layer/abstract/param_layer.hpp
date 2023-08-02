@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_PARAM_LAYER_HPP_
@@ -28,7 +28,7 @@
 namespace kuiper_infer {
 class ParamLayer : public Layer {
  public:
-  explicit ParamLayer(const std::string &layer_name);
+  explicit ParamLayer(const std::string& layer_name);
 
   /**
    * 初始化权重空间
@@ -54,39 +54,39 @@ class ParamLayer : public Layer {
    * 返回权重参数
    * @return 权重参数
    */
-  const std::vector<std::shared_ptr<Tensor<float>>> &weights() const override;
+  const std::vector<std::shared_ptr<Tensor<float>>>& weights() const override;
 
   /**
    * 返回偏移参数
    * @return 偏移参数
    */
-  const std::vector<std::shared_ptr<Tensor<float>>> &bias() const override;
+  const std::vector<std::shared_ptr<Tensor<float>>>& bias() const override;
 
   /**
    * 设置权重参数
    * @param weights 权重参数
    */
-  void set_weights(const std::vector<float> &weights) override;
+  void set_weights(const std::vector<float>& weights) override;
 
   /**
    * 设置偏移量参数
    * @param bias 偏移量参数
    */
-  void set_bias(const std::vector<float> &bias) override;
+  void set_bias(const std::vector<float>& bias) override;
 
   /**
    * 设置权重参数
    * @param weights 权重参数
    */
   void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>> &weights) override;
+      const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
 
   /**
    * 设置偏移量参数
    * @param bias 偏移量参数
    */
   void set_bias(
-      const std::vector<std::shared_ptr<Tensor<float>>> &bias) override;
+      const std::vector<std::shared_ptr<Tensor<float>>>& bias) override;
 
  protected:
   std::vector<std::shared_ptr<Tensor<float>>> weights_;

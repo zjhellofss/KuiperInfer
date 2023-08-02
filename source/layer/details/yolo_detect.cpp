@@ -289,7 +289,8 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
     const int kernel_w = out_shapes.at(3);
 
     conv_layers.at(i) = std::make_shared<ConvolutionLayer>(
-        out_channels, in_channels, kernel_h, kernel_w, 0, 0, 1, 1, 1);
+        ConvType::OpConv, out_channels, in_channels, kernel_h, kernel_w, 0, 0,
+        1, 1, 1);
     const std::vector<float>& weights = conv_attr->get<float>();
     conv_layers.at(i)->set_weights(weights);
 
