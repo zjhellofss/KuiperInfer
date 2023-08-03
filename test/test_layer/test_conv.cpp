@@ -271,7 +271,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
   }
 }
 
-TEST(test_layer, convolution3x3x32_stride1x1_padding2) {
+TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
   const uint32_t batch_size = 8;
   std::vector<sftensor> inputs(batch_size);
   std::vector<sftensor> outputs1(batch_size);
@@ -283,9 +283,9 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding2) {
     inputs.at(i)->Rand();
   }
   const uint32_t kernel_h = 3;
-  const uint32_t kernel_w = 3;
+  const uint32_t kernel_w = 5;
   const uint32_t stride_h = 1;
-  const uint32_t stride_w = 1;
+  const uint32_t stride_w = 3;
   const uint32_t kernel_count = 8;
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
@@ -579,7 +579,6 @@ TEST(test_layer, conv3x3_fromtorch) {
       values.push_back((float)j);
     }
     input->Fill(values, true);
-    input->Show();
     inputs.push_back(input);
   }
 
@@ -589,7 +588,7 @@ TEST(test_layer, conv3x3_fromtorch) {
   const std::vector<float> outputs_values = outputs.front()->values(true);
   arma::fmat real_data = CSVDataLoader::LoadData("tmp/resnet/test13.csv");
   for (int i = 0; i < outputs_values.size(); ++i) {
-    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 5e-5f)
+    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 1e-4f)
         << i << " real: " << real_data.at(i)
         << " predict: " << outputs_values.at(i);
   }

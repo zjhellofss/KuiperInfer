@@ -26,7 +26,7 @@
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
 
-TEST(test_layer, deconv_test_1) {
+TEST(test_layer, deconv_nogroup) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/unet/demo_deconv.pnnx.param",
                      "tmp/unet/demo_deconv.pnnx.bin");
@@ -47,6 +47,67 @@ TEST(test_layer, deconv_test_1) {
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test.csv");
+  const auto& outputs_values = outputs.front()->values(true);
+
+  for (int i = 0; i < outputs_values.size(); ++i) {
+    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
+        << i << " real: " << real_data.at(i)
+        << " predict: " << outputs_values.at(i);
+  }
+}
+
+TEST(test_layer, deconv_group1) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/unet/demo_deconv2_.pnnx.param",
+                     "tmp/unet/demo_deconv2_.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(12, 13, 31);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+
+  std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test2.csv");
+  const auto& outputs_values = outputs.front()->values(true);
+
+  for (int i = 0; i < outputs_values.size(); ++i) {
+    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
+        << i << " real: " << real_data.at(i)
+        << " predict: " << outputs_values.at(i);
+  }
+}
+
+
+TEST(test_layer, deconv_group2) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/unet/demo_deconv3_.pnnx.param",
+                     "tmp/unet/demo_deconv3_.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(16, 16, 31);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+
+  std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test3.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {

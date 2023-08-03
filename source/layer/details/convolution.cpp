@@ -26,6 +26,7 @@
 #include "layer/abstract/layer_factory.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
+#include "utils/math/fmath.hpp"
 
 namespace kuiper_infer {
 ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
@@ -72,23 +73,29 @@ void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
     const uint32_t kernel_channel = this->weights_.at(0)->channels();
     const uint32_t kernel_height = this->weights_.at(0)->rows();
     const uint32_t kernel_width = this->weights_.at(0)->cols();
-    const uint32_t kernel_plane =
-        kernel_count_group * kernel_channel * kernel_width * kernel_height;
 
-    uint32_t kernel_hw = kernel_height * kernel_width;
-    uint32_t kernel_chw = kernel_count_group * kernel_height * kernel_width;
+    const uint32_t kernel_hw = kernel_height * kernel_width;
+    const uint32_t kernel_nhw = kernel_count_group * kernel_hw;
+    const uint32_t kernel_plane = kernel_channel * kernel_nhw;
 
     for (uint32_t g = 0; g < groups_; ++g) {
+      // sub_weights表示一个group内所有卷积核的权重值
       std::vector<float> sub_weights(kernel_plane);
-      std::copy(weights.data() + g * kernel_plane,
+      std::move(weights.data() + g * kernel_plane,
                 weights.data() + (g + 1) * kernel_plane, sub_weights.begin());
       for (uint32_t kg = 0; kg < kernel_count_group; ++kg) {
         const uint32_t channel_offset = kg * kernel_hw;
         const uint32_t kernel_idx = g * kernel_count_group + kg;
+        /*
+         * 卷积核权重摆放的顺序是c n h w， 需要将它调整到n c h w
+         * 其中n表示卷积核次序，kernel_idx = g * kernel_count_group + kg;
+         * origin_idx = ic * kernel_nhw (nhw) + kg(n) * kernel_hw + ...
+         */
         for (uint32_t ic = 0; ic < kernel_channel; ++ic) {
-          const uint32_t kernel_offset = ic * kernel_chw;
+          const uint32_t kernel_offset = ic * kernel_nhw;
           arma::fmat& kernel_channel_mat =
               this->weights_.at(kernel_idx)->slice(ic);
+
           for (uint32_t kw = 0; kw < kernel_width; ++kw) {
             float* kernel_ptr = kernel_channel_mat.colptr(kw);
             for (uint32_t kh = 0; kh < kernel_height; ++kh) {
@@ -148,8 +155,9 @@ InferStatus ConvolutionLayer::Forward(
     CHECK(kernel->cols() == kernel_w);
     CHECK(kernel->channels() == kernel_c);
   }
-  const uint32_t kernel_count_group = kernel_count / groups_;
+
   const uint32_t batch_size = inputs.size();
+  const uint32_t kernel_count_group = kernel_count / groups_;
 
   if (kernel_matrix_arr_.empty()) {
     this->InitIm2ColWeight();
@@ -242,9 +250,9 @@ InferStatus ConvolutionLayer::Forward(
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           const arma::fmat& gemm_result = DeconvGemm(
               input, input_h, input_w, input_c_group, g, k, kernel_count_group);
-          DeconvCol2Im(gemm_result, output_tensor, input_h, input_w, g, k,
-                       kernel_count_group, kernel_h, kernel_w, output_h,
-                       output_w);
+          DeconvCol2ImWithBias(gemm_result, output_tensor, input_h, input_w, g,
+                               k, kernel_count_group, kernel_h, kernel_w,
+                               output_h, output_w);
         }
       }
     }
@@ -252,13 +260,11 @@ InferStatus ConvolutionLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-void ConvolutionLayer::DeconvCol2Im(const arma::fmat& gemm_result,
-                                    sftensor output_tensor, uint32_t input_h,
-                                    uint32_t input_w, uint32_t group,
-                                    uint32_t kernel_index,
-                                    uint32_t kernel_count_group,
-                                    uint32_t kernel_h, uint32_t kernel_w,
-                                    uint32_t output_h, uint32_t output_w) {
+void ConvolutionLayer::DeconvCol2ImWithBias(
+    const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
+    uint32_t input_w, uint32_t group, uint32_t kernel_index,
+    uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
+    uint32_t output_h, uint32_t output_w) {
   CHECK(this->conv_type_ == ConvType::OpDeconv);
   CHECK(!gemm_result.empty());
   CHECK(input_h > 0 && input_w > 0);
@@ -272,15 +278,14 @@ void ConvolutionLayer::DeconvCol2Im(const arma::fmat& gemm_result,
 
   uint32_t slide_count_w = (size_w - kernel_w) / stride_w_ + 1;
   uint32_t slide_count_h = (size_h - kernel_h) / stride_h_ + 1;
-#pragma omp parallel for collapse(2)
+#pragma omp parallel for collapse(2) schedule(dynamic)
   for (uint32_t x = 0; x < slide_count_w; ++x) {
     for (uint32_t y = 0; y < slide_count_h; ++y) {
       const uint32_t offset_x = x * stride_w_;
       const uint32_t offset_y = y * stride_h_;
       arma::fmat gemm_column((float*)gemm_result.colptr(x * slide_count_h + y),
-                             gemm_result.n_rows, 1, false, true);
+                             kernel_h, kernel_w, false, true);
 
-      gemm_column.reshape(kernel_h, kernel_w);
       uint32_t gemm_rows = gemm_column.n_rows;
       uint32_t gemm_cols = gemm_column.n_cols;
       for (uint32_t col = 0; col < gemm_cols; ++col) {
@@ -319,25 +324,20 @@ arma::fmat ConvolutionLayer::DeconvGemm(sftensor input, uint32_t input_h,
   CHECK(input != nullptr && !input->empty());
 
   kernel_index = kernel_index + group * kernel_count_group;
+  CHECK(kernel_index < this->weights_.size());
+
   sftensor group_kernel = this->weights_.at(kernel_index);
   CHECK(group_kernel != nullptr && !group_kernel->empty());
 
   uint32_t input_hw = input_h * input_w;
   uint32_t kernel_hw = group_kernel->rows() * group_kernel->cols();
-  arma::fmat gemm_result(kernel_hw, input_hw);
 
-#pragma omp parallel for schedule(dynamic)
-  for (uint32_t c = 0; c < input_c_group; ++c) {
-    arma::fmat input_channel = input->slice(group * input_c_group + c);
-    input_channel.reshape(1, input_channel.size());
-    arma::fmat kernel_channel = group_kernel->slice(group * input_c_group + c);
-    kernel_channel.reshape(kernel_hw, 1);
+  arma::fmat multi_input_channel(input->matrix_raw_ptr(group * input_c_group),
+                                 input_hw, input_c_group, false, true);
 
-    const arma::fmat& gemm_output = kernel_channel * input_channel;
-#pragma omp critical
-    gemm_result += gemm_output;
-  }
-  return gemm_result;
+  arma::fmat multi_kernel_channel(group_kernel->raw_ptr(), kernel_hw,
+                                  input_c_group, false, true);
+  return multi_kernel_channel * (multi_input_channel.t());
 }
 
 arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
