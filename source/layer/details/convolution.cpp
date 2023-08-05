@@ -58,8 +58,13 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
 
 void ConvolutionLayer::set_weights(
     const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
-  if (conv_type_ == ConvType::OpConv)
-  return ParamLayer::set_weights(weights);
+  if (conv_type_ == ConvType::OpConv) {
+    return ParamLayer::set_weights(weights);
+  } else {
+    LOG(FATAL)
+        << "The set weights function does not support this convolution type: "
+        << int(conv_type_);
+  }
 }
 
 void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
