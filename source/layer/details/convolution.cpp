@@ -89,7 +89,7 @@ void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
         /*
          * 卷积核权重摆放的顺序是c n h w， 需要将它调整到n c h w
          * 其中n表示卷积核次序，kernel_idx = g * kernel_count_group + kg;
-         * origin_idx = ic * kernel_nhw (nhw) + kg(n) * kernel_hw + ...
+         * origin_pixel_idx = ic * kernel_nhw (nhw) + kg(n) * kernel_hw + ...
          */
         for (uint32_t ic = 0; ic < kernel_channel; ++ic) {
           const uint32_t kernel_offset = ic * kernel_nhw;

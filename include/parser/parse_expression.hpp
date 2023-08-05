@@ -18,15 +18,15 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-1.
 
 #ifndef KUIPER_INFER_INCLUDE_PARSER_PARSE_EXPRESSION_HPP_
 #define KUIPER_INFER_INCLUDE_PARSER_PARSE_EXPRESSION_HPP_
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <memory>
 
 namespace kuiper_infer {
 
@@ -44,29 +44,27 @@ enum class TokenType {
 // 词语Token
 struct Token {
   TokenType token_type = TokenType::TokenUnknown;
-  int32_t start_pos = 0; //词语开始的位置
-  int32_t end_pos = 0; // 词语结束的位置
+  int32_t start_pos = 0;  // 词语开始的位置
+  int32_t end_pos = 0;    // 词语结束的位置
   Token(TokenType token_type, int32_t start_pos, int32_t end_pos)
-      : token_type(token_type), start_pos(start_pos), end_pos(end_pos) {
-
-  }
+      : token_type(token_type), start_pos(start_pos), end_pos(end_pos) {}
 };
 
 // 语法树的节点
 struct TokenNode {
   int32_t num_index = -1;
-  std::shared_ptr<TokenNode> left = nullptr; // 语法树的左节点
-  std::shared_ptr<TokenNode> right = nullptr; // 语法树的右节点
-  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left, std::shared_ptr<TokenNode> right);
+  std::shared_ptr<TokenNode> left = nullptr;   // 语法树的左节点
+  std::shared_ptr<TokenNode> right = nullptr;  // 语法树的右节点
+  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left,
+            std::shared_ptr<TokenNode> right);
   TokenNode() = default;
 };
 
 // add(add(add(@0,@1),@1),add(@0,@2))
 class ExpressionParser {
  public:
-  explicit ExpressionParser(std::string statement) : statement_(std::move(statement)) {
-
-  }
+  explicit ExpressionParser(std::string statement)
+      : statement_(std::move(statement)) {}
 
   /**
    * 词法分析
@@ -84,16 +82,16 @@ class ExpressionParser {
    * 返回词法分析的结果
    * @return 词法分析的结果
    */
-  const std::vector<Token> &tokens() const;
+  const std::vector<Token>& tokens() const;
 
   /**
    * 返回词语字符串
    * @return 词语字符串
    */
-  const std::vector<std::string> &token_strs() const;
+  const std::vector<std::string>& token_strs() const;
 
  private:
-  std::shared_ptr<TokenNode> Generate_(int32_t &index);
+  std::shared_ptr<TokenNode> Generate_(int32_t& index);
   // 被分割的词语数组
   std::vector<Token> tokens_;
   // 被分割的字符串数组
@@ -101,6 +99,6 @@ class ExpressionParser {
   // 待分割的表达式
   std::string statement_;
 };
-}
+}  // namespace kuiper_infer
 
-#endif //KUIPER_INFER_INCLUDE_PARSER_PARSE_EXPRESSION_HPP_
+#endif  // KUIPER_INFER_INCLUDE_PARSER_PARSE_EXPRESSION_HPP_
