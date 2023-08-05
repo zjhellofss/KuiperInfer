@@ -59,7 +59,6 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
 void ConvolutionLayer::set_weights(
     const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
   if (conv_type_ == ConvType::OpConv)
-    ;
   return ParamLayer::set_weights(weights);
 }
 
