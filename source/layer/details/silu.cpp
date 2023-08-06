@@ -67,7 +67,7 @@ InferStatus SiLULayer::Forward(
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
-    CHECK(input == nullptr || !input->empty())
+    CHECK(input != nullptr && !input->empty())
         << "The input tensor array in the silu layer has an empty tensor " << i
         << " th";
 

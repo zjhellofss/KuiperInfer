@@ -44,7 +44,7 @@ InferStatus HardSwishLayer::Forward(
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
-    CHECK(input == nullptr || !input->empty())
+    CHECK(input != nullptr && !input->empty())
         << "The input tensor array in the hardswish layer has an empty tensor "
         << i << " th";
 
