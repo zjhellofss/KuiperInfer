@@ -99,7 +99,7 @@ InferStatus MaxPoolingLayer::Forward(
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input_data = inputs.at(i);
-    CHECK(input_data == nullptr || !input_data->empty())
+    CHECK(input_data != nullptr && !input_data->empty())
         << "The input tensor array in the max pooling layer has an "
            "empty tensor "
         << i << "th";
