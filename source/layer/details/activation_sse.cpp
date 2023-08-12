@@ -39,14 +39,14 @@ static void SigmoidSSE(sftensor input, sftensor output) {
 #ifdef __SSE2__
   int32_t index = 0;
   int32_t packet_size = 4;
-  const uint32_t in_size = input->size();
+  int32_t in_size = static_cast<int32_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
   packet_size = 8;
   __m256 _one = _mm256_set1_ps(1.f);
   __m256 _zero = _mm256_setzero_ps();
-  for (; index <= (int32_t)in_size - packet_size; index += packet_size) {
+  for (; index <= in_size - packet_size; index += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
     _p = _mm256_div_ps(
         _one, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
@@ -57,7 +57,7 @@ static void SigmoidSSE(sftensor input, sftensor output) {
 #else
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
-  for (; index <= (int32_t)in_size - packet_size; index += packet_size) {
+  for (; index <= in_size - packet_size; index += packet_size) {
     __m128 _p = _mm_load_ps(in_ptr);
     _p = _mm_div_ps(_one,
                     _mm_add_ps(_one, fmath::exp_ps(_mm_sub_ps(_zero, _p))));
@@ -93,13 +93,13 @@ static void ReluSSE(sftensor input, sftensor output) {
 #else
   int32_t j = 0;
   int32_t packet_size = 4;
-  const uint32_t size = input->size();
+  int32_t size = static_cast<int32_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
   packet_size = 8;
   __m256 _zero = _mm256_setzero_ps();
-  for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
+  for (j = 0; j <= size - packet_size; j += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
     __m256 _value = _mm256_max_ps(_zero, _p);
     _mm256_storeu_ps(out_ptr, _value);
@@ -108,7 +108,7 @@ static void ReluSSE(sftensor input, sftensor output) {
   }
 #else
   __m128 _zero = _mm_setzero_ps();
-  for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
+  for (j = 0; j <= size - packet_size; j += packet_size) {
     __m128 _p = _mm_load_ps(in_ptr);
     __m128 _value = _mm_max_ps(_zero, _p);
     _mm_store_ps(out_ptr, _value);
@@ -138,7 +138,7 @@ static void SiluSSE(sftensor input, sftensor output) {
 #else
   int32_t j = 0;
   int32_t packet_size = 4;
-  const uint32_t size = input->size();
+  int32_t size = static_cast<int32_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
@@ -146,7 +146,7 @@ static void SiluSSE(sftensor input, sftensor output) {
   __m256 _one = _mm256_set1_ps(1.f);
   __m256 _zero = _mm256_setzero_ps();
 
-  for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
+  for (j = 0; j <= size - packet_size; j += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
     _p = _mm256_div_ps(
         _p, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
@@ -158,7 +158,7 @@ static void SiluSSE(sftensor input, sftensor output) {
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
 
-  for (j = 0; j <= (int32_t)size - packet_size; j += packet_size) {
+  for (j = 0; j <= size - packet_size; j += packet_size) {
     __m128 _p = _mm_loadu_ps(in_ptr);
     _p = _mm_div_ps(_p, _mm_add_ps(_one, fmath::exp_ps(_mm_sub_ps(_zero, _p))));
     _mm_storeu_ps(out_ptr, _p);

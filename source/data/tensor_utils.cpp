@@ -120,6 +120,14 @@ std::shared_ptr<Tensor<float>> TensorCreate(uint32_t channels, uint32_t rows,
   return std::make_shared<Tensor<float>>(channels, rows, cols);
 }
 
+std::shared_ptr<Tensor<float>> TensorCreate(uint32_t rows, uint32_t cols) {
+  return std::make_shared<Tensor<float>>(1, rows, cols);
+}
+
+std::shared_ptr<Tensor<float>> TensorCreate(uint32_t size) {
+  return std::make_shared<Tensor<float>>(1, 1, size);
+}
+
 std::shared_ptr<Tensor<float>> TensorCreate(
     const std::vector<uint32_t>& shapes) {
   CHECK(!shapes.empty() && shapes.size() <= 3);

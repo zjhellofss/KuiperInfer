@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by yizhu on 2023/3/20.
 
 #ifndef KUIPER_INFER_TENSOR_UTIL_H
@@ -106,6 +106,21 @@ std::shared_ptr<Tensor<float>> TensorElementMultiply(
  */
 std::shared_ptr<Tensor<float>> TensorCreate(uint32_t channels, uint32_t rows,
                                             uint32_t cols);
+
+/**
+ * 创建一个张量
+ * @param rows 行数
+ * @param cols 列数
+ * @return 创建后的张量
+ */
+std::shared_ptr<Tensor<float>> TensorCreate(uint32_t rows, uint32_t cols);
+
+/**
+ * 创建一个张量
+ * @param size 数据数
+ * @return 创建后的张量
+ */
+std::shared_ptr<Tensor<float>> TensorCreate(uint32_t size);
 
 /**
  * 创建一个张量

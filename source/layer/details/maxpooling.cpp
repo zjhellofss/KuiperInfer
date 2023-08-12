@@ -37,7 +37,12 @@ MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
       pooling_size_h_(pooling_size_h),
       pooling_size_w_(pooling_size_w),
       stride_h_(stride_h),
-      stride_w_(stride_w) {}
+      stride_w_(stride_w) {
+  CHECK_GT(stride_h_, 0);
+  CHECK_GT(stride_w_, 0);
+  CHECK_GT(pooling_size_h_, 0);
+  CHECK_GT(pooling_size_w_, 0);
+}
 
 InferStatus MaxPoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

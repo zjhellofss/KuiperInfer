@@ -253,8 +253,12 @@ void RuntimeGraph::InitGraphOperatorsInput(
     const pnnx::Operator* producer = input->producer;
     std::shared_ptr<RuntimeOperand> runtime_operand =
         std::make_shared<RuntimeOperand>();
+
     runtime_operand->name = producer->name;
-    runtime_operand->shapes = input->shape;
+    for (uint32_t dim : input->shape) {
+      runtime_operand->shapes.push_back(dim);
+    }
+    CHECK(!runtime_operand->shapes.empty());
 
     switch (input->type) {
       case 1: {

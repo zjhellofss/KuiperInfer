@@ -53,6 +53,14 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
   if (use_bias_) {
     this->InitBiasParam(output_channel, 1, 1, 1);
   }
+
+  CHECK_GE(groups_, 1);
+  CHECK_GT(stride_h_, 0);
+  CHECK_GT(stride_w_, 0);
+  if (conv_type_ == ConvType::OpConv) {
+    CHECK_EQ(output_padding_h_, 0);
+    CHECK_EQ(output_padding_w_, 0);
+  }
   CHECK(conv_type_ == ConvType::OpConv || conv_type_ == ConvType::OpDeconv);
 }
 
@@ -161,6 +169,7 @@ InferStatus ConvolutionLayer::Forward(
   }
 
   const uint32_t batch_size = inputs.size();
+
   const uint32_t kernel_count_group = kernel_count / groups_;
 
   if (kernel_matrix_arr_.empty()) {
@@ -239,10 +248,10 @@ InferStatus ConvolutionLayer::Forward(
           << "The number of channel for the kernel "
              "matrix and input tensor do not match";
 
-      arma::fmat input_matrix;
       if (conv_type_ == ConvType::OpConv) {
-        input_matrix = ConvIm2Col(input, kernel_h, kernel_w, input_h, input_w,
-                                  input_c_group, g, row_len, col_len);
+        const arma::fmat& input_matrix =
+            ConvIm2Col(input, kernel_h, kernel_w, input_h, input_w,
+                       input_c_group, g, row_len, col_len);
 #pragma omp parallel for
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
@@ -282,21 +291,22 @@ void ConvolutionLayer::DeconvCol2ImWithBias(
 
   uint32_t slide_count_w = (size_w - kernel_w) / stride_w_ + 1;
   uint32_t slide_count_h = (size_h - kernel_h) / stride_h_ + 1;
-#pragma omp parallel for collapse(2)
-  for (uint32_t x = 0; x < slide_count_w; ++x) {
-    for (uint32_t y = 0; y < slide_count_h; ++y) {
-      const uint32_t offset_x = x * stride_w_;
-      const uint32_t offset_y = y * stride_h_;
-      arma::fmat gemm_column((float*)gemm_result.colptr(x * slide_count_h + y),
-                             kernel_h, kernel_w, false, true);
+#pragma omp parallel for
+  for (uint32_t index = 0; index < slide_count_w * slide_count_h; ++index) {
+    uint32_t x = index / slide_count_h;
+    uint32_t y = index % slide_count_h;
+    const uint32_t offset_x = x * stride_w_;
+    const uint32_t offset_y = y * stride_h_;
+    arma::fmat gemm_column((float*)gemm_result.colptr(index), kernel_h,
+                           kernel_w, false, true);
 
-      uint32_t gemm_rows = gemm_column.n_rows;
-      uint32_t gemm_cols = gemm_column.n_cols;
-      for (uint32_t col = 0; col < gemm_cols; ++col) {
-        float* gemm_ptr = gemm_column.colptr(col);
-        float* output_ptr = output_padding.colptr(offset_x + col);
-        memcpy(output_ptr + offset_y, gemm_ptr, sizeof(float) * gemm_rows);
-      }
+    uint32_t gemm_rows = gemm_column.n_rows;
+    uint32_t gemm_cols = gemm_column.n_cols;
+
+    for (uint32_t col = 0; col < gemm_cols; ++col) {
+      float* gemm_ptr = gemm_column.colptr(col);
+      float* output_ptr = output_padding.colptr(offset_x + col);
+      memcpy(output_ptr + offset_y, gemm_ptr, sizeof(float) * gemm_rows);
     }
   }
 
@@ -394,7 +404,7 @@ void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
                                     uint32_t kernel_count_group,
                                     uint32_t output_h,
                                     uint32_t output_w) const {
-  CHECK(conv_type_ == ConvType::OpConv);
+  CHECK(conv_type_ == ConvType::OpConv) << "Convolution type need be OpConv";
 
   CHECK(!input_matrix.empty());
   CHECK(output_tensor && !output_tensor->empty());

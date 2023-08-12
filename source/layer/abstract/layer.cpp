@@ -69,7 +69,9 @@ InferStatus Layer::Forward() {
 
   const std::shared_ptr<RuntimeOperand>& output_operand_datas =
       runtime_operator->output_operands;
-
+  if (output_operand_datas == nullptr || output_operand_datas->datas.empty()) {
+    int a = 3;
+  }
   CHECK(!layer_input_datas.empty())
       << runtime_operator->name << " Layer input data is empty";
   CHECK(output_operand_datas != nullptr && !output_operand_datas->datas.empty())
