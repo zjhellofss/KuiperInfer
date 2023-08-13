@@ -145,7 +145,7 @@ InferStatus LinearLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus LinearLayer::GetInstance(
+ParseParameterAttrStatus LinearLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
@@ -199,7 +199,7 @@ ParseParameterAttrStatus LinearLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kLinearGetInstance("nn.Linear",
-                                          LinearLayer::GetInstance);
+LayerRegistererWrapper kLinearCreateInstance("nn.Linear",
+                                          LinearLayer::CreateInstance);
 
 }  // namespace kuiper_infer

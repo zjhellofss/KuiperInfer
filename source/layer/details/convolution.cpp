@@ -169,7 +169,6 @@ InferStatus ConvolutionLayer::Forward(
   }
 
   const uint32_t batch_size = inputs.size();
-
   const uint32_t kernel_count_group = kernel_count / groups_;
 
   if (kernel_matrix_arr_.empty()) {
@@ -195,34 +194,24 @@ InferStatus ConvolutionLayer::Forward(
         << i << " th";
 
     const uint32_t input_c = input->channels();
-    const uint32_t input_padded_h = input->rows() + 2 * padding_h_;
-    const uint32_t input_padded_w = input->cols() + 2 * padding_w_;
+    const uint32_t input_h = input->rows();
+    const uint32_t input_w = input->cols();
+
+    const uint32_t input_padded_h = input_h + 2 * padding_h_;
+    const uint32_t input_padded_w = input_w + 2 * padding_w_;
 
     CHECK(input_padded_h >= kernel_h && input_padded_w >= kernel_w);
-    uint32_t output_h = 0;
-    uint32_t output_w = 0;
-    uint32_t col_len = 0;
-    uint32_t input_h = input->rows();
-    uint32_t input_w = input->cols();
-    CHECK(input_h > 0 && input_w > 0);
 
-    if (conv_type_ == ConvType::OpConv) {
-      CHECK(input_padded_h >= kernel_h && input_padded_w >= kernel_w);
-      output_h = (input_padded_h - kernel_h) / stride_h_ + 1;
-      output_w = (input_padded_w - kernel_w) / stride_w_ + 1;
-      col_len = output_h * output_w;
-    } else {
-      CHECK(conv_type_ == ConvType::OpDeconv);
-      output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
-      output_w = (input_w - 1) * stride_w_ + kernel_w + output_padding_w_;
-      CHECK(output_h > 2 * padding_h_ && output_w > 2 * padding_w_);
-      output_h -= 2 * padding_h_;
-      output_w -= 2 * padding_w_;
-    }
+    CHECK(input_h > 0 && input_w > 0);
+    const auto [output_h, output_w] = CalcOutputSize(
+        conv_type_ == ConvType ::OpConv ? input_padded_h : input_h,
+        conv_type_ == ConvType ::OpConv ? input_padded_w : input_w, kernel_h,
+        kernel_w);
 
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i
         << " th";
+
 #pragma omp parallel for if (groups_ > 1)
     for (uint32_t g = 0; g < groups_; ++g) {
       std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
@@ -251,7 +240,7 @@ InferStatus ConvolutionLayer::Forward(
       if (conv_type_ == ConvType::OpConv) {
         const arma::fmat& input_matrix =
             ConvIm2Col(input, kernel_h, kernel_w, input_h, input_w,
-                       input_c_group, g, row_len, col_len);
+                       input_c_group, g, row_len, output_h * output_w);
 #pragma omp parallel for
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
@@ -461,7 +450,28 @@ void ConvolutionLayer::InitIm2ColWeight() {
   this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
 }
 
-ParseParameterAttrStatus ConvolutionLayer::GetInstance(
+std::pair<uint32_t, uint32_t> ConvolutionLayer::CalcOutputSize(
+    const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
+    const uint32_t kernel_w) {
+  uint32_t output_h = 0;
+  uint32_t output_w = 0;
+
+  if (conv_type_ == ConvType::OpConv) {
+    CHECK(input_h >= kernel_h && input_w >= kernel_w);
+    output_h = (input_h - kernel_h) / stride_h_ + 1;
+    output_w = (input_w - kernel_w) / stride_w_ + 1;
+  } else {
+    CHECK(conv_type_ == ConvType::OpDeconv);
+    output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
+    output_w = (input_w - 1) * stride_w_ + kernel_w + output_padding_w_;
+    CHECK(output_h > 2 * padding_h_ && output_w > 2 * padding_w_);
+    output_h -= 2 * padding_h_;
+    output_w -= 2 * padding_w_;
+  }
+  return {output_h, output_w};
+}
+
+ParseParameterAttrStatus ConvolutionLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& conv_layer) {
   CHECK(op != nullptr) << "Convolution operator is nullptr";
@@ -676,9 +686,9 @@ ParseParameterAttrStatus ConvolutionLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kConvGetInstance("nn.Conv2d",
-                                        ConvolutionLayer::GetInstance);
+LayerRegistererWrapper kConvCreateInstance("nn.Conv2d",
+                                           ConvolutionLayer::CreateInstance);
 
-LayerRegistererWrapper kDeConvGetInstance("nn.ConvTranspose2d",
-                                          ConvolutionLayer::GetInstance);
+LayerRegistererWrapper kDeConvCreateInstance("nn.ConvTranspose2d",
+                                             ConvolutionLayer::CreateInstance);
 }  // namespace kuiper_infer

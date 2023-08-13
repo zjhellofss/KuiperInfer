@@ -81,7 +81,7 @@ InferStatus ReluLayer::Forward(
   }
   return InferStatus::kInferSuccess;
 }
-ParseParameterAttrStatus ReluLayer::GetInstance(
+ParseParameterAttrStatus ReluLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
@@ -89,5 +89,5 @@ ParseParameterAttrStatus ReluLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kReluGetInstance("nn.ReLU", ReluLayer::GetInstance);
+LayerRegistererWrapper kReluCreateInstance("nn.ReLU", ReluLayer::CreateInstance);
 }  // namespace kuiper_infer

@@ -118,7 +118,7 @@ InferStatus BatchNorm2dLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus BatchNorm2dLayer::GetInstance(
+ParseParameterAttrStatus BatchNorm2dLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& batch_layer) {
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
@@ -206,7 +206,7 @@ BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
   // }
 }
 
-LayerRegistererWrapper kBatchNorm2dGetInstance("nn.BatchNorm2d",
-                                               BatchNorm2dLayer::GetInstance);
+LayerRegistererWrapper kBatchNorm2dCreateInstance("nn.BatchNorm2d",
+                                               BatchNorm2dLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -166,7 +166,7 @@ InferStatus MaxPoolingLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
+ParseParameterAttrStatus MaxPoolingLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& max_layer) {
   CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
@@ -234,7 +234,7 @@ ParseParameterAttrStatus MaxPoolingLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kMaxPoolingGetInstance("nn.MaxPool2d",
-                                              MaxPoolingLayer::GetInstance);
+LayerRegistererWrapper kMaxPoolingCreateInstance("nn.MaxPool2d",
+                                              MaxPoolingLayer::CreateInstance);
 
 }  // namespace kuiper_infer

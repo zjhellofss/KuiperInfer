@@ -167,7 +167,7 @@ InferStatus YoloDetectLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus YoloDetectLayer::GetInstance(
+ParseParameterAttrStatus YoloDetectLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& yolo_detect_layer) {
   CHECK(op != nullptr) << "Yolo detect operator is nullptr";
@@ -313,7 +313,7 @@ ParseParameterAttrStatus YoloDetectLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kYoloGetInstance("models.yolo.Detect",
-                                        YoloDetectLayer::GetInstance);
+LayerRegistererWrapper kYoloCreateInstance("models.yolo.Detect",
+                                        YoloDetectLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -88,6 +88,12 @@ static void BM_Yolov5s_Batch8_640x640(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_Yolov5nano_Batch4_320x320)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Yolov5s_Batch4_640x640)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Yolov5s_Batch8_640x640)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Yolov5nano_Batch4_320x320)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(5);
+BENCHMARK(BM_Yolov5s_Batch4_640x640)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(5);
+BENCHMARK(BM_Yolov5s_Batch8_640x640)
+    ->Unit(benchmark::kMillisecond)
+    ->Iterations(5);

@@ -80,7 +80,7 @@ InferStatus HardSigmoid::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus HardSigmoid::GetInstance(
+ParseParameterAttrStatus HardSigmoid::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& hardsigmoid_layer) {
   CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
@@ -88,7 +88,7 @@ ParseParameterAttrStatus HardSigmoid::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kHardSigmoidGetInstance("nn.Hardsigmoid",
-                                               HardSigmoid::GetInstance);
+LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid",
+                                               HardSigmoid::CreateInstance);
 
 }  // namespace kuiper_infer

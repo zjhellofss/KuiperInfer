@@ -66,7 +66,7 @@ InferStatus SigmoidLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus SigmoidLayer::GetInstance(
+ParseParameterAttrStatus SigmoidLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& sigmoid_layer) {
   CHECK(op != nullptr) << "Sigmoid operator is nullptr";
@@ -74,6 +74,6 @@ ParseParameterAttrStatus SigmoidLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kSigmoidGetInstance("nn.Sigmoid",
-                                           SigmoidLayer::GetInstance);
+LayerRegistererWrapper kSigmoidCreateInstance("nn.Sigmoid",
+                                           SigmoidLayer::CreateInstance);
 }  // namespace kuiper_infer

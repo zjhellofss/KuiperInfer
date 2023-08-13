@@ -41,7 +41,7 @@ class ConvolutionLayer : public ParamLayer {
                             bool use_bias = true, uint32_t output_padding_h = 0,
                             uint32_t output_padding_w = 0);
 
-  static ParseParameterAttrStatus GetInstance(
+  static ParseParameterAttrStatus CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& conv_layer);
 
@@ -60,6 +60,11 @@ class ConvolutionLayer : public ParamLayer {
   void InitIm2ColWeight();
 
  private:
+  std::pair<uint32_t, uint32_t> CalcOutputSize(const uint32_t input_h,
+                                               const uint32_t input_w,
+                                               const uint32_t kernel_h,
+                                               const uint32_t kernel_w);
+
   void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
                     uint32_t group, uint32_t kernel_index,
                     uint32_t kernel_count_group, uint32_t output_h,

@@ -117,7 +117,7 @@ InferStatus CatLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus CatLayer::GetInstance(
+ParseParameterAttrStatus CatLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& cat_layer) {
   CHECK(op != nullptr) << "Cat operator is nullptr";
@@ -138,5 +138,5 @@ ParseParameterAttrStatus CatLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kCatGetInstance("torch.cat", CatLayer::GetInstance);
+LayerRegistererWrapper kCatCreateInstance("torch.cat", CatLayer::CreateInstance);
 }  // namespace kuiper_infer

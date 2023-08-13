@@ -101,7 +101,7 @@ InferStatus ViewLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus ViewLayer::GetInstance(
+ParseParameterAttrStatus ViewLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& view_layer) {
   CHECK(op != nullptr) << "View operator is nullptr";
@@ -125,6 +125,6 @@ ParseParameterAttrStatus ViewLayer::GetInstance(
 ViewLayer::ViewLayer(std::vector<int32_t> shapes)
     : NonParamLayer("view"), shapes_(std::move(shapes)) {}
 
-LayerRegistererWrapper kViewGetInstance("Tensor.view", ViewLayer::GetInstance);
+LayerRegistererWrapper kViewCreateInstance("Tensor.view", ViewLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -136,7 +136,7 @@ InferStatus SoftmaxLayer::Forward(
   }
   return InferStatus::kInferSuccess;
 }
-ParseParameterAttrStatus SoftmaxLayer::GetInstance(
+ParseParameterAttrStatus SoftmaxLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& softmax_layer) {
   CHECK(op != nullptr) << "SoftMax operator is nullptr";
@@ -157,8 +157,8 @@ ParseParameterAttrStatus SoftmaxLayer::GetInstance(
   softmax_layer = std::make_shared<SoftmaxLayer>(dim->value);  // 创建softmax层
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
-LayerRegistererWrapper kSoftMaxGetInstanceNN("nn.Softmax",
-                                             SoftmaxLayer::GetInstance);
-LayerRegistererWrapper kSoftMaxGetInstanceF("F.softmax",
-                                            SoftmaxLayer::GetInstance);
+LayerRegistererWrapper kSoftMaxCreateInstanceNN("nn.Softmax",
+                                             SoftmaxLayer::CreateInstance);
+LayerRegistererWrapper kSoftMaxCreateInstanceF("F.softmax",
+                                            SoftmaxLayer::CreateInstance);
 }  // namespace kuiper_infer

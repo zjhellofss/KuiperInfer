@@ -136,7 +136,7 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(
+ParseParameterAttrStatus AdaptiveAveragePoolingLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& avg_layer) {
   CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
@@ -160,7 +160,7 @@ ParseParameterAttrStatus AdaptiveAveragePoolingLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kAdaptiveAvgpoolingGetInstance(
-    "nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::GetInstance);
+LayerRegistererWrapper kAdaptiveAvgpoolingCreateInstance(
+    "nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::CreateInstance);
 
 }  // namespace kuiper_infer

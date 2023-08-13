@@ -36,7 +36,7 @@ class LinearLayer : public ParamLayer {
   InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
-  static ParseParameterAttrStatus GetInstance(const std::shared_ptr<RuntimeOperator> &op,
+  static ParseParameterAttrStatus CreateInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &linear_layer);
  private:
   int32_t in_features_ = 0;

@@ -132,7 +132,7 @@ InferStatus UpSampleLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus UpSampleLayer::GetInstance(
+ParseParameterAttrStatus UpSampleLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& upsample_layer) {
   CHECK(op != nullptr) << "Upsample operator is null";
@@ -168,6 +168,6 @@ ParseParameterAttrStatus UpSampleLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kUpSamplerGetInstance("nn.Upsample",
-                                             UpSampleLayer::GetInstance);
+LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample",
+                                             UpSampleLayer::CreateInstance);
 }  // namespace kuiper_infer

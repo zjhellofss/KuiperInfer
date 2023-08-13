@@ -374,7 +374,7 @@ struct C {
   static const LogVar<LOG_N> logVar;
   static const ExpdVar<EXPD_N> expdVar;
 #ifdef FMATH_USE_XBYAK
-  static const ExpCode& getInstance() {
+  static const ExpCode& CreateInstance() {
     static const ExpCode expCode(&expVar);
     return expCode;
   }
@@ -835,8 +835,8 @@ class PowGenerator {
 
 // for Xbyak version
 #ifdef FMATH_USE_XBYAK
-float (*const exp)(float) = local::C<>::getInstance().exp_;
-__m128 (*const exp_ps)(__m128) = local::C<>::getInstance().exp_ps_;
+float (*const exp)(float) = local::C<>::CreateInstance().exp_;
+__m128 (*const exp_ps)(__m128) = local::C<>::CreateInstance().exp_ps_;
 #endif
 
 // exp2(x) = pow(2, x)

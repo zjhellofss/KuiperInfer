@@ -99,7 +99,7 @@ InferStatus FlattenLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus FlattenLayer::GetInstance(
+ParseParameterAttrStatus FlattenLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& flatten_layer) {
   CHECK(op != nullptr) << "Flatten operator is nullptr";
@@ -130,7 +130,7 @@ ParseParameterAttrStatus FlattenLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kFlattenGetInstance("torch.flatten",
-                                           FlattenLayer::GetInstance);
+LayerRegistererWrapper kFlattenCreateInstance("torch.flatten",
+                                           FlattenLayer::CreateInstance);
 
 }  // namespace kuiper_infer

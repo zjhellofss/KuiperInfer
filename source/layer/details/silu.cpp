@@ -86,7 +86,7 @@ InferStatus SiLULayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus SiLULayer::GetInstance(
+ParseParameterAttrStatus SiLULayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& silu_layer) {
   CHECK(op != nullptr) << "SiLU operator is nullptr";
@@ -94,6 +94,6 @@ ParseParameterAttrStatus SiLULayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kSiluGetInstance("nn.SiLU", SiLULayer::GetInstance);
+LayerRegistererWrapper kSiluCreateInstance("nn.SiLU", SiLULayer::CreateInstance);
 
 }  // namespace kuiper_infer

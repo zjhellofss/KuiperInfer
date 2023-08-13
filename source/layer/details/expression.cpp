@@ -142,7 +142,7 @@ InferStatus ExpressionLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus ExpressionLayer::GetInstance(
+ParseParameterAttrStatus ExpressionLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& expression_layer) {
   CHECK(op != nullptr) << "Expression operator is nullptr";
@@ -166,6 +166,6 @@ ParseParameterAttrStatus ExpressionLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kExpressionGetInstance("pnnx.Expression",
-                                              ExpressionLayer::GetInstance);
+LayerRegistererWrapper kExpressionCreateInstance("pnnx.Expression",
+                                              ExpressionLayer::CreateInstance);
 }  // namespace kuiper_infer

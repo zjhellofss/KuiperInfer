@@ -33,7 +33,7 @@ class FlattenLayer : public NonParamLayer {
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus GetInstance(
+  static ParseParameterAttrStatus CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& flatten_layer);
 

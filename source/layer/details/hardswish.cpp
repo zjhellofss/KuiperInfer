@@ -79,7 +79,7 @@ InferStatus HardSwishLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-ParseParameterAttrStatus HardSwishLayer::GetInstance(
+ParseParameterAttrStatus HardSwishLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& hardswish_layer) {
   CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
@@ -87,7 +87,7 @@ ParseParameterAttrStatus HardSwishLayer::GetInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kHardSwishGetInstance("nn.Hardswish",
-                                             HardSwishLayer::GetInstance);
+LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish",
+                                             HardSwishLayer::CreateInstance);
 
 }  // namespace kuiper_infer
