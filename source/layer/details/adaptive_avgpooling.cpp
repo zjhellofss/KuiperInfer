@@ -30,7 +30,10 @@ AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h,
                                                          uint32_t output_w)
     : NonParamLayer("AdaptiveAveragePooling"),
       output_h_(output_h),
-      output_w_(output_w) {}
+      output_w_(output_w) {
+  CHECK_GT(output_h_, 0);
+  CHECK_GT(output_w_, 0);
+}
 
 InferStatus AdaptiveAveragePoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

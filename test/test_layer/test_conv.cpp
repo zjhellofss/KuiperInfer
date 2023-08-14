@@ -593,3 +593,65 @@ TEST(test_layer, conv3x3_fromtorch) {
         << " predict: " << outputs_values.at(i);
   }
 }
+
+TEST(test_layer, conv_dilation1) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet/dilation_conv_pt.pnnx.param",
+                     "tmp/resnet/dilation_conv_pt.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(3, 25, 25);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+
+  std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data =
+      CSVDataLoader::LoadData("tmp/resnet/test_dilation.csv");
+  const auto& outputs_values = outputs.front()->values(true);
+
+  for (int i = 0; i < outputs_values.size(); ++i) {
+    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
+        << i << " real: " << real_data.at(i)
+        << " predict: " << outputs_values.at(i);
+  }
+}
+
+TEST(test_layer, conv_dilation2) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/resnet/dilation_conv_pt2.pnnx.param",
+                     "tmp/resnet/dilation_conv_pt2.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  for (int i = 0; i < batch_size; ++i) {
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(3, 36, 36);
+    input->Ones();
+    inputs.push_back(input);
+  }
+
+  graph.set_inputs("pnnx_input_0", inputs);
+  graph.Forward(false);
+
+  std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data =
+      CSVDataLoader::LoadData("tmp/resnet/test_dilation2.csv");
+  const auto& outputs_values = outputs.front()->values(true);
+
+  for (int i = 0; i < outputs_values.size(); ++i) {
+    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
+        << i << " real: " << real_data.at(i)
+        << " predict: " << outputs_values.at(i);
+  }
+}

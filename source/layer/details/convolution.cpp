@@ -35,7 +35,8 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
                                    uint32_t padding_w, uint32_t stride_h,
                                    uint32_t stride_w, uint32_t groups,
                                    bool use_bias, uint32_t output_padding_h,
-                                   uint32_t output_padding_w)
+                                   uint32_t output_padding_w,
+                                   uint32_t dilation_h, uint32_t dilation_w)
     : ParamLayer("convolution"),
       conv_type_(conv_type),
       use_bias_(use_bias),
@@ -45,7 +46,9 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
       stride_h_(stride_h),
       stride_w_(stride_w),
       output_padding_h_(output_padding_h),
-      output_padding_w_(output_padding_w) {
+      output_padding_w_(output_padding_w),
+      dilation_h_(dilation_h),
+      dilation_w_(dilation_w) {
   if (groups != 1) {
     in_channel /= groups;
   }
@@ -57,6 +60,9 @@ ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
   CHECK_GE(groups_, 1);
   CHECK_GT(stride_h_, 0);
   CHECK_GT(stride_w_, 0);
+  CHECK_GT(dilation_h_, 0);
+  CHECK_GT(dilation_w_, 0);
+
   if (conv_type_ == ConvType::OpConv) {
     CHECK_EQ(output_padding_h_, 0);
     CHECK_EQ(output_padding_w_, 0);
@@ -171,18 +177,8 @@ InferStatus ConvolutionLayer::Forward(
   const uint32_t batch_size = inputs.size();
   const uint32_t kernel_count_group = kernel_count / groups_;
 
-  if (kernel_matrix_arr_.empty()) {
+  if (conv_type_ == ConvType::OpConv && kernel_matrix_arr_.empty()) {
     this->InitIm2ColWeight();
-  }
-
-  if (!kernel_matrix_arr_.empty()) {
-    if (groups_ == 1) {
-      CHECK(kernel_matrix_arr_.size() == kernel_count_group)
-          << "The number of kernel matrix and kernel_count_group do not match";
-    } else {
-      CHECK(kernel_matrix_arr_.size() == kernel_count)
-          << "The number of kernel matrix and kernel_count do not match";
-    }
   }
 
 #pragma omp parallel for num_threads(batch_size)
@@ -207,7 +203,6 @@ InferStatus ConvolutionLayer::Forward(
         conv_type_ == ConvType ::OpConv ? input_padded_h : input_h,
         conv_type_ == ConvType ::OpConv ? input_padded_w : input_w, kernel_h,
         kernel_w);
-
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i
         << " th";
@@ -238,9 +233,9 @@ InferStatus ConvolutionLayer::Forward(
              "matrix and input tensor do not match";
 
       if (conv_type_ == ConvType::OpConv) {
-        const arma::fmat& input_matrix =
-            ConvIm2Col(input, kernel_h, kernel_w, input_h, input_w,
-                       input_c_group, g, row_len, output_h * output_w);
+        const arma::fmat& input_matrix = ConvIm2Col(
+            input, kernel_h, kernel_w, input_h, input_w, input_c_group,
+            output_h, output_w, g, row_len, output_h * output_w);
 #pragma omp parallel for
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
@@ -346,14 +341,14 @@ arma::fmat ConvolutionLayer::DeconvGemm(sftensor input, uint32_t input_h,
 arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
                                         uint32_t kernel_w, uint32_t input_h,
                                         uint32_t input_w,
-                                        uint32_t input_c_group, uint32_t group,
-                                        uint32_t row_len,
+                                        uint32_t input_c_group,
+                                        uint32_t output_h, uint32_t output_w,
+                                        uint32_t group, uint32_t row_len,
                                         uint32_t col_len) const {
   CHECK(conv_type_ == ConvType::OpConv);
   CHECK(input && !input->empty());
   arma::fmat input_matrix(input_c_group * row_len, col_len);
-  const uint32_t input_padded_h = input_h + 2 * padding_h_;
-  const uint32_t input_padded_w = input_w + 2 * padding_w_;
+
   const float padding_value = 0.f;
 #pragma omp parallel for
   for (uint32_t ic = 0; ic < input_c_group; ++ic) {
@@ -361,19 +356,21 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
         input->matrix_raw_ptr(ic + group * input_c_group);
     uint32_t current_col = 0;
     uint32_t channel_row = ic * row_len;
-    for (uint32_t w = 0; w < input_padded_w - kernel_w + 1; w += stride_w_) {
-      for (uint32_t r = 0; r < input_padded_h - kernel_h + 1; r += stride_h_) {
+    for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
+      for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
         float* input_matrix_ptr =
             input_matrix.colptr(current_col) + channel_row;
         current_col += 1;
-        for (uint32_t kw = 0; kw < kernel_w; ++kw) {
-          const uint32_t region_w = input_h * (w + kw - padding_w_);
-          for (uint32_t kh = 0; kh < kernel_h; ++kh) {
-            if ((kh + r >= padding_h_ && kw + w >= padding_w_) &&
-                (kh + r < input_h + padding_h_ &&
-                 kw + w < input_w + padding_w_)) {
+        for (uint32_t kw = 0; kw < kernel_w * dilation_w_; kw += dilation_w_) {
+          const uint32_t region_w = input_h * (input_col + kw - padding_w_);
+          for (uint32_t kh = 0; kh < kernel_h * dilation_h_;
+               kh += dilation_h_) {
+            if ((kh + input_row >= padding_h_ &&
+                 kw + input_col >= padding_w_) &&
+                (kh + input_row < input_h + padding_h_ &&
+                 kw + input_col < input_w + padding_w_)) {
               float* region_ptr =
-                  input_channel_ptr + region_w + (r + kh - padding_h_);
+                  input_channel_ptr + region_w + (input_row + kh - padding_h_);
               *input_matrix_ptr = *region_ptr;
             } else {
               *input_matrix_ptr = padding_value;  // only support zero mode
@@ -381,7 +378,9 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
             input_matrix_ptr += 1;
           }
         }
+        input_row += stride_h_;
       }
+      input_col += stride_w_;
     }
   }
   return input_matrix;
@@ -447,6 +446,17 @@ void ConvolutionLayer::InitIm2ColWeight() {
     }
     kernel_matrix_arr.at(k) = kernel_matrix_c;
   }
+
+  if (!kernel_matrix_arr.empty()) {
+    if (groups_ == 1) {
+      CHECK(kernel_matrix_arr.size() == kernel_count / groups_)
+          << "The number of kernel matrix and kernel_count_group do not match";
+    } else {
+      CHECK(kernel_matrix_arr.size() == kernel_count)
+          << "The number of kernel matrix and kernel_count do not match";
+    }
+  }
+
   this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
 }
 
@@ -458,8 +468,11 @@ std::pair<uint32_t, uint32_t> ConvolutionLayer::CalcOutputSize(
 
   if (conv_type_ == ConvType::OpConv) {
     CHECK(input_h >= kernel_h && input_w >= kernel_w);
-    output_h = (input_h - kernel_h) / stride_h_ + 1;
-    output_w = (input_w - kernel_w) / stride_w_ + 1;
+    CHECK_GT(kernel_h, 0);
+    CHECK_GT(kernel_w, 0);
+
+    output_h = (input_h - dilation_h_ * (kernel_h - 1) - 1) / stride_h_ + 1;
+    output_w = (input_w - dilation_w_ * (kernel_w - 1) - 1) / stride_w_ + 1;
   } else {
     CHECK(conv_type_ == ConvType::OpDeconv);
     output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
@@ -491,8 +504,8 @@ ParseParameterAttrStatus ConvolutionLayer::CreateInstance(
     return ParseParameterAttrStatus::kParameterMissingDilation;
   }
 
-  CHECK(dilation_param->value.at(0) != 1 || dilation_param->value.at(1))
-      << "Only support dilation value equals to one!";
+  const uint32_t dilation_h = dilation_param->value.at(0);
+  const uint32_t dilation_w = dilation_param->value.at(1);
 
   if (params.find("in_channels") == params.end()) {
     LOG(ERROR) << "Can not find the in channel parameter";
@@ -634,6 +647,7 @@ ParseParameterAttrStatus ConvolutionLayer::CreateInstance(
     conv_type = ConvType::OpConv;
   } else if (op->type == "nn.ConvTranspose2d") {
     conv_type = ConvType::OpDeconv;
+    CHECK(dilation_h == 1 && dilation_w == 1);
   } else {
     LOG(FATAL) << "Unknown convolution type: " << op->type;
   }
@@ -643,7 +657,7 @@ ParseParameterAttrStatus ConvolutionLayer::CreateInstance(
       conv_type, out_channel->value, in_channel->value, kernels.at(0),
       kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
       strides.at(1), groups->value, use_bias->value, output_padding_h,
-      output_padding_w);
+      output_padding_w, dilation_h, dilation_w);
 
   // load weights
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>>& attrs =

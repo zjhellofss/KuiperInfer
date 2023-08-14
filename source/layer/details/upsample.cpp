@@ -169,5 +169,5 @@ ParseParameterAttrStatus UpSampleLayer::CreateInstance(
 }
 
 LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample",
-                                             UpSampleLayer::CreateInstance);
+                                                UpSampleLayer::CreateInstance);
 }  // namespace kuiper_infer

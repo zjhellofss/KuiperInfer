@@ -86,7 +86,6 @@ TEST(test_layer, deconv_group1) {
   }
 }
 
-
 TEST(test_layer, deconv_group2) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/unet/demo_deconv3_.pnnx.param",
@@ -116,3 +115,34 @@ TEST(test_layer, deconv_group2) {
         << " predict: " << outputs_values.at(i);
   }
 }
+
+//TEST(test_layer, deconv_group_dilation1) {
+//  using namespace kuiper_infer;
+//  RuntimeGraph graph("tmp/resnet/demo_deconv_dpt.pnnx.param",
+//                     "tmp/resnet/demo_deconv_dpt.pnnx.bin");
+//
+//  graph.Build();
+//  const uint32_t batch_size = 1;
+//  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+//
+//  for (int i = 0; i < batch_size; ++i) {
+//    std::shared_ptr<Tensor<float>> input =
+//        std::make_shared<Tensor<float>>(16, 16, 31);
+//    input->Ones();
+//    inputs.push_back(input);
+//  }
+//
+//  graph.set_inputs("pnnx_input_0", inputs);
+//  graph.Forward(false);
+//
+//  std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
+//  arma::fmat real_data =
+//      CSVDataLoader::LoadData("tmp/resnet/test_convtranspose_d.csv");
+//  const auto& outputs_values = outputs.front()->values(true);
+//
+//  for (int i = 0; i < outputs_values.size(); ++i) {
+//    ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
+//        << i << " real: " << real_data.at(i)
+//        << " predict: " << outputs_values.at(i) << " i: " << i;
+//  }
+//}

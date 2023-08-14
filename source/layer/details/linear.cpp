@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #include "linear.hpp"
@@ -33,19 +33,12 @@ LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
       use_bias_(use_bias),
       in_features_(in_features),
       out_features_(out_features) {
+  CHECK_GT(in_features_, 0);
+  CHECK_GT(out_features_, 0);
   this->InitWeightParam(1, 1, out_features, in_features);
   if (use_bias) {
     this->InitBiasParam(1, 1, 1, out_features);
   }
-  // std::shared_ptr<Tensor<float>> weight =
-  //     std::make_shared<Tensor<float>>(1, out_features, in_features);
-  // this->weights_.push_back(weight);
-  // if (use_bias) {
-  //   std::shared_ptr<Tensor<float>> bias =
-  //       std::make_shared<Tensor<float>>(1, out_features, 1);
-  //   bias->ReRawshape(std::vector<uint32_t>{(uint32_t)(out_features)});
-  //   this->bias_.push_back(bias);
-  // }
 }
 
 InferStatus LinearLayer::Forward(
@@ -86,7 +79,7 @@ InferStatus LinearLayer::Forward(
   const std::shared_ptr<Tensor<float>>& weight = weights_.front();
   arma::fmat weight_data(weight->raw_ptr(), out_features_, in_features_, false,
                          true);
-  const arma::fmat &weight_data_t = weight_data.t();
+  const arma::fmat& weight_data_t = weight_data.t();
 
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
@@ -200,6 +193,6 @@ ParseParameterAttrStatus LinearLayer::CreateInstance(
 }
 
 LayerRegistererWrapper kLinearCreateInstance("nn.Linear",
-                                          LinearLayer::CreateInstance);
+                                             LinearLayer::CreateInstance);
 
 }  // namespace kuiper_infer
