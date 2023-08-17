@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-4-27.
 #include <benchmark/benchmark.h>
 #include "../source/layer/details/adaptive_avgpooling.hpp"
@@ -238,7 +238,6 @@ BENCHMARK(BM_SiLU)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiLU)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiLU)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
-
 static void BM_ReLU(benchmark::State& state) {
   using namespace kuiper_infer;
 
@@ -334,6 +333,7 @@ static void BM_Upsample(benchmark::State& state) {
   uint32_t rows = state.range(1);
   uint32_t cols = state.range(2);
 
+  UpSampleMode mode = UpSampleMode(state.range(3));
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
@@ -342,17 +342,22 @@ static void BM_Upsample(benchmark::State& state) {
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
-  UpSampleLayer layer(2.f, 2.f);
+  UpSampleLayer layer(3.f, 3.f, mode);
 
   for (auto _ : state) {
     const auto status = layer.Forward(inputs, outputs);
   }
 }
 
-BENCHMARK(BM_Upsample)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Upsample)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Upsample)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_Upsample)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({3, 320, 320, 0})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({32, 160, 160, 0})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({64, 80, 80, 0})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({128, 40, 40, 0})->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_Upsample)->Args({3, 320, 320, 1})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({32, 160, 160, 1})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({64, 80, 80, 1})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Upsample)->Args({128, 40, 40, 1})->Unit(benchmark::kMillisecond);
 
 static void BM_AdaptivePooling(benchmark::State& state) {
   using namespace kuiper_infer;

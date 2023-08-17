@@ -18,11 +18,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
-#include <gtest/gtest.h>
 #include <glog/logging.h>
+#include <gtest/gtest.h>
 #include "../../source/layer/details/upsample.hpp"
+#include "data/load_data.hpp"
+#include "runtime/runtime_ir.hpp"
 
 TEST(test_layer, forward_upsample1) {
   using namespace kuiper_infer;
@@ -32,7 +34,8 @@ TEST(test_layer, forward_upsample1) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -43,16 +46,17 @@ TEST(test_layer, forward_upsample1) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->slice(i);
-      const auto &input_channel = input->slice(i);
+      const auto& output_channel = output->slice(i);
+      const auto& input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 2);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 2);
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 2, c_ / 2), output_channel.at(r, c_)) << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 2, c_ / 2), output_channel.at(r, c_))
+              << r << " " << c_;
         }
       }
     }
@@ -67,7 +71,8 @@ TEST(test_layer, forward_upsample2) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -78,16 +83,17 @@ TEST(test_layer, forward_upsample2) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->slice(i);
-      const auto &input_channel = input->slice(i);
+      const auto& output_channel = output->slice(i);
+      const auto& input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 2);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 3);
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 2, c_ / 3), output_channel.at(r, c_)) << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 2, c_ / 3), output_channel.at(r, c_))
+              << r << " " << c_;
         }
       }
     }
@@ -101,7 +107,8 @@ TEST(test_layer, forward_upsample3) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -112,16 +119,17 @@ TEST(test_layer, forward_upsample3) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->slice(i);
-      const auto &input_channel = input->slice(i);
+      const auto& output_channel = output->slice(i);
+      const auto& input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 3);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 2);
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 3, c_ / 2), output_channel.at(r, c_)) << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 3, c_ / 2), output_channel.at(r, c_))
+              << r << " " << c_;
         }
       }
     }
@@ -135,7 +143,8 @@ TEST(test_layer, forward_upsample4) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -146,16 +155,17 @@ TEST(test_layer, forward_upsample4) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->slice(i);
-      const auto &input_channel = input->slice(i);
+      const auto& output_channel = output->slice(i);
+      const auto& input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 3);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 3);
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 3, c_ / 3), output_channel.at(r, c_)) << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 3, c_ / 3), output_channel.at(r, c_))
+              << r << " " << c_;
         }
       }
     }
@@ -169,7 +179,8 @@ TEST(test_layer, forward_upsample5) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input =
+      std::make_shared<Tensor<float>>(channels, rows, cols);
   input->Rand();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -180,19 +191,92 @@ TEST(test_layer, forward_upsample5) {
   ASSERT_EQ(status, InferStatus::kInferSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
-    const auto &output = outputs.at(i);
+    const auto& output = outputs.at(i);
     for (int c = 0; c < channels; ++c) {
-      const auto &output_channel = output->slice(i);
-      const auto &input_channel = input->slice(i);
+      const auto& output_channel = output->slice(i);
+      const auto& input_channel = input->slice(i);
       ASSERT_EQ(output_channel.n_rows / input_channel.n_rows, 4);
       ASSERT_EQ(output_channel.n_cols / input_channel.n_cols, 4);
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 4, c_ / 4), output_channel.at(r, c_)) << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 4, c_ / 4), output_channel.at(r, c_))
+              << r << " " << c_;
         }
       }
     }
   }
 }
 
+TEST(test_layer, forward_upsample_bilinear_noalign1) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/up/up_layer_mod.pnnx.param",
+                     "tmp/up/up_layer_mod.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  const uint32_t size = 3 * 16 * 31;
+  std::vector<float> input_values;
+  for (uint32_t i = 0; i < size; ++i) {
+    input_values.push_back(float(i));
+  }
+  sftensor input_tensor = std::make_shared<ftensor>(3, 16, 31);
+  input_tensor->Fill(input_values, true);
+  inputs.push_back(input_tensor);
+  graph.set_inputs("pnnx_input_0", inputs);
+
+  graph.Forward();
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
+  ASSERT_EQ(outputs.size(), 1);
+
+  sftensor output = outputs.front();
+  arma::fmat real =
+      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear.csv");
+  auto output_values = output->values(true);
+  for (uint32_t i = 0; i < output->size(); ++i) {
+    float output1 = real.at(i);
+    float output2 = output_values.at(i);
+    ASSERT_LE(std::abs(output1 - output2), 5e-4f)
+        << i << " output1: " << output1 << " output2: " << output2;
+  }
+}
+
+
+TEST(test_layer, forward_upsample_bilinear_noalign2) {
+  using namespace kuiper_infer;
+  RuntimeGraph graph("tmp/up/up_layer_mod1.pnnx.param",
+                     "tmp/up/up_layer_mod1.pnnx.bin");
+
+  graph.Build();
+  const uint32_t batch_size = 1;
+  std::vector<std::shared_ptr<Tensor<float>>> inputs;
+
+  const uint32_t size = 7 * 16 * 31;
+  std::vector<float> input_values;
+  for (uint32_t i = 0; i < size; ++i) {
+    input_values.push_back(float(i));
+  }
+  sftensor input_tensor = std::make_shared<ftensor>(7, 16, 31);
+  input_tensor->Fill(input_values, true);
+  inputs.push_back(input_tensor);
+  graph.set_inputs("pnnx_input_0", inputs);
+
+  graph.Forward();
+  std::vector<std::shared_ptr<Tensor<float>>> outputs =
+      graph.get_outputs("pnnx_output_0");
+  ASSERT_EQ(outputs.size(), 1);
+
+  sftensor output = outputs.front();
+  arma::fmat real =
+      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear11.csv");
+  auto output_values = output->values(true);
+  for (uint32_t i = 0; i < output->size(); ++i) {
+    float output1 = real.at(i);
+    float output2 = output_values.at(i);
+    ASSERT_LE(std::abs(output1 - output2), 5e-4f)
+        << i << " output1: " << output1 << " output2: " << output2;
+  }
+}

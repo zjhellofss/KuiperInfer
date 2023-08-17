@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_UPSAMPLE_HPP_
@@ -27,12 +27,13 @@
 
 namespace kuiper_infer {
 enum class UpSampleMode {
-  kModeNearest = 0,  // 目前上采样层只支持邻近采样
+  kModeNearest = 0,
+  kModeBilinear = 1,  // 目前上采样支持这两种
 };
 
 class UpSampleLayer : public NonParamLayer {
  public:
-  explicit UpSampleLayer(float scale_h, float scale_w,
+  explicit UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
                          UpSampleMode mode = UpSampleMode::kModeNearest);
 
   InferStatus Forward(
@@ -44,8 +45,8 @@ class UpSampleLayer : public NonParamLayer {
       std::shared_ptr<Layer>& upsample_layer);
 
  private:
-  float scale_h_ = 1.f;
-  float scale_w_ = 1.f;
+  uint32_t scale_h_ = 1;
+  uint32_t scale_w_ = 1;
   UpSampleMode mode_ = UpSampleMode::kModeNearest;
 };
 }  // namespace kuiper_infer

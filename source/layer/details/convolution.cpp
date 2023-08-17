@@ -246,7 +246,7 @@ InferStatus ConvolutionLayer::Forward(
         CHECK(kernel_count % groups_ == 0);
         CHECK(input_c % groups_ == 0);
       }
-      uint32_t input_c_group = input_c / groups_;
+      const uint32_t input_c_group = input_c / groups_;
       CHECK(input_c_group == kernel_c)
           << "The number of channel for the kernel "
              "matrix and input tensor do not match";
