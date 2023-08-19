@@ -614,6 +614,11 @@ ParseParameterAttrStatus ConvolutionLayer::CreateInstance(
     }
   }
 
+  if (params.find("groups") == params.end()) {
+    LOG(ERROR) << "Can not find the groups parameter";
+    return ParseParameterAttrStatus::kParameterMissingGroups;
+  }
+
   auto groups =
       std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("groups"));
   if (!groups) {
