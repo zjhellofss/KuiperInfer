@@ -130,7 +130,6 @@ TEST(test_layer, deconv_group_dilation1) {
         std::make_shared<Tensor<float>>(1, 2, 2);
     input->at(0, 0, 0) = 1;
     input->at(0, 1, 1) = 1;
-    input->Show();
     inputs.push_back(input);
   }
 
@@ -142,7 +141,6 @@ TEST(test_layer, deconv_group_dilation1) {
       CSVDataLoader::LoadData("tmp/resnet/test_convtranspose_d_sample.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
-  outputs.front()->Show();
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-5f)
         << i << " real: " << real_data.at(i)

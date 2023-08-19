@@ -33,8 +33,9 @@ enum class UpSampleMode {
 
 class UpSampleLayer : public NonParamLayer {
  public:
-  explicit UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
-                         UpSampleMode mode = UpSampleMode::kModeNearest);
+  explicit UpSampleLayer(float scale_h, float scale_w,
+                         UpSampleMode mode = UpSampleMode::kModeNearest,
+                         bool is_align_scale = false);
 
   InferStatus Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -45,8 +46,9 @@ class UpSampleLayer : public NonParamLayer {
       std::shared_ptr<Layer>& upsample_layer);
 
  private:
-  uint32_t scale_h_ = 1;
-  uint32_t scale_w_ = 1;
+  float scale_h_ = 1.f;
+  float scale_w_ = 1.f;
+  bool is_align_corner_ = false;
   UpSampleMode mode_ = UpSampleMode::kModeNearest;
 };
 }  // namespace kuiper_infer

@@ -28,16 +28,22 @@ namespace kuiper_infer {
 static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
                                float div_scale, int32_t output_idx,
                                float& lambda0, float& lambda1,
-                               int32_t& input_index0, int32_t& input_index1) {
+                               int32_t& input_index0, int32_t& input_index1,
+                               bool is_align_corner) {
   if (output_size == input_size) {
     input_index0 = input_index1 = output_idx;
     lambda0 = 1;
     lambda1 = 0;
   } else {
-    float real_input_idx =
-        div_scale * (static_cast<float>(output_idx) + 0.5f) - 0.5f;
-    if (real_input_idx < 0) {
-      real_input_idx = 0;
+    float real_input_idx = 0.f;
+    if (!is_align_corner) {
+      real_input_idx =
+          div_scale * (static_cast<float>(output_idx) + 0.5f) - 0.5f;
+      if (real_input_idx < 0) {
+        real_input_idx = 0;
+      }
+    } else {
+      real_input_idx = div_scale * static_cast<float>(output_idx);
     }
 
     input_index0 = static_cast<int>(real_input_idx);
@@ -49,12 +55,13 @@ static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
   }
 }
 
-UpSampleLayer::UpSampleLayer(uint32_t scale_h, uint32_t scale_w,
-                             UpSampleMode mode)
+UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode,
+                             bool is_align_corner)
     : NonParamLayer("upsample"),
       scale_h_(scale_h),
       scale_w_(scale_w),
-      mode_(mode) {}
+      mode_(mode),
+      is_align_corner_(is_align_corner) {}
 
 InferStatus UpSampleLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -71,13 +78,6 @@ InferStatus UpSampleLayer::Forward(
     return InferStatus::kInferFailedInputOutSizeMatchError;
   }
 
-  auto test_scale_factor = [](uint32_t origin, uint32_t scale_factor) {
-    float result = static_cast<float>(origin * scale_factor);
-    if (std::abs(result - std::round(result)) > 1e-5f) {
-      LOG(ERROR) << "The input scale_factor is wrong";
-    }
-  };
-
   LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest &&
                     this->mode_ != UpSampleMode::kModeBilinear)
       << "Unsupported upsample mode: " << int(mode_);
@@ -90,28 +90,26 @@ InferStatus UpSampleLayer::Forward(
           << i << " th";
       return InferStatus::kInferFailedInputEmpty;
     }
-    test_scale_factor(inputs.at(i)->data().n_rows, scale_h_);
-    test_scale_factor(inputs.at(i)->data().n_cols, scale_w_);
   }
 
   const uint32_t batch_size = inputs.size();
-
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube& input_data = inputs.at(i)->data();
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input_data.n_slices,
-                                               input_data.n_rows * scale_h_,
-                                               input_data.n_cols * scale_w_);
+      output = std::make_shared<Tensor<float>>(
+          input_data.n_slices,
+          input_data.n_rows * static_cast<uint32_t>(scale_h_),
+          input_data.n_cols * static_cast<uint32_t>(scale_w_));
       outputs.at(i) = output;
     }
     auto& output_data = output->data();
-    CHECK(output_data.n_rows == input_data.n_rows * scale_h_)
+    CHECK(output_data.n_rows == std::floor(input_data.n_rows * scale_h_))
         << "The input and output tensor height of the upsample layer do not "
            "match "
         << i << "th";
-    CHECK(output_data.n_cols == input_data.n_cols * scale_w_)
+    CHECK(output_data.n_cols == std::floor(input_data.n_cols * scale_w_))
         << "The input and output tensor width of the upsample layer do not "
            "match "
         << i << "th";
@@ -121,8 +119,6 @@ InferStatus UpSampleLayer::Forward(
            "match "
         << i << "th";
 
-    const float div_scale_h = 1.f / static_cast<float>(scale_h_);
-    const float div_scale_w = 1.f / static_cast<float>(scale_w_);
     const uint32_t channels = input_data.n_slices;
     if (mode_ == UpSampleMode::kModeNearest) {
 #pragma omp parallel for
@@ -136,17 +132,18 @@ InferStatus UpSampleLayer::Forward(
         const uint32_t output_h = output_channel.n_rows;
         for (uint32_t w = 0; w < input_w; ++w) {
           const float* input_col_ptr = input_channel.colptr(w);
-          const uint32_t scaled_w = w * scale_w_;
-          for (uint32_t sw = 0; sw < scale_w_; ++sw) {
+          const uint32_t scaled_w = w * static_cast<uint32_t>(scale_w_);
+          for (uint32_t sw = 0; sw < static_cast<uint32_t>(scale_w_); ++sw) {
             if (scaled_w + sw >= output_w) {
               continue;
             }
             float* output_col_ptr = output_channel.colptr(scaled_w + sw);
             for (uint32_t h = 0; h < input_h; ++h) {
-              const uint32_t scaled_h = h * scale_h_;
+              const uint32_t scaled_h = h * static_cast<uint32_t>(scale_h_);
               float* output_ptr = output_col_ptr + scaled_h;
               float input_value = *(input_col_ptr + h);
-              for (uint32_t sh = 0; sh < scale_h_; ++sh) {
+              for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_);
+                   ++sh) {
                 if (scaled_h + sh < output_h) {
                   *(output_ptr + sh) = input_value;
                 }
@@ -165,16 +162,30 @@ InferStatus UpSampleLayer::Forward(
         const uint32_t input_h = input_channel.n_rows;
         const uint32_t output_w = output_channel.n_cols;
         const uint32_t output_h = output_channel.n_rows;
+        float div_scale_h = 1.f;
+        float div_scale_w = 1.f;
+        if (!is_align_corner_) {
+          div_scale_h = 1.f / scale_h_;
+          div_scale_w = 1.f / scale_w_;
+        } else {
+          CHECK(input_h > 0 && input_w > 0);
+          CHECK(output_h > 0 && output_w > 0);
+
+          div_scale_h = static_cast<float>(input_h - 1) /
+                        static_cast<float>(output_h - 1);
+          div_scale_w = static_cast<float>(input_w - 1) /
+                        static_cast<float>(output_w - 1);
+        }
         for (uint32_t w = 0; w < output_w; ++w) {
-          float* output_ptr = output_channel.colptr(w);
           float w0_lambda = 0.f;
           float w1_lambda = 0.f;
           int32_t input_w0 = 0;
           int32_t input_w1 = 0;
+          float* output_ptr = output_channel.colptr(w);
           CalcIndexAndLambda(static_cast<int32_t>(input_w),
                              static_cast<int32_t>(output_w), div_scale_w,
                              static_cast<int32_t>(w), w0_lambda, w1_lambda,
-                             input_w0, input_w1);
+                             input_w0, input_w1, is_align_corner_);
           const float* input_ptr0 = input_channel.colptr(input_w0);
           const float* input_ptr1 = input_channel.colptr(input_w1);
           for (uint32_t h = 0; h < output_h; ++h) {
@@ -185,7 +196,7 @@ InferStatus UpSampleLayer::Forward(
             CalcIndexAndLambda(static_cast<int32_t>(input_h),
                                static_cast<int32_t>(output_h), div_scale_h,
                                static_cast<int32_t>(h), h0_lambda, h1_lambda,
-                               input_h0, input_h1);
+                               input_h0, input_h1, is_align_corner_);
 
             *(output_ptr + h) =
                 h0_lambda * w0_lambda * (*(input_ptr0 + input_h0)) +
@@ -236,28 +247,24 @@ ParseParameterAttrStatus UpSampleLayer::CreateInstance(
     LOG(FATAL) << "The mode " << mode_param->value << " is not supported!";
   }
 
+  bool is_align_corner = false;
   if (params.find("align_corners") != params.end()) {
     auto align_corner_param = std::dynamic_pointer_cast<RuntimeParameterBool>(
         params.at("align_corners"));
     if (!align_corner_param) {
       return ParseParameterAttrStatus::kParameterMissingAlignCorner;
     }
-    bool align_corner = align_corner_param->value;
-    CHECK_EQ(align_corner, false);
+    is_align_corner = align_corner_param->value;
   }
 
-  float scale_h = scales->value.at(0);
-  float scale_w = scales->value.at(1);
+  const float scale_h = scales->value.at(0);
+  const float scale_w = scales->value.at(1);
   // scale放大的倍数大于0
   CHECK_GT(scale_h, 0.f);
   CHECK_GT(scale_w, 0.f);
 
-  // scale放大的倍数必须是整数
-  CHECK_LE(scale_h - static_cast<uint32_t>(scale_h), 1e-5f);
-  CHECK_LE(scale_w - static_cast<uint32_t>(scale_w), 1e-5f);
-
-  upsample_layer = std::make_shared<UpSampleLayer>(
-      static_cast<uint32_t>(scale_h), static_cast<uint32_t>(scale_w), mode);
+  upsample_layer =
+      std::make_shared<UpSampleLayer>(scale_h, scale_w, mode, is_align_corner);
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
