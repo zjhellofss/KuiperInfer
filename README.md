@@ -15,12 +15,17 @@
 5. 最后你将获得一个属于自己的推理框架，对面试和知识进阶大有裨益。
 
 ## Demo效果
+
+### Unet语义分割
+
 > 🥰 KuiperInfer当前已支持Unet网络的推理，采用[carvana的预训练权重](https://github.com/milesial/Pytorch-UNet)
 
 ![](https://imgur.com/FDXALEa.jpg)
 ![](https://imgur.com/hbbZeoT.jpg)
 
 推理复现可参考文末的 **运行 Kuiper 的 demo**
+
+### Yolov5模板检测
 
 > Demo直接使用yolov5-s的预训练权重(coco数据集)，使用KuiperInfer推理
 
@@ -30,8 +35,6 @@
 [https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
 课程大纲请见下方
-
-
 
 ## 课程大纲
 我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
@@ -121,7 +124,7 @@
 
 ## 运行 Kuiper 的 demo
 
-### 运行UNet的推理
+### 运行Unet的推理
 
 请在编译后复制 `tmp/unet/demo` 文件夹下的 test.png 图片绝对地址或相对地址，
 随后在 `build/demos` 中按下列格式运行推理程序
