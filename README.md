@@ -20,6 +20,7 @@
 ![](https://imgur.com/FDXALEa.jpg)
 ![](https://imgur.com/hbbZeoT.jpg)
 
+推理复现可参考文末的 **运行 Kuiper 的 demo**
 
 > Demo直接使用yolov5-s的预训练权重(coco数据集)，使用KuiperInfer推理
 
@@ -118,7 +119,22 @@
 **Tips:**
 1. google benchmark编译过程中，如果遇到关于gtest缺失的报错，可以在google benchmark的cmake中关闭gtest选项
 
-## 如何运行Yolov5的推理
+## 运行 Kuiper 的 demo
+
+### 运行UNet的推理
+
+请在编译后复制 `tmp/unet/demo` 文件夹下的 test.png 图片绝对地址或相对地址，
+随后在 `build/demos` 中按下列格式运行推理程序
+
+```bash
+./unet_test test.png unet_demo.pnnx.param unet_demo.pnnx.bin
+```
+
+其中 pnnx 模型的下载地址：https://cowtransfer.com/s/09c7f337bab443
+
+若推理成功，你将会在文件夹内看到原图的分割后结果 unet_output.jpg .
+
+### 运行Yolov5的推理
 
 请在demos文件夹下的yolo_test.cpp文件夹中以下代码进行修改
 
