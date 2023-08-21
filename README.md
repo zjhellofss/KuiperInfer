@@ -25,7 +25,7 @@
 
 推理复现可参考文末的 **运行 Kuiper 的 demo**
 
-### Yolov5模板检测
+### Yolov5目标检测
 
 > Demo直接使用yolov5-s的预训练权重(coco数据集)，使用KuiperInfer推理
 
