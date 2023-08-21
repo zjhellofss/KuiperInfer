@@ -15,6 +15,12 @@
 5. 最后你将获得一个属于自己的推理框架，对面试和知识进阶大有裨益。
 
 ## Demo效果
+> 🥰 KuiperInfer当前已支持Unet网络的推理，采用[carvana的预训练权重](https://github.com/milesial/Pytorch-UNet)
+
+![](https://imgur.com/FDXALEa.jpg)
+![](https://imgur.com/hbbZeoT.jpg)
+
+
 > Demo直接使用yolov5-s的预训练权重(coco数据集)，使用KuiperInfer推理
 
 ![](./imgs/demo_car.jpg)
@@ -61,6 +67,7 @@
 - [zpye](https://github.com/zpye)
 - [cmcamdy](https://github.com/cmcamdy)
 - [superCB](https://github.com/SuperCB)
+- [sanbuphy](https://github.com/sanbuphy)
 
 ### 如何参与项目贡献？
 1. 提交代码增加新功能或修改bug；

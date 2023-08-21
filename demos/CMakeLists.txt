@@ -25,7 +25,6 @@ if (MSVC)
 endif()
 
 
-
 add_executable(resnet_test resnet_test.cpp image_util.hpp image_util.cpp)
 target_include_directories(resnet_test PUBLIC ../include)
 target_link_directories(resnet_test PUBLIC ${PROJECT_SOURCE_DIR}/lib)
@@ -37,4 +36,17 @@ if (MSVC)
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE_DIR:kuiper>/kuiper.dll"
             $<TARGET_FILE_DIR:resnet_test>)
+endif()
+
+add_executable(unet_test unet_test.cpp image_util.hpp image_util.cpp)
+target_include_directories(unet_test PUBLIC ../include)
+target_link_directories(unet_test PUBLIC ${PROJECT_SOURCE_DIR}/lib)
+target_link_libraries(unet_test ${OpenCV_LIBS} kuiper)
+
+
+if (MSVC)
+    add_custom_command(TARGET unet_test POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE_DIR:kuiper>/kuiper.dll"
+            $<TARGET_FILE_DIR:unet_test>)
 endif()
