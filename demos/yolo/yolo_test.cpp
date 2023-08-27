@@ -25,7 +25,7 @@
 #include <iostream>
 #include <opencv2/opencv.hpp>
 #include "data/tensor.hpp"
-#include "image_util.hpp"
+#include "../image_util.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
 
