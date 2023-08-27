@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
   graph.set_inputs("pnnx_input_0", inputs);
   std::cout << "start inference!" << std::endl;
   TICK(forward)
-  graph.Forward(false);
+  graph.Forward(true);
   std::vector<std::shared_ptr<Tensor<float>>> outputs =
       graph.get_outputs("pnnx_output_0");
   TOCK(forward)

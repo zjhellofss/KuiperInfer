@@ -125,6 +125,7 @@ ParseParameterAttrStatus ViewLayer::CreateInstance(
 ViewLayer::ViewLayer(std::vector<int32_t> shapes)
     : NonParamLayer("view"), shapes_(std::move(shapes)) {}
 
-LayerRegistererWrapper kViewCreateInstance("Tensor.view", ViewLayer::CreateInstance);
+LayerRegistererWrapper kViewCreateInstance("Tensor.view",
+                                           ViewLayer::CreateInstance);
 
 }  // namespace kuiper_infer
