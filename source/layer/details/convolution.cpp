@@ -183,7 +183,6 @@ InferStatus ConvolutionLayer::Forward(
 
   uint32_t kernel_h = this->weights_.at(0)->rows();
   uint32_t kernel_w = this->weights_.at(0)->cols();
-  const uint32_t row_len = kernel_h * kernel_w;
   CHECK(kernel_h > 0 && kernel_w > 0 && kernel_c > 0)
       << "The size of kernel matrix in the convolution layer should be greater "
          "than zero";
@@ -218,10 +217,8 @@ InferStatus ConvolutionLayer::Forward(
     const uint32_t input_padded_h = input_h + 2 * padding_h_;
     const uint32_t input_padded_w = input_w + 2 * padding_w_;
 
-    const auto [output_h, output_w] = CalcOutputSize(
-        conv_type_ == ConvType ::OpConv ? input_padded_h : input_h,
-        conv_type_ == ConvType ::OpConv ? input_padded_w : input_w, kernel_h,
-        kernel_w);
+    const auto [output_h, output_w] =
+        ComputeOutputSize(input_h, input_w, kernel_h, kernel_w);
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i
         << " th";
@@ -254,7 +251,7 @@ InferStatus ConvolutionLayer::Forward(
       if (conv_type_ == ConvType::OpConv) {
         const arma::fmat& input_matrix = ConvIm2Col(
             input, kernel_h, kernel_w, input_h, input_w, input_c_group,
-            output_h, output_w, g, row_len, output_h * output_w);
+            output_h, output_w, g, kernel_h * kernel_w, output_h * output_w);
 #pragma omp parallel for
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           ConvGemmBias(input_matrix, output_tensor, g, k, kernel_count_group,
@@ -266,9 +263,9 @@ InferStatus ConvolutionLayer::Forward(
         for (uint32_t k = 0; k < kernel_count_group; ++k) {
           const arma::fmat& gemm_result = DeconvGemm(
               input, input_h, input_w, input_c_group, g, k, kernel_count_group);
-          DeconvCol2ImWithBias(gemm_result, output_tensor, input_h, input_w, g,
-                               k, kernel_count_group, kernel_h, kernel_w,
-                               output_h, output_w);
+          DeconvCol2ImBias(gemm_result, output_tensor, input_h, input_w, g, k,
+                           kernel_count_group, kernel_h, kernel_w, output_h,
+                           output_w);
         }
       }
     }
@@ -276,11 +273,13 @@ InferStatus ConvolutionLayer::Forward(
   return InferStatus::kInferSuccess;
 }
 
-void ConvolutionLayer::DeconvCol2ImWithBias(
-    const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
-    uint32_t input_w, uint32_t group, uint32_t kernel_index,
-    uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
-    uint32_t output_h, uint32_t output_w) {
+void ConvolutionLayer::DeconvCol2ImBias(const arma::fmat& gemm_result,
+                                        sftensor output_tensor,
+                                        uint32_t input_h, uint32_t input_w,
+                                        uint32_t group, uint32_t kernel_index,
+                                        uint32_t kernel_count_group,
+                                        uint32_t kernel_h, uint32_t kernel_w,
+                                        uint32_t output_h, uint32_t output_w) {
   CHECK(this->conv_type_ == ConvType::OpDeconv);
   CHECK(!gemm_result.empty());
   CHECK(input_h > 0 && input_w > 0);
@@ -479,19 +478,22 @@ void ConvolutionLayer::InitIm2ColWeight() {
   this->kernel_matrix_arr_ = std::move(kernel_matrix_arr);
 }
 
-std::pair<uint32_t, uint32_t> ConvolutionLayer::CalcOutputSize(
+std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(
     const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
     const uint32_t kernel_w) {
   uint32_t output_h = 0;
   uint32_t output_w = 0;
 
   if (conv_type_ == ConvType::OpConv) {
-    CHECK(input_h >= kernel_h && input_w >= kernel_w);
     CHECK_GT(kernel_h, 0);
     CHECK_GT(kernel_w, 0);
 
-    output_h = (input_h - dilation_h_ * (kernel_h - 1) - 1) / stride_h_ + 1;
-    output_w = (input_w - dilation_w_ * (kernel_w - 1) - 1) / stride_w_ + 1;
+    output_h = (input_h + 2 * padding_h_ - dilation_h_ * (kernel_h - 1) - 1) /
+                   stride_h_ +
+               1;
+    output_w = (input_w + 2 * padding_w_ - dilation_w_ * (kernel_w - 1) - 1) /
+                   stride_w_ +
+               1;
   } else {
     CHECK(conv_type_ == ConvType::OpDeconv);
     output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
