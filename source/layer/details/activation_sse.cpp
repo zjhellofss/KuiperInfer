@@ -36,7 +36,6 @@ static void SigmoidSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-#ifdef __SSE2__
   int32_t index = 0;
   int32_t packet_size = 4;
   int32_t in_size = static_cast<int32_t>(input->size());
@@ -54,7 +53,7 @@ static void SigmoidSSE(sftensor input, sftensor output) {
     in_ptr += packet_size;
     out_ptr += packet_size;
   }
-#else
+#elif __SSE2__
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
   for (; index <= in_size - packet_size; index += packet_size) {
@@ -73,9 +72,6 @@ static void SigmoidSSE(sftensor input, sftensor output) {
       index += 1;
     }
   }
-#else
-  output->data() = 1.f / (1.f + arma::exp(-input->data()));
-#endif
 }
 
 static void ReluSSE(sftensor input, sftensor output) {
@@ -85,12 +81,6 @@ static void ReluSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-#ifndef __SSE2__
-  for (uint32_t j = 0; j < input->size(); ++j) {
-    float value = input->index(j);
-    output->index(j) = value > 0.f ? value : 0.f;
-  }
-#else
   int32_t j = 0;
   int32_t packet_size = 4;
   int32_t size = static_cast<int32_t>(input->size());
@@ -106,7 +96,7 @@ static void ReluSSE(sftensor input, sftensor output) {
     in_ptr += packet_size;
     out_ptr += packet_size;
   }
-#else
+#elif __SSE__
   __m128 _zero = _mm_setzero_ps();
   for (j = 0; j <= size - packet_size; j += packet_size) {
     __m128 _p = _mm_load_ps(in_ptr);
@@ -119,11 +109,10 @@ static void ReluSSE(sftensor input, sftensor output) {
   if (j < size) {
     while (j < size) {
       float value = input->index(j);
-      output->index(j) = value > 0.f ? value : 0.f;
+      output->index(j) = std::max(value, 0.f);
       j += 1;
     }
   }
-#endif
 }
 
 static void SiluSSE(sftensor input, sftensor output) {
@@ -133,9 +122,7 @@ static void SiluSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-#ifndef __SSE2__
-  output->data() = input->data() / (1 + arma::exp(-input->data()));
-#else
+
   int32_t j = 0;
   int32_t packet_size = 4;
   int32_t size = static_cast<int32_t>(input->size());
@@ -173,7 +160,6 @@ static void SiluSSE(sftensor input, sftensor output) {
       j += 1;
     }
   }
-#endif
 }
 
 ActivationFunc ApplySSEActivation(ActivationType act_type) {

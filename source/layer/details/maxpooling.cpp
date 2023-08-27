@@ -155,7 +155,7 @@ InferStatus MaxPoolingLayer::Forward(
               } else {
                 current_value = std::numeric_limits<float>::lowest();
               }
-              max_value = max_value > current_value ? max_value : current_value;
+              max_value = std::max(max_value, current_value);
             }
           }
           *(output_channel_ptr + output_row) = max_value;
@@ -234,7 +234,7 @@ ParseParameterAttrStatus MaxPoolingLayer::CreateInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kMaxPoolingCreateInstance("nn.MaxPool2d",
-                                              MaxPoolingLayer::CreateInstance);
+LayerRegistererWrapper kMaxPoolingCreateInstance(
+    "nn.MaxPool2d", MaxPoolingLayer::CreateInstance);
 
 }  // namespace kuiper_infer
