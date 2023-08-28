@@ -18,9 +18,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-12.
 #include "hardswish.hpp"
+#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -63,18 +64,8 @@ InferStatus HardSwishLayer::Forward(
            "match "
         << i << " th";
 
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float val = input->index(j);
-      float result = 0.f;
-      if (val <= -3.f) {
-        result = 0.f;
-      } else if (val >= 3.f) {
-        result = val;
-      } else {
-        result = val * (val + 3) / 6;
-      }
-      output->index(j) = result;
-    }
+    using namespace activation;
+    ApplySSEActivation(ActivationType::kActivationHardSwish)(input, output);
   }
   return InferStatus::kInferSuccess;
 }
@@ -88,6 +79,6 @@ ParseParameterAttrStatus HardSwishLayer::CreateInstance(
 }
 
 LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish",
-                                             HardSwishLayer::CreateInstance);
+                                                HardSwishLayer::CreateInstance);
 
 }  // namespace kuiper_infer

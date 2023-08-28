@@ -34,17 +34,12 @@ enum class ActivationType {
   kActivationRelu = 0,
   kActivationSilu = 1,
   kActivationSigmoid = 2,
+  kActivationHardSwish = 3,
 };
 
 using ActivationFunc = std::function<void(sftensor, sftensor)>;
 
 ActivationFunc ApplySSEActivation(ActivationType act_type);
-
-static void SigmoidSSE(sftensor input, sftensor output);
-
-static void ReluSSE(sftensor input, sftensor output);
-
-static void SiluSSE(sftensor input, sftensor output);
 
 }  // namespace activation
 }  // namespace kuiper_infer

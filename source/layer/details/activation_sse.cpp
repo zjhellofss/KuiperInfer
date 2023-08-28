@@ -122,7 +122,6 @@ static void SiluSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-
   int32_t j = 0;
   int32_t packet_size = 4;
   int32_t size = static_cast<int32_t>(input->size());
@@ -141,7 +140,7 @@ static void SiluSSE(sftensor input, sftensor output) {
     in_ptr += packet_size;
     out_ptr += packet_size;
   }
-#else
+#elif __SSE__
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
 
@@ -162,6 +161,90 @@ static void SiluSSE(sftensor input, sftensor output) {
   }
 }
 
+static void HardSwishSSE(sftensor input, sftensor output) {
+  CHECK(input != nullptr && output != nullptr)
+      << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty())
+      << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size())
+      << "The input and output sizes are not equal.";
+
+  int32_t j = 0;
+  float threshold = 3.f;
+  int32_t packet_size = 4;
+  int32_t size = static_cast<int32_t>(input->size());
+
+  const float* in_ptr = input->raw_ptr();
+  float* out_ptr = output->raw_ptr();
+#ifdef __AVX2__
+  packet_size = 8;
+  __m256 zero = _mm256_set1_ps(0.f);
+  __m256 three = _mm256_set1_ps(threshold);
+  __m256 six = _mm256_set1_ps(6.f);
+  __m256 minus_three = _mm256_set1_ps(-threshold);
+  for (j = 0; j <= size - packet_size; j += packet_size) {
+    __m256 x = _mm256_loadu_ps(in_ptr);
+
+    __m256 le_branch = _mm256_cmp_ps(x, minus_three, _CMP_LE_OS);  // <= -3
+    __m256 ge_branch = _mm256_cmp_ps(x, three, _CMP_GE_OS);        // >= 3
+    __m256 mid_branch =
+        _mm256_and_ps(_mm256_cmp_ps(x, minus_three, _CMP_GT_OS),
+                      _mm256_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
+
+    __m256 f1 = _mm256_and_ps(zero, le_branch);
+    __m256 f2 = _mm256_and_ps(x, ge_branch);
+    __m256 f3 = _mm256_and_ps(
+        _mm256_div_ps(_mm256_mul_ps(x, _mm256_add_ps(x, three)), six),
+        mid_branch);
+
+    __m256 result = _mm256_add_ps(_mm256_add_ps(f1, f2), f3);
+    _mm256_storeu_ps(out_ptr, result);
+
+    in_ptr += packet_size;
+    out_ptr += packet_size;
+  }
+#elif __SSE2__
+  __m128 zero = _mm_set1_ps(0.f);
+  __m128 three = _mm_set1_ps(threshold);
+  __m128 six = _mm_set1_ps(6.f);
+  __m128 minus_three = _mm_set1_ps(-threshold);
+  for (j = 0; j <= size - packet_size; j += packet_size) {
+    __m128 x = _mm_loadu_ps(in_ptr);
+
+    __m128 le_branch = _mm_cmple_ps(x, minus_three);  // <= -3
+    __m128 ge_branch = _mm_cmpge_ps(x, three);        // >= 3
+    __m128 mid_branch = _mm_and_ps(_mm_cmpgt_ps(x, minus_three),
+                                   _mm_cmplt_ps(x, three));  // -3 < x < 3
+
+    __m128 f1 = _mm_and_ps(zero, le_branch);
+    __m128 f2 = _mm_and_ps(x, ge_branch);
+    __m128 f3 = _mm_and_ps(_mm_div_ps(_mm_mul_ps(x, _mm_add_ps(x, three)), six),
+                           mid_branch);
+
+    __m128 result = _mm_add_ps(_mm_add_ps(f1, f2), f3);
+    _mm_storeu_ps(out_ptr, result);
+
+    in_ptr += packet_size;
+    out_ptr += packet_size;
+  }
+#endif
+  if (j < size) {
+    while (j < size) {
+      float value = input->index(j);
+      float result = 0.f;
+      if (value <= -3.f) {
+        result = 0.f;
+      } else if (value >= 3.f) {
+        result = value;
+      } else {
+        result = value * (value + threshold) / 6;
+      }
+      output->index(j) = result;
+      j += 1;
+    }
+  }
+}
+
 ActivationFunc ApplySSEActivation(ActivationType act_type) {
   ActivationFunc function;
   switch (act_type) {
@@ -175,6 +258,10 @@ ActivationFunc ApplySSEActivation(ActivationType act_type) {
     }
     case ActivationType::kActivationSilu: {
       function = SiluSSE;
+      return function;
+    }
+    case ActivationType::kActivationHardSwish: {
+      function = HardSwishSSE;
       return function;
     }
     default: {

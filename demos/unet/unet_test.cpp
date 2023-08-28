@@ -1,6 +1,6 @@
-#include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <opencv2/opencv.hpp>
 #include "../source/layer/details/softmax.hpp"
 #include "data/tensor.hpp"
@@ -38,10 +38,10 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image) {
   return input;
 }
 
-
 int main(int argc, char* argv[]) {
   if (argc != 4) {
-    printf("usage: ./unet_test [image path] [pnnx_param path] [pnnx_bin path]\n");
+    printf(
+        "usage: ./unet_test [image path] [pnnx_param path] [pnnx_bin path]\n");
     exit(-1);
   }
   using namespace kuiper_infer;
@@ -69,32 +69,32 @@ int main(int argc, char* argv[]) {
   TOCK(forward)
   assert(outputs.size() == batch_size);
 
+  uint32_t input_h = 512;
+  uint32_t input_w = 512;
   for (int i = 0; i < outputs.size(); ++i) {
     const sftensor& output_tensor = outputs.at(i);
-    arma::fmat&  out_channel_0 = output_tensor->slice(0);
-    arma::fmat&  out_channel_1 = output_tensor->slice(1);
-    arma::fmat out_channel(512, 512);
+    arma::fmat& out_channel_0 = output_tensor->slice(0);
+    arma::fmat& out_channel_1 = output_tensor->slice(1);
+    arma::fmat out_channel(input_h, input_w);
     assert(out_channel_0.size() == out_channel_1.size());
     assert(out_channel_0.size() == out_channel.size());
 
-    for (int i =0; i<out_channel_0.size();i++){
-        if(out_channel_0.at(i)<out_channel_1.at(i)){
-            out_channel.at(i) = 255;
-        }
-        else{
-            out_channel.at(i) = 0;
-        }
+    for (int j = 0; j < out_channel_0.size(); j++) {
+      if (out_channel_0.at(j) < out_channel_1.at(j)) {
+        out_channel.at(j) = 255;
+      } else {
+        out_channel.at(j) = 0;
+      }
     }
-        
+
     arma::fmat out_channel_t = out_channel.t();
     auto output_array_ptr = out_channel_t.memptr();
-    assert(output_array_ptr!=nullptr);
-    
-    int dataType = CV_32F;
-    cv::Mat output(512, 512, dataType, output_array_ptr);
+    assert(output_array_ptr != nullptr);
 
-    cv::imwrite(cv::String("unet_output.jpg"),output);
+    int data_type = CV_32F;
+    cv::Mat output(input_h, input_w, data_type, output_array_ptr);
+    cv::imwrite(cv::String("unet_output.jpg"), output);
   }
-    
+
   return 0;
 }
