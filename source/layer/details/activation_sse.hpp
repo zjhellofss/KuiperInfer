@@ -35,6 +35,7 @@ enum class ActivationType {
   kActivationSilu = 1,
   kActivationSigmoid = 2,
   kActivationHardSwish = 3,
+  kActivationHardSigmoid = 4,
 };
 
 using ActivationFunc = std::function<void(sftensor, sftensor)>;

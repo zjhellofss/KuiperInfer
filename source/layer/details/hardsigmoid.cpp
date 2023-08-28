@@ -18,9 +18,10 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-12.
 #include "hardsigmoid.hpp"
+#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
@@ -63,19 +64,8 @@ InferStatus HardSigmoid::Forward(
         << "The output and input shapes of the hardsigmoid layer do "
            "not match "
         << i << " th";
-
-    for (uint32_t j = 0; j < input->size(); ++j) {
-      float val = input->index(j);
-      float result = 0.f;
-      if (val <= -3.f) {
-        result = 0.f;
-      } else if (val >= 3.f) {
-        result = 1.f;
-      } else {
-        result = val / 6.f + 0.5f;
-      }
-      output->index(j) = result;
-    }
+    using namespace activation;
+    ApplySSEActivation(ActivationType::kActivationHardSigmoid)(input, output);
   }
   return InferStatus::kInferSuccess;
 }
@@ -89,6 +79,6 @@ ParseParameterAttrStatus HardSigmoid::CreateInstance(
 }
 
 LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid",
-                                               HardSigmoid::CreateInstance);
+                                                  HardSigmoid::CreateInstance);
 
 }  // namespace kuiper_infer
