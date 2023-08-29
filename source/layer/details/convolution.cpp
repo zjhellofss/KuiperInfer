@@ -346,53 +346,43 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
                                         uint32_t col_len) const {
   CHECK(conv_type_ == ConvType::OpConv);
   CHECK(input && !input->empty());
-  if (kernel_w == 1 && kernel_h == 1 && padding_h_ == 0 && padding_w_ == 0 &&
-      dilation_w_ == 0 && dilation_h_ == 0) {
-    CHECK_EQ(channels_per_group, input->channels());
-    CHECK_EQ(row_len, 1);
-    CHECK_EQ(col_len, input->size());
-    return arma::fmat(input->raw_ptr(), channels_per_group * row_len, col_len,
-                      false, true);
+  arma::fmat input_matrix(channels_per_group * row_len, col_len);
 
-  } else {
-    arma::fmat input_matrix(channels_per_group * row_len, col_len);
-    const float padding_value = 0.f;
-    kernel_h = kernel_h * dilation_h_;
-    kernel_w = kernel_w * dilation_w_;
+  const float padding_value = 0.f;
 #pragma omp parallel for
-    for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
-      float* input_channel_ptr =
-          input->matrix_raw_ptr(ic + group * channels_per_group);
-      uint32_t current_col = 0;
-      uint32_t channel_row = ic * row_len;
-      for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
-        for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
-          float* input_matrix_ptr =
-              input_matrix.colptr(current_col) + channel_row;
-          current_col += 1;
-          for (uint32_t kw = 0; kw < kernel_w; kw += dilation_w_) {
-            const uint32_t region_w = input_h * (input_col + kw - padding_w_);
-            for (uint32_t kh = 0; kh < kernel_h; kh += dilation_h_) {
-              if ((kh + input_row >= padding_h_ &&
-                   kw + input_col >= padding_w_) &&
-                  (kh + input_row < input_h + padding_h_ &&
-                   kw + input_col < input_w + padding_w_)) {
-                float* region_ptr = input_channel_ptr + region_w +
-                                    (input_row + kh - padding_h_);
-                *input_matrix_ptr = *region_ptr;
-              } else {
-                *input_matrix_ptr = padding_value;  // only support zero mode
-              }
-              input_matrix_ptr += 1;
+  for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
+    float* input_channel_ptr =
+        input->matrix_raw_ptr(ic + group * channels_per_group);
+    uint32_t current_col = 0;
+    uint32_t channel_row = ic * row_len;
+    for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
+      for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
+        float* input_matrix_ptr =
+            input_matrix.colptr(current_col) + channel_row;
+        current_col += 1;
+        for (uint32_t kw = 0; kw < kernel_w * dilation_w_; kw += dilation_w_) {
+          const uint32_t region_w = input_h * (input_col + kw - padding_w_);
+          for (uint32_t kh = 0; kh < kernel_h * dilation_h_;
+               kh += dilation_h_) {
+            if ((kh + input_row >= padding_h_ &&
+                 kw + input_col >= padding_w_) &&
+                (kh + input_row < input_h + padding_h_ &&
+                 kw + input_col < input_w + padding_w_)) {
+              float* region_ptr =
+                  input_channel_ptr + region_w + (input_row + kh - padding_h_);
+              *input_matrix_ptr = *region_ptr;
+            } else {
+              *input_matrix_ptr = padding_value;  // only support zero mode
             }
+            input_matrix_ptr += 1;
           }
-          input_row += stride_h_;
         }
-        input_col += stride_w_;
+        input_row += stride_h_;
       }
+      input_col += stride_w_;
     }
-    return input_matrix;
   }
+  return input_matrix;
 }
 
 void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
