@@ -117,7 +117,7 @@ void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
     for (uint32_t group = 0; group < groups_; ++group) {
       // sub_weights表示一个group内所有卷积核的权重值
       std::vector<float> sub_weights(kernel_plane);
-      std::move(weights.data() + group * kernel_plane,
+      std::copy(weights.data() + group * kernel_plane,
                 weights.data() + (group + 1) * kernel_plane,
                 sub_weights.begin());
       for (uint32_t kg = 0; kg < kernel_count_group; ++kg) {

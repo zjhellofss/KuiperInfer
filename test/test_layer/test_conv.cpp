@@ -562,6 +562,46 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
   }
 }
 
+TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
+  const uint32_t batch_size = 1;
+  std::vector<sftensor> inputs(batch_size);
+  std::vector<sftensor> outputs1(batch_size);
+  std::vector<sftensor> outputs2(batch_size);
+
+  const uint32_t in_channel = 31;
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    inputs.at(i) = std::make_shared<ftensor>(in_channel, 4, 4);
+    inputs.at(i)->Rand();
+  }
+  const uint32_t kernel_h = 1;
+  const uint32_t kernel_w = 1;
+  const uint32_t stride_h = 1;
+  const uint32_t stride_w = 1;
+  const uint32_t kernel_count = 31;
+  std::vector<sftensor> weights;
+  for (uint32_t i = 0; i < kernel_count; ++i) {
+    sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
+    kernel->Rand();
+    weights.push_back(kernel);
+    sftensor bias = std::make_shared<ftensor>(1, 1, 1);
+  }
+  Convolution(inputs, outputs1, stride_h, stride_w, weights);
+  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
+                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
+                              false);
+  conv_layer.set_weights(weights);
+  conv_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs1.size(), outputs2.size());
+  for (uint32_t i = 0; i < outputs1.size(); ++i) {
+    ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
+    const uint32_t output_size = outputs1.at(i)->size();
+    for (uint32_t j = 0; j < output_size; ++j) {
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
+                1e-3);
+    }
+  }
+}
+
 TEST(test_layer, conv3x3_fromtorch) {
   using namespace kuiper_infer;
   RuntimeGraph graph("tmp/resnet/conv1.pnnx.param",
