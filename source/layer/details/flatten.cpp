@@ -73,7 +73,7 @@ InferStatus FlattenLayer::Forward(
       return InferStatus::kInferInputsEmpty;
     }
 
-    auto shapes = input->shapes();
+    std::vector<uint32_t> shapes = input->shapes();
     shapes.insert(shapes.begin(), batch_size);
     uint32_t elements_size =
         std::accumulate(shapes.begin() + start_dim,
