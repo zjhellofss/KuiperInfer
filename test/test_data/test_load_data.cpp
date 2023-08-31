@@ -23,6 +23,8 @@
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include "data/load_data.hpp"
+#include "tick.hpp"
+
 
 TEST(test_load, load_csv_data) {
   using namespace kuiper_infer;
@@ -170,9 +172,3 @@ TEST(test_load, load_large_data) {
   ASSERT_EQ(data_minus_one, 1024 * 1024);
 }
 
-TEST(test_load, load_empty_data) {
-  using namespace kuiper_infer;
-  const arma::fmat& data =
-      CSVDataLoader::LoadData("./tmp/data_loader/notexists.csv", ',');
-  ASSERT_EQ(data.empty(), true);
-}

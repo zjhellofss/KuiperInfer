@@ -33,31 +33,26 @@ InferStatus ViewLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the view layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the view layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the view layer "
-                  "do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the view "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<ftensor>& input_data = inputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR)
-          << "The input tensor array in the view layer has an empty tensor "
-          << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-  }
-
   if (shapes_.empty() ||
       (shapes_.front() != -1 && shapes_.front() != batch_size)) {
     LOG(ERROR)
         << "The shape parameter in the view layer has an incorrectly size! ";
-    return InferStatus::kInferFailedShapeParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {

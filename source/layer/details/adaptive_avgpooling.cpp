@@ -41,37 +41,29 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
   if (inputs.empty()) {
     LOG(ERROR)
         << "The input tensor array in the adaptive pooling layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR)
+        << "The output tensor array in the adaptive pooling layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the adaptive "
-                  "pooling layer "
-                  "do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+                  "pooling layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
+  }
+
+  if (!output_h_ || !output_w_) {
+    LOG(ERROR)
+        << "The output_h and output_w in the adaptive pooling layer should be "
+           "greater than zero";
+    return InferStatus::kInferParameterError;
   }
 
   const uint32_t batch = inputs.size();
-  for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<ftensor>& input_data = inputs.at(i);
-    const std::shared_ptr<ftensor>& output_data = outputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the adaptive pooling layer has "
-                    "an empty tensor "
-                 << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-    if (output_data != nullptr && !output_data->empty()) {
-      if (output_data->rows() != output_h_ ||
-          output_data->cols() != output_w_) {
-        LOG(ERROR) << "The output tensor array in the adaptive pooling layer "
-                      "has an incorrectly sized tensor "
-                   << i << "th";
-        return InferStatus::kInferFailedOutputSizeError;
-      }
-    }
-  }
-
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input_data = inputs.at(i);
@@ -93,15 +85,13 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
         (int)input_h - (int(output_h_) - 1) * int(stride_h);
     const uint32_t pooling_w =
         (int)input_w - (int(output_w_) - 1) * int(stride_w);
+
     CHECK(pooling_w > 0 && pooling_h > 0)
         << "The pooling parameter is set incorrectly. It must always be "
            "greater than 0";
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
-      DLOG(ERROR) << "The output tensor array in the adaptive pooling layer "
-                     "has an empty tensor "
-                  << i << "th";
       output_data =
           std::make_shared<Tensor<float>>(input_c, output_h_, output_w_);
       outputs.at(i) = output_data;

@@ -46,33 +46,38 @@ InferStatus LinearLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the linear layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the linear layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of linear layer do "
-                  "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the linear "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   if (this->weights_.empty()) {
     LOG(ERROR) << "The weight tensor in the linear layer is empty";
-    return InferStatus::kInferFailedWeightParameterError;
+    return InferStatus::kInferParameterError;
   } else {
     if (this->use_bias_ && this->weights_.size() != this->bias_.size()) {
       LOG(ERROR) << "The size of the weight and bias tensor do not match";
-      return InferStatus::kInferFailedBiasParameterError;
+      return InferStatus::kInferParameterError;
     }
   }
 
   if (weights_.size() != 1) {
     LOG(ERROR) << "Need one weight tensor in the linear layer";
-    return InferStatus::kInferFailedWeightParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   if (use_bias_ && this->bias_.size() != 1) {
     LOG(ERROR) << "Need one bias tensor in the linear layer";
-    return InferStatus::kInferFailedBiasParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   uint32_t batch = inputs.size();

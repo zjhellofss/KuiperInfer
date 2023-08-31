@@ -48,58 +48,36 @@ InferStatus MaxPoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR) << "The input tensor array in the max pooling layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    LOG(ERROR) << "The input tensor array in the maxpooling layer is empty";
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the maxpooling layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR)
-        << "The input and output tensor array size of the max pooling layer "
-           "do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the maxpooling "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
+  }
+
+  if (!pooling_size_h_ || !pooling_size_w_) {
+    LOG(ERROR) << "The pooling size in the maxpooling layer should be greater "
+                  "than zero";
+    return InferStatus::kInferParameterError;
+  }
+
+  if (!stride_w_ || !stride_h_) {
+    LOG(ERROR) << "The stride in the maxpooling layer should be greater "
+                  "than zero";
+    return InferStatus::kInferParameterError;
   }
 
   const uint32_t batch = inputs.size();
   const uint32_t pooling_h = pooling_size_h_;
   const uint32_t pooling_w = pooling_size_w_;
-  if (!stride_h_ || !stride_w_) {
-    LOG(ERROR) << "The stride parameter is set incorrectly. It must always be "
-                  "greater than 0";
-    return InferStatus::kInferFailedStrideParameterError;
-  }
-
-  for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<ftensor>& input_data = inputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the max pooling layer has an "
-                    "empty tensor "
-                 << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
-    } else {
-      uint32_t input_h = input_data->rows();
-      uint32_t input_w = input_data->cols();
-      uint32_t output_h = uint32_t(std::floor(
-          (int(input_h) - int(pooling_h) + 2 * padding_h_) / stride_h_ + 1));
-      uint32_t output_w = uint32_t(std::floor(
-          (int(input_w) - int(pooling_w) + 2 * padding_w_) / stride_w_ + 1));
-      if (!output_w || !output_h) {
-        LOG(ERROR) << "The output size of tensor " << i << "th"
-                   << " in the max pooling layer is less than zero";
-        return InferStatus::kInferFailedOutputSizeError;
-      } else {
-        const std::shared_ptr<ftensor>& output_data = outputs.at(i);
-        if (output_data != nullptr && !output_data->empty()) {
-          if (output_data->rows() != output_h ||
-              output_data->cols() != output_w) {
-            LOG(ERROR) << "The output tensor array in the max pooling layer "
-                          "has an incorrectly sized tensor "
-                       << i << "th";
-            return InferStatus::kInferFailedOutputSizeError;
-          }
-        }
-      }
-    }
-  }
 
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {

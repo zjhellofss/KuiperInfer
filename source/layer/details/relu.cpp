@@ -30,34 +30,20 @@ InferStatus ReluLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the relu layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
   }
+  
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the relu layer is empty";
+    return InferStatus::kInferOutputsEmpty;
+  }
+
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the relu layer do "
-                  "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the relu "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
   }
-
   const uint32_t batch_size = inputs.size();
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const sftensor& input_data = inputs.at(i);
-    const sftensor& output_data = outputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR)
-          << "The input tensor array in the relu layer has an empty tensor "
-          << i << " th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-    if (output_data != nullptr && !output_data->empty()) {
-      if (input_data->shapes() != output_data->shapes()) {
-        LOG(ERROR) << "The input and output tensor shapes of the relu "
-                      "layer do not match "
-                   << i << " th";
-        return InferStatus::kInferFailedInputOutSizeMatchError;
-      }
-    }
-  }
-
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
@@ -67,13 +53,10 @@ InferStatus ReluLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      DLOG(ERROR)
-          << "The output tensor array in the relu layer has an empty tensor "
-          << i << " th";
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(i) = output;
     }
-    CHECK(output->shapes() == input->shapes())
+    CHECK(output != nullptr && output->shapes() == input->shapes())
         << "The input and output tensor shapes of the relu layer do not match "
         << i << " th";
     using namespace kuiper_infer::activation;
@@ -89,5 +72,6 @@ ParseParameterAttrStatus ReluLayer::CreateInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kReluCreateInstance("nn.ReLU", ReluLayer::CreateInstance);
+LayerRegistererWrapper kReluCreateInstance("nn.ReLU",
+                                           ReluLayer::CreateInstance);
 }  // namespace kuiper_infer

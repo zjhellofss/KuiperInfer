@@ -31,13 +31,18 @@ InferStatus BatchNorm2dLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the batchnorm2d layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the batchnorm2d layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the batchnorm2d "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
@@ -45,40 +50,21 @@ InferStatus BatchNorm2dLayer::Forward(
   if (mean_value_size != bias_value_size) {
     LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
                   "values and bias values";
-    return InferStatus::kInferFailedWeightParameterError;
-  }
-
-  if (this->affine_bias_.size() != this->affine_weight_.size()) {
-    LOG(ERROR) << "The batchnorm2d layer do not have the same number of affine "
-                  "weight and affine bias";
-    return InferStatus::kInferFailedWeightParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   if (this->affine_weight_.size() != this->weights().size()) {
     LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
                   "values and affine weight";
+    return InferStatus::kInferParameterError;
   }
 
+  if (this->affine_bias_.size() != this->affine_weight_.size()) {
+    LOG(ERROR) << "The batchnorm2d layer do not have the same number of affine "
+                  "weight and affine bias";
+    return InferStatus::kInferParameterError;
+  }
   const uint32_t batch_size = inputs.size();
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const auto& input_data = inputs.at(i);
-    const auto& output_data = outputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the batchnorm2d layer has an "
-                    "empty tensor "
-                 << i << " th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-    if (output_data != nullptr && !output_data->empty()) {
-      if (input_data->shapes() != output_data->shapes()) {
-        LOG(ERROR) << "The input and output tensor shapes of the batchnorm2d "
-                      "layer do not match "
-                   << i << " th";
-        return InferStatus::kInferFailedInputOutSizeMatchError;
-      }
-    }
-  }
-
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t b = 0; b < batch_size; ++b) {
     const auto& input = inputs.at(b);
@@ -89,9 +75,6 @@ InferStatus BatchNorm2dLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(b);
     if (output == nullptr || output->empty()) {
-      DLOG(ERROR) << "The output tensor array in the batchnorm2d layer has an "
-                     "empty tensor "
-                  << b << " th";
       output = std::make_shared<Tensor<float>>(input->shapes());
       outputs.at(b) = output;
     }
@@ -206,7 +189,7 @@ BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
   // }
 }
 
-LayerRegistererWrapper kBatchNorm2dCreateInstance("nn.BatchNorm2d",
-                                               BatchNorm2dLayer::CreateInstance);
+LayerRegistererWrapper kBatchNorm2dCreateInstance(
+    "nn.BatchNorm2d", BatchNorm2dLayer::CreateInstance);
 
 }  // namespace kuiper_infer

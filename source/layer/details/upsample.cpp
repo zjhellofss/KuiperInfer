@@ -68,34 +68,33 @@ InferStatus UpSampleLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the upsample layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the upsample layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR)
-        << "The input and output tensor array size of the upsample layer do "
-           "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the upsample "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
   }
 
-  LOG_IF(FATAL, this->mode_ != UpSampleMode::kModeNearest &&
-                    this->mode_ != UpSampleMode::kModeBilinear)
-      << "Unsupported upsample mode: " << int(mode_);
-
-  for (uint32_t i = 0; i < inputs.size(); ++i) {
-    const sftensor& input_data = inputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR)
-          << "The input tensor array in the upsample layer has an empty tensor "
-          << i << " th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
+  if (this->mode_ != UpSampleMode::kModeNearest &&
+      this->mode_ != UpSampleMode::kModeBilinear) {
+    LOG(ERROR) << "Unsupported upsample mode: " << int(mode_);
+    return InferStatus::kInferParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube& input_data = inputs.at(i)->data();
+    LOG_IF(FATAL, input_data.empty())
+        << "The input tensor array in the upsample layer has an empty tensor "
+        << i << " th";
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(

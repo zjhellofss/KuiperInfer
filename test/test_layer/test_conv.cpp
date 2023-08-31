@@ -22,8 +22,8 @@
 // Created by fss on 23-2-6.
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+#include "../../source/layer/details/backup/winograd.hpp"
 #include "../../source/layer/details/convolution.hpp"
-#include "../../source/layer/details/winograd.hpp"
 #include "data/load_data.hpp"
 #include "data/tensor.hpp"
 #include "data/tensor_util.hpp"
@@ -39,11 +39,11 @@ InferStatus Convolution(
     const std::vector<sftensor>& weights_) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
   }
   if (weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferFailedWeightParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -51,7 +51,7 @@ InferStatus Convolution(
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     if (input->empty()) {
       LOG(ERROR) << "The input feature map of convolution layer is empty";
-      return InferStatus::kInferFailedInputEmpty;
+      return InferStatus::kInferInputsEmpty;
     }
     const uint32_t input_w = input->cols();
     const uint32_t input_h = input->rows();
@@ -71,7 +71,7 @@ InferStatus Convolution(
           uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
       if (output_h <= 0 || output_w <= 0) {
         LOG(ERROR) << "The size of the output feature map is less than zero";
-        return InferStatus::kInferFailedOutputSizeError;
+        return InferStatus::kInferParameterError;
       }
 
       if (!output_data) {
@@ -82,7 +82,7 @@ InferStatus Convolution(
 
       if (kernel->channels() != input_c) {
         LOG(ERROR) << "The channel of the weight and input is not adapting";
-        return InferStatus::kInferFailedChannelParameterError;
+        return InferStatus::kInferParameterError;
       }
 
       arma::fmat& output_channel = output_data->slice(k);

@@ -32,13 +32,18 @@ InferStatus HardSwishLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the hardswish layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the hardswish layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardswish "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   const uint32_t batch = inputs.size();
@@ -51,9 +56,6 @@ InferStatus HardSwishLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      DLOG(ERROR) << "The output tensor array in the hardswish layer has an "
-                     "empty tensor "
-                  << i << " th";
       output = std::make_shared<Tensor<float>>(input->channels(), input->rows(),
                                                input->cols());
       outputs.at(i) = output;

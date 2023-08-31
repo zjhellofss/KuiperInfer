@@ -41,19 +41,12 @@ enum class InferStatus {
   kInferUnknown = -1,
   kInferSuccess = 0,
 
-  kInferFailedInputEmpty = 1,
-  kInferFailedWeightParameterError = 2,
-  kInferFailedBiasParameterError = 3,
-  kInferFailedStrideParameterError = 4,
-  kInferFailedDimensionParameterError = 5,
-  kInferFailedInputOutSizeMatchError = 6,
+  kInferInputsEmpty = 1,
+  kInferOutputsEmpty = 2,
+  kInferParameterError = 3,
 
-  kInferFailedOutputSizeError = 7,
-  kInferFailedShapeParameterError = 9,
-  kInferFailedChannelParameterError = 10,
-  kInferFailedOutputEmpty = 11,
-
-  kInferLayerNotImplement = 12,
+  kInferArraySizeMismatch = 4,  // 输入输出张量的数量不一致
+  kInferLayerNotImplement = 5,
 };
 
 enum class ParseParameterAttrStatus {

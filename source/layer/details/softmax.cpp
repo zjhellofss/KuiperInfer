@@ -39,14 +39,20 @@ InferStatus SoftmaxLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the softmax layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+  
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the softmax layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the softmax layer "
-                  "do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    LOG(ERROR) << "The input and output tensor array size of the softmax "
+                  "layer do not match";
+    return InferStatus::kInferArraySizeMismatch;
   }
+
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)

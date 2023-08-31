@@ -46,7 +46,12 @@ InferStatus YoloDetectLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the yolo detect layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the yolo detect layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   const uint32_t stages = stages_;
@@ -57,7 +62,7 @@ InferStatus YoloDetectLayer::Forward(
   if (input_size / batch_size != stages_ || input_size % batch_size != 0) {
     LOG(ERROR) << "The input and output tensor array size of the yolo detect "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages)
@@ -72,7 +77,7 @@ InferStatus YoloDetectLayer::Forward(
       LOG(ERROR) << "The input tensor array in the yolo detect layer has an "
                     "empty tensor "
                  << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
+      return InferStatus::kInferInputsEmpty;
     }
     CHECK(index <= batches.size());
     batches.at(index).push_back(input_data);
@@ -314,6 +319,6 @@ ParseParameterAttrStatus YoloDetectLayer::CreateInstance(
 }
 
 LayerRegistererWrapper kYoloCreateInstance("models.yolo.Detect",
-                                        YoloDetectLayer::CreateInstance);
+                                           YoloDetectLayer::CreateInstance);
 
 }  // namespace kuiper_infer

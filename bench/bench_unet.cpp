@@ -23,7 +23,7 @@
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
 
-const static int kIterationNum = 2;
+const static int kIterationNum = 4;
 
 static void BM_Unet_Batch1_512x512(benchmark::State& state) {
   using namespace kuiper_infer;

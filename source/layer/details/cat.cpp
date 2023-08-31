@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
 #include "cat.hpp"
 #include "layer/abstract/layer_factory.hpp"
@@ -30,61 +30,31 @@ InferStatus CatLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the cat layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
   }
 
-  if (inputs.size() == outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the cat layer do "
-                  "not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the cat layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (dim_ != 1 && dim_ != -3) {
     LOG(ERROR) << "The dimension parameter of cat layer is error";
-    return InferStatus::kInferFailedDimensionParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   const uint32_t output_size = outputs.size();
   if (inputs.size() % output_size != 0) {
     LOG(ERROR)
         << "The input and output tensor array size of cat layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   const uint32_t packet_size = inputs.size() / output_size;
-  for (uint32_t i = 0; i < outputs.size(); ++i) {
-    const std::shared_ptr<ftensor>& input_data = inputs.at(i);
-    const std::shared_ptr<ftensor>& output_data = outputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the cat layer has an "
-                    "empty tensor "
-                 << i << " th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-    if (output_data == nullptr || output_data->empty()) {
-      continue;
-    }
-    const uint32_t input_channel = input_data->channels();
-    const uint32_t output_channel = output_data->channels();
-    if (input_channel * packet_size != output_channel) {
-      LOG(ERROR) << "Inconsistent number of channels between input tensor and "
-                    "output tensor";
-      return InferStatus::kInferFailedChannelParameterError;
-    }
-    if (input_data->rows() != output_data->rows() ||
-        input_data->cols() != output_data->cols()) {
-      LOG(ERROR) << "The output and input shapes of the cat layer do "
-                    "not match, "
-                 << i << "th";
-      return InferStatus::kInferFailedInputOutSizeMatchError;
-    }
-  }
 #pragma omp parallel for num_threads(outputs.size())
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     uint32_t start_channel = 0;
-    uint32_t rows = inputs.front()->rows();
-    uint32_t cols = inputs.front()->cols();
 
     for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
@@ -92,23 +62,25 @@ InferStatus CatLayer::Forward(
           << "The input tensor array in the cat layer has "
              "an empty tensor "
           << j << " th";
+      uint32_t in_rows = input->rows();
+      uint32_t in_cols = input->cols();
       const uint32_t in_channels = input->channels();
-      CHECK(rows == input->rows() && cols == input->cols())
+      CHECK(in_rows == input->rows() && in_cols == input->cols())
           << "The input tensor array in the cat layer "
              "has an incorrectly sized tensor "
           << j << " th";
 
       if (output == nullptr || output->empty()) {
         output = std::make_shared<Tensor<float>>(in_channels * packet_size,
-                                                 rows, cols);
+                                                 in_rows, in_cols);
         outputs.at(i) = output;
       }
       CHECK(output->channels() == in_channels * packet_size &&
-            output->rows() == rows && output->cols() == cols)
+            output->rows() == in_rows && output->cols() == in_cols)
           << "The output tensor array in the cat layer "
              "has an incorrectly sized tensor "
           << i << " th";
-      const uint32_t plane_size = rows * cols;
+      const uint32_t plane_size = in_rows * in_cols;
       memcpy(output->raw_ptr(start_channel * plane_size), input->raw_ptr(),
              sizeof(float) * plane_size * in_channels);
       start_channel += input->channels();
@@ -128,7 +100,8 @@ ParseParameterAttrStatus CatLayer::CreateInstance(
     return ParseParameterAttrStatus::kParameterMissingDim;
   }
 
-  auto dim_param = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
+  auto dim_param =
+      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
   if (!dim_param) {
     LOG(ERROR) << "Can not find the dim parameter";
     return ParseParameterAttrStatus::kParameterMissingDim;
@@ -138,5 +111,6 @@ ParseParameterAttrStatus CatLayer::CreateInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kCatCreateInstance("torch.cat", CatLayer::CreateInstance);
+LayerRegistererWrapper kCatCreateInstance("torch.cat",
+                                          CatLayer::CreateInstance);
 }  // namespace kuiper_infer

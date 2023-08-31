@@ -153,30 +153,55 @@ InferStatus ConvolutionLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the convolution layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the convolution layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the convolution "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   if (weights_.empty()) {
     LOG(ERROR) << "The number of kernel matrix in the convolution layer should "
                   "be greater than zero";
-    return InferStatus::kInferFailedWeightParameterError;
+    return InferStatus::kInferParameterError;
   }
 
   if (this->use_bias_ && this->bias_.size() != this->weights_.size()) {
     LOG(ERROR) << "The number of kernel matrix and bias matrix do not match";
-    return InferStatus::kInferFailedBiasParameterError;
+    return InferStatus::kInferParameterError;
   }
 
-  if (!stride_h_ || !stride_w_) {
-    LOG(ERROR) << "The stride parameter is set incorrectly. It must always be "
-                  "greater than 0";
-    return InferStatus::kInferFailedStrideParameterError;
+  if (!stride_h_ || !stride_h_) {
+    LOG(ERROR) << "The stride in the convolution layer should be greater "
+                  "than zero";
+    return InferStatus::kInferParameterError;
+  }
+
+  if (!dilation_h_ || !dilation_w_) {
+    LOG(ERROR) << "The dilation in the convolution layer should be greater "
+                  "than zero";
+    return InferStatus::kInferParameterError;
+  }
+
+  if (!groups_) {
+    LOG(ERROR) << "The group number in the convolution layer should be "
+                  "greater than zero ";
+    return InferStatus::kInferParameterError;
+  }
+
+  if (conv_type_ == ConvType::OpConv) {
+    if (output_padding_h_ != 0 || output_padding_w_ != 0) {
+      LOG(ERROR)
+          << "The output padding in the convolution layer should be zero ";
+      return InferStatus::kInferParameterError;
+    }
   }
 
   const uint32_t kernel_count = this->weights_.size();

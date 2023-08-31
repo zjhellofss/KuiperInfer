@@ -37,12 +37,12 @@ InferStatus ExpressionLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the expression layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the expression layer is empty";
-    return InferStatus::kInferFailedOutputEmpty;
+    return InferStatus::kInferOutputsEmpty;
   }
 
   CHECK(this->parser_ != nullptr)
@@ -52,27 +52,7 @@ InferStatus ExpressionLayer::Forward(
   CHECK(!expressions.empty())
       << "The expression parser failed to parse " << statement_;
 
-  for (uint32_t i = 0; i < inputs.size(); ++i) {
-    const sftensor& input_data = inputs.at(i);
-    if (input_data == nullptr || input_data->empty()) {
-      LOG(ERROR) << "The input tensor array in the expression layer has an "
-                    "empty tensor "
-                 << i << "th";
-      return InferStatus::kInferFailedInputEmpty;
-    }
-  }
-
   const uint32_t batch_size = outputs.size();
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    if (outputs.at(i) == nullptr || outputs.at(i)->empty()) {
-      DLOG(ERROR) << "The output tensor array in the expression layer has an "
-                     "empty tensor "
-                  << i << "th";
-      return InferStatus::kInferFailedOutputEmpty;
-    }
-    outputs.at(i)->Fill(0.f);
-  }
-
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
   const std::vector<std::shared_ptr<TokenNode>>& token_nodes =
       this->parser_->Generate();
@@ -166,6 +146,6 @@ ParseParameterAttrStatus ExpressionLayer::CreateInstance(
   return ParseParameterAttrStatus::kParameterAttrParseSuccess;
 }
 
-LayerRegistererWrapper kExpressionCreateInstance("pnnx.Expression",
-                                              ExpressionLayer::CreateInstance);
+LayerRegistererWrapper kExpressionCreateInstance(
+    "pnnx.Expression", ExpressionLayer::CreateInstance);
 }  // namespace kuiper_infer

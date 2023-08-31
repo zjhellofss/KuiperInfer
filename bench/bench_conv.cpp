@@ -22,8 +22,8 @@
 // Created by fushenshen on 2023/3/15.
 
 #include <benchmark/benchmark.h>
+#include "../source/layer/details/backup/winograd.hpp"
 #include "../source/layer/details/convolution.hpp"
-#include "../source/layer/details/winograd.hpp"
 #include "runtime/runtime_ir.hpp"
 
 static void BM_Convolutionk3x3s1x1(benchmark::State& state) {

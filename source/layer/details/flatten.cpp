@@ -34,13 +34,18 @@ InferStatus FlattenLayer::Forward(
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the flatten layer is empty";
-    return InferStatus::kInferFailedInputEmpty;
+    return InferStatus::kInferInputsEmpty;
+  }
+
+  if (outputs.empty()) {
+    LOG(ERROR) << "The output tensor array in the flatten layer is empty";
+    return InferStatus::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the flatten "
                   "layer do not match";
-    return InferStatus::kInferFailedInputOutSizeMatchError;
+    return InferStatus::kInferArraySizeMismatch;
   }
 
   int start_dim = start_dim_;
@@ -59,14 +64,13 @@ InferStatus FlattenLayer::Forward(
       << "The end dim must less than two and start dim must greater than zero";
 
   const uint32_t batch_size = inputs.size();
-
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     if (input == nullptr || input->empty()) {
       LOG(ERROR) << "The input tensor array in the flatten layer has"
                     " an empty tensor "
                  << i << " th";
-      return InferStatus::kInferFailedInputEmpty;
+      return InferStatus::kInferInputsEmpty;
     }
 
     auto shapes = input->shapes();
@@ -131,6 +135,6 @@ ParseParameterAttrStatus FlattenLayer::CreateInstance(
 }
 
 LayerRegistererWrapper kFlattenCreateInstance("torch.flatten",
-                                           FlattenLayer::CreateInstance);
+                                              FlattenLayer::CreateInstance);
 
 }  // namespace kuiper_infer
