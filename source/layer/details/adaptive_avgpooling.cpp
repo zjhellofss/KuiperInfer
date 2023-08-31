@@ -53,7 +53,7 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the adaptive "
                   "pooling layer do not match";
-    return StatusCode::kInferArraySizeMismatch;
+    return StatusCode::kInferInOutSizeMismatch;
   }
 
   if (!output_h_ || !output_w_) {

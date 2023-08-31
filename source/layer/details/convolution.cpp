@@ -164,7 +164,7 @@ StatusCode ConvolutionLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the convolution "
                   "layer do not match";
-    return StatusCode::kInferArraySizeMismatch;
+    return StatusCode::kInferInOutSizeMismatch;
   }
 
   if (weights_.empty()) {

@@ -46,7 +46,7 @@ StatusCode SiLULayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the silu "
                   "layer do not match";
-    return StatusCode::kInferArraySizeMismatch;
+    return StatusCode::kInferInOutSizeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();

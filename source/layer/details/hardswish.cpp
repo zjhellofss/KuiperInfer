@@ -43,7 +43,7 @@ StatusCode HardSwishLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardswish "
                   "layer do not match";
-    return StatusCode::kInferArraySizeMismatch;
+    return StatusCode::kInferInOutSizeMismatch;
   }
 
   const uint32_t batch = inputs.size();

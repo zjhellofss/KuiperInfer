@@ -45,7 +45,7 @@ StatusCode FlattenLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the flatten "
                   "layer do not match";
-    return StatusCode::kInferArraySizeMismatch;
+    return StatusCode::kInferInOutSizeMismatch;
   }
 
   int start_dim = start_dim_;
