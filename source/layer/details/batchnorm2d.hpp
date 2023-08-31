@@ -35,11 +35,11 @@ class BatchNorm2dLayer : public ParamLayer {
                             const std::vector<float>& affine_weight,
                             const std::vector<float>& affine_bias);
 
-  InferStatus Forward(
+  StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus CreateInstance(
+  static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& batch_layer);
 

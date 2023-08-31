@@ -29,11 +29,11 @@ class ViewLayer : public NonParamLayer {
  public:
   explicit ViewLayer( std::vector<int32_t> shapes);
 
-  InferStatus Forward(
+  StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus CreateInstance(
+  static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& view_layer);
 

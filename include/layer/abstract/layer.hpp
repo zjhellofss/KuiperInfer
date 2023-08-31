@@ -46,7 +46,7 @@ class Layer {
    * @param outputs 层的输出
    * @return 执行的状态
    */
-  virtual InferStatus Forward(
+  virtual StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs);
 
@@ -55,7 +55,7 @@ class Layer {
    * @param current_operator 当前的operator
    * @return 执行的状态
    */
-  virtual InferStatus Forward();
+  virtual StatusCode Forward();
 
   /**
    * 返回层的权重

@@ -37,7 +37,7 @@ TEST(test_layer, forward_relu1) {
 
   ReluLayer relu_layer;
   const auto status = relu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     input_->Transform([](const float f) {
@@ -66,7 +66,7 @@ TEST(test_layer, forward_relu2) {
 
   ReluLayer relu_layer;
   const auto status = relu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     input_->Transform([](const float f) {
@@ -95,7 +95,7 @@ TEST(test_layer, forward_relu3) {
 
   ReluLayer relu_layer;
   const auto status = relu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     input_->Transform([](const float f) {
@@ -124,7 +124,7 @@ TEST(test_layer, forward_relu4) {
 
   ReluLayer relu_layer;
   const auto status = relu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     input_->Transform([](const float f) {

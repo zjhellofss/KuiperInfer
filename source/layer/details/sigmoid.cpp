@@ -28,23 +28,23 @@
 
 namespace kuiper_infer {
 
-InferStatus SigmoidLayer::Forward(
+StatusCode SigmoidLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the sigmoid layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
   
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the sigmoid layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
   
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the sigmoid "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -68,15 +68,15 @@ InferStatus SigmoidLayer::Forward(
     using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationSigmoid)(input, output);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus SigmoidLayer::CreateInstance(
+StatusCode SigmoidLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& sigmoid_layer) {
   CHECK(op != nullptr) << "Sigmoid operator is nullptr";
   sigmoid_layer = std::make_shared<SigmoidLayer>();
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kSigmoidCreateInstance("nn.Sigmoid",

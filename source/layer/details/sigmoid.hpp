@@ -28,11 +28,11 @@ namespace kuiper_infer {
 class SigmoidLayer : public NonParamLayer {
  public:
   explicit SigmoidLayer() : NonParamLayer("Sigmoid") {}
-  InferStatus Forward(
+  StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static ParseParameterAttrStatus CreateInstance(
+  static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& sigmoid_layer);
 };

@@ -38,7 +38,7 @@ TEST(test_layer, forward_flatten_layer1) {
 
   FlattenLayer flatten_layer(1, 3);
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
 
   const auto& shapes = outputs.front()->shapes();
@@ -70,7 +70,7 @@ TEST(test_layer, forward_flatten_layer2) {
 
   FlattenLayer flatten_layer(1, -1);  // 1 3 -> 0 2
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
 
   const auto& shapes = outputs.front()->shapes();
@@ -103,7 +103,7 @@ TEST(test_layer, forward_flatten_layer3) {
 
   FlattenLayer flatten_layer(1, 2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ;
   ASSERT_EQ(outputs.size(), 1);
 
@@ -138,7 +138,7 @@ TEST(test_layer, forward_flatten_layer4) {
 
   FlattenLayer flatten_layer(1, -2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   ASSERT_EQ(outputs.size(), 1);
 
@@ -173,7 +173,7 @@ TEST(test_layer, forward_flatten_layer5) {
 
   FlattenLayer flatten_layer(2, 3);  // 1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   ASSERT_EQ(outputs.size(), 1);
 
@@ -209,7 +209,7 @@ TEST(test_layer, forward_flatten_layer6) {
   inputs.push_back(input);
   FlattenLayer flatten_layer(1, 3);  // 1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   const auto& output = outputs.front();
   for (int i = 0; i < 128; ++i) {
     ASSERT_EQ(output->index(i), i);
@@ -230,7 +230,7 @@ TEST(test_layer, forward_flatten_layer7) {
   inputs.push_back(input);
   FlattenLayer flatten_layer(1, 2);  // 0 1
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   const auto& output = outputs.front();
 
   uint32_t index = 0;
@@ -256,7 +256,7 @@ TEST(test_layer, forward_flatten_layer8) {
   inputs.push_back(input);
   FlattenLayer flatten_layer(2, 3);  //  1 2
   const auto status = flatten_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   const auto& output = outputs.front();
 
   uint32_t index = 0;

@@ -27,23 +27,23 @@
 namespace kuiper_infer {
 HardSwishLayer::HardSwishLayer() : NonParamLayer("HardSwish") {}
 
-InferStatus HardSwishLayer::Forward(
+StatusCode HardSwishLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the hardswish layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the hardswish layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardswish "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t batch = inputs.size();
@@ -69,15 +69,15 @@ InferStatus HardSwishLayer::Forward(
     using namespace activation;
     ApplySSEActivation(ActivationType::kActivationHardSwish)(input, output);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus HardSwishLayer::CreateInstance(
+StatusCode HardSwishLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& hardswish_layer) {
   CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
   hardswish_layer = std::make_shared<HardSwishLayer>();
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish",

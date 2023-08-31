@@ -196,7 +196,7 @@ void RuntimeGraph::Forward(bool debug) {
   }
 
   for (const auto& current_op : topo_operators_) {
-    InferStatus status;
+    StatusCode status;
     if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
       continue;
@@ -210,13 +210,13 @@ void RuntimeGraph::Forward(bool debug) {
       {
         LayerTimeLogging layer_time_logging(current_op->name, current_op->type);
         status = layer->Forward();
-        CHECK(status == InferStatus::kInferSuccess)
+        CHECK(status == StatusCode::kSuccess)
             << layer->layer_name()
             << " layer forward failed, error code: " << int(status);
       }
     } else {
       status = layer->Forward();
-      CHECK(status == InferStatus::kInferSuccess)
+      CHECK(status == StatusCode::kSuccess)
           << layer->layer_name()
           << " layer forward failed, error code: " << int(status);
     }

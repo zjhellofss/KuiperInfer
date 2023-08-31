@@ -25,10 +25,10 @@
 #include "layer/abstract/layer_factory.hpp"
 
 using namespace kuiper_infer;
-ParseParameterAttrStatus TestCreateLayer(const std::shared_ptr<RuntimeOperator> &op,
+StatusCode TestCreateLayer(const std::shared_ptr<RuntimeOperator> &op,
                                          std::shared_ptr<Layer> &layer) {
   layer = std::make_shared<Layer>("test3");
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 TEST(test_layer_factory, init) {

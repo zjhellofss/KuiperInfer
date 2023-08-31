@@ -63,29 +63,29 @@ UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode,
       mode_(mode),
       is_align_corner_(is_align_corner) {}
 
-InferStatus UpSampleLayer::Forward(
+StatusCode UpSampleLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the upsample layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the upsample layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the upsample "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   if (this->mode_ != UpSampleMode::kModeNearest &&
       this->mode_ != UpSampleMode::kModeBilinear) {
     LOG(ERROR) << "Unsupported upsample mode: " << int(mode_);
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -207,10 +207,10 @@ InferStatus UpSampleLayer::Forward(
       }
     }
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus UpSampleLayer::CreateInstance(
+StatusCode UpSampleLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& upsample_layer) {
   CHECK(op != nullptr) << "Upsample operator is null";
@@ -218,20 +218,20 @@ ParseParameterAttrStatus UpSampleLayer::CreateInstance(
   CHECK(!params.empty()) << "Operator parameter is empty";
   if (params.find("scale_factor") == params.end()) {
     LOG(ERROR) << "Can not find the scale factor parameter";
-    return ParseParameterAttrStatus::kParameterMissingScale;
+    return StatusCode::kParameterMissing;
   }
 
   auto scales = std::dynamic_pointer_cast<RuntimeParameterFloatArray>(
       params.at("scale_factor"));
   if (scales == nullptr) {
     LOG(ERROR) << "Can not find the scale factor parameter";
-    return ParseParameterAttrStatus::kParameterMissingScale;
+    return StatusCode::kParameterMissing;
   }
   CHECK(scales->value.size() == 2) << "Scale factor need two dimension";
 
   if (params.find("mode") == params.end()) {
     LOG(ERROR) << "Can not find the mode parameter";
-    return ParseParameterAttrStatus::kParameterMissingResizeMode;
+    return StatusCode::kParameterMissing;
   }
 
   auto mode_param =
@@ -251,7 +251,7 @@ ParseParameterAttrStatus UpSampleLayer::CreateInstance(
     auto align_corner_param = std::dynamic_pointer_cast<RuntimeParameterBool>(
         params.at("align_corners"));
     if (!align_corner_param) {
-      return ParseParameterAttrStatus::kParameterMissingAlignCorner;
+      return StatusCode::kParameterMissing;
     }
     is_align_corner = align_corner_param->value;
   }
@@ -264,7 +264,7 @@ ParseParameterAttrStatus UpSampleLayer::CreateInstance(
 
   upsample_layer =
       std::make_shared<UpSampleLayer>(scale_h, scale_w, mode, is_align_corner);
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample",

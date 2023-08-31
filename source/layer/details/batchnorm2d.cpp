@@ -26,23 +26,23 @@
 
 namespace kuiper_infer {
 
-InferStatus BatchNorm2dLayer::Forward(
+StatusCode BatchNorm2dLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the batchnorm2d layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the batchnorm2d layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the batchnorm2d "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
@@ -50,19 +50,19 @@ InferStatus BatchNorm2dLayer::Forward(
   if (mean_value_size != bias_value_size) {
     LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
                   "values and bias values";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   if (this->affine_weight_.size() != this->weights().size()) {
     LOG(ERROR) << "The batchnorm2d layer do not have the same number of mean "
                   "values and affine weight";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   if (this->affine_bias_.size() != this->affine_weight_.size()) {
     LOG(ERROR) << "The batchnorm2d layer do not have the same number of affine "
                   "weight and affine bias";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
@@ -98,10 +98,10 @@ InferStatus BatchNorm2dLayer::Forward(
           affine_bias_.at(i);
     }
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus BatchNorm2dLayer::CreateInstance(
+StatusCode BatchNorm2dLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& batch_layer) {
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
@@ -111,25 +111,25 @@ ParseParameterAttrStatus BatchNorm2dLayer::CreateInstance(
 
   if (params.find("eps") == params.end()) {
     LOG(ERROR) << "Can not find the eps parameter";
-    return ParseParameterAttrStatus::kParameterMissingEps;
+    return StatusCode::kParameterMissing;
   }
 
   auto eps = std::dynamic_pointer_cast<RuntimeParameterFloat>(params.at("eps"));
   if (!eps) {
     LOG(ERROR) << "Can not find the eps parameter";
-    return ParseParameterAttrStatus::kParameterMissingEps;
+    return StatusCode::kParameterMissing;
   }
 
   if (params.find("num_features") == params.end()) {
     LOG(ERROR) << "Can not find the num features parameter";
-    return ParseParameterAttrStatus::kParameterMissingNumFeatures;
+    return StatusCode::kParameterMissing;
   }
 
   auto num_features =
       std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("num_features"));
   if (!num_features) {
     LOG(ERROR) << "Can not find the num features parameter";
-    return ParseParameterAttrStatus::kParameterMissingNumFeatures;
+    return StatusCode::kParameterMissing;
   }
 
   // load weights
@@ -138,16 +138,16 @@ ParseParameterAttrStatus BatchNorm2dLayer::CreateInstance(
 
   if (attrs.find("running_mean") == attrs.end()) {
     LOG(ERROR) << "Can not find the running mean attribute";
-    return ParseParameterAttrStatus::kAttrMissingRunningMean;
+    return StatusCode::kAttributeMissing;
   }
 
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the affine weight attribute";
-    return ParseParameterAttrStatus::kAttrMissingWeight;
+    return StatusCode::kAttributeMissing;
   }
   if (attrs.find("bias") == attrs.end()) {
     LOG(ERROR) << "Can not find the affine bias attribute";
-    return ParseParameterAttrStatus::kAttrMissingBias;
+    return StatusCode::kAttributeMissing;
   }
 
   const std::vector<float>& affine_weight = attrs.at("weight")->get<float>();
@@ -161,13 +161,13 @@ ParseParameterAttrStatus BatchNorm2dLayer::CreateInstance(
 
   if (attrs.find("running_var") == attrs.end()) {
     LOG(ERROR) << "Can not find the running var attribute";
-    return ParseParameterAttrStatus::kAttrMissingRunningVar;
+    return StatusCode::kAttributeMissing;
   }
 
   const auto& var_attr = attrs.at("running_var");
   const std::vector<float>& var = var_attr->get<float>();
   batch_layer->set_bias(var);
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,

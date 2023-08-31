@@ -37,7 +37,7 @@ TEST(test_layer, forward_silu1) {
 
   SiLULayer silu_layer;
   const auto status = silu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -59,7 +59,7 @@ TEST(test_layer, forward_silu2) {
 
   SiLULayer silu_layer;
   const auto status = silu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -81,7 +81,7 @@ TEST(test_layer, forward_silu3) {
 
   SiLULayer silu_layer;
   const auto status = silu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -103,7 +103,7 @@ TEST(test_layer, forward_silu4) {
 
   SiLULayer silu_layer;
   const auto status = silu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -125,7 +125,7 @@ TEST(test_layer, forward_silu5) {
 
   SiLULayer silu_layer;
   const auto status = silu_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);

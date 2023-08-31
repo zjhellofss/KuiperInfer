@@ -30,23 +30,23 @@ namespace kuiper_infer {
 
 SiLULayer::SiLULayer() : NonParamLayer("SiLU") {}
 
-InferStatus SiLULayer::Forward(
+StatusCode SiLULayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the silu layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the silu layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the silu "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -69,15 +69,15 @@ InferStatus SiLULayer::Forward(
     using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationSilu)(input, output);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus SiLULayer::CreateInstance(
+StatusCode SiLULayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& silu_layer) {
   CHECK(op != nullptr) << "SiLU operator is nullptr";
   silu_layer = std::make_shared<SiLULayer>();
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kSiluCreateInstance("nn.SiLU",

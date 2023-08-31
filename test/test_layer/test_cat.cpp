@@ -41,7 +41,7 @@ TEST(test_layer, cat1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
   CatLayer cat_layer(1);
   const auto status = cat_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     ASSERT_EQ(outputs.at(i)->channels(), output_channels);
   }
@@ -78,7 +78,7 @@ TEST(test_layer, cat2) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
   CatLayer cat_layer(1);
   const auto status = cat_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     ASSERT_EQ(outputs.at(i)->channels(), output_channels);
   }
@@ -116,7 +116,7 @@ TEST(test_layer, cat3) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
   CatLayer cat_layer(1);
   const auto status = cat_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     ASSERT_EQ(outputs.at(i)->channels(), output_channels);
   }
@@ -145,7 +145,7 @@ TEST(test_layer, cat4) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
   CatLayer cat_layer(1);
   const auto status = cat_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (uint32_t i = 0; i < outputs.size(); ++i) {
     ASSERT_EQ(outputs.at(i)->channels(), output_channels);
   }

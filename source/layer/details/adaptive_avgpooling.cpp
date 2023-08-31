@@ -35,32 +35,32 @@ AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h,
   CHECK_GT(output_w_, 0);
 }
 
-InferStatus AdaptiveAveragePoolingLayer::Forward(
+StatusCode AdaptiveAveragePoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR)
         << "The input tensor array in the adaptive pooling layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR)
         << "The output tensor array in the adaptive pooling layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the adaptive "
                   "pooling layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   if (!output_h_ || !output_w_) {
     LOG(ERROR)
         << "The output_h and output_w in the adaptive pooling layer should be "
            "greater than zero";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   const uint32_t batch = inputs.size();
@@ -126,31 +126,31 @@ InferStatus AdaptiveAveragePoolingLayer::Forward(
       }
     }
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus AdaptiveAveragePoolingLayer::CreateInstance(
+StatusCode AdaptiveAveragePoolingLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& avg_layer) {
   CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
 
-  auto output_hw = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
+  auto output_size_param = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
       params.at("output_size"));
-  if (!output_hw) {
+  if (!output_size_param) {
     LOG(ERROR) << "Can not find the output size parameter";
-    return ParseParameterAttrStatus::kParameterMissingOutHW;
+    return StatusCode::kParameterMissing;
   }
 
-  const auto& output_hw_arr = output_hw->value;
-  if (output_hw_arr.size() != 2) {
+  const auto& output_size_arr = output_size_param->value;
+  if (output_size_arr.size() != 2) {
     LOG(ERROR) << "Can not find the output size parameter";
-    return ParseParameterAttrStatus::kParameterMissingOutHW;
+    return StatusCode::kParameterMissing;
   }
   avg_layer = std::make_shared<AdaptiveAveragePoolingLayer>(
-      output_hw_arr.at(0), output_hw_arr.at(1));
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+      output_size_arr.at(0), output_size_arr.at(1));
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kAdaptiveAvgpoolingCreateInstance(

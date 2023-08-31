@@ -36,7 +36,7 @@ TEST(test_layer, forward_hardsigmoid1) {
 
   HardSigmoid hardsigmoid_layer;
   const auto status = hardsigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -67,7 +67,7 @@ TEST(test_layer, forward_hardsigmoid2) {
 
   HardSigmoid hardsigmoid_layer;
   const auto status = hardsigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -98,7 +98,7 @@ TEST(test_layer,  forward_hardsigmoid3) {
 
   HardSigmoid hardsigmoid_layer;
   const auto status = hardsigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);

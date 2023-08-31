@@ -31,18 +31,18 @@
 
 using namespace kuiper_infer;
 
-InferStatus Convolution(
+StatusCode Convolution(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs,
     const uint32_t stride_h_, const uint32_t stride_w_,
     const std::vector<sftensor>& weights_) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
   if (weights_.empty()) {
     LOG(ERROR) << "Weight parameters is empty";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -50,7 +50,7 @@ InferStatus Convolution(
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     if (input->empty()) {
       LOG(ERROR) << "The input feature map of convolution layer is empty";
-      return InferStatus::kInferInputsEmpty;
+      return StatusCode::kInferInputsEmpty;
     }
     const uint32_t input_w = input->cols();
     const uint32_t input_h = input->rows();
@@ -70,7 +70,7 @@ InferStatus Convolution(
           uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
       if (output_h <= 0 || output_w <= 0) {
         LOG(ERROR) << "The size of the output feature map is less than zero";
-        return InferStatus::kInferParameterError;
+        return StatusCode::kInferParameterError;
       }
 
       if (!output_data) {
@@ -81,7 +81,7 @@ InferStatus Convolution(
 
       if (kernel->channels() != input_c) {
         LOG(ERROR) << "The channel of the weight and input is not adapting";
-        return InferStatus::kInferParameterError;
+        return StatusCode::kInferParameterError;
       }
 
       arma::fmat& output_channel = output_data->slice(k);
@@ -103,7 +103,7 @@ InferStatus Convolution(
     CHECK(!output_data->empty());
     outputs.at(i) = output_data;
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
 // TEST(test_layer, convolution3x3_winograd1) {

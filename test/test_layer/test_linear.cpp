@@ -49,7 +49,7 @@ TEST(test_layer, forward_linear1) {
   outputs.push_back(output);
 
   const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output_tensor = outputs.at(i);
@@ -82,7 +82,7 @@ TEST(test_layer, forward_linear2) {
   outputs.push_back(output);
 
   const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output_tensor = outputs.at(i);
@@ -121,7 +121,7 @@ TEST(test_layer, forward_linear3) {
   outputs.push_back(output);
 
   const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output_tensor = outputs.at(i);
@@ -160,7 +160,7 @@ TEST(test_layer, forward_linear4) {
   outputs.push_back(output);
 
   const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output_tensor = outputs.at(i);
@@ -199,7 +199,7 @@ TEST(test_layer, forward_linear5) {
   outputs.push_back(output);
 
   const auto status = linear_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output_tensor = outputs.at(i);

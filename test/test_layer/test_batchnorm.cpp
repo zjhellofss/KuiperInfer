@@ -39,7 +39,7 @@ TEST(test_layer, forward_batchnorm1) {
   layer.set_bias(std::vector<float>{1, 1, 1});
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (const auto &output : outputs) {
     const uint32_t size = output->size();
@@ -67,7 +67,7 @@ TEST(test_layer, forward_batchnorm2) {
   layer.set_bias(std::vector<float>{1});
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (const auto &output : outputs) {
     const uint32_t size = output->size();
@@ -95,7 +95,7 @@ TEST(test_layer, forward_batchnorm3) {
   layer.set_bias(std::vector<float>{1});
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (const auto &output : outputs) {
     const uint32_t size = output->size();
@@ -123,7 +123,7 @@ TEST(test_layer, forward_batchnorm4) {
   layer.set_bias(std::vector<float>{1, 1, 1, 1, 1});
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (const auto &output : outputs) {
     const uint32_t size = output->size();
@@ -151,7 +151,7 @@ TEST(test_layer, forward_batchnorm5) {
   layer.set_bias(std::vector<float>{1, 1, 1, 1, 1, 1, 1});
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (const auto &output : outputs) {
     const uint32_t size = output->size();

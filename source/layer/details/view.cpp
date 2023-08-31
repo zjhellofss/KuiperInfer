@@ -28,23 +28,23 @@
 
 namespace kuiper_infer {
 
-InferStatus ViewLayer::Forward(
+StatusCode ViewLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the view layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the view layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the view "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -52,7 +52,7 @@ InferStatus ViewLayer::Forward(
       (shapes_.front() != -1 && shapes_.front() != batch_size)) {
     LOG(ERROR)
         << "The shape parameter in the view layer has an incorrectly size! ";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
@@ -93,10 +93,10 @@ InferStatus ViewLayer::Forward(
 
     output_data->Reshape(shapes, true);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus ViewLayer::CreateInstance(
+StatusCode ViewLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& view_layer) {
   CHECK(op != nullptr) << "View operator is nullptr";
@@ -104,17 +104,17 @@ ParseParameterAttrStatus ViewLayer::CreateInstance(
       op->params;
   if (params.find("shape") == params.end()) {
     LOG(ERROR) << "View layer missing shape";
-    return ParseParameterAttrStatus::kParameterMissingShape;
+    return StatusCode::kParameterMissing;
   }
 
   auto shape =
       std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("shape"));
   if (!shape) {
     LOG(ERROR) << "View layer missing shape";
-    return ParseParameterAttrStatus::kParameterMissingShape;
+    return StatusCode::kParameterMissing;
   }
   view_layer = std::make_shared<ViewLayer>(shape->value);
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 ViewLayer::ViewLayer(std::vector<int32_t> shapes)

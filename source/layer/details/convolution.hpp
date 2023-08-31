@@ -42,11 +42,11 @@ class ConvolutionLayer : public ParamLayer {
                             uint32_t output_padding_w = 0,
                             uint32_t dilation_h = 1, uint32_t dilation_w = 1);
 
-  static ParseParameterAttrStatus CreateInstance(
+  static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
       std::shared_ptr<Layer>& conv_layer);
 
-  InferStatus Forward(
+  StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 

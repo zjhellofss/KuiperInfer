@@ -25,29 +25,29 @@
 namespace kuiper_infer {
 CatLayer::CatLayer(int dim) : NonParamLayer("cat"), dim_(dim) {}
 
-InferStatus CatLayer::Forward(
+StatusCode CatLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the cat layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the cat layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (dim_ != 1 && dim_ != -3) {
     LOG(ERROR) << "The dimension parameter of cat layer is error";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   const uint32_t output_size = outputs.size();
   if (inputs.size() % output_size != 0) {
     LOG(ERROR)
         << "The input and output tensor array size of cat layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t packet_size = inputs.size() / output_size;
@@ -86,29 +86,28 @@ InferStatus CatLayer::Forward(
       start_channel += input->channels();
     }
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus CatLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& cat_layer) {
+StatusCode CatLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                    std::shared_ptr<Layer>& cat_layer) {
   CHECK(op != nullptr) << "Cat operator is nullptr";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
   if (params.find("dim") == params.end()) {
     LOG(ERROR) << "Can not find the dim parameter";
-    return ParseParameterAttrStatus::kParameterMissingDim;
+    return StatusCode::kParameterMissing;
   }
 
   auto dim_param =
       std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
   if (!dim_param) {
     LOG(ERROR) << "Can not find the dim parameter";
-    return ParseParameterAttrStatus::kParameterMissingDim;
+    return StatusCode::kParameterMissing;
   }
   const int32_t dim = dim_param->value;
   cat_layer = std::make_shared<CatLayer>(dim);
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kCatCreateInstance("torch.cat",

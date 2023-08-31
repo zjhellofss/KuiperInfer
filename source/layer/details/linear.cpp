@@ -41,43 +41,43 @@ LinearLayer::LinearLayer(int32_t in_features, int32_t out_features,
   }
 }
 
-InferStatus LinearLayer::Forward(
+StatusCode LinearLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the linear layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the linear layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the linear "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   if (this->weights_.empty()) {
     LOG(ERROR) << "The weight tensor in the linear layer is empty";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   } else {
     if (this->use_bias_ && this->weights_.size() != this->bias_.size()) {
       LOG(ERROR) << "The size of the weight and bias tensor do not match";
-      return InferStatus::kInferParameterError;
+      return StatusCode::kInferParameterError;
     }
   }
 
   if (weights_.size() != 1) {
     LOG(ERROR) << "Need one weight tensor in the linear layer";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   if (use_bias_ && this->bias_.size() != 1) {
     LOG(ERROR) << "Need one bias tensor in the linear layer";
-    return InferStatus::kInferParameterError;
+    return StatusCode::kInferParameterError;
   }
 
   uint32_t batch = inputs.size();
@@ -140,23 +140,23 @@ InferStatus LinearLayer::Forward(
       }
     }
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus LinearLayer::CreateInstance(
+StatusCode LinearLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto& params = op->params;
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the use bias parameter";
-    return ParseParameterAttrStatus::kParameterMissingUseBias;
+    return StatusCode::kParameterMissing;
   }
   auto use_bias_param =
       std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter";
-    return ParseParameterAttrStatus::kParameterMissingUseBias;
+    return StatusCode::kParameterMissing;
   }
 
   const auto& attr = op->attribute;
@@ -164,13 +164,13 @@ ParseParameterAttrStatus LinearLayer::CreateInstance(
 
   if (attr.find("weight") == attr.end()) {
     LOG(ERROR) << "Can not find the weight parameter";
-    return ParseParameterAttrStatus::kAttrMissingWeight;
+    return StatusCode::kAttributeMissing;
   }
 
   if (use_bias_param->value) {
     if (attr.find("bias") == attr.end()) {
       LOG(ERROR) << "Can not find the bias parameter";
-      return ParseParameterAttrStatus::kAttrMissingBias;
+      return StatusCode::kAttributeMissing;
     }
   }
 
@@ -179,7 +179,7 @@ ParseParameterAttrStatus LinearLayer::CreateInstance(
   const auto& shapes = weight->shape;
   if ((shapes.size() < 2)) {
     LOG(ERROR) << "The graph only support two dimension matrix multiply";
-    return ParseParameterAttrStatus::kAttrMissingOutFeatures;
+    return StatusCode::kAttributeMissing;
   }
 
   int32_t out_features = shapes.at(0);
@@ -194,7 +194,7 @@ ParseParameterAttrStatus LinearLayer::CreateInstance(
 
   // load weights
   linear_layer->set_weights(weight->get<float>());
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kLinearCreateInstance("nn.Linear",

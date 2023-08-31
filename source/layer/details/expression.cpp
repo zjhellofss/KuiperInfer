@@ -32,17 +32,17 @@ ExpressionLayer::ExpressionLayer(std::string statement)
   parser_ = std::make_unique<ExpressionParser>(statement_);
 }
 
-InferStatus ExpressionLayer::Forward(
+StatusCode ExpressionLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the expression layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the expression layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   CHECK(this->parser_ != nullptr)
@@ -119,31 +119,31 @@ InferStatus ExpressionLayer::Forward(
     CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
     outputs.at(i) = output_node.at(i);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus ExpressionLayer::CreateInstance(
+StatusCode ExpressionLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& expression_layer) {
   CHECK(op != nullptr) << "Expression operator is nullptr";
   const auto& params = op->params;
   if (params.find("expr") == params.end()) {
-    return ParseParameterAttrStatus::kParameterMissingExpr;
+    return StatusCode::kParameterMissing;
   }
 
   auto statement_param =
       std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
   if (statement_param == nullptr) {
     LOG(ERROR) << "Can not find the expression parameter";
-    return ParseParameterAttrStatus::kParameterMissingExpr;
+    return StatusCode::kParameterMissing;
   }
   if (statement_param->type != RuntimeParameterType::kParameterString) {
     LOG(ERROR) << "Can not find the expression parameter";
-    return ParseParameterAttrStatus::kParameterMissingExpr;
+    return StatusCode::kParameterMissing;
   }
 
   expression_layer = std::make_shared<ExpressionLayer>(statement_param->value);
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kExpressionCreateInstance(

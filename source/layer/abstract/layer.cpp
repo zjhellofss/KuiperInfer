@@ -48,14 +48,14 @@ void Layer::set_weights(
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-InferStatus Layer::Forward(
+StatusCode Layer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
-  return InferStatus::kInferLayerNotImplement;
+  return StatusCode::kLayerNotImplement;
 }
 
-InferStatus Layer::Forward() {
+StatusCode Layer::Forward() {
   LOG_IF(FATAL, this->runtime_operator_.expired())
       << "Runtime operator is expired or nullptr";
   const auto& runtime_operator = this->runtime_operator_.lock();
@@ -78,7 +78,7 @@ InferStatus Layer::Forward() {
       << "Layer output data is empty";
   // 执行operator当中的layer计算过程
   // layer的计算结果存放在current_op->output_operands->datas中
-  InferStatus status = runtime_operator->layer->Forward(
+  StatusCode status = runtime_operator->layer->Forward(
       layer_input_datas, output_operand_datas->datas);
   return status;
 }

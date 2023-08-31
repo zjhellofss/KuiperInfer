@@ -43,7 +43,7 @@ TEST(test_layer, forward_upsample1) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output = outputs.at(i);
@@ -80,7 +80,7 @@ TEST(test_layer, forward_upsample2) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output = outputs.at(i);
@@ -116,7 +116,7 @@ TEST(test_layer, forward_upsample3) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output = outputs.at(i);
@@ -152,7 +152,7 @@ TEST(test_layer, forward_upsample4) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output = outputs.at(i);
@@ -188,7 +188,7 @@ TEST(test_layer, forward_upsample5) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int i = 0; i < outputs.size(); ++i) {
     const auto& output = outputs.at(i);

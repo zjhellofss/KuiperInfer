@@ -33,10 +33,10 @@ class LinearLayer : public ParamLayer {
 //  explicit LinearLayer(uint32_t batch, uint32_t in_channel, uint32_t in_dim, uint32_t out_dim, bool use_bias = true);
   explicit LinearLayer(int32_t in_features, int32_t out_features, bool use_bias);
 
-  InferStatus Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>> &inputs,
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
-  static ParseParameterAttrStatus CreateInstance(const std::shared_ptr<RuntimeOperator> &op,
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator> &op,
                                               std::shared_ptr<Layer> &linear_layer);
  private:
   int32_t in_features_ = 0;

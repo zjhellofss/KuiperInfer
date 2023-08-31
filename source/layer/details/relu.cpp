@@ -25,23 +25,23 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-InferStatus ReluLayer::Forward(
+StatusCode ReluLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the relu layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
   
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the relu layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the relu "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
@@ -62,14 +62,14 @@ InferStatus ReluLayer::Forward(
     using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationRelu)(input, output);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
-ParseParameterAttrStatus ReluLayer::CreateInstance(
+StatusCode ReluLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kReluCreateInstance("nn.ReLU",

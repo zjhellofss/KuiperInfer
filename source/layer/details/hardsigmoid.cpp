@@ -27,23 +27,23 @@
 namespace kuiper_infer {
 HardSigmoid::HardSigmoid() : NonParamLayer("HardSigmoid") {}
 
-InferStatus HardSigmoid::Forward(
+StatusCode HardSigmoid::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the hardsigmoid layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the hardsigmoid layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardsigmoid "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
 
   const uint32_t batch = inputs.size();
@@ -69,15 +69,15 @@ InferStatus HardSigmoid::Forward(
     using namespace activation;
     ApplySSEActivation(ActivationType::kActivationHardSigmoid)(input, output);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
 
-ParseParameterAttrStatus HardSigmoid::CreateInstance(
+StatusCode HardSigmoid::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& hardsigmoid_layer) {
   CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 
 LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid",

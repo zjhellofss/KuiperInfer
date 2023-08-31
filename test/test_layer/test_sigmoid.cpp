@@ -44,7 +44,7 @@ TEST(test_layer, forward_sigmoid1) {
 
   SigmoidLayer sigmoid_layer;
   const auto status = sigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_LE(std::abs(outputs.front()->index(0) - 0.7310585786300049f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(1) - 0.8807970779778823f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(2) - 0.9525741268224334f), 1e-6);
@@ -69,7 +69,7 @@ TEST(test_layer, forward_sigmoid2) {
 
   SigmoidLayer sigmoid_layer;
   const auto status = sigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_LE(std::abs(outputs.front()->index(0) - 0.999983298578152f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(1) - 0.9999999997210531f), 1e-6);
   ASSERT_LE(std::abs(outputs.front()->index(2) - 0.9999999999999953f), 1e-6);
@@ -87,7 +87,7 @@ TEST(test_layer, forward_sigmoid3) {
 
   SigmoidLayer sigmoid_layer;
   const auto status = sigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -112,7 +112,7 @@ TEST(test_layer, forward_sigmoid4) {
 
   SigmoidLayer sigmoid_layer;
   const auto status = sigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);
@@ -137,7 +137,7 @@ TEST(test_layer, forward_sigmoid5) {
 
   SigmoidLayer sigmoid_layer;
   const auto status = sigmoid_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   for (int i = 0; i < inputs.size(); ++i) {
     std::shared_ptr<Tensor<float>> input_ = inputs.at(i);
     std::shared_ptr<Tensor<float>> output_ = outputs.at(i);

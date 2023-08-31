@@ -138,7 +138,7 @@ TEST(test_expression, add1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -166,7 +166,7 @@ TEST(test_expression, add2) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -194,7 +194,7 @@ TEST(test_expression, mul1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -228,7 +228,7 @@ TEST(test_expression, complex1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -267,7 +267,7 @@ TEST(test_expression, complex2) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -306,7 +306,7 @@ TEST(test_expression, complex3) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -345,7 +345,7 @@ TEST(test_expression, complex4) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -389,7 +389,7 @@ TEST(test_expression, complex5) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);
@@ -433,7 +433,7 @@ TEST(test_expression, complex6) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   outputs.at(0) = std::make_shared<Tensor<float>>(3, 224, 224);
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   std::shared_ptr<Tensor<float>> output2 =
       std::make_shared<Tensor<float>>(3, 224, 224);

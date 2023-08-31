@@ -34,25 +34,24 @@ namespace kuiper_infer {
 SoftmaxLayer::SoftmaxLayer(int dim)
     : NonParamLayer("Softmax"), softmax_dim_(dim) {}
 
-InferStatus SoftmaxLayer::Forward(
+StatusCode SoftmaxLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the softmax layer is empty";
-    return InferStatus::kInferInputsEmpty;
+    return StatusCode::kInferInputsEmpty;
   }
-  
+
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the softmax layer is empty";
-    return InferStatus::kInferOutputsEmpty;
+    return StatusCode::kInferOutputsEmpty;
   }
 
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the softmax "
                   "layer do not match";
-    return InferStatus::kInferArraySizeMismatch;
+    return StatusCode::kInferArraySizeMismatch;
   }
-
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
@@ -140,31 +139,31 @@ InferStatus SoftmaxLayer::Forward(
     }
     output->Fill(output_values, true);
   }
-  return InferStatus::kInferSuccess;
+  return StatusCode::kSuccess;
 }
-ParseParameterAttrStatus SoftmaxLayer::CreateInstance(
+StatusCode SoftmaxLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer>& softmax_layer) {
   CHECK(op != nullptr) << "SoftMax operator is nullptr";
   const auto& params = op->params;
   if (params.find("dim") == params.end()) {
-    return ParseParameterAttrStatus::kParameterMissingDim;
+    return StatusCode::kParameterMissing;
   }
 
   auto dim_param = params.at("dim");
   if (dim_param == nullptr) {
-    return ParseParameterAttrStatus::kParameterMissingDim;
+    return StatusCode::kParameterMissing;
   }
 
   auto dim = std::dynamic_pointer_cast<RuntimeParameterInt>(dim_param);
   if (dim == nullptr) {
-    return ParseParameterAttrStatus::kParameterMissingDim;
+    return StatusCode::kParameterMissing;
   }
   softmax_layer = std::make_shared<SoftmaxLayer>(dim->value);  // 创建softmax层
-  return ParseParameterAttrStatus::kParameterAttrParseSuccess;
+  return StatusCode::kSuccess;
 }
 LayerRegistererWrapper kSoftMaxCreateInstanceNN("nn.Softmax",
-                                             SoftmaxLayer::CreateInstance);
+                                                SoftmaxLayer::CreateInstance);
 LayerRegistererWrapper kSoftMaxCreateInstanceF("F.softmax",
-                                            SoftmaxLayer::CreateInstance);
+                                               SoftmaxLayer::CreateInstance);
 }  // namespace kuiper_infer

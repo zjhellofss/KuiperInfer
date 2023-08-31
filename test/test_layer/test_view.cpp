@@ -35,7 +35,7 @@ TEST(test_layer, forward_view1) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
@@ -59,7 +59,7 @@ TEST(test_layer, forward_view2) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
@@ -84,7 +84,7 @@ TEST(test_layer, forward_view3) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -111,7 +111,7 @@ TEST(test_layer, forward_view4) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
@@ -139,7 +139,7 @@ TEST(test_layer, forward_view5) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -167,7 +167,7 @@ TEST(test_layer, forward_view6) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
 
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -194,7 +194,7 @@ TEST(test_layer, forward_view7) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -224,7 +224,7 @@ TEST(test_layer, forward_view8) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
 
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -252,7 +252,7 @@ TEST(test_layer, forward_view9) {
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(2);
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 2);
   ASSERT_EQ(inputs.size(), 2);
 
@@ -289,7 +289,7 @@ TEST(test_layer, forward_view10) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
 
   const auto status = view_layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
   ASSERT_EQ(outputs.size(), 1);
   ASSERT_EQ(inputs.size(), 1);
 
@@ -323,7 +323,7 @@ TEST(test_layer, forward_view11) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
 
   const auto status = layer.Forward(inputs, outputs);
-  ASSERT_EQ(status, InferStatus::kInferSuccess);
+  ASSERT_EQ(status, StatusCode::kSuccess);
 
   for (int s = 0; s < outputs.size(); ++s) {
     const auto &output = outputs.at(s);
