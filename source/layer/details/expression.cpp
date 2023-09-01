@@ -115,8 +115,9 @@ StatusCode ExpressionLayer::Forward(
   std::vector<sftensor> output_node = op_stack.top();
   op_stack.pop();
   for (int i = 0; i < batch_size; ++i) {
-    CHECK(outputs.at(i) != nullptr && !outputs.at(i)->empty());
-    CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
+    if (outputs.at(i) != nullptr && !outputs.at(i)->empty()) {
+      CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
+    }
     outputs.at(i) = output_node.at(i);
   }
   return StatusCode::kSuccess;
