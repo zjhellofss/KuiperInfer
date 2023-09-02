@@ -36,7 +36,7 @@ TEST(test_layer, forward_upsample1) {
 
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -73,7 +73,7 @@ TEST(test_layer, forward_upsample2) {
 
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -109,7 +109,7 @@ TEST(test_layer, forward_upsample3) {
 
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -145,7 +145,7 @@ TEST(test_layer, forward_upsample4) {
 
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -181,7 +181,7 @@ TEST(test_layer, forward_upsample5) {
 
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -429,7 +429,7 @@ TEST(test_layer, forward_upsample_bilinear_equal) {
   UpSampleMode mode = UpSampleMode::kModeBilinear;
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -454,7 +454,7 @@ TEST(test_layer, forward_upsample_nearest_equal) {
   UpSampleMode mode = UpSampleMode::kModeNearest;
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);

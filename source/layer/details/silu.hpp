@@ -35,7 +35,7 @@ class SiLULayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& silu_layer);
+      std::shared_ptr<Layer<float>>& silu_layer);
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_SILU_HPP_

@@ -118,7 +118,7 @@ StatusCode YoloDetectLayer::Forward(
     }
 
     std::shared_ptr<Tensor<float>> stages_tensor =
-        TensorCreate(batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
+        TensorCreate<float>(batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
     stage_tensors.push_back(stages_tensor);
 
 #pragma omp parallel for num_threads(batch_size)
@@ -174,7 +174,7 @@ StatusCode YoloDetectLayer::Forward(
 
 StatusCode YoloDetectLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& yolo_detect_layer) {
+    std::shared_ptr<Layer<float>>& yolo_detect_layer) {
   CHECK(op != nullptr) << "Yolo detect operator is nullptr";
 
   const auto& attrs = op->attribute;

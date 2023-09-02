@@ -36,7 +36,7 @@ class SoftmaxLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& softmax_layer);
+      std::shared_ptr<Layer<float>>& softmax_layer);
 
  private:
   int softmax_dim_ = -1;

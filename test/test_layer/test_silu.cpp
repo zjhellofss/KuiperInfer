@@ -30,7 +30,7 @@
 TEST(test_layer, forward_silu1) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 224, 512);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -52,7 +52,7 @@ TEST(test_layer, forward_silu1) {
 TEST(test_layer, forward_silu2) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 32, 128);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -74,7 +74,7 @@ TEST(test_layer, forward_silu2) {
 TEST(test_layer, forward_silu3) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 16);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -96,7 +96,7 @@ TEST(test_layer, forward_silu3) {
 TEST(test_layer, forward_silu4) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 320, 1);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -118,7 +118,7 @@ TEST(test_layer, forward_silu4) {
 TEST(test_layer, forward_silu5) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 15);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);

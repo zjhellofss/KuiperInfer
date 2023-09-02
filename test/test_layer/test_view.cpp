@@ -362,7 +362,7 @@ TEST(test_layer, forward_view13) {
   kuiper_infer::ViewLayer layer({1, 1, 32 * 3, 32});
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 32, 32);
-  input->Rand();
+  input->RandN();
   inputs.push_back(input);
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -390,7 +390,7 @@ TEST(test_layer, forward_view14) {
 
   for (int i = 0; i < 2; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 77, 32);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
 

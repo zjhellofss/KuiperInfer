@@ -37,7 +37,7 @@ class LinearLayer : public ParamLayer {
                       std::vector<std::shared_ptr<Tensor<float>>> &outputs) override;
 
   static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator> &op,
-                                              std::shared_ptr<Layer> &linear_layer);
+                                              std::shared_ptr<Layer<float>> &linear_layer);
  private:
   int32_t in_features_ = 0;
   int32_t out_features_ = 0;

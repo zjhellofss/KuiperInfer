@@ -74,7 +74,7 @@ StatusCode HardSigmoid::Forward(
 
 StatusCode HardSigmoid::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& hardsigmoid_layer) {
+    std::shared_ptr<Layer<float>>& hardsigmoid_layer) {
   CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
   return StatusCode::kSuccess;

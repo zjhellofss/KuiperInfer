@@ -66,7 +66,7 @@ StatusCode ReluLayer::Forward(
 }
 StatusCode ReluLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& relu_layer) {
+    std::shared_ptr<Layer<float>>& relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
   return StatusCode::kSuccess;

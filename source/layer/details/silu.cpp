@@ -74,7 +74,7 @@ StatusCode SiLULayer::Forward(
 
 StatusCode SiLULayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& silu_layer) {
+    std::shared_ptr<Layer<float>>& silu_layer) {
   CHECK(op != nullptr) << "SiLU operator is nullptr";
   silu_layer = std::make_shared<SiLULayer>();
   return StatusCode::kSuccess;

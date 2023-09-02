@@ -34,7 +34,7 @@ class LayerRegisterer {
  private:
   typedef StatusCode (*Creator)(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& layer);
+      std::shared_ptr<Layer<float>>& layer);
 
   typedef std::map<std::string, Creator> CreateRegistry;
 
@@ -55,7 +55,7 @@ class LayerRegisterer {
    * @param op 保存了初始化Layer信息的算子
    * @return 初始化后的Layer
    */
-  static std::shared_ptr<Layer> CreateLayer(
+  static std::shared_ptr<Layer<float>> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
   /**

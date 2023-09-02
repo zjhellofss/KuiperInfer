@@ -142,7 +142,7 @@ void RuntimeGraph::Build() {
   for (const auto& kOperator : this->operators_) {
     // 除了输入和输出节点，都创建layer
     if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") {
-      std::shared_ptr<Layer> layer = RuntimeGraph::CreateLayer(kOperator);
+      std::shared_ptr<Layer<float>> layer = RuntimeGraph::CreateLayer(kOperator);
       CHECK(layer != nullptr)
           << "Layer " << kOperator->name << " create failed!";
       if (layer) {
@@ -205,7 +205,7 @@ void RuntimeGraph::Forward(bool debug) {
     CHECK(current_op->layer != nullptr)
         << "The layer corresponding to the op " << current_op->name
         << " is empty, indicating that it may not have been created.";
-    std::shared_ptr<Layer> layer = current_op->layer;
+    std::shared_ptr<Layer<float>> layer = current_op->layer;
     if (debug) {
       {
         LayerTimeLogging layer_time_logging(current_op->name, current_op->type);
@@ -235,7 +235,7 @@ void RuntimeGraph::Forward(bool debug) {
   }
 }
 
-std::shared_ptr<Layer> RuntimeGraph::CreateLayer(
+std::shared_ptr<Layer<float>> RuntimeGraph::CreateLayer(
     const std::shared_ptr<RuntimeOperator>& op) {
   LOG_IF(FATAL, !op) << "Operator is empty!";
   auto layer = LayerRegisterer::CreateLayer(op);

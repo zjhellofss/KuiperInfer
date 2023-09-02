@@ -70,7 +70,7 @@ TEST(test_layer, forward_max_pooling_s11_k33) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -107,7 +107,7 @@ TEST(test_layer, forward_max_pooling_s11_k33_p1) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -144,7 +144,7 @@ TEST(test_layer, forward_max_pooling_s22_k33) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -181,7 +181,7 @@ TEST(test_layer, forward_max_pooling_s33_k33) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -218,7 +218,7 @@ TEST(test_layer, forward_max_pooling_s11_k55) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -255,7 +255,7 @@ TEST(test_layer, forward_max_pooling_s22_k55) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -292,7 +292,7 @@ TEST(test_layer, forward_max_pooling_s33_k55) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -329,7 +329,7 @@ TEST(test_layer, forward_max_pooling_s55_k55) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -366,7 +366,7 @@ TEST(test_layer, forward_max_pooling_s11_k77) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -403,7 +403,7 @@ TEST(test_layer, forward_max_pooling_s22_k77) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -440,7 +440,7 @@ TEST(test_layer, forward_max_pooling_s33_k77) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -477,7 +477,7 @@ TEST(test_layer, forward_max_pooling_s55_k77) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;
@@ -514,7 +514,7 @@ TEST(test_layer, forward_max_pooling_s77_k77) {
 
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs1;

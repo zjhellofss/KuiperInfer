@@ -37,7 +37,7 @@ class MaxPoolingLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& max_layer);
+      std::shared_ptr<Layer<float>>& max_layer);
 
  private:
   uint32_t padding_h_ = 0;

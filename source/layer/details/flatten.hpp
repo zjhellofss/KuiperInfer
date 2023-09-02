@@ -35,7 +35,7 @@ class FlattenLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& flatten_layer);
+      std::shared_ptr<Layer<float>>& flatten_layer);
 
  private:
   int start_dim_ = 0;

@@ -34,7 +34,7 @@ class ReluLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& relu_layer);
+      std::shared_ptr<Layer<float>>& relu_layer);
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_

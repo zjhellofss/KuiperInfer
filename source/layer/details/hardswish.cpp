@@ -74,7 +74,7 @@ StatusCode HardSwishLayer::Forward(
 
 StatusCode HardSwishLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& hardswish_layer) {
+    std::shared_ptr<Layer<float>>& hardswish_layer) {
   CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
   hardswish_layer = std::make_shared<HardSwishLayer>();
   return StatusCode::kSuccess;

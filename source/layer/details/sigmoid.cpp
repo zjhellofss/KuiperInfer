@@ -73,7 +73,7 @@ StatusCode SigmoidLayer::Forward(
 
 StatusCode SigmoidLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& sigmoid_layer) {
+    std::shared_ptr<Layer<float>>& sigmoid_layer) {
   CHECK(op != nullptr) << "Sigmoid operator is nullptr";
   sigmoid_layer = std::make_shared<SigmoidLayer>();
   return StatusCode::kSuccess;

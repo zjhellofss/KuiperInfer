@@ -40,7 +40,7 @@ static void BM_Convolutionk3x3s1x1(benchmark::State& state) {
   std::vector<sftensor> weights(kernel_count);
   for (uint32_t k = 0; k < kernel_count; ++k) {
     sftensor weight = std::make_shared<ftensor>(channels, 3, 3);
-    weight->Rand();
+    weight->RandN();
     weights.at(k) = weight;
   }
 

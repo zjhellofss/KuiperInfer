@@ -36,7 +36,7 @@ static void BM_Unet_Batch1_512x512(benchmark::State& state) {
   for (int i = 0; i < batch_size; ++i) {
     std::shared_ptr<Tensor<float>> input =
         std::make_shared<Tensor<float>>(3, 512, 512);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
 

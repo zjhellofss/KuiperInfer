@@ -41,7 +41,7 @@ class BatchNorm2dLayer : public ParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& batch_layer);
+      std::shared_ptr<Layer<float>>& batch_layer);
 
  private:
   float eps_ = 1e-5;

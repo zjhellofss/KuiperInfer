@@ -46,7 +46,7 @@ LayerRegisterer::CreateRegistry* LayerRegisterer::Registry() {
   return registry_;
 }
 
-std::shared_ptr<Layer> LayerRegisterer::CreateLayer(
+std::shared_ptr<Layer<float>> LayerRegisterer::CreateLayer(
     const std::shared_ptr<RuntimeOperator>& op) {
   CreateRegistry* registry = Registry();
   const std::string& layer_type = op->type;
@@ -55,7 +55,7 @@ std::shared_ptr<Layer> LayerRegisterer::CreateLayer(
   const auto& creator = registry->find(layer_type)->second;
 
   LOG_IF(FATAL, !creator) << "Layer creator is empty!";
-  std::shared_ptr<Layer> layer;
+  std::shared_ptr<Layer<float>> layer;
   const auto& status = creator(op, layer);
   LOG_IF(FATAL, status != StatusCode::kSuccess)
       << "Create the layer: " << layer_type

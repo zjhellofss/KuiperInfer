@@ -43,7 +43,7 @@ class UpSampleLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& upsample_layer);
+      std::shared_ptr<Layer<float>>& upsample_layer);
 
  private:
   float scale_h_ = 1.f;

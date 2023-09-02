@@ -98,7 +98,7 @@ StatusCode ViewLayer::Forward(
 
 StatusCode ViewLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& view_layer) {
+    std::shared_ptr<Layer<float>>& view_layer) {
   CHECK(op != nullptr) << "View operator is nullptr";
   const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
       op->params;

@@ -26,7 +26,7 @@
 #include "layer.hpp"
 
 namespace kuiper_infer {
-class ParamLayer : public Layer {
+class ParamLayer : public Layer<float> {
  public:
   explicit ParamLayer(const std::string& layer_name);
 

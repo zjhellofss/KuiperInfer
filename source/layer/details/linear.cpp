@@ -145,7 +145,7 @@ StatusCode LinearLayer::Forward(
 
 StatusCode LinearLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& linear_layer) {
+    std::shared_ptr<Layer<float>>& linear_layer) {
   CHECK(op != nullptr) << "Linear operator is nullptr";
   const auto& params = op->params;
   if (params.find("bias") == params.end()) {

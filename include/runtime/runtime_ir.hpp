@@ -143,7 +143,7 @@ class RuntimeGraph {
    * @param op 计算图中的计算节点
    * @return 创建成功的Layer
    */
-  static std::shared_ptr<Layer> CreateLayer(
+  static std::shared_ptr<Layer<float>> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
   /**

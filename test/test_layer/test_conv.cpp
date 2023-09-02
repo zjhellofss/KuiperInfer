@@ -110,10 +110,10 @@ StatusCode Convolution(
 //   sftensor input = std::make_shared<ftensor>(3, 5, 5);
 //   input->Fill(1.f);
 //   sftensor weight1 = std::make_shared<ftensor>(3, 3, 3);
-//   weight1->Rand();
+//   weight1->RandN();
 
 //   sftensor weight2 = std::make_shared<ftensor>(3, 3, 3);
-//   weight2->Rand();
+//   weight2->RandN();
 
 //   std::vector<sftensor> weights(2);
 //   weights.at(0) = weight1;
@@ -138,7 +138,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> weights(kernel_count);
 //   for (uint32_t k = 0; k < kernel_count; ++k) {
 //     sftensor weight = std::make_shared<ftensor>(31, 3, 3);
-//     weight->Rand();
+//     weight->RandN();
 //     weights.at(k) = weight;
 //   }
 
@@ -161,7 +161,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> weights(kernel_count);
 //   for (uint32_t k = 0; k < kernel_count; ++k) {
 //     sftensor weight = std::make_shared<ftensor>(131, 3, 3);
-//     weight->Rand();
+//     weight->RandN();
 //     weights.at(k) = weight;
 //   }
 
@@ -188,7 +188,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> weights(kernel_count);
 //   for (uint32_t k = 0; k < kernel_count; ++k) {
 //     sftensor weight = std::make_shared<ftensor>(13, 3, 3);
-//     weight->Rand();
+//     weight->RandN();
 //     weights.at(k) = weight;
 //   }
 
@@ -209,13 +209,13 @@ StatusCode Convolution(
 
 // TEST(test_layer, convolution3x3_winograd5) {
 //   sftensor input = std::make_shared<ftensor>(256, 16, 16);
-//   input->Rand();
+//   input->RandN();
 
 //   const uint32_t kernel_count = 8;
 //   std::vector<sftensor> weights(kernel_count);
 //   for (uint32_t k = 0; k < kernel_count; ++k) {
 //     sftensor weight = std::make_shared<ftensor>(256, 3, 3);
-//     weight->Rand();
+//     weight->RandN();
 //     weights.at(k) = weight;
 //   }
 
@@ -243,7 +243,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 8, 8);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 3;
   const uint32_t kernel_w = 3;
@@ -253,7 +253,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
@@ -282,7 +282,7 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 3;
   const uint32_t kernel_w = 5;
@@ -292,7 +292,7 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
@@ -322,7 +322,7 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 3;
   const uint32_t kernel_w = 3;
@@ -332,7 +332,7 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
@@ -362,7 +362,7 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 3;
   const uint32_t kernel_w = 3;
@@ -372,7 +372,7 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
@@ -401,7 +401,7 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 5;
   const uint32_t kernel_w = 5;
@@ -411,7 +411,7 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
@@ -445,7 +445,7 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 5;
   const uint32_t kernel_w = 5;
@@ -455,7 +455,7 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
@@ -489,7 +489,7 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
   const uint32_t in_channel = 32;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 226, 226);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 13;
   const uint32_t kernel_w = 13;
@@ -499,7 +499,7 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
@@ -533,7 +533,7 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
   const uint32_t in_channel = 31;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 340, 340);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 13;
   const uint32_t kernel_w = 13;
@@ -543,7 +543,7 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
@@ -573,7 +573,7 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
   const uint32_t in_channel = 31;
   for (uint32_t i = 0; i < batch_size; ++i) {
     inputs.at(i) = std::make_shared<ftensor>(in_channel, 4, 4);
-    inputs.at(i)->Rand();
+    inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 1;
   const uint32_t kernel_w = 1;
@@ -583,7 +583,7 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
   std::vector<sftensor> weights;
   for (uint32_t i = 0; i < kernel_count; ++i) {
     sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
-    kernel->Rand();
+    kernel->RandN();
     weights.push_back(kernel);
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }

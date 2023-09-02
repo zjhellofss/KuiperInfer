@@ -29,7 +29,7 @@
 TEST(test_layer, forward_hardsigmoid1) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(32, 224, 512);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -60,7 +60,7 @@ TEST(test_layer, forward_hardsigmoid1) {
 TEST(test_layer, forward_hardsigmoid2) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 32, 128);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);
@@ -91,7 +91,7 @@ TEST(test_layer, forward_hardsigmoid2) {
 TEST(test_layer,  forward_hardsigmoid3) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 16);
-  input->Rand();
+  input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
   std::vector<std::shared_ptr<Tensor<float>>> outputs(1);

@@ -543,7 +543,7 @@ std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(
 
 StatusCode ConvolutionLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& conv_layer) {
+    std::shared_ptr<Layer<float>>& conv_layer) {
   CHECK(op != nullptr) << "Convolution operator is nullptr";
   const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
       op->params;

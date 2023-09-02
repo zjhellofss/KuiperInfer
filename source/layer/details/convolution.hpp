@@ -44,7 +44,7 @@ class ConvolutionLayer : public ParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& conv_layer);
+      std::shared_ptr<Layer<float>>& conv_layer);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

@@ -35,7 +35,7 @@ class CatLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& cat_layer);
+      std::shared_ptr<Layer<float>>& cat_layer);
 
  private:
   int32_t dim_ = 0;

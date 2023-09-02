@@ -27,7 +27,7 @@
 #include "layer/abstract/layer.hpp"
 
 namespace kuiper_infer {
-class YoloDetectLayer : public Layer {
+class YoloDetectLayer : public Layer<float> {
  public:
   explicit YoloDetectLayer(
       int32_t stages, int32_t num_classes, int32_t num_anchors,
@@ -41,7 +41,7 @@ class YoloDetectLayer : public Layer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& yolo_detect_layer);
+      std::shared_ptr<Layer<float>>& yolo_detect_layer);
 
 
  private:

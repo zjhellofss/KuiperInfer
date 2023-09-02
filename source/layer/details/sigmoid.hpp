@@ -34,7 +34,7 @@ class SigmoidLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& sigmoid_layer);
+      std::shared_ptr<Layer<float>>& sigmoid_layer);
 };
 }  // namespace kuiper_infer
 

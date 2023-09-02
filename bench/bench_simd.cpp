@@ -28,7 +28,7 @@ static void BM_SigmoidArma(benchmark::State& state) {
   uint32_t input_h = state.range(1);
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-  input->Rand();
+  input->RandN();
   for (auto _ : state) {
     arma::fcube input_data = input->data();
     input_data = 1.f / (1.f + arma::exp(-input_data));
@@ -45,7 +45,7 @@ static void BM_Relu(benchmark::State& state) {
   uint32_t input_h = state.range(1);
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-  input->Rand();
+  input->RandN();
   using namespace kuiper_infer::activation;
   for (auto _ : state) {
     for (uint32_t j = 0; j < input->size(); ++j) {
@@ -65,7 +65,7 @@ static void BM_ReluSimd(benchmark::State& state) {
   uint32_t input_h = state.range(1);
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-  input->Rand();
+  input->RandN();
   using namespace kuiper_infer::activation;
   for (auto _ : state) {
     ApplySSEActivation(ActivationType::kActivationRelu)(input, input);
@@ -82,7 +82,7 @@ static void BM_SiluArma(benchmark::State& state) {
   uint32_t input_h = state.range(1);
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-  input->Rand();
+  input->RandN();
   using namespace kuiper_infer::activation;
   for (auto _ : state) {
     arma::fcube input_data = input->data();
@@ -101,7 +101,7 @@ static void BM_SiluSimd(benchmark::State& state) {
   uint32_t input_h = state.range(1);
   uint32_t input_w = state.range(2);
   sftensor input = std::make_shared<ftensor>(input_c, input_h, input_w);
-  input->Rand();
+  input->RandN();
   using namespace kuiper_infer::activation;
   for (auto _ : state) {
     ApplySSEActivation(ActivationType::kActivationSilu)(input, input);

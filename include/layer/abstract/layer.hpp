@@ -33,8 +33,14 @@
 #include "status_code.hpp"
 
 namespace kuiper_infer {
-class RuntimeOperator;
-class Layer {
+template <typename T>
+class Layer;
+
+template <>
+class Layer<int8_t> {};
+
+template <>
+class Layer<float> {
  public:
   explicit Layer(std::string layer_name) : layer_name_(std::move(layer_name)) {}
 

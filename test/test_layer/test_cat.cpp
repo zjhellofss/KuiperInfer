@@ -35,7 +35,7 @@ TEST(test_layer, cat1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(input_channels, 32, 32);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
@@ -72,7 +72,7 @@ TEST(test_layer, cat2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(input_channels, 32, 32);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);

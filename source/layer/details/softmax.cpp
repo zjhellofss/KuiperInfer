@@ -143,7 +143,7 @@ StatusCode SoftmaxLayer::Forward(
 }
 StatusCode SoftmaxLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& softmax_layer) {
+    std::shared_ptr<Layer<float>>& softmax_layer) {
   CHECK(op != nullptr) << "SoftMax operator is nullptr";
   const auto& params = op->params;
   if (params.find("dim") == params.end()) {

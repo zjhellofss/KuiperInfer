@@ -37,6 +37,6 @@ class HardSwishLayer : public NonParamLayer {
 
   static StatusCode CreateInstance(
       const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer>& hardswish_layer);
+      std::shared_ptr<Layer<float>>& hardswish_layer);
 };
 }  // namespace kuiper_infer

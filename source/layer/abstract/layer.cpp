@@ -23,39 +23,39 @@
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 
-const std::vector<std::shared_ptr<Tensor<float>>>& Layer::weights() const {
+const std::vector<std::shared_ptr<Tensor<float>>>& Layer<float>::weights() const {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-const std::vector<std::shared_ptr<Tensor<float>>>& Layer::bias() const {
+const std::vector<std::shared_ptr<Tensor<float>>>& Layer<float>::bias() const {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_bias(const std::vector<float>& bias) {
+void Layer<float>::set_bias(const std::vector<float>& bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
+void Layer<float>::set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_weights(const std::vector<float>& weights) {
+void Layer<float>::set_weights(const std::vector<float>& weights) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer::set_weights(
+void Layer<float>::set_weights(
     const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-StatusCode Layer::Forward(
+StatusCode Layer<float>::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
   return StatusCode::kLayerNotImplement;
 }
 
-StatusCode Layer::Forward() {
+StatusCode Layer<float>::Forward() {
   LOG_IF(FATAL, this->runtime_operator_.expired())
       << "Runtime operator is expired or nullptr";
   const auto& runtime_operator = this->runtime_operator_.lock();
@@ -80,7 +80,7 @@ StatusCode Layer::Forward() {
   return status;
 }
 
-void Layer::set_runtime_operator(
+void Layer<float>::set_runtime_operator(
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
   CHECK(runtime_operator != nullptr);
   this->runtime_operator_ = runtime_operator;

@@ -46,7 +46,7 @@ static void BM_Concat16to8(benchmark::State& state) {
   for (int i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
         input_channels, state.range(1), state.range(2));
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   std::vector<std::shared_ptr<Tensor<float>>> outputs(output_size);
@@ -336,7 +336,7 @@ static void BM_Upsample(benchmark::State& state) {
   UpSampleMode mode = UpSampleMode(state.range(3));
   std::shared_ptr<Tensor<float>> input =
       std::make_shared<Tensor<float>>(channels, rows, cols);
-  input->Rand();
+  input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
@@ -374,7 +374,7 @@ static void BM_AdaptivePooling(benchmark::State& state) {
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input =
         std::make_shared<Tensor<float>>(input_c, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
   AdaptiveAveragePoolingLayer average_layer(output_h, output_w);
@@ -410,7 +410,7 @@ static void BM_Flatten(benchmark::State& state) {
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input =
         std::make_shared<Tensor<float>>(input_c, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
 
@@ -437,7 +437,7 @@ static void BM_Softmax(benchmark::State& state) {
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input =
         std::make_shared<Tensor<float>>(std::vector<uint32_t>{input_c});
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
 
@@ -460,7 +460,7 @@ static void BM_SoftmaxDim1Batch8(benchmark::State& state) {
   for (uint32_t i = 0; i < input_size; ++i) {
     std::shared_ptr<Tensor<float>> input =
         std::make_shared<Tensor<float>>(input_c, input_h, input_w);
-    input->Rand();
+    input->RandN();
     inputs.push_back(input);
   }
 

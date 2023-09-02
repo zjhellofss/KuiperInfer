@@ -103,7 +103,7 @@ StatusCode BatchNorm2dLayer::Forward(
 
 StatusCode BatchNorm2dLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& batch_layer) {
+    std::shared_ptr<Layer<float>>& batch_layer) {
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
 
   const auto& params = op->params;

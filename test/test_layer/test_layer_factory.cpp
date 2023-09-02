@@ -26,8 +26,8 @@
 
 using namespace kuiper_infer;
 StatusCode TestCreateLayer(const std::shared_ptr<RuntimeOperator> &op,
-                                         std::shared_ptr<Layer> &layer) {
-  layer = std::make_shared<Layer>("test3");
+                                         std::shared_ptr<Layer<float>> &layer) {
+  layer = std::make_shared<Layer<float>>("test3");
   return StatusCode::kSuccess;
 }
 
@@ -55,6 +55,6 @@ TEST(test_layer_factory, create) {
   LayerRegisterer::RegisterCreator("test3", TestCreateLayer);
   std::shared_ptr<RuntimeOperator> op = std::make_shared<RuntimeOperator>();
   op->type = "test3";
-  std::shared_ptr<Layer> layer = LayerRegisterer::CreateLayer(op);
+  std::shared_ptr<Layer<float>> layer = LayerRegisterer::CreateLayer(op);
   ASSERT_EQ(layer->layer_name(),"test3");
 }

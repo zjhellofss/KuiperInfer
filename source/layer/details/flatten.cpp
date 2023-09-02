@@ -105,7 +105,7 @@ StatusCode FlattenLayer::Forward(
 
 StatusCode FlattenLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& flatten_layer) {
+    std::shared_ptr<Layer<float>>& flatten_layer) {
   CHECK(op != nullptr) << "Flatten operator is nullptr";
   const auto& params = op->params;
 

@@ -212,7 +212,7 @@ StatusCode UpSampleLayer::Forward(
 
 StatusCode UpSampleLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& upsample_layer) {
+    std::shared_ptr<Layer<float>>& upsample_layer) {
   CHECK(op != nullptr) << "Upsample operator is null";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";

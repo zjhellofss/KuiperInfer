@@ -131,7 +131,7 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
 
 StatusCode AdaptiveAveragePoolingLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& avg_layer) {
+    std::shared_ptr<Layer<float>>& avg_layer) {
   CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";

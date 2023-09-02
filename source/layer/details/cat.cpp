@@ -90,7 +90,7 @@ StatusCode CatLayer::Forward(
 }
 
 StatusCode CatLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
-                                    std::shared_ptr<Layer>& cat_layer) {
+                                    std::shared_ptr<Layer<float>>& cat_layer) {
   CHECK(op != nullptr) << "Cat operator is nullptr";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";

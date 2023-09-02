@@ -26,7 +26,7 @@
 TEST(test_reshape, reshape1) {
   using namespace kuiper_infer;
   Tensor<float> tensor1(3, 224, 224);
-  tensor1.Rand();
+  tensor1.RandN();
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({224, 224, 3});
 
@@ -46,7 +46,7 @@ TEST(test_reshape, reshape1) {
 TEST(test_reshape, reshape2) {
   using namespace kuiper_infer;
   Tensor<float> tensor1(3, 224, 224);
-  tensor1.Rand();
+  tensor1.RandN();
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({672, 224});
 
@@ -65,7 +65,7 @@ TEST(test_reshape, reshape2) {
 TEST(test_reshape, reshape3) {
   using namespace kuiper_infer;
   Tensor<float> tensor1(3, 224, 224);
-  tensor1.Rand();
+  tensor1.RandN();
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({150528});
 

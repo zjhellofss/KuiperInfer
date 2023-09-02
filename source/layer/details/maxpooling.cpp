@@ -146,7 +146,7 @@ StatusCode MaxPoolingLayer::Forward(
 
 StatusCode MaxPoolingLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer>& max_layer) {
+    std::shared_ptr<Layer<float>>& max_layer) {
   CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
   const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
       op->params;

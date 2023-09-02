@@ -35,14 +35,16 @@
 #include "runtime_parameter.hpp"
 
 namespace kuiper_infer {
+template <typename T>
 class Layer;
 
 /// 计算图中的计算节点
-struct RuntimeOperator {
+template <typename T>
+struct RuntimeOperatorBase {
   bool has_forward = false;
-  std::string name;              /// 计算节点的名称
-  std::string type;              /// 计算节点的类型
-  std::shared_ptr<Layer> layer;  /// 节点对应的计算Layer
+  std::string name;                 /// 计算节点的名称
+  std::string type;                 /// 计算节点的类型
+  std::shared_ptr<Layer<T>> layer;  /// 节点对应的计算Layer
 
   std::vector<std::string> output_names;  /// 节点的输出节点名称
   std::shared_ptr<RuntimeOperand> output_operands;  /// 节点的输出操作数
@@ -51,7 +53,7 @@ struct RuntimeOperator {
       input_operands;  /// 节点的输入操作数
   std::vector<std::shared_ptr<RuntimeOperand>>
       input_operands_seq;  /// 节点的输入操作数，顺序排列
-  std::map<std::string, std::shared_ptr<RuntimeOperator>>
+  std::map<std::string, std::shared_ptr<RuntimeOperatorBase<T>>>
       output_operators;  /// 输出节点的名字和节点对应
 
   std::map<std::string, std::shared_ptr<RuntimeParameter>>
@@ -59,6 +61,10 @@ struct RuntimeOperator {
   std::map<std::string, std::shared_ptr<RuntimeAttribute>>
       attribute;  /// 算子的属性信息，内含权重信息
 };
+
+using RuntimeOperator = RuntimeOperatorBase<float>;
+
+using RuntimeOperatorQuantized = RuntimeOperatorBase<int8_t>;
 
 class RuntimeOperatorUtils {
  public:
