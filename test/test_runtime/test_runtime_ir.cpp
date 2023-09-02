@@ -160,6 +160,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 3, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -213,6 +214,7 @@ TEST(test_runtime, runtime_graph_output_init2) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 64};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -263,6 +265,7 @@ TEST(test_runtime, runtime_graph_output_init3) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -314,6 +317,7 @@ TEST(test_runtime, runtime_graph_output_init6) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{2, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -363,6 +367,7 @@ TEST(test_runtime, runtime_graph_output_init4) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 32, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -414,6 +419,7 @@ TEST(test_runtime, runtime_graph_output_init7) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 3, 31, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -467,6 +473,7 @@ TEST(test_runtime, runtime_graph_output_init8) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{8, 363};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -516,6 +523,7 @@ TEST(test_runtime, runtime_graph_output_init9) {
   for (int i = 0; i < 4; ++i) {
     pnnx::Operator* pnnx_op = new pnnx::Operator;
     pnnx::Operand* pnnx_number = new pnnx::Operand;
+    pnnx_number->type = 1;
     pnnx_number->shape = std::vector<int>{7, 31, 32};
     pnnx_op->outputs.push_back(pnnx_number);
     pnnx_operators.push_back(pnnx_op);
@@ -606,4 +614,3 @@ TEST(test_runtime, op_is_output) {
   ASSERT_EQ(graph.is_output_op("pnnx_output_0"), true);
   ASSERT_EQ(graph.is_output_op("random_str"), false);
 }
-
