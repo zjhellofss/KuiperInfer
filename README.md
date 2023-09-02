@@ -16,7 +16,22 @@
 
 **视频课程链接：**[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
-课程大纲请见下方
+## 第二次课程大纲
+
+第二次课程是第一次课程的重置版，内容更加充实和完善，第一次课程大纲见下方章节。
+
+| 课程节数                                              | 进度     | 课程链接                                    |
+| ----------------------------------------------------- | -------- | ------------------------------------------- |
+| **第一讲** 项目预览和环境配置                         | 完成     | https://www.bilibili.com/video/BV118411f7yM |
+| **第二讲** 张量(Tensor)的设计与实现                   | 完成     | https://www.bilibili.com/video/BV1hN411k7q7 |
+| **第三讲** 计算图的定义                               | 完成     | https://www.bilibili.com/video/BV1vc411M7Yp |
+| **第四讲** 构建计算图关系和执行顺序                   | 完成     | https://www.bilibili.com/video/BV19s4y1r7az |
+| **第五讲** KuiperInfer中的算⼦和注册⼯⼚              | 完成     | https://www.bilibili.com/video/BV1gx4y1o7pj |
+| **第六讲** 卷积和池化算子的实现                       | 完成     | https://www.bilibili.com/video/BV1hx4y197dS |
+| **第七讲** 表达式层中词法分析和语法分析以及算子的实现 | 完成     | https://www.bilibili.com/video/BV1j8411o7ao |
+| **第八讲** 自制推理框架支持Resnet网络的推理           | 完成     | https://www.bilibili.com/video/BV1o84y1o7ni |
+| **第九讲** 自制推理框架支持YoloV5网络的推理           | 写课件中 |                                             |
+| **第十讲** 让自制推理框架的执行速度更快一点           | 未完成   |                                             |
 
 ## Demo效果
 
@@ -35,7 +50,10 @@
 
 ![](./imgs/demo_car.jpg)
 
-## 课程大纲
+
+
+## 第一次课程大纲
+
 我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
 
 | 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
