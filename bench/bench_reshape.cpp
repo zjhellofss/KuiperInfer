@@ -29,7 +29,7 @@ static void BM_ReshapeRowMajor(benchmark::State& state) {
   std::vector<sftensor> tensors;
   const uint32_t batch_size = 8;
   for (uint32_t i = 0; i < batch_size; ++i) {
-    tensors.push_back(TensorCreate(32, 320, 320));
+    tensors.push_back(TensorCreate<float>((32, 320, 320)));
   }
   for (auto _ : state) {
     for (uint32_t i = 0; i < batch_size; ++i) {
@@ -44,7 +44,7 @@ static void BM_ReshapeColMajor(benchmark::State& state) {
   std::vector<sftensor> tensors;
   const uint32_t batch_size = 8;
   for (uint32_t i = 0; i < batch_size; ++i) {
-    tensors.push_back(TensorCreate(32, 320, 320));
+    tensors.push_back(TensorCreate<float>((32, 320, 320)));
   }
   for (auto _ : state) {
     for (uint32_t i = 0; i < batch_size; ++i) {
