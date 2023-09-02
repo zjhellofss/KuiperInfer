@@ -48,7 +48,7 @@ TEST(test_layer, add1) {
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
-  const auto& output2 = CSVDataLoader::LoadData("tmp/add/1.csv");
+  const auto& output2 = CSVDataLoader::LoadData<float>("tmp/add/1.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -80,7 +80,7 @@ TEST(test_layer, add2) {
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
-  const auto& output2 = CSVDataLoader::LoadData("tmp/add/3.csv");
+  const auto& output2 = CSVDataLoader::LoadData<float>("tmp/add/3.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();
@@ -112,7 +112,7 @@ TEST(test_layer, mul1) {
   ASSERT_EQ(output_tensors.size(), 4);
 
   const auto& output1 = output_tensors.at(0)->slice(0);
-  const auto& output2 = CSVDataLoader::LoadData("tmp/add/7.csv");
+  const auto& output2 = CSVDataLoader::LoadData<float>("tmp/add/7.csv");
   ASSERT_EQ(output1.size(), output2.size());
 
   const uint32_t size = output1.size();

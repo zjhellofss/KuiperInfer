@@ -228,7 +228,7 @@ TEST(test_layer, forward_linear7) {
   graph.Forward(false);
   outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/linear/linear_512x1000.csv");
+      CSVDataLoader::LoadData<float>("tmp/linear/linear_512x1000.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
       bool is_same =
@@ -258,7 +258,7 @@ TEST(test_layer, forward_linear8) {
       graph.get_outputs("pnnx_output_0");
 
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/linear/linear_1305x2047.csv");
+      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
       bool is_same =
@@ -287,7 +287,7 @@ TEST(test_layer, forward_linear9) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs =
       graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/linear/linear_1305x2047.csv");
+      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
       bool is_same =
@@ -320,7 +320,7 @@ TEST(test_layer, forward_linear10) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs =
       graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/linear/linear_1305x2047_arange.csv");
+      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047_arange.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
       bool is_same =

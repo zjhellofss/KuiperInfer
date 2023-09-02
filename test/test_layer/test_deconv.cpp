@@ -46,7 +46,7 @@ TEST(test_layer, deconv_nogroup) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/unet/test.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
@@ -76,7 +76,7 @@ TEST(test_layer, deconv_group1) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test2.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/unet/test2.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
@@ -106,7 +106,7 @@ TEST(test_layer, deconv_group2) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data = CSVDataLoader::LoadData("tmp/unet/test3.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/unet/test3.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
@@ -138,7 +138,7 @@ TEST(test_layer, deconv_group_dilation1) {
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/resnet/test_convtranspose_d_sample.csv");
+      CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d_sample.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
@@ -169,7 +169,7 @@ TEST(test_layer, deconv_group_dilation2) {
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/resnet/test_convtranspose_d.csv");
+      CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
@@ -200,7 +200,7 @@ TEST(test_layer, deconv_group_dilation3) {
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   arma::fmat real_data =
-      CSVDataLoader::LoadData("tmp/resnet/test_convtranspose_d31.csv");
+      CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d31.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {

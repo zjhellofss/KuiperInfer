@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-21.
 #include "data/load_data.hpp"
 #include <glog/logging.h>
@@ -28,56 +28,6 @@
 #include <utility>
 
 namespace kuiper_infer {
-
-arma::fmat CSVDataLoader::LoadData(const std::string& file_path,
-                                   const char split_char) {
-  arma::fmat data;
-  if (file_path.empty()) {
-    LOG(ERROR) << "CSV file path is empty: " << file_path;
-    return data;
-  }
-
-  std::ifstream in(file_path);
-  if (!in.is_open() || !in.good()) {
-    LOG(ERROR) << "File open failed: " << file_path;
-    return data;
-  }
-
-  std::string line_str;
-  std::stringstream line_stream;
-
-  const auto& [rows, cols] = CSVDataLoader::GetMatrixSize(in, split_char);
-  data.zeros(rows, cols);
-
-  size_t row = 0;
-  while (in.good()) {
-    std::getline(in, line_str);
-    if (line_str.empty()) {
-      break;
-    }
-
-    std::string token;
-    line_stream.clear();
-    line_stream.str(line_str);
-
-    size_t col = 0;
-    while (line_stream.good()) {
-      std::getline(line_stream, token, split_char);
-      try {
-        data.at(row, col) = std::stof(token);
-      } catch (std::exception& e) {
-        DLOG(ERROR) << "Parse CSV File meet error: " << e.what()
-                    << " row:" << row << " col:" << col;
-      }
-      col += 1;
-      CHECK(col <= cols) << "There are excessive elements on the column";
-    }
-
-    row += 1;
-    CHECK(row <= rows) << "There are excessive elements on the row";
-  }
-  return data;
-}
 
 std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream& file,
                                                        char split_char) {

@@ -52,7 +52,7 @@ TEST(test_layer, forward_softmax_dim1) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs =
       graph.get_outputs("pnnx_output_0");
 
-  arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {
     output->Reshape({24}, true);
     for (int i = 0; i < 24; ++i) {
@@ -88,7 +88,7 @@ TEST(test_layer, forward_softmax_dim1_minus2) {
   std::vector<std::shared_ptr<Tensor<float>>> outputs =
       graph.get_outputs("pnnx_output_0");
 
-  arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {
     output->Reshape({24}, true);
     for (int i = 0; i < 24; ++i) {
@@ -121,7 +121,7 @@ TEST(test_layer, forward_softmax_dim0) {
     std::vector<sftensor> outputs(batch_size);
     softmax_layer.Forward(inputs, outputs);
 
-    arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim0.csv");
+    arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim0.csv");
     for (const auto& output : outputs) {
       output->Reshape({24}, true);
       for (int i = 0; i < 24; ++i) {
@@ -154,7 +154,7 @@ TEST(test_layer, forward_softmax_dim2) {
     std::vector<sftensor> outputs(batch_size);
     softmax_layer.Forward(inputs, outputs);
 
-    arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim2.csv");
+    arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim2.csv");
     for (const auto& output : outputs) {
       output->Reshape({24}, true);
       for (int i = 0; i < 24; ++i) {
@@ -186,7 +186,7 @@ TEST(test_layer, forward_softmax_dim1_1) {
     }
     std::vector<sftensor> outputs(batch_size);
     softmax_layer.Forward(inputs, outputs);
-    arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1_1.csv");
+    arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1_1.csv");
     for (const auto& output : outputs) {
       output->Reshape({24}, true);
       for (int i = 0; i < 24; ++i) {
@@ -218,7 +218,7 @@ TEST(test_layer, forward_softmax_dim1_1_m) {
     }
     std::vector<sftensor> outputs(batch_size);
     softmax_layer.Forward(inputs, outputs);
-    arma::fmat real = CSVDataLoader::LoadData("tmp/softmax/softmax_dim1_1.csv");
+    arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1_1.csv");
     for (const auto& output : outputs) {
       output->Reshape({24}, true);
       for (int i = 0; i < 24; ++i) {

@@ -46,7 +46,7 @@ TEST(test_net, forward_resnet18) {
         graph.get_outputs("pnnx_output_0");
     ASSERT_EQ(outputs.size(), 1);
 
-    const auto& output2 = CSVDataLoader::LoadData("tmp/resnet/1.csv");
+    const auto& output2 = CSVDataLoader::LoadData<float>("tmp/resnet/1.csv");
     const auto& output1 = outputs.front()->data().slice(0);
     ASSERT_EQ(output1.size(), output2.size());
     for (uint32_t s = 0; s < output1.size(); ++s) {
@@ -75,7 +75,7 @@ TEST(test_net, forward_group_conv) {
   ASSERT_EQ(outputs.size(), 1);
 
   const auto& output1 = outputs.front()->data().slice(0);
-  const auto& output2 = CSVDataLoader::LoadData("tmp/mobilenet/1.csv");
+  const auto& output2 = CSVDataLoader::LoadData<float>("tmp/mobilenet/1.csv");
   ASSERT_EQ(output1.size(), output2.size());
   for (uint32_t s = 0; s < output1.size(); ++s) {
     ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
@@ -104,7 +104,7 @@ TEST(test_net, forward_mobilenet1) {
     ASSERT_EQ(outputs.size(), 1);
 
     const auto& output1 = outputs.front()->data();
-    const auto& output2 = CSVDataLoader::LoadData("tmp/mobilenet/2.csv");
+    const auto& output2 = CSVDataLoader::LoadData<float>("tmp/mobilenet/2.csv");
     ASSERT_EQ(output1.size(), output2.size());
     for (uint32_t s = 0; s < output1.size(); ++s) {
       ASSERT_LE(std::abs(output1.at(s) - output2.at(s)), 5e-6);
@@ -134,7 +134,7 @@ TEST(test_net, forward_mobilenet2) {
         graph.get_outputs("pnnx_output_0");
     ASSERT_EQ(outputs.size(), 1);
 
-    const auto& output2 = CSVDataLoader::LoadData("tmp/mobilenet/3.csv");
+    const auto& output2 = CSVDataLoader::LoadData<float>("tmp/mobilenet/3.csv");
     const auto& output1 = outputs.front()->data();
     ASSERT_EQ(output1.size(), output2.size());
 

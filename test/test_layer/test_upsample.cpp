@@ -234,7 +234,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign1) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -270,7 +270,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign2) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear11.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear11.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -306,7 +306,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign3) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear_align3.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align3.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -341,7 +341,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign4) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear_align4.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align4.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -376,7 +376,7 @@ TEST(test_layer, forward_upsample_bilinear_align1) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear_align5.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align5.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -411,7 +411,7 @@ TEST(test_layer, forward_upsample_bilinear_align2) {
 
   sftensor output = outputs.front();
   arma::fmat real =
-      CSVDataLoader::LoadData("tmp/up/test_upsample_bilinear_align6.csv");
+      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align6.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
