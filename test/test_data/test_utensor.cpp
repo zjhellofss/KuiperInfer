@@ -21,10 +21,10 @@
 
 // Created by fss on 23-1-15.
 
-#include <glog/logging.h>
-#include <gtest/gtest.h>
 #include "data/tensor.hpp"
 #include "data/tensor_util.hpp"
+#include <glog/logging.h>
+#include <gtest/gtest.h>
 
 TEST(test_utensor, tensor_init1) {
   using namespace kuiper_infer;
@@ -47,7 +47,7 @@ TEST(test_utensor, tensor_int_init1) {
 TEST(test_utensor, tensor_init1_1d) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f1(3);
-  const auto& raw_shapes = f1.raw_shapes();
+  const auto &raw_shapes = f1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
   ASSERT_EQ(raw_shapes.at(0), 3);
 }
@@ -55,7 +55,7 @@ TEST(test_utensor, tensor_init1_1d) {
 TEST(test_utensor, tensor_init1_2d) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f1(32, 24);
-  const auto& raw_shapes = f1.raw_shapes();
+  const auto &raw_shapes = f1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 2);
   ASSERT_EQ(raw_shapes.at(0), 32);
   ASSERT_EQ(raw_shapes.at(1), 24);
@@ -64,7 +64,7 @@ TEST(test_utensor, tensor_init1_2d) {
 TEST(test_utensor, test_init1_2d_1) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f1(1, 24);
-  const auto& raw_shapes = f1.raw_shapes();
+  const auto &raw_shapes = f1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
   ASSERT_EQ(raw_shapes.at(0), 24);
 }
@@ -288,7 +288,7 @@ TEST(test_utensor, transform1) {
 
   Tensor<uint8_t> f3(3, 3, 3);
   ASSERT_EQ(f3.empty(), false);
-  f3.Transform([](const uint8_t& value) { return 1.f; });
+  f3.Transform([](const uint8_t &value) { return 1.f; });
   for (int i = 0; i < f3.size(); ++i) {
     ASSERT_EQ(f3.index(i), 1.f);
   }
@@ -300,7 +300,7 @@ TEST(test_utensor, transform2) {
   Tensor<uint8_t> f3(3, 3, 3);
   ASSERT_EQ(f3.empty(), false);
   f3.Fill(1.f);
-  f3.Transform([](const uint8_t& value) { return value * 2.f; });
+  f3.Transform([](const uint8_t &value) { return value * 2.f; });
   for (int i = 0; i < f3.size(); ++i) {
     ASSERT_EQ(f3.index(i), 2.f);
   }
@@ -312,7 +312,7 @@ TEST(test_utensor, transform2_uint8) {
   Tensor<uint8_t> f3(3, 3, 3);
   ASSERT_EQ(f3.empty(), false);
   f3.Fill(1.f);
-  f3.Transform([](const uint8_t& value) { return value * 3; });
+  f3.Transform([](const uint8_t &value) { return value * 3; });
   for (int i = 0; i < f3.size(); ++i) {
     ASSERT_EQ(f3.index(i), 3);
   }
@@ -326,7 +326,7 @@ TEST(test_utensor, clone) {
   ASSERT_EQ(f3->empty(), false);
   f3->RandU();
 
-  const auto& f4 = TensorClone(f3);
+  const auto &f4 = TensorClone(f3);
   assert(f4->data().memptr() != f3->data().memptr());
   ASSERT_EQ(f4->size(), f3->size());
   for (int i = 0; i < f3->size(); ++i) {
@@ -341,7 +341,7 @@ TEST(test_utensor, clone_uint8) {
       std::make_shared<Tensor<uint8_t>>(3, 3, 3);
   ASSERT_EQ(f3->empty(), false);
   f3->RandU();
-  const auto& f4 = TensorClone(f3);
+  const auto &f4 = TensorClone(f3);
   assert(f4->data().memptr() != f3->data().memptr());
   ASSERT_EQ(f4->size(), f3->size());
   for (int i = 0; i < f3->size(); ++i) {
@@ -579,7 +579,7 @@ TEST(test_utensor, fill2_colmajor2) {
 
 TEST(test_utensor, create1) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor_ptr =
+  const std::shared_ptr<u1tensor> &tensor_ptr =
       TensorCreate<uint8_t>(3, 32, 32);
   ASSERT_EQ(tensor_ptr->empty(), false);
   ASSERT_EQ(tensor_ptr->channels(), 3);
@@ -589,7 +589,7 @@ TEST(test_utensor, create1) {
 
 TEST(test_utensor, create2) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor_ptr =
+  const std::shared_ptr<u1tensor> &tensor_ptr =
       TensorCreate<uint8_t>({3, 32, 32});
   ASSERT_EQ(tensor_ptr->empty(), false);
   ASSERT_EQ(tensor_ptr->channels(), 3);
@@ -599,10 +599,10 @@ TEST(test_utensor, create2) {
 
 TEST(test_utensor, tensor_broadcast1) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor1 = TensorCreate<uint8_t>({3, 1, 1});
-  const std::shared_ptr<u1tensor>& tensor2 = TensorCreate<uint8_t>({3, 32, 32});
+  const std::shared_ptr<u1tensor> &tensor1 = TensorCreate<uint8_t>({3, 1, 1});
+  const std::shared_ptr<u1tensor> &tensor2 = TensorCreate<uint8_t>({3, 32, 32});
 
-  const auto& [tensor11, tensor21] = TensorBroadcast(tensor1, tensor2);
+  const auto &[tensor11, tensor21] = TensorBroadcast(tensor1, tensor2);
   ASSERT_EQ(tensor21->channels(), 3);
   ASSERT_EQ(tensor21->rows(), 32);
   ASSERT_EQ(tensor21->cols(), 32);
@@ -617,11 +617,11 @@ TEST(test_utensor, tensor_broadcast1) {
 
 TEST(test_utensor, tensor_broadcast2) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor1 = TensorCreate<uint8_t>({3, 32, 32});
-  const std::shared_ptr<u1tensor>& tensor2 = TensorCreate<uint8_t>({3, 1, 1});
+  const std::shared_ptr<u1tensor> &tensor1 = TensorCreate<uint8_t>({3, 32, 32});
+  const std::shared_ptr<u1tensor> &tensor2 = TensorCreate<uint8_t>({3, 1, 1});
   tensor2->RandU();
 
-  const auto& [tensor11, tensor21] = TensorBroadcast(tensor1, tensor2);
+  const auto &[tensor11, tensor21] = TensorBroadcast(tensor1, tensor2);
   ASSERT_EQ(tensor21->channels(), 3);
   ASSERT_EQ(tensor21->rows(), 32);
   ASSERT_EQ(tensor21->cols(), 32);
@@ -632,7 +632,7 @@ TEST(test_utensor, tensor_broadcast2) {
 
   for (uint32_t i = 0; i < tensor21->channels(); ++i) {
     uint8_t c = tensor2->at(i, 0, 0);
-    const auto& in_channel = tensor21->slice(i);
+    const auto &in_channel = tensor21->slice(i);
     for (uint32_t j = 0; j < in_channel.size(); ++j) {
       ASSERT_EQ(in_channel.at(j), c);
     }
@@ -655,11 +655,11 @@ TEST(test_utensor, fill2) {
 
 TEST(test_utensor, add1) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(1.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementAdd(f2, f1);
+  const auto &f3 = TensorElementAdd(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 3.f);
   }
@@ -667,11 +667,11 @@ TEST(test_utensor, add1) {
 
 TEST(test_utensor, add2) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(1.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementAdd(f2, f1);
+  const auto &f3 = TensorElementAdd(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 3.f);
   }
@@ -679,11 +679,11 @@ TEST(test_utensor, add2) {
 
 TEST(test_utensor, add3) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(1.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementAdd(f1, f2);
+  const auto &f3 = TensorElementAdd(f1, f2);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 3.f);
   }
@@ -691,11 +691,11 @@ TEST(test_utensor, add3) {
 
 TEST(test_utensor, add4) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(1.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementAdd(f1, f2);
+  const auto &f3 = TensorElementAdd(f1, f2);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 3.f);
   }
@@ -703,11 +703,11 @@ TEST(test_utensor, add4) {
 
 TEST(test_utensor, mul1) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementMultiply(f2, f1);
+  const auto &f3 = TensorElementMultiply(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
   }
@@ -715,11 +715,11 @@ TEST(test_utensor, mul1) {
 
 TEST(test_utensor, mul1_uint8) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f2->Fill(2);
-  const auto& f3 = TensorElementMultiply(f2, f1);
+  const auto &f3 = TensorElementMultiply(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6);
   }
@@ -728,11 +728,11 @@ TEST(test_utensor, mul1_uint8) {
 TEST(test_utensor, mul2) {
   arma::mat a(5, 5, arma::fill::randu);
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementMultiply(f2, f1);
+  const auto &f3 = TensorElementMultiply(f2, f1);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
   }
@@ -740,11 +740,11 @@ TEST(test_utensor, mul2) {
 
 TEST(test_utensor, mul3) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementMultiply(f1, f2);
+  const auto &f3 = TensorElementMultiply(f1, f2);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
   }
@@ -752,11 +752,11 @@ TEST(test_utensor, mul3) {
 
 TEST(test_utensor, mul4) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
-  const auto& f3 = TensorElementMultiply(f1, f2);
+  const auto &f3 = TensorElementMultiply(f1, f2);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
   }
@@ -764,12 +764,12 @@ TEST(test_utensor, mul4) {
 
 TEST(test_utensor, mul5) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
 
-  const auto& f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   TensorElementMultiply(f1, f2, f3);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
@@ -778,12 +778,12 @@ TEST(test_utensor, mul5) {
 
 TEST(test_utensor, mul6) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
 
-  const auto& f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   TensorElementMultiply(f2, f1, f3);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 6.f);
@@ -792,12 +792,12 @@ TEST(test_utensor, mul6) {
 
 TEST(test_utensor, add5) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
 
-  const auto& f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   TensorElementAdd(f1, f2, f3);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 5.f);
@@ -806,12 +806,12 @@ TEST(test_utensor, add5) {
 
 TEST(test_utensor, add6) {
   using namespace kuiper_infer;
-  const auto& f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f1 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   f1->Fill(3.f);
-  const auto& f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
+  const auto &f2 = std::make_shared<Tensor<uint8_t>>(3, 1, 1);
   f2->Fill(2.f);
 
-  const auto& f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
+  const auto &f3 = std::make_shared<Tensor<uint8_t>>(3, 224, 224);
   TensorElementAdd(f2, f1, f3);
   for (int i = 0; i < f3->size(); ++i) {
     ASSERT_EQ(f3->index(i), 5.f);
@@ -821,7 +821,7 @@ TEST(test_utensor, add6) {
 TEST(test_utensor, shapes) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
-  const std::vector<uint32_t>& shapes = f3.shapes();
+  const std::vector<uint32_t> &shapes = f3.shapes();
   ASSERT_EQ(shapes.at(0), 2);
   ASSERT_EQ(shapes.at(1), 3);
   ASSERT_EQ(shapes.at(2), 4);
@@ -831,7 +831,7 @@ TEST(test_utensor, raw_shapes1) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({24});
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 1);
   ASSERT_EQ(shapes.at(0), 24);
 }
@@ -840,7 +840,7 @@ TEST(test_utensor, raw_shapes2) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({4, 6});
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 2);
   ASSERT_EQ(shapes.at(0), 4);
   ASSERT_EQ(shapes.at(1), 6);
@@ -850,7 +850,7 @@ TEST(test_utensor, raw_shapes3) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({4, 3, 2});
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 3);
   ASSERT_EQ(shapes.at(0), 4);
   ASSERT_EQ(shapes.at(1), 3);
@@ -861,7 +861,7 @@ TEST(test_utensor, raw_view1) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({24}, true);
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 1);
   ASSERT_EQ(shapes.at(0), 24);
 }
@@ -870,7 +870,7 @@ TEST(test_utensor, raw_view2) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({4, 6}, true);
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 2);
   ASSERT_EQ(shapes.at(0), 4);
   ASSERT_EQ(shapes.at(1), 6);
@@ -880,7 +880,7 @@ TEST(test_utensor, raw_view3) {
   using namespace kuiper_infer;
   Tensor<uint8_t> f3(2, 3, 4);
   f3.Reshape({4, 3, 2}, true);
-  const auto& shapes = f3.raw_shapes();
+  const auto &shapes = f3.raw_shapes();
   ASSERT_EQ(shapes.size(), 3);
   ASSERT_EQ(shapes.at(0), 4);
   ASSERT_EQ(shapes.at(1), 3);
@@ -993,12 +993,10 @@ TEST(test_utensor, review1) {
 
 TEST(test_utensor, review2) {
   using namespace kuiper_infer;
-  arma::Mat<uint8_t> f1 =
-      "1,2,3,4;"
-      "5,6,7,8";
-  arma::Mat<uint8_t> f2 =
-      "1,2,3,4;"
-      "5,6,7,8";
+  arma::Mat<uint8_t> f1 = "1,2,3,4;"
+                          "5,6,7,8";
+  arma::Mat<uint8_t> f2 = "1,2,3,4;"
+                          "5,6,7,8";
   su1tensor data = TensorCreate<uint8_t>(2, 2, 4);
   data->slice(0) = f1;
   data->slice(1) = f2;
@@ -1014,9 +1012,8 @@ TEST(test_utensor, review2) {
 
 TEST(test_utensor, review3) {
   using namespace kuiper_infer;
-  arma::Mat<uint8_t> f1 =
-      "1,2,3,4;"
-      "5,6,7,8";
+  arma::Mat<uint8_t> f1 = "1,2,3,4;"
+                          "5,6,7,8";
 
   su1tensor data = TensorCreate<uint8_t>(1, 2, 4);
   data->slice(0) = f1;
@@ -1036,20 +1033,18 @@ TEST(test_utensor, review3) {
 
 TEST(test_utensor, review4) {
   using namespace kuiper_infer;
-  arma::Mat<uint8_t> f1 =
-      "1,2,3,4;"
-      "5,6,7,8";
+  arma::Mat<uint8_t> f1 = "1,2,3,4;"
+                          "5,6,7,8";
 
-  arma::Mat<uint8_t> f2 =
-      "9,10,11,12;"
-      "13,14,15,16";
+  arma::Mat<uint8_t> f2 = "9,10,11,12;"
+                          "13,14,15,16";
 
   su1tensor data = TensorCreate<uint8_t>(2, 2, 4);
   data->slice(0) = f1;
   data->slice(1) = f2;
   data->Reshape({4, 2, 2}, true);
   for (uint32_t c = 0; c < data->channels(); ++c) {
-    const auto& in_channel = data->slice(c);
+    const auto &in_channel = data->slice(c);
     ASSERT_EQ(in_channel.n_rows, 2);
     ASSERT_EQ(in_channel.n_cols, 2);
     uint8_t n1 = in_channel.at(0, 0);
@@ -1065,13 +1060,11 @@ TEST(test_utensor, review4) {
 
 TEST(test_utensor, reshape1) {
   using namespace kuiper_infer;
-  arma::Mat<uint8_t> f1 =
-      "1,3;"
-      "2,4";
+  arma::Mat<uint8_t> f1 = "1,3;"
+                          "2,4";
 
-  arma::Mat<uint8_t> f2 =
-      "1,3;"
-      "2,4";
+  arma::Mat<uint8_t> f2 = "1,3;"
+                          "2,4";
 
   su1tensor data = TensorCreate<uint8_t>(2, 2, 2);
   data->slice(0) = f1;
@@ -1088,13 +1081,11 @@ TEST(test_utensor, reshape1) {
 
 TEST(test_utensor, reshape2) {
   using namespace kuiper_infer;
-  arma::Mat<uint8_t> f1 =
-      "0,2;"
-      "1,3";
+  arma::Mat<uint8_t> f1 = "0,2;"
+                          "1,3";
 
-  arma::Mat<uint8_t> f2 =
-      "0,2;"
-      "1,3";
+  arma::Mat<uint8_t> f2 = "0,2;"
+                          "1,3";
 
   su1tensor data = TensorCreate<uint8_t>(2, 2, 2);
   data->slice(0) = f1;
@@ -1122,7 +1113,7 @@ TEST(test_utensor, rand) {
   using namespace kuiper_infer;
   Tensor<uint8_t> tensor(3, 4, 5);
   tensor.Fill(99.f);
-  tensor.RandU();  // 0 ~ 1
+  tensor.RandU(); // 0 ~ 1
   for (int i = 0; i < tensor.size(); ++i) {
     ASSERT_NE(tensor.index(i), 99.f);
   }
@@ -1133,9 +1124,9 @@ TEST(test_utensor, get_data) {
   Tensor<uint8_t> tensor(3, 4, 5);
   ASSERT_EQ(tensor.channels(), 3);
   arma::Mat<uint8_t> in2(4, 5);
-  const arma::Mat<uint8_t>& in1 = tensor.slice(0);
+  const arma::Mat<uint8_t> &in1 = tensor.slice(0);
   tensor.slice(0) = in2;
-  const arma::Mat<uint8_t>& in3 = tensor.slice(0);
+  const arma::Mat<uint8_t> &in3 = tensor.slice(0);
   ASSERT_EQ(in1.memptr(), in3.memptr());
 }
 
@@ -1243,7 +1234,7 @@ TEST(test_utensor, tensor_values_row1) {
   }
   su1tensor tensor = TensorCreate<uint8_t>(3, 4, 5);
   tensor->Fill(values_in);
-  const auto& values_output = tensor->values(true);
+  const auto &values_output = tensor->values(true);
   for (uint32_t i = 0; i < size; ++i) {
     ASSERT_EQ(values_output.at(i), values_in.at(i));
   }
@@ -1258,7 +1249,7 @@ TEST(test_utensor, tensor_values_row2) {
   }
   su1tensor tensor = TensorCreate<uint8_t>(1, 60, 1);
   tensor->Fill(values_in);
-  const auto& values_output = tensor->values(true);
+  const auto &values_output = tensor->values(true);
   for (uint32_t i = 0; i < size; ++i) {
     ASSERT_EQ(values_output.at(i), values_in.at(i));
   }
@@ -1273,7 +1264,7 @@ TEST(test_utensor, tensor_values_col1) {
   }
   su1tensor tensor = TensorCreate<uint8_t>(1, 2, 2);
   tensor->Fill(values_in);
-  const auto& values_output = tensor->values(false);
+  const auto &values_output = tensor->values(false);
   ASSERT_EQ(values_output.at(0), 0);
   ASSERT_EQ(values_output.at(1), 2);
   ASSERT_EQ(values_output.at(2), 1);
@@ -1301,4 +1292,10 @@ TEST(test_utensor, tensor_create3) {
   ASSERT_EQ(tensor->raw_shapes().at(0), 3);
   ASSERT_EQ(tensor->raw_shapes().at(1), 12);
   ASSERT_EQ(tensor->raw_shapes().at(2), 32);
+}
+
+TEST(test_utensor, randu) {
+  using namespace kuiper_infer;
+  Tensor<uint8_t> f1(1, 224, 224);
+  f1.RandU();
 }
