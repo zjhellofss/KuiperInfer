@@ -26,7 +26,7 @@
 | **第二讲** 张量(Tensor)的设计与实现                   | 完成     | https://www.bilibili.com/video/BV1hN411k7q7 |
 | **第三讲** 计算图的定义                               | 完成     | https://www.bilibili.com/video/BV1vc411M7Yp |
 | **第四讲** 构建计算图关系和执行顺序                   | 完成     | https://www.bilibili.com/video/BV19s4y1r7az |
-| **第五讲** KuiperInfer中的算⼦和注册⼯⼚              | 完成     | https://www.bilibili.com/video/BV1gx4y1o7pj |
+| **第五讲** KuiperInfer中的算⼦和注册⼯⼚                 | 完成     | https://www.bilibili.com/video/BV1gx4y1o7pj |
 | **第六讲** 卷积和池化算子的实现                       | 完成     | https://www.bilibili.com/video/BV1hx4y197dS |
 | **第七讲** 表达式层中词法分析和语法分析以及算子的实现 | 完成     | https://www.bilibili.com/video/BV1j8411o7ao |
 | **第八讲** 自制推理框架支持Resnet网络的推理           | 完成     | https://www.bilibili.com/video/BV1o84y1o7ni |
@@ -56,21 +56,21 @@
 
 我在b站上开了一门教学课程，目前是课程的前13次课程。课程大纲如下，主页是: https://space.bilibili.com/1822828582 , 欢迎大家关注支持。**进学习群的方式如上图的二维码。**
 
-| 课程节数  | 主要内容                             | 进度  | 课程链接                                         |
-|-------|----------------------------------|-----|----------------------------------------------|
-| 第一次课  | 整体框架解读和开发环境配置                    | 完成  | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
-| 第二次课  | 张量Tensor类的解析和输入数据的内存排布           | 完成  | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
-| 第三次课  | 从CSV文件中初始化张量Tensor一个实例           | 完成  | https://www.bilibili.com/video/BV1Pg411J7V5/ |
-| 第四次课  | 手写第一个算子Relu并完成算子注册工厂类            | 完成  | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
-| 第五次课  | Im2col的原理和卷积算子的实现                | 完成  |      https://www.bilibili.com/video/BV1F841137Ct                                        |
-| 第六次课  | 照猫画虎，完成MaxPooling算子              | 完成  |         https://www.bilibili.com/video/BV1m3411S7yy                                     |
-| 第七次课  | 图结构(PNNX)讲解和计算图初步                | 完成  |   https://www.bilibili.com/video/BV1VW4y1V7vp                                           |
-| 第八次课  | 读取PNNX并构建自己的计算图                  | 完成  |          https://www.bilibili.com/video/BV1HY4y1Z7S3                                    |
-| 第九次课  | 卷积算子的实现和im2col加速计算的原理            | 完成  |         https://www.bilibili.com/video/BV1F841137Ct                                    |
-| 第十次课  | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成  | https://www.bilibili.com/video/BV1M54y1K7AG |
-| 第十一次课 | 算子的执行流程                          | 完成  | https://www.bilibili.com/video/BV1wY411C7Kv|
-| 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类    | 完成  | https://www.bilibili.com/video/BV1jD4y1M772|
-| 第十三次课 | 用自制的推理框架支持Yolov5模型的推理    | 完成  | https://www.bilibili.com/video/BV1xs4y1J7t2|
+| 课程节数   | 主要内容                                                   | 进度 | 课程链接                                     |
+| ---------- | ---------------------------------------------------------- | ---- | -------------------------------------------- |
+| 第一次课   | 整体框架解读和开发环境配置                                 | 完成 | https://www.bilibili.com/video/BV1HV4y1A7H8/ |
+| 第二次课   | 张量Tensor类的解析和输入数据的内存排布                     | 完成 | https://www.bilibili.com/video/BV1Ed4y1v7Gb/ |
+| 第三次课   | 从CSV文件中初始化张量Tensor一个实例                        | 完成 | https://www.bilibili.com/video/BV1Pg411J7V5/ |
+| 第四次课   | 手写第一个算子Relu并完成算子注册工厂类                     | 完成 | https://www.bilibili.com/video/BV1bG4y1J7sQ/ |
+| 第五次课   | Im2col的原理和卷积算子的实现                               | 完成 | https://www.bilibili.com/video/BV1F841137Ct  |
+| 第六次课   | 照猫画虎，完成MaxPooling算子                               | 完成 | https://www.bilibili.com/video/BV1m3411S7yy  |
+| 第七次课   | 图结构(PNNX)讲解和计算图初步                               | 完成 | https://www.bilibili.com/video/BV1VW4y1V7vp  |
+| 第八次课   | 读取PNNX并构建自己的计算图                                 | 完成 | https://www.bilibili.com/video/BV1HY4y1Z7S3  |
+| 第九次课   | 卷积算子的实现和im2col加速计算的原理                       | 完成 | https://www.bilibili.com/video/BV1F841137Ct  |
+| 第十次课   | 再探Tensor类，构建计算图的图关系以及对算子的输入输出预分配 | 完成 | https://www.bilibili.com/video/BV1M54y1K7AG  |
+| 第十一次课 | 算子的执行流程                                             | 完成 | https://www.bilibili.com/video/BV1wY411C7Kv  |
+| 第十二次课 | 用我们自制的推理框架完成ResNet网络的推理和图片的分类       | 完成 | https://www.bilibili.com/video/BV1jD4y1M772  |
+| 第十三次课 | 用自制的推理框架支持Yolov5模型的推理                       | 完成 | https://www.bilibili.com/video/BV1xs4y1J7t2  |
 
 
 ## 项目贡献
@@ -117,7 +117,7 @@
 7. mkdir build 
 8. cd build 
 9. cmake -DCMAKE_BUILD_TYPE=Release -DDEVELOPMENT=OFF .. 
-10. make -j16
+10. make -j$(nproc)
 
 **Tips:**
 
@@ -125,12 +125,18 @@
 2. **如果国内网速卡顿**，请使用 git clone https://gitee.com/fssssss/KuiperInferGitee.git 
 3. **如果想获得更快地运行体验**，请在本机重新编译openblas或apt install intel-mkl
 
+## 安装过程(构建Docker镜像)
+1. docker build -t kuiperinfer:latest .
+2. docker run --name kuiperinfer -it kuiperinfer:latest /bin/bash
+3. cd /app
+4. 余下步骤参考上述安装过程的步骤4-10
+
 ##  安装过程(不使用docker)
 1. git clone --recursive https://github.com/zjhellofss/KuiperInfer.git
 2. **git checkout -b 你的新分支 study_version_0.01 (如果想抄本项目的代码，请使用这一步切换到study tag)**
 3. 安装必要环境(openblas推荐编译安装，可以获得更快的运行速度，或者使用apt install intel-mkl替代openblas)
 ```shell
- apt install cmake, openblas-devel, lapack-devel, arpack-devel, SuperLU-devel
+ apt install cmake, libopenblas-dev, liblapack-dev, libarpack-dev, libsuperlu-dev
 ```
 4. 下载并编译armadillo https://arma.sourceforge.net/download.html
 5. 编译安装glog\google test\google benchmark
@@ -215,8 +221,8 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 ### 性能结果
 耗时通过连续五次运行,并以求平均的方式计算
 
-| **input size**         | **模型名称**     | **计算设备**              | **耗时**           |
-|------------------------| ---------------- | ------------------------- |------------------|
+| **input size**         | **模型名称**     | **计算设备**              | **耗时**         |
+| ---------------------- | ---------------- | ------------------------- | ---------------- |
 | 224×224 batch = 8      | MobileNetV3Small | CPU(armadillo + openblas) | 6.76ms / image   |
 | 224×224 batch = 8      | ResNet18         | CPU(armadillo + openblas) | 23.53ms / image  |
 | 224×224 batch =16      | ResNet18         | CPU(armadillo + openblas) | 13.52ms / image  |
