@@ -215,34 +215,49 @@ template <typename T> void Tensor<T>::Flatten(bool row_major) {
   this->Reshape({size}, row_major);
 }
 
-template <typename T> void Tensor<T>::RandN(T mean, T var) {
+template <> void Tensor<float>::RandN(float mean, float var) {
 
-  CHECK(std::is_floating_point_v<T>);
   CHECK(!this->data_.empty());
   std::random_device rd;
   std::mt19937 mt(rd());
 
-  std::normal_distribution<T> dist(mean, var);
+  std::normal_distribution<float> dist(mean, var);
   for (uint32_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
 }
 
-template <typename T> void Tensor<T>::RandU(T min, T max) {
+template <> void Tensor<int>::RandU(int min, int max) {
+  CHECK(!this->data_.empty());
+  std::random_device rd;
+  std::mt19937 mt(rd());
+
+  std::uniform_int_distribution<int> dist(min, max);
+  for (uint32_t i = 0; i < this->size(); ++i) {
+    this->index(i) = dist(mt);
+  }
+}
+
+template <>
+void Tensor<std::uint8_t>::RandU(std::uint8_t min, std::uint8_t max) {
+  CHECK(!this->data_.empty());
+  std::random_device rd;
+  std::mt19937 mt(rd());
+
+  std::uniform_int_distribution<std::uint8_t> dist(min, max);
+  for (uint32_t i = 0; i < this->size(); ++i) {
+    this->index(i) = dist(mt);
+  }
+}
+
+template <> void Tensor<float>::RandU(float min, float max) {
   CHECK(!this->data_.empty());
   CHECK(max >= min);
   std::random_device rd;
   std::mt19937 mt(rd());
-  if constexpr (std::is_floating_point_v<T>) {
-    std::uniform_real_distribution<T> dist(min, max);
-    for (uint32_t i = 0; i < this->size(); ++i) {
-      this->index(i) = dist(mt);
-    }
-  } else {
-    std::uniform_int_distribution<T> dist(min, max);
-    for (uint32_t i = 0; i < this->size(); ++i) {
-      this->index(i) = dist(mt);
-    }
+  std::uniform_real_distribution<float> dist(min, max);
+  for (uint32_t i = 0; i < this->size(); ++i) {
+    this->index(i) = dist(mt);
   }
 }
 
@@ -271,7 +286,7 @@ void Tensor<T>::Reshape(const std::vector<uint32_t> &shapes, bool row_major) {
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
   const uint32_t current_size =
-      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies());
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<T>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
