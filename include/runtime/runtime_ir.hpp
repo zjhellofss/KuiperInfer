@@ -170,6 +170,7 @@ class RuntimeGraph {
   GraphState graph_state() const;
 
  private:
+  int32_t start_forward_index_ = 0;
   GraphState graph_state_ = GraphState::NeedInit;
   std::vector<std::shared_ptr<RuntimeOperator>>
       input_ops_;  /// 计算图中的输入节点
@@ -179,8 +180,6 @@ class RuntimeGraph {
   std::string param_path_;  /// 计算图的结构文件
   std::string bin_path_;    /// 计算图的权重文件
 
-  /// 拓扑排序后的计算图节点
-  std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
   /// 计算图的计算节点
   std::vector<std::shared_ptr<RuntimeOperator>> operators_;
   /// pnnx的graph

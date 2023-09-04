@@ -157,7 +157,7 @@ void RuntimeGraph::Build() {
   RuntimeOperatorUtils<float>::InitOperatorOutput(graph_->ops, operators_);
 
   // 构建拓扑顺序
-  topo_operators_.clear();
+  start_forward_index_ = 0;
   for (const auto& op : operators_) {
     // 根据输入节点构建拓扑排序
     if (!op->has_forward) {
@@ -165,9 +165,10 @@ void RuntimeGraph::Build() {
     }
   }
 
-  CHECK(topo_operators_.size() == operators_.size())
-      << "Build wrong topo queue";
-  std::reverse(topo_operators_.begin(), topo_operators_.end());
+  std::sort(operators_.begin(), operators_.end(),
+            [](const auto& op1, const auto& op2) {
+              return op1->forward_index > op2->forward_index;
+            });
 
   graph_state_ = GraphState::Complete;
   if (graph_ != nullptr) {
@@ -185,17 +186,15 @@ void RuntimeGraph::Forward(bool debug) {
   CHECK(graph_state_ == GraphState::Complete)
       << "Graph status error, current state is " << int(graph_state_);
 
-  CHECK(topo_operators_.size() == operators_.size())
-      << "Build wrong topo queue";
-
-  for (const auto& op : topo_operators_) {
+  for (const auto& op : operators_) {
     op->has_forward = false;
+    CHECK_GT(op->forward_index, -1);
   }
   if (debug) {
     LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
 
-  for (const auto& current_op : topo_operators_) {
+  for (const auto& current_op : operators_) {
     StatusCode status;
     if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
@@ -229,7 +228,7 @@ void RuntimeGraph::Forward(bool debug) {
     LayerTimeLogging::SummaryLogging();
   }
 
-  for (const auto& op : topo_operators_) {
+  for (const auto& op : operators_) {
     LOG_IF(FATAL, !op->has_forward)
         << "The operator: " << op->name << " has not been forward yet!";
   }
@@ -442,7 +441,8 @@ void RuntimeGraph::ReverseTopo(
   for (const auto& [_, op] : next_ops) {
     CHECK_EQ(op->has_forward, true);
   }
-  this->topo_operators_.push_back(root_op);
+  root_op->forward_index = start_forward_index_;
+  start_forward_index_ += 1;
 }
 
 RuntimeGraph::GraphState RuntimeGraph::graph_state() const {

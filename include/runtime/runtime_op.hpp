@@ -41,17 +41,18 @@ class Layer;
 /// 计算图中的计算节点
 template <typename T>
 struct RuntimeOperatorBase {
+  int32_t forward_index = -1;
   bool has_forward = false;
   std::string name;                 /// 计算节点的名称
   std::string type;                 /// 计算节点的类型
   std::shared_ptr<Layer<T>> layer;  /// 节点对应的计算Layer
 
   std::vector<std::string> output_names;  /// 节点的输出节点名称
-  std::shared_ptr<RuntimeOperand> output_operands;  /// 节点的输出操作数
+  std::shared_ptr<RuntimeOperandBase<T>> output_operands;  /// 节点的输出操作数
 
-  std::map<std::string, std::shared_ptr<RuntimeOperand>>
+  std::map<std::string, std::shared_ptr<RuntimeOperandBase<T>>>
       input_operands;  /// 节点的输入操作数
-  std::vector<std::shared_ptr<RuntimeOperand>>
+  std::vector<std::shared_ptr<RuntimeOperandBase<T>>>
       input_operands_seq;  /// 节点的输入操作数，顺序排列
   std::map<std::string, std::shared_ptr<RuntimeOperatorBase<T>>>
       output_operators;  /// 输出节点的名字和节点对应
