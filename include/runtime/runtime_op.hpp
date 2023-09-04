@@ -65,8 +65,11 @@ struct RuntimeOperatorBase {
 using RuntimeOperator = RuntimeOperatorBase<float>;
 
 using RuntimeOperatorQuantized = RuntimeOperatorBase<int8_t>;
+template <typename T>
+class RuntimeOperatorUtils;
 
-class RuntimeOperatorUtils {
+template <>
+class RuntimeOperatorUtils<float> {
  public:
   /**
    * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor

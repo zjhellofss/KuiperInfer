@@ -24,7 +24,7 @@
 #include "data/tensor_util.hpp"
 
 namespace kuiper_infer {
-void RuntimeOperatorUtils::InitOperatorInput(
+void RuntimeOperatorUtils<float>::InitOperatorInput(
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
   if (operators.empty()) {
     LOG(ERROR) << "Operators for init input shapes is empty!";
@@ -64,7 +64,7 @@ void RuntimeOperatorUtils::InitOperatorInput(
   }
 }
 
-void RuntimeOperatorUtils::InitOperatorOutput(
+void RuntimeOperatorUtils<float>::InitOperatorOutput(
     const std::vector<pnnx::Operator*>& pnnx_operators,
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
   CHECK(!pnnx_operators.empty() && !operators.empty());

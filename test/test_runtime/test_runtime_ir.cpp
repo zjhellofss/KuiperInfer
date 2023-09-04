@@ -46,7 +46,7 @@ TEST(test_runtime, runtime_graph_input_init1) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -56,7 +56,7 @@ TEST(test_runtime, runtime_graph_input_init1) {
     ASSERT_EQ(size1, size2);
   }
 
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -89,7 +89,7 @@ TEST(test_runtime, runtime_graph_input_init2) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -99,7 +99,7 @@ TEST(test_runtime, runtime_graph_input_init2) {
     ASSERT_EQ(size1, size2);
   }
 
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -132,7 +132,7 @@ TEST(test_runtime, runtime_graph_input_init3) {
     operators.push_back(runtime_operator);
   }
   ASSERT_EQ(operators.size(), 3);
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -142,7 +142,7 @@ TEST(test_runtime, runtime_graph_input_init3) {
     ASSERT_EQ(size1, size2);
   }
 
-  RuntimeOperatorUtils::InitOperatorInput(operators);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators);
   for (uint32_t i = 0; i < operators.size(); ++i) {
     const auto& op = operators.at(i);
     ASSERT_EQ(op->input_operands["size1"]->datas.empty(), false);
@@ -167,7 +167,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -187,7 +187,7 @@ TEST(test_runtime, runtime_graph_output_init1) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -221,7 +221,7 @@ TEST(test_runtime, runtime_graph_output_init2) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -240,7 +240,7 @@ TEST(test_runtime, runtime_graph_output_init2) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -272,7 +272,7 @@ TEST(test_runtime, runtime_graph_output_init3) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -291,7 +291,7 @@ TEST(test_runtime, runtime_graph_output_init3) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -324,7 +324,7 @@ TEST(test_runtime, runtime_graph_output_init6) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -342,7 +342,7 @@ TEST(test_runtime, runtime_graph_output_init6) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -374,7 +374,7 @@ TEST(test_runtime, runtime_graph_output_init4) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -393,7 +393,7 @@ TEST(test_runtime, runtime_graph_output_init4) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -426,7 +426,7 @@ TEST(test_runtime, runtime_graph_output_init7) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -446,7 +446,7 @@ TEST(test_runtime, runtime_graph_output_init7) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -480,7 +480,7 @@ TEST(test_runtime, runtime_graph_output_init8) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -498,7 +498,7 @@ TEST(test_runtime, runtime_graph_output_init8) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -530,7 +530,7 @@ TEST(test_runtime, runtime_graph_output_init9) {
     run_ops.push_back(std::make_shared<RuntimeOperator>());
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;
@@ -549,7 +549,7 @@ TEST(test_runtime, runtime_graph_output_init9) {
     }
   }
 
-  RuntimeOperatorUtils::InitOperatorOutput(pnnx_operators, run_ops);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(pnnx_operators, run_ops);
 
   for (const auto& run_op : run_ops) {
     const auto& output_datas = run_op->output_operands;

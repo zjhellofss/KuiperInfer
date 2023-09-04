@@ -179,8 +179,6 @@ class RuntimeGraph {
   std::string param_path_;  /// 计算图的结构文件
   std::string bin_path_;    /// 计算图的权重文件
 
-  /// 保存所有节点，根据唯一的name索引
-  std::map<std::string, std::shared_ptr<RuntimeOperator>> operators_maps_;
   /// 拓扑排序后的计算图节点
   std::vector<std::shared_ptr<RuntimeOperator>> topo_operators_;
   /// 计算图的计算节点

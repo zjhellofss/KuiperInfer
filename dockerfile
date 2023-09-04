@@ -1,5 +1,7 @@
 FROM ubuntu:22.04
 
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+
 # 系统更新以及安装编译器等工具
 RUN apt -y update
 RUN apt -y upgrade

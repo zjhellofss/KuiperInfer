@@ -67,7 +67,6 @@ bool RuntimeGraph::Init() {
   }
 
   this->operators_.clear();
-  this->operators_maps_.clear();
   for (const pnnx::Operator* op : operators) {
     if (!op) {
       LOG(ERROR) << "Meet the empty node";
@@ -103,7 +102,6 @@ bool RuntimeGraph::Init() {
         InitGraphParams(params, runtime_operator);
       }
       this->operators_.push_back(runtime_operator);
-      this->operators_maps_.insert({runtime_operator->name, runtime_operator});
     }
   }
 
@@ -132,9 +130,10 @@ void RuntimeGraph::Build() {
     // 获取当前节点的所有后继节点的names，遍历根据next_op_name从operators_maps_中插入所需要的节点
     const std::vector<std::string>& output_names = current_op->output_names;
     for (const auto& kOutputName : output_names) {
-      if (const auto& output_op = this->operators_maps_.find(kOutputName);
-          output_op != this->operators_maps_.end()) {
-        current_op->output_operators.insert({kOutputName, output_op->second});
+      for (const auto& output_op : this->operators_) {
+        if (output_op != current_op && output_op->name == kOutputName) {
+          current_op->output_operators.insert({kOutputName, output_op});
+        }
       }
     }
   }
@@ -142,7 +141,8 @@ void RuntimeGraph::Build() {
   for (const auto& kOperator : this->operators_) {
     // 除了输入和输出节点，都创建layer
     if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") {
-      std::shared_ptr<Layer<float>> layer = RuntimeGraph::CreateLayer(kOperator);
+      std::shared_ptr<Layer<float>> layer =
+          RuntimeGraph::CreateLayer(kOperator);
       CHECK(layer != nullptr)
           << "Layer " << kOperator->name << " create failed!";
       if (layer) {
@@ -153,12 +153,12 @@ void RuntimeGraph::Build() {
   }
 
   // 初始化节点的输入和输出空间
-  RuntimeOperatorUtils::InitOperatorInput(operators_);
-  RuntimeOperatorUtils::InitOperatorOutput(graph_->ops, operators_);
+  RuntimeOperatorUtils<float>::InitOperatorInput(operators_);
+  RuntimeOperatorUtils<float>::InitOperatorOutput(graph_->ops, operators_);
 
   // 构建拓扑顺序
   topo_operators_.clear();
-  for (const auto& [_, op] : operators_maps_) {
+  for (const auto& op : operators_) {
     // 根据输入节点构建拓扑排序
     if (!op->has_forward) {
       this->ReverseTopo(op);
