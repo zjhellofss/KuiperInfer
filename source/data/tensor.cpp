@@ -36,12 +36,14 @@ Tensor<T>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   }
 }
 
-template <typename T> Tensor<T>::Tensor(uint32_t size) {
+template <typename T>
+Tensor<T>::Tensor(uint32_t size) {
   data_ = arma::Cube<T>(1, size, 1);
   this->raw_shapes_ = std::vector<uint32_t>{size};
 }
 
-template <typename T> Tensor<T>::Tensor(uint32_t rows, uint32_t cols) {
+template <typename T>
+Tensor<T>::Tensor(uint32_t rows, uint32_t cols) {
   data_ = arma::Cube<T>(rows, cols, 1);
   if (rows == 1) {
     this->raw_shapes_ = std::vector<uint32_t>{cols};
@@ -50,7 +52,8 @@ template <typename T> Tensor<T>::Tensor(uint32_t rows, uint32_t cols) {
   }
 }
 
-template <typename T> Tensor<T>::Tensor(const std::vector<uint32_t> &shapes) {
+template <typename T>
+Tensor<T>::Tensor(const std::vector<uint32_t>& shapes) {
   CHECK(!shapes.empty() && shapes.size() <= 3);
 
   uint32_t remaining = 3 - shapes.size();
@@ -71,27 +74,32 @@ template <typename T> Tensor<T>::Tensor(const std::vector<uint32_t> &shapes) {
   }
 }
 
-template <typename T> uint32_t Tensor<T>::rows() const {
+template <typename T>
+uint32_t Tensor<T>::rows() const {
   CHECK(!this->data_.empty());
   return this->data_.n_rows;
 }
 
-template <typename T> uint32_t Tensor<T>::cols() const {
+template <typename T>
+uint32_t Tensor<T>::cols() const {
   CHECK(!this->data_.empty());
   return this->data_.n_cols;
 }
 
-template <typename T> uint32_t Tensor<T>::channels() const {
+template <typename T>
+uint32_t Tensor<T>::channels() const {
   CHECK(!this->data_.empty());
   return this->data_.n_slices;
 }
 
-template <typename T> uint32_t Tensor<T>::size() const {
+template <typename T>
+uint32_t Tensor<T>::size() const {
   CHECK(!this->data_.empty());
   return this->data_.size();
 }
 
-template <typename T> void Tensor<T>::set_data(const arma::Cube<T> &data) {
+template <typename T>
+void Tensor<T>::set_data(const arma::Cube<T>& data) {
   CHECK(data.n_rows == this->data_.n_rows)
       << data.n_rows << " != " << this->data_.n_rows;
   CHECK(data.n_cols == this->data_.n_cols)
@@ -101,38 +109,47 @@ template <typename T> void Tensor<T>::set_data(const arma::Cube<T> &data) {
   this->data_ = data;
 }
 
-template <typename T> bool Tensor<T>::empty() const {
+template <typename T>
+bool Tensor<T>::empty() const {
   return this->data_.empty();
 }
 
-template <typename T> T Tensor<T>::index(uint32_t offset) const {
+template <typename T>
+T Tensor<T>::index(uint32_t offset) const {
   CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
   return this->data_.at(offset);
 }
 
-template <typename T> T &Tensor<T>::index(uint32_t offset) {
+template <typename T>
+T& Tensor<T>::index(uint32_t offset) {
   CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
   return this->data_.at(offset);
 }
 
-template <typename T> std::vector<uint32_t> Tensor<T>::shapes() const {
+template <typename T>
+std::vector<uint32_t> Tensor<T>::shapes() const {
   CHECK(!this->data_.empty());
   return {this->channels(), this->rows(), this->cols()};
 }
 
-template <typename T> arma::Cube<T> &Tensor<T>::data() { return this->data_; }
-
-template <typename T> const arma::Cube<T> &Tensor<T>::data() const {
+template <typename T>
+arma::Cube<T>& Tensor<T>::data() {
   return this->data_;
 }
 
-template <typename T> arma::Mat<T> &Tensor<T>::slice(uint32_t channel) {
+template <typename T>
+const arma::Cube<T>& Tensor<T>::data() const {
+  return this->data_;
+}
+
+template <typename T>
+arma::Mat<T>& Tensor<T>::slice(uint32_t channel) {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
 
 template <typename T>
-const arma::Mat<T> &Tensor<T>::slice(uint32_t channel) const {
+const arma::Mat<T>& Tensor<T>::slice(uint32_t channel) const {
   CHECK_LT(channel, this->channels());
   return this->data_.slice(channel);
 }
@@ -146,7 +163,7 @@ T Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) const {
 }
 
 template <typename T>
-T &Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) {
+T& Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) {
   CHECK_LT(row, this->rows());
   CHECK_LT(col, this->cols());
   CHECK_LT(channel, this->channels());
@@ -154,13 +171,13 @@ T &Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) {
 }
 
 template <typename T>
-void Tensor<T>::Padding(const std::vector<uint32_t> &pads, T padding_value) {
+void Tensor<T>::Padding(const std::vector<uint32_t>& pads, T padding_value) {
   CHECK(!this->data_.empty());
   CHECK_EQ(pads.size(), 4);
-  uint32_t pad_rows1 = pads.at(0); // up
-  uint32_t pad_rows2 = pads.at(1); // bottom
-  uint32_t pad_cols1 = pads.at(2); // left
-  uint32_t pad_cols2 = pads.at(3); // right
+  uint32_t pad_rows1 = pads.at(0);  // up
+  uint32_t pad_rows2 = pads.at(1);  // bottom
+  uint32_t pad_cols1 = pads.at(2);  // left
+  uint32_t pad_cols2 = pads.at(3);  // right
 
   arma::Cube<T> new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
                          this->data_.n_cols + pad_cols1 + pad_cols2,
@@ -175,13 +192,14 @@ void Tensor<T>::Padding(const std::vector<uint32_t> &pads, T padding_value) {
       std::vector<uint32_t>{this->channels(), this->rows(), this->cols()};
 }
 
-template <typename T> void Tensor<T>::Fill(T value) {
+template <typename T>
+void Tensor<T>::Fill(T value) {
   CHECK(!this->data_.empty());
   this->data_.fill(value);
 }
 
 template <typename T>
-void Tensor<T>::Fill(const std::vector<T> &values, bool row_major) {
+void Tensor<T>::Fill(const std::vector<T>& values, bool row_major) {
   CHECK(!this->data_.empty());
   const uint32_t total_elems = this->data_.size();
   CHECK_EQ(values.size(), total_elems);
@@ -192,8 +210,8 @@ void Tensor<T>::Fill(const std::vector<T> &values, bool row_major) {
     const uint32_t channels = this->data_.n_slices;
 
     for (uint32_t i = 0; i < channels; ++i) {
-      arma::Mat<T> &channel_data = this->data_.slice(i);
-      arma::Mat<T> channel_data_t((T *)values.data() + i * planes, this->cols(),
+      arma::Mat<T>& channel_data = this->data_.slice(i);
+      arma::Mat<T> channel_data_t((T*)values.data() + i * planes, this->cols(),
                                   this->rows(), false, true);
       channel_data = channel_data_t.t();
     }
@@ -202,21 +220,23 @@ void Tensor<T>::Fill(const std::vector<T> &values, bool row_major) {
   }
 }
 
-template <typename T> void Tensor<T>::Show() {
+template <typename T>
+void Tensor<T>::Show() {
   for (uint32_t i = 0; i < this->channels(); ++i) {
     LOG(INFO) << "Channel: " << i;
     LOG(INFO) << "\n" << this->data_.slice(i);
   }
 }
 
-template <typename T> void Tensor<T>::Flatten(bool row_major) {
+template <typename T>
+void Tensor<T>::Flatten(bool row_major) {
   CHECK(!this->data_.empty());
   const uint32_t size = this->data_.size();
   this->Reshape({size}, row_major);
 }
 
-template <> void Tensor<float>::RandN(float mean, float var) {
-
+template <>
+void Tensor<float>::RandN(float mean, float var) {
   CHECK(!this->data_.empty());
   std::random_device rd;
   std::mt19937 mt(rd());
@@ -227,7 +247,8 @@ template <> void Tensor<float>::RandN(float mean, float var) {
   }
 }
 
-template <> void Tensor<int>::RandU(int min, int max) {
+template <>
+void Tensor<int>::RandU(int min, int max) {
   CHECK(!this->data_.empty());
   std::random_device rd;
   std::mt19937 mt(rd());
@@ -244,13 +265,22 @@ void Tensor<std::uint8_t>::RandU(std::uint8_t min, std::uint8_t max) {
   std::random_device rd;
   std::mt19937 mt(rd());
 
+#ifdef _MSC_VER
+  std::uniform_int_distribution<std::uint8_t> dist(min, max);
+  uint8_t max_value = std::numeric_limits<uint8_t>::max();
+  for (uint32_t i = 0; i < this->size(); ++i) {
+    this->index(i) = dist(mt) % max_value;
+  }
+#else
   std::uniform_int_distribution<std::uint8_t> dist(min, max);
   for (uint32_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
+#endif
 }
 
-template <> void Tensor<float>::RandU(float min, float max) {
+template <>
+void Tensor<float>::RandU(float min, float max) {
   CHECK(!this->data_.empty());
   CHECK(max >= min);
   std::random_device rd;
@@ -261,19 +291,20 @@ template <> void Tensor<float>::RandU(float min, float max) {
   }
 }
 
-template <typename T> void Tensor<T>::Ones() {
+template <typename T>
+void Tensor<T>::Ones() {
   CHECK(!this->data_.empty());
   this->Fill(T{1});
 }
 
 template <typename T>
-void Tensor<T>::Transform(const std::function<T(T)> &filter) {
+void Tensor<T>::Transform(const std::function<T(T)>& filter) {
   CHECK(!this->data_.empty());
   this->data_.transform(filter);
 }
 
 template <typename T>
-const std::vector<uint32_t> &Tensor<T>::raw_shapes() const {
+const std::vector<uint32_t>& Tensor<T>::raw_shapes() const {
   CHECK(!this->raw_shapes_.empty());
   CHECK_LE(this->raw_shapes_.size(), 3);
   CHECK_GE(this->raw_shapes_.size(), 1);
@@ -281,7 +312,7 @@ const std::vector<uint32_t> &Tensor<T>::raw_shapes() const {
 }
 
 template <typename T>
-void Tensor<T>::Reshape(const std::vector<uint32_t> &shapes, bool row_major) {
+void Tensor<T>::Reshape(const std::vector<uint32_t>& shapes, bool row_major) {
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
   const uint32_t origin_size = this->size();
@@ -310,19 +341,22 @@ void Tensor<T>::Reshape(const std::vector<uint32_t> &shapes, bool row_major) {
   }
 }
 
-template <typename T> T *Tensor<T>::raw_ptr() {
+template <typename T>
+T* Tensor<T>::raw_ptr() {
   CHECK(!this->data_.empty());
   return this->data_.memptr();
 }
 
-template <typename T> T *Tensor<T>::raw_ptr(uint32_t offset) {
+template <typename T>
+T* Tensor<T>::raw_ptr(uint32_t offset) {
   const uint32_t size = this->size();
   CHECK(!this->data_.empty());
   CHECK_LT(offset, size);
   return this->data_.memptr() + offset;
 }
 
-template <typename T> std::vector<T> Tensor<T>::values(bool row_major) {
+template <typename T>
+std::vector<T> Tensor<T>::values(bool row_major) {
   CHECK_EQ(this->data_.empty(), false);
   std::vector<T> values(this->data_.size());
 
@@ -332,7 +366,7 @@ template <typename T> std::vector<T> Tensor<T>::values(bool row_major) {
   } else {
     uint32_t index = 0;
     for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
-      const arma::Mat<T> &channel = this->data_.slice(c).t();
+      const arma::Mat<T>& channel = this->data_.slice(c).t();
       std::copy(channel.begin(), channel.end(), values.begin() + index);
       index += channel.size();
     }
@@ -341,15 +375,17 @@ template <typename T> std::vector<T> Tensor<T>::values(bool row_major) {
   return values;
 }
 
-template <typename T> T *Tensor<T>::matrix_raw_ptr(uint32_t index) {
+template <typename T>
+T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
   CHECK_LT(index, this->channels());
   uint32_t offset = index * this->rows() * this->cols();
   CHECK_LE(offset, this->size());
-  T *mem_ptr = this->raw_ptr(offset);
+  T* mem_ptr = this->raw_ptr(offset);
   return mem_ptr;
 }
 
-template <typename T> void Tensor<T>::set_data(arma::Cube<T> &&data) {
+template <typename T>
+void Tensor<T>::set_data(arma::Cube<T>&& data) {
   CHECK(data.n_rows == this->data_.n_rows)
       << data.n_rows << " != " << this->data_.n_rows;
   CHECK(data.n_cols == this->data_.n_cols)
@@ -362,4 +398,4 @@ template <typename T> void Tensor<T>::set_data(arma::Cube<T> &&data) {
 template class Tensor<float>;
 template class Tensor<int>;
 template class Tensor<uint8_t>;
-} // namespace kuiper_infer
+}  // namespace kuiper_infer
