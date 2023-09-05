@@ -266,7 +266,7 @@ void Tensor<std::uint8_t>::RandU(std::uint8_t min, std::uint8_t max) {
   std::mt19937 mt(rd());
 
 #ifdef _MSC_VER
-  std::uniform_int_distribution<std::uint8_t> dist(min, max);
+  std::uniform_int_distribution<int> dist(min, max);
   uint8_t max_value = std::numeric_limits<uint8_t>::max();
   for (uint32_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt) % max_value;
