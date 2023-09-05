@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
 
@@ -10,7 +10,7 @@ RUN apt install -y build-essential cmake git gfortran wget
 # 编译安装OpenBLAS
 RUN git clone https://github.com/xianyi/OpenBLAS.git
 RUN mkdir OpenBLAS/build
-RUN cmake OpenBLAS/ -B OpenBLAS/build/
+RUN cmake OpenBLAS/ -B OpenBLAS/build/ -DUSE_OPENMP=ON
 RUN make -C OpenBLAS/build/ -j$(nproc)
 RUN make install -C OpenBLAS/build/
 
