@@ -259,6 +259,7 @@ StatusCode ConvolutionLayer::Forward(
         << "The output tensor array in the convolution layer has an "
            "incorrectly sized tensor "
         << i << "th";
+
 #pragma omp parallel for if (groups_ > 1)
     for (uint32_t group = 0; group < groups_; ++group) {
       if (groups_ != 1) {
@@ -321,9 +322,13 @@ void ConvolutionLayer::DeconvCol2ImBias(
       output_padding.submat(padding_h_, padding_w_, output_h + padding_h_ - 1,
                             output_w + padding_w_ - 1);
 
+  AddBias(output, kernel_index);
+}
+
+void ConvolutionLayer::AddBias(arma::fmat& output, uint32_t bias_index) const {
   if (!this->bias_.empty() && this->use_bias_) {
     std::shared_ptr<Tensor<float>> bias;
-    bias = this->bias_.at(kernel_index);
+    bias = this->bias_.at(bias_index);
     if (bias != nullptr && !bias->empty()) {
       float bias_value = bias->index(0);
       output += bias_value;
@@ -425,16 +430,7 @@ void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
                     output_w, false, true);
   output = kernel * input_matrix;
 
-  if (!this->bias_.empty() && this->use_bias_) {
-    std::shared_ptr<Tensor<float>> bias;
-    bias = this->bias_.at(kernel_index);
-    if (bias != nullptr && !bias->empty()) {
-      float bias_value = bias->index(0);
-      output += bias_value;
-    } else {
-      LOG(FATAL) << "Bias tensor is empty or nullptr";
-    }
-  }
+  AddBias(output, kernel_index);
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
