@@ -63,12 +63,12 @@ class ConvolutionLayer : public ParamLayer {
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
                      uint32_t kernel_w, uint32_t kernel_count_group,
                      uint32_t input_h, uint32_t input_w, uint32_t input_c_group,
-                     uint32_t output_h, uint32_t output_w, uint32_t group);
+                     uint32_t output_h, uint32_t output_w, uint32_t group) const;
 
   std::pair<uint32_t, uint32_t> ComputeOutputSize(const uint32_t input_h,
                                                   const uint32_t input_w,
                                                   const uint32_t kernel_h,
-                                                  const uint32_t kernel_w);
+                                                  const uint32_t kernel_w) const;
 
   void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
                     uint32_t group, uint32_t kernel_index,
@@ -79,11 +79,11 @@ class ConvolutionLayer : public ParamLayer {
                         uint32_t input_h, uint32_t input_w, uint32_t group,
                         uint32_t kernel_index, uint32_t kernel_count_group,
                         uint32_t kernel_h, uint32_t kernel_w, uint32_t output_h,
-                        uint32_t output_w);
+                        uint32_t output_w) const;
 
   arma::fmat DeconvGemm(sftensor input, uint32_t input_h, uint32_t input_w,
                         uint32_t input_c_group, uint32_t group,
-                        uint32_t kernel_index, uint32_t kernel_count_group);
+                        uint32_t kernel_index, uint32_t kernel_count_group) const;
 
   arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w,
                         uint32_t input_h, uint32_t input_w,
