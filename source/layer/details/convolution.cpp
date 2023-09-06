@@ -246,22 +246,21 @@ StatusCode ConvolutionLayer::Forward(
         << "The size of the output tensor should be greater than zero " << i
         << " th";
 
+    std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
+    if (output_tensor == nullptr || output_tensor->empty()) {
+      output_tensor =
+          std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+      outputs.at(i) = output_tensor;
+    }
+
+    CHECK(output_tensor->rows() == output_h &&
+          output_tensor->cols() == output_w &&
+          output_tensor->channels() == kernel_count)
+        << "The output tensor array in the convolution layer has an "
+           "incorrectly sized tensor "
+        << i << "th";
 #pragma omp parallel for if (groups_ > 1)
     for (uint32_t group = 0; group < groups_; ++group) {
-      std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
-      if (output_tensor == nullptr || output_tensor->empty()) {
-        output_tensor =
-            std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
-        outputs.at(i) = output_tensor;
-      }
-
-      CHECK(output_tensor->rows() == output_h &&
-            output_tensor->cols() == output_w &&
-            output_tensor->channels() == kernel_count)
-          << "The output tensor array in the convolution layer has an "
-             "incorrectly sized tensor "
-          << i << "th";
-
       if (groups_ != 1) {
         CHECK(kernel_count % groups_ == 0);
         CHECK(input_c % groups_ == 0);
