@@ -246,22 +246,21 @@ StatusCode ConvolutionLayer::Forward(
         << "The size of the output tensor should be greater than zero " << i
         << " th";
 
+    std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
+    if (output_tensor == nullptr || output_tensor->empty()) {
+      output_tensor =
+          std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+      outputs.at(i) = output_tensor;
+    }
+
+    CHECK(output_tensor->rows() == output_h &&
+          output_tensor->cols() == output_w &&
+          output_tensor->channels() == kernel_count)
+        << "The output tensor array in the convolution layer has an "
+           "incorrectly sized tensor "
+        << i << "th";
 #pragma omp parallel for if (groups_ > 1)
     for (uint32_t group = 0; group < groups_; ++group) {
-      std::shared_ptr<Tensor<float>> output_tensor = outputs.at(i);
-      if (output_tensor == nullptr || output_tensor->empty()) {
-        output_tensor =
-            std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
-        outputs.at(i) = output_tensor;
-      }
-
-      CHECK(output_tensor->rows() == output_h &&
-            output_tensor->cols() == output_w &&
-            output_tensor->channels() == kernel_count)
-          << "The output tensor array in the convolution layer has an "
-             "incorrectly sized tensor "
-          << i << "th";
-
       if (groups_ != 1) {
         CHECK(kernel_count % groups_ == 0);
         CHECK(input_c % groups_ == 0);
@@ -278,13 +277,11 @@ StatusCode ConvolutionLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-void ConvolutionLayer::DeconvCol2ImBias(const arma::fmat& gemm_result,
-                                        sftensor output_tensor,
-                                        uint32_t input_h, uint32_t input_w,
-                                        uint32_t group, uint32_t kernel_index,
-                                        uint32_t kernel_count_group,
-                                        uint32_t kernel_h, uint32_t kernel_w,
-                                        uint32_t output_h, uint32_t output_w) {
+void ConvolutionLayer::DeconvCol2ImBias(
+    const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
+    uint32_t input_w, uint32_t group, uint32_t kernel_index,
+    uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
+    uint32_t output_h, uint32_t output_w) const {
   CHECK(this->conv_type_ == ConvType::OpDeconv);
   CHECK(!gemm_result.empty());
   CHECK(input_h > 0 && input_w > 0);
@@ -340,7 +337,7 @@ arma::fmat ConvolutionLayer::DeconvGemm(sftensor input, uint32_t input_h,
                                         uint32_t input_w,
                                         uint32_t channels_per_group,
                                         uint32_t group, uint32_t kernel_index,
-                                        uint32_t kernel_count_group) {
+                                        uint32_t kernel_count_group) const {
   CHECK(conv_type_ == ConvType::OpDeconv);
   CHECK(input != nullptr && !input->empty());
 
@@ -490,7 +487,7 @@ void ConvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
                                      uint32_t input_h, uint32_t input_w,
                                      uint32_t channels_per_group,
                                      uint32_t output_h, uint32_t output_w,
-                                     uint32_t group) {
+                                     uint32_t group) const {
   if (conv_type_ == ConvType::OpConv) {
     const arma::fmat& input_matrix = ConvIm2Col(
         input, kernel_h, kernel_w, input_h, input_w, channels_per_group,
@@ -516,7 +513,7 @@ void ConvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
 
 std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(
     const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
-    const uint32_t kernel_w) {
+    const uint32_t kernel_w) const {
   uint32_t output_h = 0;
   uint32_t output_w = 0;
 

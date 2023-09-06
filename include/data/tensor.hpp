@@ -263,7 +263,6 @@ class Tensor {
   arma::Cube<T> data_;                // 张量数据
 };
 
-
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 

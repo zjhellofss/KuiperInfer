@@ -57,10 +57,10 @@ static void SigmoidSSE(sftensor input, sftensor output) {
   __m128 _one = _mm_set1_ps(1.f);
   __m128 _zero = _mm_setzero_ps();
   for (; index <= in_size - packet_size; index += packet_size) {
-    __m128 _p = _mm_load_ps(in_ptr);
+    __m128 _p = _mm_loadu_ps(in_ptr);
     _p = _mm_div_ps(_one,
                     _mm_add_ps(_one, fmath::exp_ps(_mm_sub_ps(_zero, _p))));
-    _mm_store_ps(out_ptr, _p);
+    _mm_storeu_ps(out_ptr, _p);
     in_ptr += packet_size;
     out_ptr += packet_size;
   }
@@ -99,9 +99,9 @@ static void ReluSSE(sftensor input, sftensor output) {
 #elif __SSE__
   __m128 _zero = _mm_setzero_ps();
   for (j = 0; j <= size - packet_size; j += packet_size) {
-    __m128 _p = _mm_load_ps(in_ptr);
+    __m128 _p = _mm_loadu_ps(in_ptr);
     __m128 _value = _mm_max_ps(_zero, _p);
-    _mm_store_ps(out_ptr, _value);
+    _mm_storeu_ps(out_ptr, _value);
     in_ptr += packet_size;
     out_ptr += packet_size;
   }
