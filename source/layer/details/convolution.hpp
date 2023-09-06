@@ -42,9 +42,8 @@ class ConvolutionLayer : public ParamLayer {
                             uint32_t output_padding_w = 0,
                             uint32_t dilation_h = 1, uint32_t dilation_w = 1);
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& conv_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& conv_layer);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -64,12 +63,12 @@ class ConvolutionLayer : public ParamLayer {
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
                      uint32_t kernel_w, uint32_t kernel_count_group,
                      uint32_t input_h, uint32_t input_w, uint32_t input_c_group,
-                     uint32_t output_h, uint32_t output_w, uint32_t group);
+                     uint32_t output_h, uint32_t output_w,
+                     uint32_t group) const;
 
-  std::pair<uint32_t, uint32_t> ComputeOutputSize(const uint32_t input_h,
-                                                  const uint32_t input_w,
-                                                  const uint32_t kernel_h,
-                                                  const uint32_t kernel_w);
+  std::pair<uint32_t, uint32_t> ComputeOutputSize(
+      const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
+      const uint32_t kernel_w) const;
 
   void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
                     uint32_t group, uint32_t kernel_index,
@@ -80,11 +79,14 @@ class ConvolutionLayer : public ParamLayer {
                         uint32_t input_h, uint32_t input_w, uint32_t group,
                         uint32_t kernel_index, uint32_t kernel_count_group,
                         uint32_t kernel_h, uint32_t kernel_w, uint32_t output_h,
-                        uint32_t output_w);
+                        uint32_t output_w) const;
+
+  void AddBias(arma::fmat& output, uint32_t bias_index) const;
 
   arma::fmat DeconvGemm(sftensor input, uint32_t input_h, uint32_t input_w,
                         uint32_t input_c_group, uint32_t group,
-                        uint32_t kernel_index, uint32_t kernel_count_group);
+                        uint32_t kernel_index,
+                        uint32_t kernel_count_group) const;
 
   arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w,
                         uint32_t input_h, uint32_t input_w,

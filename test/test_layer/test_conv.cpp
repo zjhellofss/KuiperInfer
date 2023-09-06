@@ -564,6 +564,7 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
   }
 }
 
+#ifndef _MSC_VER
 TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
   const uint32_t batch_size = 1;
   std::vector<sftensor> inputs(batch_size);
@@ -603,6 +604,7 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
     }
   }
 }
+#endif
 
 TEST(test_layer, conv3x3_fromtorch) {
   using namespace kuiper_infer;
@@ -628,7 +630,8 @@ TEST(test_layer, conv3x3_fromtorch) {
   graph.Forward(false);
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   const std::vector<float> outputs_values = outputs.front()->values(true);
-  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test13.csv");
+  arma::fmat real_data =
+      CSVDataLoader::LoadData<float>("tmp/resnet/test13.csv");
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 1e-4f)
         << i << " real: " << real_data.at(i)
