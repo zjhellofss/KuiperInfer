@@ -259,6 +259,9 @@ class Tensor {
   T* matrix_raw_ptr(uint32_t index);
 
  private:
+  void Review(const std::vector<uint32_t>& shapes);
+
+ private:
   std::vector<uint32_t> raw_shapes_;  // 张量数据的实际尺寸大小
   arma::Cube<T> data_;                // 张量数据
 };
