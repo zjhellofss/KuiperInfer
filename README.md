@@ -33,6 +33,9 @@
 | **第九讲** 自制推理框架支持YoloV5网络的推理           | 写课件中 |                                             |
 | **第十讲** 让自制推理框架的执行速度更快一点           | 未完成   |                                             |
 
+## 知乎专栏（更新中）
+<a href="https://www.zhihu.com/column/c_1682405983161356288"> <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/8c/ec/b0/8cecb054-1279-1b92-668b-46e371b9f65f/AppIcon-0-0-1x_U007emarketing-0-0-0-6-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/1200x630wa.png" height="200" width="400" /> </a>
+
 ## Demo效果
 
 ### Unet语义分割
