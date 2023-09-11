@@ -425,8 +425,6 @@ void Tensor<T>::Review(const std::vector<uint32_t>& shapes) {
             (pos_index - dest_channel * plane_size) / target_cols;
         const uint32_t dest_col =
             (pos_index - dest_channel * plane_size - dest_row * target_cols);
-        CHECK(dest_channel < new_data.n_slices && dest_col < new_data.n_cols &&
-              dest_row < new_data.n_rows);
         new_data.at(dest_row, dest_col, dest_channel) = *(col_ptr + src_row);
       }
     }

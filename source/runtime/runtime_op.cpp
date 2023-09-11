@@ -39,6 +39,9 @@ void RuntimeOperatorUtils<float>::InitOperatorInput(
           input_operands_map = op->input_operands;
       // 初始化operator的输入空间
       for (const auto& [_, input_operand] : input_operands_map) {
+        if (!input_operand) {
+          continue;
+        }
         const auto& type = input_operand->type;
         CHECK(type == RuntimeDataType::kTypeFloat32)
             << "The graph only support float32 yet!";
@@ -47,8 +50,7 @@ void RuntimeOperatorUtils<float>::InitOperatorInput(
         auto& input_datas = input_operand->datas;
 
         CHECK(!input_operand_shape.empty());
-        const int32_t batch = input_operand_shape.at(0);
-        CHECK(batch >= 0) << "Dynamic batch size is not supported!";
+        const uint32_t batch = input_operand_shape.at(0);
         CHECK(input_operand_shape.size() == 2 ||
               input_operand_shape.size() == 4 ||
               input_operand_shape.size() == 3)
@@ -67,26 +69,23 @@ void RuntimeOperatorUtils<float>::InitOperatorInput(
 void RuntimeOperatorUtils<float>::InitOperatorOutput(
     const std::vector<pnnx::Operator*>& pnnx_operators,
     const std::vector<std::shared_ptr<RuntimeOperator>>& operators) {
-  CHECK(!pnnx_operators.empty() && !operators.empty());
+  CHECK(!pnnx_operators.empty() && !operators.empty() &&
+        pnnx_operators.size() == operators.size());
   CHECK(pnnx_operators.size() == operators.size());
   for (uint32_t i = 0; i < pnnx_operators.size(); ++i) {
     // 得到pnnx原有的输出空间
     const std::vector<pnnx::Operand*> operands = pnnx_operators.at(i)->outputs;
-    CHECK(operands.size() <= 1) << "Only support one node one output yet!";
-    if (operands.empty()) {
-      continue;
-    }
     CHECK(operands.size() == 1) << "Only support one output in the KuiperInfer";
     // 一个节点仅支持一个输出，实际上在pnnx中一个节点拥有两个不同输出的情况也是不存在的
     pnnx::Operand* operand = operands.front();
     const auto& runtime_op = operators.at(i);
 
-    CHECK(operand != nullptr) << "Operand output is null";
+    CHECK(operand != nullptr && !operand->shape.empty())
+        << "Operand output is null or empty!";
     std::vector<uint32_t> operand_shapes;
     for (uint32_t dim : operand->shape) {
       operand_shapes.push_back(dim);
     }
-    CHECK(!operand_shapes.empty());
 
     // 得到需要初始化的输出空间
     const auto& output_tensors = runtime_op->output_operands;

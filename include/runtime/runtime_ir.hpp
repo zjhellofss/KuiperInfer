@@ -100,7 +100,7 @@ class RuntimeGraph {
    * 构建模型的拓扑执行顺序
    * @param root_op 模型的输入节点或根节点，如果有多个输入节点，则调用多次
    */
-  void ReverseTopo(const std::shared_ptr<RuntimeOperator>& root_op);
+  void ReverseTopoSort(const std::shared_ptr<RuntimeOperator>& root_op);
 
   /**
    * 初始化kuiper infer计算图节点中的输入操作数

@@ -161,14 +161,21 @@ void RuntimeGraph::Build() {
   for (const auto& op : operators_) {
     // 根据输入节点构建拓扑排序
     if (!op->has_forward) {
-      this->ReverseTopo(op);
+      this->ReverseTopoSort(op);
     }
   }
 
+  // 根据拓扑顺序调整算子的执行顺序
   std::sort(operators_.begin(), operators_.end(),
             [](const auto& op1, const auto& op2) {
               return op1->forward_index > op2->forward_index;
             });
+
+  int forward_index = 1;
+  for (const auto& op : operators_) {
+    op->forward_index = forward_index;
+    forward_index += 1;
+  }
 
   graph_state_ = GraphState::Complete;
   if (graph_ != nullptr) {
@@ -419,7 +426,7 @@ void RuntimeGraph::ProbeNextLayer(
   }
 }
 
-void RuntimeGraph::ReverseTopo(
+void RuntimeGraph::ReverseTopoSort(
     const std::shared_ptr<RuntimeOperator>& root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
   if (root_op->input_operands.empty() && !root_op->has_forward) {
@@ -434,10 +441,11 @@ void RuntimeGraph::ReverseTopo(
   for (const auto& [_, op] : next_ops) {
     if (op != nullptr) {
       if (!op->has_forward) {
-        this->ReverseTopo(op);
+        this->ReverseTopoSort(op);
       }
     }
   }
+
   for (const auto& [_, op] : next_ops) {
     CHECK_EQ(op->has_forward, true);
   }

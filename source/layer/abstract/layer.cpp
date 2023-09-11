@@ -23,7 +23,8 @@
 #include "layer/abstract/layer.hpp"
 namespace kuiper_infer {
 
-const std::vector<std::shared_ptr<Tensor<float>>>& Layer<float>::weights() const {
+const std::vector<std::shared_ptr<Tensor<float>>>& Layer<float>::weights()
+    const {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
@@ -35,7 +36,8 @@ void Layer<float>::set_bias(const std::vector<float>& bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
-void Layer<float>::set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
+void Layer<float>::set_bias(
+    const std::vector<std::shared_ptr<Tensor<float>>>& bias) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
 }
 
