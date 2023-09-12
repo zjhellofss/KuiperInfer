@@ -28,8 +28,6 @@
 #include "layer/abstract/layer_factory.hpp"
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
-#define POS_INDEX(outer_size, inner_size, axis_size) \
-  outer_size* axis_sizes* inner_sizes + axis_size* inner_sizes + inner_size;
 
 SoftmaxLayer::SoftmaxLayer(int dim)
     : NonParamLayer("Softmax"), softmax_dim_(dim) {}
@@ -109,18 +107,20 @@ StatusCode SoftmaxLayer::Forward(
       for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
         float max_value = std::numeric_limits<float>::lowest();
         // 迭代当前dim中的数据，并找到其中的最大值
+        uint32_t base_index =
+            outer_size * axis_sizes * inner_sizes + inner_size;
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
+          uint32_t index = base_index + axis_size * inner_sizes;
           float cur_value = input_values.at(index);
           if (cur_value > max_value) {
             max_value = cur_value;
           }
         }
 
-        float sum_value = 0.f;
         // 迭代当前dim中的数据，并进行求和
+        float sum_value = 0.f;
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
+          uint32_t index = base_index + axis_size * inner_sizes;
           float cur_value = input_values.at(index);
           float exp_sub_value = fmath::exp(cur_value - max_value);
 
@@ -130,7 +130,7 @@ StatusCode SoftmaxLayer::Forward(
 
         // 迭代当前dim中的数据，求exp(cur_value - max_value) / sum_value
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
-          uint32_t index = POS_INDEX(outer_size, inner_size, axis_size);
+          uint32_t index = base_index + axis_size * inner_sizes;
 
           float exp_sub_value = output_values.at(index);
           output_values.at(index) = exp_sub_value / sum_value;
