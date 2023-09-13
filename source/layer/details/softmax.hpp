@@ -28,7 +28,7 @@
 namespace kuiper_infer {
 class SoftmaxLayer : public NonParamLayer {
  public:
-  explicit SoftmaxLayer(int dim = -1);
+  explicit SoftmaxLayer(int32_t dim = -1);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -39,7 +39,7 @@ class SoftmaxLayer : public NonParamLayer {
       std::shared_ptr<Layer<float>>& softmax_layer);
 
  private:
-  int softmax_dim_ = -1;
+  int32_t softmax_dim_ = -1;
 };
 }  // namespace kuiper_infer
 

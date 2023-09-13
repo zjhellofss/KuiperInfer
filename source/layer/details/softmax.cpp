@@ -29,7 +29,7 @@
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 
-SoftmaxLayer::SoftmaxLayer(int dim)
+SoftmaxLayer::SoftmaxLayer(int32_t dim)
     : NonParamLayer("Softmax"), softmax_dim_(dim) {}
 
 StatusCode SoftmaxLayer::Forward(
@@ -68,11 +68,11 @@ StatusCode SoftmaxLayer::Forward(
         << "The input and output tensor shapes of the softmax layer do not "
            "match "
         << i << " th";
-    int dim = this->softmax_dim_;
+    int32_t dim = this->softmax_dim_;
     std::vector<uint32_t> raw_shapes = input->raw_shapes();
 
     if (dim < 0) {
-      dim += int(raw_shapes.size());
+      dim += int32_t(raw_shapes.size());
     }
 
     if (dim < 0 || dim >= 3 || dim > raw_shapes.size()) {

@@ -71,7 +71,7 @@ StatusCode ViewLayer::Forward(
       if (shapes_.at(j) == -1) {
         CHECK(dynamic_index == -1)
             << "Having two minus value in shape parameters of the view layer";
-        dynamic_index = static_cast<int>(j);
+        dynamic_index = static_cast<int32_t>(j);
       } else {
         current_size *= shapes_.at(j);
         shapes.push_back(shapes_.at(j));

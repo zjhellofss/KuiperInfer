@@ -27,7 +27,7 @@
 namespace kuiper_infer {
 class CatLayer : public NonParamLayer {
  public:
-  explicit CatLayer(int dim);
+  explicit CatLayer(int32_t dim);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
