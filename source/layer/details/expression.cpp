@@ -54,36 +54,39 @@ StatusCode ExpressionLayer::Forward(
 
   const uint32_t batch_size = outputs.size();
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
-  const std::vector<std::shared_ptr<TokenNode>>& token_nodes =
-      this->parser_->Generate();
-  for (const auto& token_node : token_nodes) {
-    if (token_node->num_index >= 0) {
-      // process operator
-      uint32_t start_pos = token_node->num_index * batch_size;
+  for (int index = expressions.size() - 1; index >= 0; index--) {
+    const auto current_token = expressions.at(index);
+    // 如果是数据类型，就将对应分支的input插入到栈中
+    if (current_token.token_type == TokenType::TokenInputNumber) {
+      uint32_t start_pos = current_token.start_pos + 1;
+      uint32_t end_pos = current_token.end_pos;
+      CHECK(end_pos > start_pos || end_pos <= this->statement_.length())
+          << "Current token has a wrong length";
+      const std::string& str_number =
+          std::string(this->statement_.begin() + start_pos,
+                      this->statement_.begin() + end_pos);
+      int32_t input_branch = std::stoi(str_number);
+      CHECK(input_branch >= 0) << "Input branch must be >= 0";
+      uint32_t input_start_pos = input_branch * batch_size;
       std::vector<std::shared_ptr<Tensor<float>>> input_token_nodes;
       for (uint32_t i = 0; i < batch_size; ++i) {
-        CHECK(i + start_pos < inputs.size())
+        CHECK(i + input_start_pos < inputs.size())
             << "The " << i
             << "th operand doesn't have appropriate number of tensors";
         // fixme 这里的张量拷贝是否有必要
-        input_token_nodes.push_back(inputs.at(i + start_pos));
+        input_token_nodes.push_back(inputs.at(i + input_start_pos));
       }
       op_stack.push(input_token_nodes);
-    } else {
+    } else if (current_token.token_type == TokenType::TokenAdd ||
+               current_token.token_type == TokenType::TokenMul) {
       // process operation
-      const int32_t op = token_node->num_index;
-      if (op != int(TokenType::TokenAdd) && op != int(TokenType::TokenMul)) {
-        LOG(FATAL) << "Unknown operator type: " << op;
-      }
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
-
       CHECK(input_node1.size() == batch_size)
           << "The first operand doesn't have appropriate number of tensors, "
              "which need "
           << batch_size;
       op_stack.pop();
-
       std::vector<std::shared_ptr<Tensor<float>>> input_node2 = op_stack.top();
       CHECK(input_node2.size() == batch_size)
           << "The second operand doesn't have appropriate number of tensors, "
@@ -93,23 +96,24 @@ StatusCode ExpressionLayer::Forward(
 
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(
           batch_size);
+      if (current_token.token_type == TokenType::TokenAdd) {
 #pragma omp parallel for num_threads(batch_size)
-      for (uint32_t i = 0; i < batch_size; ++i) {
-        // do execution
-        if (op == int(TokenType::TokenAdd)) {
+        for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) =
               TensorElementAdd(input_node1.at(i), input_node2.at(i));
-        } else if (op == int(TokenType::TokenMul)) {
+        }
+      } else {
+#pragma omp parallel for num_threads(batch_size)
+        for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) =
               TensorElementMultiply(input_node1.at(i), input_node2.at(i));
-        } else {
-          LOG(FATAL) << "Unknown operator type: " << op;
         }
       }
       op_stack.push(output_token_nodes);
+    } else {
+      continue;
     }
   }
-
   CHECK(op_stack.size() == 1)
       << "The expression has more than one output operand!";
   std::vector<sftensor> output_node = op_stack.top();
