@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_FLATTEN_HPP_
@@ -27,15 +27,14 @@
 namespace kuiper_infer {
 class ViewLayer : public NonParamLayer {
  public:
-  explicit ViewLayer( std::vector<int32_t> shapes);
+  explicit ViewLayer(std::vector<int32_t> shapes);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& view_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& view_layer);
 
  private:
   std::vector<int32_t> shapes_;

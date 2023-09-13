@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-13.
 
 #include "layer/abstract/param_layer.hpp"
@@ -84,9 +84,9 @@ void ParamLayer::set_bias(
 }
 
 void ParamLayer::set_weights(const std::vector<float>& weights) {
-  const uint32_t elem_size = weights.size();
+  size_t weight_size = 0;
+  const size_t elem_size = weights.size();
 
-  uint32_t weight_size = 0;
   const uint32_t batch_size = this->weights_.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     weight_size += this->weights_.at(i)->size();
@@ -105,9 +105,9 @@ void ParamLayer::set_weights(const std::vector<float>& weights) {
 }
 
 void ParamLayer::set_bias(const std::vector<float>& bias) {
-  const uint32_t elem_size = bias.size();
+  size_t bias_size = 0;
+  const size_t elem_size = bias.size();
 
-  uint32_t bias_size = 0;
   const uint32_t batch_size = this->bias_.size();
   for (uint32_t i = 0; i < batch_size; ++i) {
     bias_size += this->bias_.at(i)->size();

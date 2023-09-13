@@ -46,7 +46,7 @@ static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
       real_input_idx = div_scale * static_cast<float>(output_idx);
     }
 
-    input_index0 = static_cast<int>(real_input_idx);
+    input_index0 = static_cast<int32_t>(real_input_idx);
     int32_t offset = (input_index0 < input_size - 1) ? 1 : 0;
     input_index1 = input_index0 + offset;
 

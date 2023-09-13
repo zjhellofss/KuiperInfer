@@ -114,7 +114,7 @@ StatusCode ExpressionLayer::Forward(
       << "The expression has more than one output operand!";
   std::vector<sftensor> output_node = op_stack.top();
   op_stack.pop();
-  for (int i = 0; i < batch_size; ++i) {
+  for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) != nullptr && !outputs.at(i)->empty()) {
       CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
     }

@@ -413,7 +413,7 @@ void RuntimeGraph::ProbeNextLayer(
       CHECK(next_input_datas.size() == layer_output_datas.size())
           << "Input data size do not match with output data size";
       // 将当前current_op的输出赋值到next_input_datas中
-      for (int i = 0; i < next_input_datas.size(); ++i) {
+      for (uint32_t i = 0; i < next_input_datas.size(); ++i) {
         sftensor layer_output_data = layer_output_datas.at(i);
         CHECK(layer_output_data != nullptr);
         if (next_input_datas.at(i) != nullptr) {

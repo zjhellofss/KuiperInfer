@@ -117,8 +117,8 @@ StatusCode YoloDetectLayer::Forward(
             stage_output.at(i)->cols() == ny);
     }
 
-    std::shared_ptr<Tensor<float>> stages_tensor =
-        TensorCreate<float>(batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
+    std::shared_ptr<Tensor<float>> stages_tensor = TensorCreate<float>(
+        batch_size, stages * nx * ny, uint32_t(num_classes_ + 5));
     stage_tensors.push_back(stages_tensor);
 
 #pragma omp parallel for num_threads(batch_size)
@@ -151,23 +151,20 @@ StatusCode YoloDetectLayer::Forward(
     concat_rows += stages_tensor->rows();
   }
 
-  uint32_t current_rows = 0;
-  arma::fcube f1(concat_rows, classes_info, batch_size);
-  for (std::shared_ptr<ftensor> stages_tensor : stage_tensors) {
-    f1.subcube(current_rows, 0, 0, current_rows + stages_tensor->rows() - 1,
-               classes_info - 1, batch_size - 1) = stages_tensor->data();
-    current_rows += stages_tensor->rows();
-  }
-
-  for (int i = 0; i < f1.n_slices; ++i) {
+  for (uint32_t i = 0; i < batch_size; ++i) {
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, concat_rows, classes_info);
       outputs.at(i) = output;
     }
-    CHECK(output->rows() == f1.slice(i).n_rows);
-    CHECK(output->cols() == f1.slice(i).n_cols);
-    output->slice(0) = std::move(f1.slice(i));
+    uint32_t current_rows = 0;
+    for (std::shared_ptr<ftensor> stages_tensor : stage_tensors) {
+      arma::fcube& output_data = output->data();
+      output_data.subcube(current_rows, 0, 0,
+                          current_rows + stages_tensor->rows() - 1,
+                          classes_info - 1, 0) = stages_tensor->slice(i);
+      current_rows += stages_tensor->rows();
+    }
   }
   return StatusCode::kSuccess;
 }
@@ -191,7 +188,7 @@ StatusCode YoloDetectLayer::CreateInstance(
     return StatusCode::kAttributeMissing;
   }
 
-  int stages_number = stages_attr->shape.at(0);
+  int32_t stages_number = stages_attr->shape.at(0);
   CHECK(stages_number == 3) << "Only support three stages yolo detect head";
   CHECK(op->input_operands_seq.size() == stages_number);
 
@@ -289,9 +286,9 @@ StatusCode YoloDetectLayer::CreateInstance(
       CHECK(num_classes > 0)
           << "The number of object classes must greater than zero";
     }
-    const int in_channels = out_shapes.at(1);
-    const int kernel_h = out_shapes.at(2);
-    const int kernel_w = out_shapes.at(3);
+    const uint32_t in_channels = out_shapes.at(1);
+    const uint32_t kernel_h = out_shapes.at(2);
+    const uint32_t kernel_w = out_shapes.at(3);
 
     conv_layers.at(i) = std::make_shared<ConvolutionLayer>(
         ConvType::OpConv, out_channels, in_channels, kernel_h, kernel_w, 0, 0,

@@ -84,7 +84,7 @@ class Tensor {
    * 返回张量中元素的数量
    * @return 张量的元素数量
    */
-  uint32_t size() const;
+  size_t size() const;
 
   /**
    * 设置张量中的具体数据
@@ -249,7 +249,7 @@ class Tensor {
    * @param offset 数据指针的偏移量
    * @return 返回数据的原始指针
    */
-  T* raw_ptr(uint32_t offset);
+  T* raw_ptr(size_t offset);
 
   /**
    * 返回第index个矩阵的起始地址

@@ -36,9 +36,9 @@ static void SigmoidSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-  int32_t index = 0;
-  int32_t packet_size = 4;
-  int32_t in_size = static_cast<int32_t>(input->size());
+  int64_t index = 0;
+  int64_t packet_size = 4;
+  int64_t in_size = static_cast<int64_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
@@ -81,9 +81,9 @@ static void ReluSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-  int32_t j = 0;
-  int32_t packet_size = 4;
-  int32_t size = static_cast<int32_t>(input->size());
+  int64_t j = 0;
+  int64_t packet_size = 4;
+  int64_t size = static_cast<int64_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
@@ -122,9 +122,9 @@ static void SiluSSE(sftensor input, sftensor output) {
       << "The input or output tensor is empty.";
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
-  int32_t j = 0;
-  int32_t packet_size = 4;
-  int32_t size = static_cast<int32_t>(input->size());
+  int64_t j = 0;
+  int64_t packet_size = 4;
+  int64_t size = static_cast<int64_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
 #ifdef __AVX2__
@@ -169,10 +169,10 @@ static void HardSwishSSE(sftensor input, sftensor output) {
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
 
-  int32_t j = 0;
+  int64_t j = 0;
   float threshold = 3.f;
-  int32_t packet_size = 4;
-  int32_t size = static_cast<int32_t>(input->size());
+  int64_t packet_size = 4;
+  int64_t size = static_cast<int64_t>(input->size());
 
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
@@ -253,10 +253,10 @@ static void HardSigmoidSSE(sftensor input, sftensor output) {
   CHECK(input->size() == output->size())
       << "The input and output sizes are not equal.";
 
-  int32_t j = 0;
+  int64_t j = 0;
   float threshold = 3.f;
-  int32_t packet_size = 4;
-  int32_t size = static_cast<int32_t>(input->size());
+  int64_t packet_size = 4;
+  int64_t size = static_cast<int64_t>(input->size());
 
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();

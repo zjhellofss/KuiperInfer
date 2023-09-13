@@ -109,9 +109,9 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
       const arma::fmat& input_channel = input_data->slice(ic);
       arma::fmat& output_channel = output_data->slice(ic);
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w) {
-        int output_col = int(c / stride_w);
+        uint32_t output_col = uint32_t(c / stride_w);
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h) {
-          int output_row = int(r / stride_h);
+          uint32_t output_row = uint32_t(r / stride_h);
           float mean_value = 0.f;
           float* output_channel_ptr = output_channel.colptr(output_col);
           for (uint32_t w = 0; w < pooling_w; ++w) {

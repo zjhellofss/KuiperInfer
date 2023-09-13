@@ -111,7 +111,7 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
       output_operand->name = operand->name + "_output";
       // 输出空间初始化
       if (runtime_op)
-        for (int j = 0; j < batch; ++j) {
+        for (uint32_t j = 0; j < batch; ++j) {
           if (operand_shapes.size() == 4) {
             sftensor output_tensor =
                 TensorCreate<float>(operand_shapes.at(1), operand_shapes.at(2),

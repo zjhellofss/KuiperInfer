@@ -62,16 +62,16 @@ StatusCode ViewLayer::Forward(
         << " th";
 
     // 检查形状中-1的数量，最多只可以存在一个
-    int dynamic_index = -1;
-    uint32_t current_size = 1;
-    const uint32_t total_size = input_data->size();
+    size_t current_size = 1;
+    int32_t dynamic_index = -1;
     std::vector<uint32_t> shapes;
-    for (int j = 1; j < shapes_.size(); ++j) {
+    const size_t total_size = input_data->size();
+    for (uint32_t j = 1; j < shapes_.size(); ++j) {
       CHECK(shapes_.at(j) == -1 || shapes_.at(j) > 0);
       if (shapes_.at(j) == -1) {
         CHECK(dynamic_index == -1)
             << "Having two minus value in shape parameters of the view layer";
-        dynamic_index = j;
+        dynamic_index = static_cast<int>(j);
       } else {
         current_size *= shapes_.at(j);
         shapes.push_back(shapes_.at(j));

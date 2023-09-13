@@ -93,7 +93,7 @@ uint32_t Tensor<T>::channels() const {
 }
 
 template <typename T>
-uint32_t Tensor<T>::size() const {
+size_t Tensor<T>::size() const {
   CHECK(!this->data_.empty());
   return this->data_.size();
 }
@@ -242,7 +242,7 @@ void Tensor<float>::RandN(float mean, float var) {
   std::mt19937 mt(rd());
 
   std::normal_distribution<float> dist(mean, var);
-  for (uint32_t i = 0; i < this->size(); ++i) {
+  for (size_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
 }
@@ -254,7 +254,7 @@ void Tensor<int>::RandU(int min, int max) {
   std::mt19937 mt(rd());
 
   std::uniform_int_distribution<int> dist(min, max);
-  for (uint32_t i = 0; i < this->size(); ++i) {
+  for (size_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
 }
@@ -273,7 +273,7 @@ void Tensor<std::uint8_t>::RandU(std::uint8_t min, std::uint8_t max) {
   }
 #else
   std::uniform_int_distribution<std::uint8_t> dist(min, max);
-  for (uint32_t i = 0; i < this->size(); ++i) {
+  for (size_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
 #endif
@@ -286,7 +286,7 @@ void Tensor<float>::RandU(float min, float max) {
   std::random_device rd;
   std::mt19937 mt(rd());
   std::uniform_real_distribution<float> dist(min, max);
-  for (uint32_t i = 0; i < this->size(); ++i) {
+  for (size_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
 }
@@ -315,9 +315,9 @@ template <typename T>
 void Tensor<T>::Reshape(const std::vector<uint32_t>& shapes, bool row_major) {
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
-  const uint32_t origin_size = this->size();
-  const uint32_t current_size =
-      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<T>());
+  const size_t origin_size = this->size();
+  const size_t current_size = std::accumulate(shapes.begin(), shapes.end(), 1,
+                                              std::multiplies<size_t>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
@@ -353,8 +353,8 @@ T* Tensor<T>::raw_ptr() {
 }
 
 template <typename T>
-T* Tensor<T>::raw_ptr(uint32_t offset) {
-  const uint32_t size = this->size();
+T* Tensor<T>::raw_ptr(size_t offset) {
+  const size_t size = this->size();
   CHECK(!this->data_.empty());
   CHECK_LT(offset, size);
   return this->data_.memptr() + offset;
@@ -383,7 +383,7 @@ std::vector<T> Tensor<T>::values(bool row_major) {
 template <typename T>
 T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
   CHECK_LT(index, this->channels());
-  uint32_t offset = index * this->rows() * this->cols();
+  size_t offset = index * this->rows() * this->cols();
   CHECK_LE(offset, this->size());
   T* mem_ptr = this->raw_ptr(offset);
   return mem_ptr;
