@@ -26,7 +26,7 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-FlattenLayer::FlattenLayer(int start_dim, int end_dim)
+FlattenLayer::FlattenLayer(int32_t start_dim, int32_t end_dim)
     : NonParamLayer("Flatten"), start_dim_(start_dim), end_dim_(end_dim) {}
 
 StatusCode FlattenLayer::Forward(
@@ -48,9 +48,9 @@ StatusCode FlattenLayer::Forward(
     return StatusCode::kInferInOutSizeMismatch;
   }
 
-  int start_dim = start_dim_;
-  int end_dim = end_dim_;
-  int total_dims = 4;  // NCHW
+  int32_t start_dim = start_dim_;
+  int32_t end_dim = end_dim_;
+  int32_t total_dims = 4;  // NCHW
 
   if (start_dim < 0) {
     start_dim = total_dims + start_dim;

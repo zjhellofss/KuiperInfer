@@ -27,7 +27,7 @@
 namespace kuiper_infer {
 class FlattenLayer : public NonParamLayer {
  public:
-  explicit FlattenLayer(int start_dim, int end_dim);
+  explicit FlattenLayer(int32_t start_dim, int32_t end_dim);
 
   StatusCode Forward(
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
@@ -38,8 +38,8 @@ class FlattenLayer : public NonParamLayer {
       std::shared_ptr<Layer<float>>& flatten_layer);
 
  private:
-  int start_dim_ = 0;
-  int end_dim_ = 0;
+  int32_t start_dim_ = 0;
+  int32_t end_dim_ = 0;
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_FLATTEN_HPP_

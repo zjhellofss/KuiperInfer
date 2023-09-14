@@ -277,7 +277,7 @@ StatusCode YoloDetectLayer::CreateInstance(
     const auto& out_shapes = conv_attr->shape;
     CHECK(out_shapes.size() == 4) << "Stage output shape must equal to four";
 
-    const int out_channels = out_shapes.at(0);
+    const int32_t out_channels = out_shapes.at(0);
     if (num_classes == -1) {
       CHECK(out_channels % num_anchors == 0)
           << "The number of output channel is wrong, it should divisible by "
