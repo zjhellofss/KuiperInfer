@@ -33,7 +33,7 @@ namespace kuiper_infer {
 /// 计算图节点的属性信息
 struct RuntimeAttribute {
   std::vector<char> weight_data;  /// 节点中的权重参数
-  std::vector<int> shape;         /// 节点中的形状信息
+  std::vector<int32_t> shape;         /// 节点中的形状信息
   RuntimeDataType type = RuntimeDataType::kTypeUnknown;  /// 节点中的数据类型
 
   /**
@@ -66,7 +66,7 @@ std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
       break;
     }
     default: {
-      LOG(FATAL) << "Unknown weight data type: " << int(type);
+      LOG(FATAL) << "Unknown weight data type: " << int32_t(type);
     }
   }
   if (need_clear_weight) {

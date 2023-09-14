@@ -148,7 +148,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
   } else if (current_token.token_type == TokenType::TokenMul ||
              current_token.token_type == TokenType::TokenAdd) {
     std::shared_ptr<TokenNode> current_node = std::make_shared<TokenNode>();
-    current_node->num_index = int(current_token.token_type);
+    current_node->num_index = int32_t(current_token.token_type);
 
     index += 1;
     CHECK(index < this->tokens_.size()) << "Missing left bracket!";
@@ -163,7 +163,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
         left_token.token_type == TokenType::TokenMul) {
       current_node->left = Generate_(index);
     } else {
-      LOG(FATAL) << "Unknown token type: " << int(left_token.token_type);
+      LOG(FATAL) << "Unknown token type: " << int32_t(left_token.token_type);
     }
 
     index += 1;
@@ -178,7 +178,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
         right_token.token_type == TokenType::TokenMul) {
       current_node->right = Generate_(index);
     } else {
-      LOG(FATAL) << "Unknown token type: " << int(right_token.token_type);
+      LOG(FATAL) << "Unknown token type: " << int32_t(right_token.token_type);
     }
 
     index += 1;
@@ -186,7 +186,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
     CHECK(this->tokens_.at(index).token_type == TokenType::TokenRightBracket);
     return current_node;
   } else {
-    LOG(FATAL) << "Unknown token type: " << int(current_token.token_type);
+    LOG(FATAL) << "Unknown token type: " << int32_t(current_token.token_type);
   }
 }
 
@@ -194,7 +194,7 @@ std::vector<std::shared_ptr<TokenNode>> ExpressionParser::Generate() {
   if (this->tokens_.empty()) {
     this->Tokenizer(true);
   }
-  int index = 0;
+  int32_t index = 0;
   std::shared_ptr<TokenNode> root = Generate_(index);
   CHECK(root != nullptr);
   CHECK(index == tokens_.size() - 1);

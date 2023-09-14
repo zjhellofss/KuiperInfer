@@ -51,11 +51,11 @@ struct RuntimeParameterInt : public RuntimeParameter {
   explicit RuntimeParameterInt()
       : RuntimeParameter(RuntimeParameterType::kParameterInt) {}
 
-  explicit RuntimeParameterInt(int param_value)
+  explicit RuntimeParameterInt(int32_t param_value)
       : RuntimeParameter(RuntimeParameterType::kParameterInt),
         value(param_value) {}
 
-  int value = 0;
+  int32_t value = 0;
 };
 
 struct RuntimeParameterFloat : public RuntimeParameter {
@@ -84,11 +84,11 @@ struct RuntimeParameterIntArray : public RuntimeParameter {
   explicit RuntimeParameterIntArray()
       : RuntimeParameter(RuntimeParameterType::kParameterIntArray) {}
 
-  explicit RuntimeParameterIntArray(std::vector<int> param_value)
+  explicit RuntimeParameterIntArray(std::vector<int32_t> param_value)
       : RuntimeParameter(RuntimeParameterType::kParameterIntArray),
         value(std::move(param_value)) {}
 
-  std::vector<int> value;
+  std::vector<int32_t> value;
 };
 
 struct RuntimeParameterFloatArray : public RuntimeParameter {

@@ -82,9 +82,9 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
            "than 0";
 
     const uint32_t pooling_h =
-        (int)input_h - (int(output_h_) - 1) * int(stride_h);
+        (int32_t)input_h - (int32_t(output_h_) - 1) * int32_t(stride_h);
     const uint32_t pooling_w =
-        (int)input_w - (int(output_w_) - 1) * int(stride_w);
+        (int32_t)input_w - (int32_t(output_w_) - 1) * int32_t(stride_w);
 
     CHECK(pooling_w > 0 && pooling_h > 0)
         << "The pooling parameter is set incorrectly. It must always be "

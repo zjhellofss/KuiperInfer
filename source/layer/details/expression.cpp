@@ -72,7 +72,7 @@ StatusCode ExpressionLayer::Forward(
     } else {
       // process operation
       const int32_t op = token_node->num_index;
-      if (op != int(TokenType::TokenAdd) && op != int(TokenType::TokenMul)) {
+      if (op != int32_t(TokenType::TokenAdd) && op != int32_t(TokenType::TokenMul)) {
         LOG(FATAL) << "Unknown operator type: " << op;
       }
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
@@ -96,10 +96,10 @@ StatusCode ExpressionLayer::Forward(
 #pragma omp parallel for num_threads(batch_size)
       for (uint32_t i = 0; i < batch_size; ++i) {
         // do execution
-        if (op == int(TokenType::TokenAdd)) {
+        if (op == int32_t(TokenType::TokenAdd)) {
           output_token_nodes.at(i) =
               TensorElementAdd(input_node1.at(i), input_node2.at(i));
-        } else if (op == int(TokenType::TokenMul)) {
+        } else if (op == int32_t(TokenType::TokenMul)) {
           output_token_nodes.at(i) =
               TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         } else {

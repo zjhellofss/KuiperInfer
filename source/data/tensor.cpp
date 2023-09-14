@@ -248,12 +248,12 @@ void Tensor<float>::RandN(float mean, float var) {
 }
 
 template <>
-void Tensor<int>::RandU(int min, int max) {
+void Tensor<int32_t>::RandU(int32_t min, int32_t max) {
   CHECK(!this->data_.empty());
   std::random_device rd;
   std::mt19937 mt(rd());
 
-  std::uniform_int_distribution<int> dist(min, max);
+  std::uniform_int_distribution<int32_t> dist(min, max);
   for (size_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt);
   }
@@ -266,7 +266,7 @@ void Tensor<std::uint8_t>::RandU(std::uint8_t min, std::uint8_t max) {
   std::mt19937 mt(rd());
 
 #ifdef _MSC_VER
-  std::uniform_int_distribution<int> dist(min, max);
+  std::uniform_int_distribution<int32_t> dist(min, max);
   uint8_t max_value = std::numeric_limits<uint8_t>::max();
   for (uint32_t i = 0; i < this->size(); ++i) {
     this->index(i) = dist(mt) % max_value;
@@ -433,6 +433,6 @@ void Tensor<T>::Review(const std::vector<uint32_t>& shapes) {
 }
 
 template class Tensor<float>;
-template class Tensor<int>;
+template class Tensor<int32_t>;
 template class Tensor<uint8_t>;
 }  // namespace kuiper_infer

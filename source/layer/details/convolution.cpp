@@ -88,7 +88,7 @@ void ConvolutionLayer::set_weights(
   } else {
     LOG(FATAL)
         << "The set weights function does not support this convolution type: "
-        << int(conv_type_);
+        << int32_t(conv_type_);
   }
 }
 
@@ -658,9 +658,9 @@ StatusCode ConvolutionLayer::CreateInstance(
   }
 
   const uint32_t dims = 2;
-  const std::vector<int>& kernels = kernel->value;
-  const std::vector<int>& paddings = padding->value;
-  const std::vector<int>& strides = stride->value;
+  const std::vector<int32_t>& kernels = kernel->value;
+  const std::vector<int32_t>& paddings = padding->value;
+  const std::vector<int32_t>& strides = stride->value;
   if (paddings.size() != dims) {
     LOG(ERROR) << "Can not find the right padding parameter";
     return StatusCode::kParameterMissing;
@@ -722,7 +722,7 @@ StatusCode ConvolutionLayer::CreateInstance(
       return StatusCode::kAttributeMissing;
     }
     const auto& bias = attrs.at("bias");
-    const std::vector<int>& bias_shape = bias->shape;
+    const std::vector<int32_t>& bias_shape = bias->shape;
     if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
       LOG(ERROR) << "The attribute of bias shape is wrong";
       return StatusCode::kAttributeMissing;
@@ -738,7 +738,7 @@ StatusCode ConvolutionLayer::CreateInstance(
   }
 
   const auto& weight = attrs.at("weight");
-  const std::vector<int>& weight_shape = weight->shape;
+  const std::vector<int32_t>& weight_shape = weight->shape;
   if (weight_shape.empty()) {
     LOG(ERROR) << "The attribute of weight shape is wrong";
     return StatusCode::kAttributeMissing;
