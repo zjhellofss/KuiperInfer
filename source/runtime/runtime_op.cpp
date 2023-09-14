@@ -45,12 +45,13 @@ void RuntimeOperatorUtils<float>::InitOperatorInput(
         const auto& type = input_operand->type;
         CHECK(type == RuntimeDataType::kTypeFloat32)
             << "The graph only support float32 yet!";
-        const auto& input_operand_shape = input_operand->shapes;
         // 得到需要初始化的空间
         auto& input_datas = input_operand->datas;
+        const auto& input_operand_shape = input_operand->shapes;
 
         CHECK(!input_operand_shape.empty());
-        const uint32_t batch = input_operand_shape.at(0);
+        const int32_t batch = input_operand_shape.at(0);
+        CHECK(batch > 0) << "Dynamic batch size is not supported!";
         CHECK(input_operand_shape.size() == 2 ||
               input_operand_shape.size() == 4 ||
               input_operand_shape.size() == 3)
@@ -94,7 +95,7 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
     const auto& output_tensors = runtime_op->output_operands;
     // 获取节点的输出张量应有形状
     const int32_t batch = operand_shapes.front();
-    CHECK(batch >= 0) << "Dynamic batch size is not supported!";
+    CHECK(batch > 0) << "Dynamic batch size is not supported!";
     CHECK(operand_shapes.size() == 2 || operand_shapes.size() == 4 ||
           operand_shapes.size() == 3)
         << "Unsupported shape sizes: " << operand_shapes.size();
