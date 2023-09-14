@@ -48,26 +48,21 @@ StatusCode ExpressionLayer::Forward(
   CHECK(this->parser_ != nullptr)
       << "The parser in the expression layer is null!";
   this->parser_->Tokenizer(false);
-  const auto& expressions = this->parser_->tokens();
-  CHECK(!expressions.empty())
+  const auto& tokens = this->parser_->tokens();
+  const auto& token_strs = this->parser_->token_strs();
+  CHECK(!tokens.empty() && !token_strs.empty())
       << "The expression parser failed to parse " << statement_;
 
-  statement_.erase(std::remove_if(statement_.begin(), statement_.end(),
-                                  [](char c) { return std::isspace(c); }),
-                   statement_.end());
-  const uint32_t batch_size = outputs.size();  
+  const uint32_t batch_size = outputs.size();
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
-  for (int index = expressions.size() - 1; index >= 0; index--) {
-    const auto current_token = expressions.at(index);
+  for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
+    const auto& current_token = *iter;
     // 如果是数据类型，就将对应分支的input插入到栈中
     if (current_token.token_type == TokenType::TokenInputNumber) {
-      uint32_t start_pos = current_token.start_pos + 1;
-      uint32_t end_pos = current_token.end_pos;
-      CHECK(end_pos > start_pos || end_pos <= this->statement_.length())
-          << "Current token has a wrong length";
-      const std::string& str_number =
-          std::string(this->statement_.begin() + start_pos,
-                      this->statement_.begin() + end_pos);
+      std::string str_number =
+          *(token_strs.rbegin() + std::distance(tokens.rbegin(), iter));
+      str_number.erase(str_number.begin());
+
       int32_t input_branch = std::stoi(str_number);
       CHECK(input_branch >= 0) << "Input branch must be >= 0";
       uint32_t input_start_pos = input_branch * batch_size;
@@ -76,7 +71,6 @@ StatusCode ExpressionLayer::Forward(
         CHECK(i + input_start_pos < inputs.size())
             << "The " << i
             << "th operand doesn't have appropriate number of tensors";
-        // fixme 这里的张量拷贝是否有必要
         input_token_nodes.push_back(inputs.at(i + input_start_pos));
       }
       op_stack.push(input_token_nodes);
