@@ -52,7 +52,10 @@ StatusCode ExpressionLayer::Forward(
   CHECK(!expressions.empty())
       << "The expression parser failed to parse " << statement_;
 
-  const uint32_t batch_size = outputs.size();
+  statement_.erase(std::remove_if(statement_.begin(), statement_.end(),
+                                  [](char c) { return std::isspace(c); }),
+                   statement_.end());
+  const uint32_t batch_size = outputs.size();  
   std::stack<std::vector<std::shared_ptr<Tensor<float>>>> op_stack;
   for (int index = expressions.size() - 1; index >= 0; index--) {
     const auto current_token = expressions.at(index);
