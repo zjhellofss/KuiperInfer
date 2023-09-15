@@ -59,7 +59,7 @@ std::shared_ptr<Layer<float>> LayerRegisterer::CreateLayer(
   const auto& status = creator(op, layer);
   LOG_IF(FATAL, status != StatusCode::kSuccess)
       << "Create the layer: " << layer_type
-      << " failed, error code: " << int(status);
+      << " failed, error code: " << int32_t(status);
   return layer;
 }
 

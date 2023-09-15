@@ -99,7 +99,7 @@ StatusCode YoloDetectLayer::Forward(
     CHECK(status == StatusCode::kSuccess)
         << "Convolution layers infer failed in the yolo detect layer, error "
            "code: "
-        << int(status);
+        << int32_t(status);
     CHECK(stage_output.size() == batch_size)
         << "The number of stage output in the yolo detect layer should be "
            "equal to batch size";
@@ -198,7 +198,7 @@ StatusCode YoloDetectLayer::CreateInstance(
 
   int32_t num_anchors = -1;
   std::vector<arma::fmat> anchor_grids;
-  for (int i = 4; i >= 0; i -= 2) {
+  for (int32_t i = 4; i >= 0; i -= 2) {
     const std::string& pnnx_name = "pnnx_" + std::to_string(i);
     const auto& anchor_grid_attr = attrs.find(pnnx_name);
     if (anchor_grid_attr == attrs.end()) {
@@ -266,7 +266,7 @@ StatusCode YoloDetectLayer::CreateInstance(
 
   std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers(stages_number);
   int32_t num_classes = -1;
-  for (int i = 0; i < stages_number; ++i) {
+  for (int32_t i = 0; i < stages_number; ++i) {
     const std::string& weight_name = "m." + std::to_string(i) + ".weight";
     if (attrs.find(weight_name) == attrs.end()) {
       LOG(ERROR) << "Can not find the in weight attribute " << weight_name;

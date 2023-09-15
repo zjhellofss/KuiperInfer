@@ -66,6 +66,7 @@ struct RuntimeOperatorBase {
 using RuntimeOperator = RuntimeOperatorBase<float>;
 
 using RuntimeOperatorQuantized = RuntimeOperatorBase<int8_t>;
+
 template <typename T>
 class RuntimeOperatorUtils;
 

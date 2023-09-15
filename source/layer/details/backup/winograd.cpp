@@ -27,7 +27,7 @@ namespace kuiper_infer {
 
 static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
   arma::fmat Gg(6, 3);
-  for (int i = 0; i < 3; ++i) {
+  for (int32_t i = 0; i < 3; ++i) {
     float g0 = g.at(i, 0);
     float g1 = g.at(i, 1);
     float g2 = g.at(i, 2);
@@ -43,7 +43,7 @@ static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
 
   const arma::fmat& Ggt = Gg.t();
   transform_g = arma::fmat(6, 6);
-  for (int i = 0; i < 6; ++i) {
+  for (int32_t i = 0; i < 6; ++i) {
     const float* Ggt_ptr = Ggt.colptr(i);
     const float Gg0 = *(Ggt_ptr + 0);
     const float Gg1 = *(Ggt_ptr + 1);
@@ -64,7 +64,7 @@ static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
   CHECK(transform_g.n_cols == 6 && transform_g.n_rows == 6);
 
   float BTd[6][6];
-  for (int i = 0; i < 6; ++i) {
+  for (int32_t i = 0; i < 6; ++i) {
     const float d0 = in[0][i];
     const float d1 = in[1][i];
     const float d2 = in[2][i];
@@ -81,7 +81,7 @@ static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
   }
 
   float V[6][6];
-  for (int i = 0; i < 6; ++i) {
+  for (int32_t i = 0; i < 6; ++i) {
     const float BTd0 = BTd[i][0];
     const float BTd1 = BTd[i][1];
     const float BTd2 = BTd[i][2];
@@ -97,7 +97,7 @@ static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
   }
 
   float ATM[4][6];
-  for (int i = 0; i < 6; ++i) {
+  for (int32_t i = 0; i < 6; ++i) {
     const float M0 = V[0][i];
     const float M1 = V[1][i];
     const float M2 = V[2][i];
@@ -111,7 +111,7 @@ static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
     ATM[3][i] = M1 - M2 + (M3 * 8) - (M4 * 8) + M5;
   }
 
-  for (int i = 0; i < 4; ++i) {
+  for (int32_t i = 0; i < 4; ++i) {
     const float ATM0 = ATM[i][0];
     const float ATM1 = ATM[i][1];
     const float ATM2 = ATM[i][2];
@@ -142,9 +142,9 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
   const uint32_t kernel_count = weights.size();
 
   const uint32_t output_h =
-      std::floor((int(input_h) - int(kernel_h)) / stride_h + 1);
+      std::floor((int32_t(input_h) - int32_t(kernel_h)) / stride_h + 1);
   const uint32_t output_w =
-      std::floor((int(input_w) - int(kernel_w)) / stride_w + 1);
+      std::floor((int32_t(input_w) - int32_t(kernel_w)) / stride_w + 1);
   if (output == nullptr || output->empty()) {
     output = std::make_shared<ftensor>(kernel_count, output_h, output_w);
   }
@@ -152,10 +152,10 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
   CHECK(output->rows() == output_h && output->cols() == output_w);
 
   const uint32_t tile_num_w =
-      (int(input_w) - 6) / 4 + ((int(input_w) - 6) % 4 > 0 ? 1 : 0) + 1;
+      (int32_t(input_w) - 6) / 4 + ((int32_t(input_w) - 6) % 4 > 0 ? 1 : 0) + 1;
 
   const uint32_t tile_num_h =
-      (int(input_h) - 6) / 4 + ((int(input_h) - 6) % 4 > 0 ? 1 : 0) + 1;
+      (int32_t(input_h) - 6) / 4 + ((int32_t(input_h) - 6) % 4 > 0 ? 1 : 0) + 1;
 
   const uint32_t padded_in_w = 4 * tile_num_w + 2;
   const uint32_t padded_in_h = 4 * tile_num_h + 2;
@@ -193,7 +193,7 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
           uint32_t tile_x = tile_ind_x * 4;
           uint32_t tile_y = tile_ind_y * 4;
           float* in[6];
-          for (int i = 0; i < 6; i++) {
+          for (int32_t i = 0; i < 6; i++) {
             float* padded_input_channel_colptr =
                 (float*)padded_input_channel.colptr(tile_x + i) + tile_y;
             in[i] = padded_input_channel_colptr;
@@ -203,10 +203,10 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
           Winograd4x32(transform_g, in, Y);
           const arma::fmat& out_channel = output->slice(k);
 #pragma omp simd
-          for (int i = 0; i < 4; ++i) {
+          for (int32_t i = 0; i < 4; ++i) {
             if (tile_x + i < out_channel.n_cols) {
               float* col_ptr = (float*)out_channel.colptr(tile_x + i);
-              for (int j = 0; j < 4; ++j) {
+              for (int32_t j = 0; j < 4; ++j) {
                 if (tile_y + j < out_channel.n_rows) {
                   *(col_ptr + tile_y + j) += Y[i * 4 + j];
                 }

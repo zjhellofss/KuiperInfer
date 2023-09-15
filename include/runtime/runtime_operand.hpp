@@ -35,7 +35,7 @@ namespace kuiper_infer {
 template <typename T>
 struct RuntimeOperandBase {
   std::string name;                               /// 操作数的名称
-  std::vector<uint32_t> shapes;                   /// 操作数的形状
+  std::vector<int32_t> shapes;                    /// 操作数的形状
   std::vector<std::shared_ptr<Tensor<T>>> datas;  /// 存储操作数
   RuntimeDataType type =
       RuntimeDataType::kTypeUnknown;  /// 操作数的类型，一般是float

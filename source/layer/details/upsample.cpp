@@ -84,7 +84,7 @@ StatusCode UpSampleLayer::Forward(
 
   if (this->mode_ != UpSampleMode::kModeNearest &&
       this->mode_ != UpSampleMode::kModeBilinear) {
-    LOG(ERROR) << "Unsupported upsample mode: " << int(mode_);
+    LOG(ERROR) << "Unsupported upsample mode: " << int32_t(mode_);
     return StatusCode::kInferParameterError;
   }
 

@@ -95,9 +95,9 @@ StatusCode MaxPoolingLayer::Forward(
     const uint32_t input_c = input_data->channels();
 
     const uint32_t output_h = uint32_t(
-        std::floor((int(input_padded_h) - int(pooling_h)) / stride_h_ + 1));
+        std::floor((int32_t(input_padded_h) - int32_t(pooling_h)) / stride_h_ + 1));
     const uint32_t output_w = uint32_t(
-        std::floor((int(input_padded_w) - int(pooling_w)) / stride_w_ + 1));
+        std::floor((int32_t(input_padded_w) - int32_t(pooling_w)) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
