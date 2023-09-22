@@ -140,11 +140,11 @@ void RuntimeGraph::Build() {
     if (current_op->type != "pnnx.Input" && current_op->type != "pnnx.Output") {
       std::shared_ptr<Layer<float>> layer =
           RuntimeGraph::CreateLayer(current_op);
-      CHECK(layer != nullptr)
-          << "Layer " << current_op->name << " create failed!";
       if (layer) {
         current_op->layer = layer;
         layer->set_runtime_operator(current_op);
+      } else {
+        LOG(FATAL) << "Layer " << current_op->name << " create failed!";
       }
     }
   }
@@ -194,6 +194,7 @@ void RuntimeGraph::Forward(bool debug) {
     op->has_forward = false;
     CHECK_GT(op->forward_index, 0);
   }
+
   if (debug) {
     LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
