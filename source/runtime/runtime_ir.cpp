@@ -136,18 +136,15 @@ void RuntimeGraph::Build() {
         }
       }
     }
-  }
-
-  for (const auto& kOperator : this->operators_) {
     // 除了输入和输出节点，都创建layer
-    if (kOperator->type != "pnnx.Input" && kOperator->type != "pnnx.Output") {
+    if (current_op->type != "pnnx.Input" && current_op->type != "pnnx.Output") {
       std::shared_ptr<Layer<float>> layer =
-          RuntimeGraph::CreateLayer(kOperator);
+          RuntimeGraph::CreateLayer(current_op);
       CHECK(layer != nullptr)
-          << "Layer " << kOperator->name << " create failed!";
+          << "Layer " << current_op->name << " create failed!";
       if (layer) {
-        kOperator->layer = layer;
-        layer->set_runtime_operator(kOperator);
+        current_op->layer = layer;
+        layer->set_runtime_operator(current_op);
       }
     }
   }
@@ -195,7 +192,7 @@ void RuntimeGraph::Forward(bool debug) {
 
   for (const auto& op : operators_) {
     op->has_forward = false;
-    CHECK_GT(op->forward_index, -1);
+    CHECK_GT(op->forward_index, 0);
   }
   if (debug) {
     LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();

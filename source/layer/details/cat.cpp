@@ -53,9 +53,8 @@ StatusCode CatLayer::Forward(
   const uint32_t packet_size = inputs.size() / output_size;
 #pragma omp parallel for num_threads(outputs.size())
   for (uint32_t i = 0; i < outputs.size(); ++i) {
-    std::shared_ptr<Tensor<float>> output = outputs.at(i);
     uint32_t start_channel = 0;
-
+    std::shared_ptr<Tensor<float>> output = outputs.at(i);
     for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
       CHECK(input != nullptr && !input->empty())
