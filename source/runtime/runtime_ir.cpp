@@ -26,6 +26,7 @@
 #include <utility>
 #include <vector>
 #include "layer/abstract/layer_factory.hpp"
+#include "runtime/runtime_ir.hpp"
 #include "utils/time/time_logging.hpp"
 
 namespace kuiper_infer {
@@ -149,30 +150,12 @@ void RuntimeGraph::Build() {
     }
   }
 
+  // 节点拓扑排序
+  ReverseTopoSort();
+
   // 初始化节点的输入和输出空间
   RuntimeOperatorUtils<float>::InitOperatorInput(operators_);
   RuntimeOperatorUtils<float>::InitOperatorOutput(graph_->ops, operators_);
-
-  // 构建拓扑顺序
-  start_forward_index_ = 0;
-  for (const auto& op : operators_) {
-    // 根据输入节点构建拓扑排序
-    if (!op->has_forward) {
-      this->ReverseTopoSort(op);
-    }
-  }
-
-  // 根据拓扑顺序调整算子的执行顺序
-  std::sort(operators_.begin(), operators_.end(),
-            [](const auto& op1, const auto& op2) {
-              return op1->forward_index > op2->forward_index;
-            });
-
-  int32_t forward_index = 1;
-  for (const auto& op : operators_) {
-    op->forward_index = forward_index;
-    forward_index += 1;
-  }
 
   graph_state_ = GraphState::Complete;
   if (graph_ != nullptr) {
@@ -424,7 +407,30 @@ void RuntimeGraph::ProbeNextLayer(
   }
 }
 
-void RuntimeGraph::ReverseTopoSort(
+void RuntimeGraph::ReverseTopoSort() {
+  // 构建拓扑顺序
+  start_forward_index_ = 0;
+  for (const auto& op : operators_) {
+    // 根据输入节点构建拓扑排序
+    if (!op->has_forward) {
+      this->ReverseTopoSort_(op);
+    }
+  }
+
+  // 根据拓扑顺序调整算子的执行顺序
+  std::sort(operators_.begin(), operators_.end(),
+            [](const auto& op1, const auto& op2) {
+              return op1->forward_index > op2->forward_index;
+            });
+
+  int32_t forward_index = 1;
+  for (const auto& op : operators_) {
+    op->forward_index = forward_index;
+    forward_index += 1;
+  }
+}
+
+void RuntimeGraph::ReverseTopoSort_(
     const std::shared_ptr<RuntimeOperator>& root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
   if (root_op->input_operands.empty() && !root_op->has_forward) {
@@ -439,7 +445,7 @@ void RuntimeGraph::ReverseTopoSort(
   for (const auto& [_, op] : next_ops) {
     if (op != nullptr) {
       if (!op->has_forward) {
-        this->ReverseTopoSort(op);
+        this->ReverseTopoSort_(op);
       }
     }
   }
