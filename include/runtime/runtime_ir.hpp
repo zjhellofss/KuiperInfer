@@ -98,7 +98,6 @@ class RuntimeGraph {
 
   /**
    * 构建模型的拓扑执行顺序
-   * @param root_op 模型的输入节点或根节点，如果有多个输入节点，则调用多次
    */
   void ReverseTopoSort();
 
