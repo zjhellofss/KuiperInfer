@@ -38,29 +38,53 @@ namespace kuiper_infer {
 template <typename T>
 class Layer;
 
-/// 计算图中的计算节点
+/**
+ * @brief Base for runtime graph operator
+ *
+ * Template base class representing an operator node in a runtime graph.
+ * Contains node execution order, name, type, layer, inputs, outputs,
+ * parameters, attributes etc.
+ *
+ * @tparam T Operator data type (float, int8, etc.)
+ */
 template <typename T>
 struct RuntimeOperatorBase {
+  /// Execution order index of this operator
   int32_t forward_index = -1;
+
+  /// Whether this operator has run in current execution
   bool has_forward = false;
-  std::string name;                 /// 计算节点的名称
-  std::string type;                 /// 计算节点的类型
-  std::shared_ptr<Layer<T>> layer;  /// 节点对应的计算Layer
 
-  std::vector<std::string> output_names;  /// 节点的输出节点名称
-  std::shared_ptr<RuntimeOperandBase<T>> output_operands;  /// 节点的输出操作数
+  /// Name of the operator
+  std::string name;
 
-  std::map<std::string, std::shared_ptr<RuntimeOperandBase<T>>>
-      input_operands;  /// 节点的输入操作数
-  std::vector<std::shared_ptr<RuntimeOperandBase<T>>>
-      input_operands_seq;  /// 节点的输入操作数，顺序排列
+  /// Type of the operator
+  std::string type;
+
+  /// Layer for this operator
+  std::shared_ptr<Layer<T>> layer;
+
+  /// Names of output operators
+  std::vector<std::string> output_names;
+
+  /// Output operand
+  std::shared_ptr<RuntimeOperandBase<T>> output_operands;
+
+  /// Input operands mapped by provider name
+  std::map<std::string, std::shared_ptr<RuntimeOperandBase<T>>> input_operands;
+
+  /// Input operands in sequence
+  std::vector<std::shared_ptr<RuntimeOperandBase<T>>> input_operands_seq;
+
+  /// Output operators mapped by output name
   std::map<std::string, std::shared_ptr<RuntimeOperatorBase<T>>>
-      output_operators;  /// 输出节点的名字和节点对应
+      output_operators;
 
-  std::map<std::string, std::shared_ptr<RuntimeParameter>>
-      params;  /// 算子的参数信息
-  std::map<std::string, std::shared_ptr<RuntimeAttribute>>
-      attribute;  /// 算子的属性信息，内含权重信息
+  /// Operator parameters
+  std::map<std::string, std::shared_ptr<RuntimeParameter>> params;
+
+  /// Operator attributes like weights
+  std::map<std::string, std::shared_ptr<RuntimeAttribute>> attribute;
 };
 
 using RuntimeOperator = RuntimeOperatorBase<float>;
@@ -70,22 +94,34 @@ using RuntimeOperatorQuantized = RuntimeOperatorBase<int8_t>;
 template <typename T>
 class RuntimeOperatorUtils;
 
+/**
+ * @brief Float runtime operator utilities
+ *
+ * Static utilities for float runtime operators.
+ * Initializes operator inputs and outputs.
+ */
 template <>
 class RuntimeOperatorUtils<float> {
  public:
   /**
-   * 如果图是第一次运行，则根据节点输入operand的形状准备好后续Layer计算中所需要的Tensor
-   * 如果图是第二次以上运行，则检查输入operand的形状和operand中张量的形状是否匹配
-   * @param operators 计算图中的计算节点
+   * @brief Initializes float operator inputs
+   *
+   * If first run, initializes input tensors based on shapes.
+   * On later runs, checks shape match.
+   *
+   * @param operators Vector of runtime operators
    */
   static void InitOperatorInput(
       const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 
   /**
-   * 如果图是第一次运行，则根据节点输出operand的形状准备好后续Layer计算中所需要的Tensor
-   * 如果图是第二次以上运行，则检查输出operand的形状和operand中张量的形状是否匹配
-   * @param pnnx_operators pnnx图节点
-   * @param operators KuiperInfer计算图中的计算节点
+   * @brief Initializes float operator outputs
+   *
+   * If first run, initializes output tensors based on shapes.
+   * On later runs, checks shape match.
+   *
+   * @param pnnx_operators Vector of PNNX operators
+   * @param operators Vector of runtime operators
    */
   static void InitOperatorOutput(
       const std::vector<pnnx::Operator*>& pnnx_operators,

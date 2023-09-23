@@ -39,85 +39,71 @@ class Layer;
 template <>
 class Layer<int8_t> {};
 
+/**
+ * @brief Base layer class
+ *
+ * Abstract base class for neural network layers.
+ * Defines the common layer interface and methods.
+ *
+ * @tparam T Data type (float, int8 etc)
+ */
 template <>
 class Layer<float> {
  public:
-  explicit Layer(std::string layer_name) : layer_name_(std::move(layer_name)) {}
-
-  virtual ~Layer() = default;
-
   /**
-   * Layer的执行函数
-   * @param inputs 层的输入
-   * @param outputs 层的输出
-   * @return 执行的状态
-   */
-  virtual StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs);
-
-  /**
-   * Layer的执行函数
-   * @param current_operator 当前的operator
-   * @return 执行的状态
+   * @brief Performs forward inference
+   *
+   * This method implements the forward pass for this layer.
+   * It takes the input tensors, performs the required computations
+   * (convolution, matrix multiply etc.), and produces the output tensors.
+   *
+   * The inputs and outputs are based on the connections in the runtime
+   * graph. This method implements the core inference logic of the layer.
+   *
+   * @return Status code indicating success or failure
    */
   virtual StatusCode Forward();
 
   /**
-   * 返回层的权重
-   * @return 返回的权重
+   * @brief Gets layer weights
+   *
+   * @return Vector of weight tensors
    */
   virtual const std::vector<std::shared_ptr<Tensor<float>>>& weights() const;
 
   /**
-   * 返回层的偏移量
-   * @return 返回的偏移量
+   * @brief Gets layer biases
+   *
+   * @return Vector of bias tensors
    */
   virtual const std::vector<std::shared_ptr<Tensor<float>>>& bias() const;
 
   /**
-   * 设置Layer的权重
-   * @param weights 权重
+   * @brief Sets the layer weights
+   *
+   * @param weights Vector of weight tensors
    */
   virtual void set_weights(
       const std::vector<std::shared_ptr<Tensor<float>>>& weights);
 
   /**
-   * 设置Layer的偏移量
-   * @param bias 偏移量
+   * @brief Sets the layer biases
+   *
+   * @param bias Vector of bias tensors
    */
   virtual void set_bias(
       const std::vector<std::shared_ptr<Tensor<float>>>& bias);
 
   /**
-   * 设置Layer的权重
-   * @param weights 权重
+   * @brief Gets layer name
+   *
+   * @return Layer name
    */
-  virtual void set_weights(const std::vector<float>& weights);
-
-  /**
-   * 设置Layer的偏移量
-   * @param bias 偏移量
-   */
-  virtual void set_bias(const std::vector<float>& bias);
-
-  /**
-   * 返回层的名称
-   * @return 层的名称
-   */
-  virtual const std::string& layer_name() const { return this->layer_name_; }
-
-  /**
-   * 设置层的执行算子
-   * @param runtime_operator 该层的执行算子
-   */
-  void set_runtime_operator(
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  virtual const std::string& layer_name() const;
 
  protected:
+  std::string layer_name_;
   std::weak_ptr<RuntimeOperator> runtime_operator_;
-  std::string layer_name_;  /// Layer的名称
 };
-
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_LAYER_HPP_

@@ -32,9 +32,8 @@
 namespace kuiper_infer {
 class LayerRegisterer {
  private:
-  typedef StatusCode (*Creator)(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& layer);
+  typedef StatusCode (*Creator)(const std::shared_ptr<RuntimeOperator>& op,
+                                std::shared_ptr<Layer<float>>& layer);
 
   typedef std::map<std::string, Creator> CreateRegistry;
 
@@ -43,30 +42,39 @@ class LayerRegisterer {
   friend class RegistryGarbageCollector;
 
   /**
-   * 向注册表注册算子
-   * @param layer_type 算子的类型
-   * @param creator 需要注册算子的注册表
+   * @brief Registers a layer creator
+   *
+   * Registers a layer creation function for the given layer type.
+   *
+   * @param layer_type The type name of the layer
+   * @param creator The layer creation function
    */
   static void RegisterCreator(const std::string& layer_type,
                               const Creator& creator);
 
   /**
-   * 通过算子参数op来初始化Layer
-   * @param op 保存了初始化Layer信息的算子
-   * @return 初始化后的Layer
+   * @brief Creates a layer object
+   *
+   * Creates a layer object from the given runtime operator.
+   * Calls the registered creator function if found.
+   *
+   * @param op The runtime operator
+   * @return A shared pointer to the created layer
    */
   static std::shared_ptr<Layer<float>> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
   /**
-   * 返回算子的注册表
-   * @return 算子的注册表
+   * @brief Gets the layer registry
+   *
+   * @return Pointer to the layer creator registry
    */
   static CreateRegistry* Registry();
 
   /**
-   * 返回所有已被注册算子的类型
-   * @return 注册算子的类型列表
+   * @brief Gets registered layer types
+   *
+   * @return A vector of registered layer type names
    */
   static std::vector<std::string> layer_types();
 
@@ -74,7 +82,12 @@ class LayerRegisterer {
   static CreateRegistry* registry_;
 };
 
-/// 算子注册的工具类
+/**
+ * @brief Layer registry wrapper
+ *
+ * Helper class to register a layer creator function.
+ * Automatically calls LayerRegisterer::RegisterCreator.
+ */
 class LayerRegistererWrapper {
  public:
   LayerRegistererWrapper(const std::string& layer_type,
@@ -83,7 +96,12 @@ class LayerRegistererWrapper {
   }
 };
 
-/// 管理全局算子注册表所用的内存，在退出时释放
+/**
+ * @brief Garbage collector for layer registry
+ *
+ * Destructor that cleans up the LayerRegisterer registry
+ * when program exits. Deletes registry pointer if allocated.
+ */
 class RegistryGarbageCollector {
  public:
   ~RegistryGarbageCollector() {

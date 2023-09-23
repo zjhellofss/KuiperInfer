@@ -18,11 +18,16 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-23.
 #ifndef KUIPER_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_
 #define KUIPER_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_
-/// 计算节点属性中的权重类型
+/**
+ * @brief Runtime data types for operator attributes
+ *
+ * Enumerates the data types supported for operator attributes like
+ * weights and biases.
+ */
 enum class RuntimeDataType {
   kTypeUnknown = 0,
   kTypeFloat32 = 1,
@@ -34,4 +39,4 @@ enum class RuntimeDataType {
   kTypeInt8 = 7,
   kTypeUInt8 = 8,
 };
-#endif //KUIPER_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_
+#endif  // KUIPER_INFER_INCLUDE_RUNTIME_RUNTIME_DATATYPE_HPP_

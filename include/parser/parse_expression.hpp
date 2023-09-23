@@ -30,7 +30,6 @@
 
 namespace kuiper_infer {
 
-// 词语的类型
 enum class TokenType {
   TokenUnknown = -9,
   TokenInputNumber = -8,
@@ -41,62 +40,110 @@ enum class TokenType {
   TokenRightBracket = -3,
 };
 
-// 词语Token
+/**
+ * @brief Token parsed from expression
+ *
+ * Represents a token extracted from the input expression string.
+ */
 struct Token {
+  /// Type of this token
   TokenType token_type = TokenType::TokenUnknown;
-  int32_t start_pos = 0;  // 词语开始的位置
-  int32_t end_pos = 0;    // 词语结束的位置
-  Token(TokenType token_type, int32_t start_pos, int32_t end_pos)
-      : token_type(token_type), start_pos(start_pos), end_pos(end_pos) {}
+
+  /// Start position in the input expression
+  int32_t start_pos = 0;
+
+  /// End position in the input expression
+  int32_t end_pos = 0;
+
+  /**
+   * @brief Construct a new Token
+   *
+   * @param token_type Token type
+   * @param start_pos Start position
+   * @param end_pos End position
+   */
+  Token(TokenType token_type, int32_t start_pos, int32_t end_pos);
 };
 
-// 语法树的节点
+/**
+ * @brief Node in expression syntax tree
+ */
 struct TokenNode {
+  /// Index of input variable
   int32_t num_index = -1;
-  std::shared_ptr<TokenNode> left = nullptr;   // 语法树的左节点
-  std::shared_ptr<TokenNode> right = nullptr;  // 语法树的右节点
+
+  /// Left child node
+  std::shared_ptr<TokenNode> left = nullptr;
+
+  /// Right child node
+  std::shared_ptr<TokenNode> right = nullptr;
+
+  /**
+   * @brief Construct a new Token Node
+   *
+   * @param num_index Index of input variable
+   * @param left Left child node
+   * @param right Right child node
+   */
   TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left,
             std::shared_ptr<TokenNode> right);
+
   TokenNode() = default;
 };
 
-// add(add(add(@0,@1),@1),add(@0,@2))
+/**
+ * @brief Parser for math expressions
+ *
+ * Parses a math expression string into a syntax tree.
+ * Performs lexical and syntax analysis.
+ */
 class ExpressionParser {
  public:
-  explicit ExpressionParser(std::string statement)
-      : statement_(std::move(statement)) {}
+  /**
+   * @brief Construct a new Expression Parser
+   *
+   * @param statement The expression string
+   */
+  explicit ExpressionParser(std::string statement);
 
   /**
-   * 词法分析
-   * @param retokenize 是否需要重新进行语法分析
+   * @brief Performs lexical analysis
+   *
+   * Breaks the expression into tokens.
+   *
+   * @param retokenize Whether to re-tokenize
    */
   void Tokenizer(bool retokenize = false);
 
   /**
-   * 语法分析
-   * @return 生成的语法树
+   * @brief Performs syntax analysis
+   *
+   * Generates a syntax tree from the tokens.
+   *
+   * @return Vector of root nodes
    */
   std::vector<std::shared_ptr<TokenNode>> Generate();
 
   /**
-   * 返回词法分析的结果
-   * @return 词法分析的结果
+   * @brief Gets the tokens
+   *
+   * @return The tokens
    */
   const std::vector<Token>& tokens() const;
 
   /**
-   * 返回词语字符串
-   * @return 词语字符串
+   * @brief Gets the token strings
+   *
+   * @return The token strings
    */
   const std::vector<std::string>& token_strs() const;
 
  private:
   std::shared_ptr<TokenNode> Generate_(int32_t& index);
-  // 被分割的词语数组
+
+ private:
   std::vector<Token> tokens_;
-  // 被分割的字符串数组
   std::vector<std::string> token_strs_;
-  // 待分割的表达式
   std::string statement_;
 };
 }  // namespace kuiper_infer

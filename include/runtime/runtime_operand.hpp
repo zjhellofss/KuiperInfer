@@ -31,14 +31,27 @@
 #include "status_code.hpp"
 
 namespace kuiper_infer {
-/// 计算节点输入输出的操作数
+/**
+ * @brief Base for runtime graph operand
+ *
+ * Template base class representing an operand (input/output) in a
+ * graph. Contains operand name, shape, data vector, and data type.
+ *
+ * @tparam T Operand data type (float, int, etc.)
+ */
 template <typename T>
 struct RuntimeOperandBase {
-  std::string name;                               /// 操作数的名称
-  std::vector<int32_t> shapes;                    /// 操作数的形状
-  std::vector<std::shared_ptr<Tensor<T>>> datas;  /// 存储操作数
-  RuntimeDataType type =
-      RuntimeDataType::kTypeUnknown;  /// 操作数的类型，一般是float
+  /// Name of the operand
+  std::string name;
+
+  /// Shape of the operand
+  std::vector<int32_t> shapes;
+
+  /// Vector containing operand data
+  std::vector<std::shared_ptr<Tensor<T>>> datas;
+
+  /// Data type of the operand
+  RuntimeDataType type = RuntimeDataType::kTypeUnknown;
 };
 
 using RuntimeOperand = RuntimeOperandBase<float>;

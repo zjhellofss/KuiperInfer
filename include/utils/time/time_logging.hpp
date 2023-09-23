@@ -33,73 +33,111 @@ namespace kuiper_infer {
 namespace utils {
 using Time = std::chrono::steady_clock;
 
-// 每个类型的层执行时间消耗
+/**
+ * @brief Timing state for a layer type
+ *
+ * Contains timing information for a layer type, including the
+ * layer name, type, and duration.
+ */
 struct LayerTimeState {
+  /**
+   * @brief Construct new LayerTimeState
+   *
+   * @param duration_time Duration in ns
+   * @param layer_name Name of layer
+   * @param layer_type Type of layer
+   */
   explicit LayerTimeState(long duration_time, std::string layer_name,
-                          std::string layer_type)
-      : duration_time_(duration_time),
-        layer_name_(std::move(layer_name)),
-        layer_type_(std::move(layer_type)) {}
+                          std::string layer_type);
 
-  long duration_time_;      // 时间消耗
-  std::mutex time_mutex_;   // 修改duration_time_时，所需要获取的锁
-  std::string layer_name_;  // 层的名称
-  std::string layer_type_;  // 层的类型
+  /// Duration in ns
+  long duration_time_;
+
+  /// Mutex for thread safety
+  std::mutex time_mutex_;
+
+  /// Name of the layer
+  std::string layer_name_;
+
+  /// Type of the layer
+  std::string layer_type_;
 };
 
-// 各类型层的时间消耗记录map类型
+/**
+ * @brief Map of layer times by type
+ *
+ * Maps layer type string to LayerTimeState pointer.
+ */
 using LayerTimeStatesCollector =
     std::map<std::string, std::shared_ptr<LayerTimeState>>;
 
-// 各类型层的时间消耗记录map指针类型
+/**
+ * @brief Pointer to layer time collector map
+ */
 using PtrLayerTimeStatesCollector = std::shared_ptr<LayerTimeStatesCollector>;
 
+/**
+ * @brief Singleton for layer timing stats
+ *
+ * Manages a singleton instance of a collector that stores
+ * timing information per layer type. Thread safe.
+ */
 class LayerTimeStatesSingleton {
  public:
   LayerTimeStatesSingleton() = default;
 
   /**
-   * 初始化各类型层的时间消耗记录map
+   * @brief Initializes the singleton instance
+   *
+   * Creates the singleton collector instance.
    */
   static void LayerTimeStatesCollectorInit();
 
   /**
-   * 初始化各类型层的时间消耗记录map
-   * @return 记录各类型层的时间消耗map
+   * @brief Gets the singleton instance
+   *
+   * @return The singleton collector instance
    */
   static PtrLayerTimeStatesCollector SingletonInstance();
 
  private:
-  // 修改时间消耗记录map必须获取的锁
   static std::mutex mutex_;
-  // 各类型层的时间消耗记录map
   static PtrLayerTimeStatesCollector time_states_collector_;
 };
 
-// 记录一个层的执行时间
+/**
+ * @brief Logs timing for a layer
+ *
+ * Logs the start and end time for executing a layer to compute
+ * the layer duration. Collects timing per layer type.
+ */
 class LayerTimeLogging {
  public:
   /**
-   * 记录一个层的开始执行时间
+   * @brief Construct and start time log
+   *
+   * @param layer_name Layer name
+   * @param layer_type Layer type
    */
   explicit LayerTimeLogging(std::string layer_name, std::string layer_type);
 
   /**
-   * 记录一个层的结束执行时间
+   * @brief Stop time log and record duration
+   *
+   * Records execution duration to singleton collector.
    */
   ~LayerTimeLogging();
 
   /**
-   * 输出所有类型层的运行执行时间
+   * @brief Prints summary of layer times
+   *
+   * Prints collected per layer type execution times.
    */
   static void SummaryLogging();
 
  private:
-  // 层的名称
   std::string layer_name_;
-  // 层的类型
   std::string layer_type_;
-  // 层的开始执行时间
   std::chrono::steady_clock::time_point start_time_;
 };
 }  // namespace utils

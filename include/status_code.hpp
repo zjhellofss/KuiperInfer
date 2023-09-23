@@ -45,7 +45,7 @@ enum class StatusCode {
   kInferOutputsEmpty = 2,
   kInferParameterError = 3,
 
-  kInferInOutSizeMismatch = 4,  // 输入输出张量的数量不一致
+  kInferInOutSizeMismatch = 4,
   kLayerNotImplement = 5,
   kParameterMissing = 6,
   kAttributeMissing = 7,

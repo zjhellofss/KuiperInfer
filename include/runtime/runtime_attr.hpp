@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-28.
 
 #ifndef KUIPER_INFER_INCLUDE_PARSER_RUNTIME_ATTR_HPP_
@@ -30,24 +30,38 @@
 
 namespace kuiper_infer {
 
-/// 计算图节点的属性信息
+/**
+ * @brief Runtime operator attribute
+ *
+ * Represents an attribute like weights or biases for a graph operator.
+ * Contains the attribute data, shape, and data type.
+ */
 struct RuntimeAttribute {
-  std::vector<char> weight_data;  /// 节点中的权重参数
-  std::vector<int32_t> shape;         /// 节点中的形状信息
-  RuntimeDataType type = RuntimeDataType::kTypeUnknown;  /// 节点中的数据类型
+  /// Attribute data (e.g. weight values)
+  std::vector<char> weight_data;
+
+  /// Shape of the attribute
+  std::vector<int32_t> shape;
+
+  /// Data type of the attribute
+  RuntimeDataType type = RuntimeDataType::kTypeUnknown;
 
   /**
-   * 从节点中加载权重参数
-   * @tparam T 权重类型
-   * @return 权重参数数组
+   * @brief Gets the attribute data as a typed array
+   *
+   * Returns the weight data as a vector of the template type T.
+   * The attribute data is cleared after get by default.
+   *
+   * @tparam T Data type to return (float, int, etc)
+   * @param need_clear_weight Whether to clear data after get
+   * @return Vector containing the attribute data
    */
-  template <class T>  //
+  template <class T>
   std::vector<T> get(bool need_clear_weight = true);
 };
 
 template <class T>
 std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
-  /// 检查节点属性中的权重类型
   CHECK(!weight_data.empty());
   CHECK(type != RuntimeDataType::kTypeUnknown);
   const uint32_t elem_size = sizeof(T);
@@ -55,7 +69,7 @@ std::vector<T> RuntimeAttribute::get(bool need_clear_weight) {
 
   std::vector<T> weights;
   switch (type) {
-    case RuntimeDataType::kTypeFloat32: {  /// 加载的数据类型是float
+    case RuntimeDataType::kTypeFloat32: {
       static_assert(std::is_same<T, float>::value == true);
       float* weight_data_ptr = reinterpret_cast<float*>(weight_data.data());
       const uint32_t weight_data_size = weight_data.size() / elem_size;
