@@ -34,11 +34,12 @@
 namespace kuiper_infer {
 
 /**
- * @brief Runtime representation of a computation graph
+ * @brief Runtime representation of a neural network graph
  *
- * This class represents a computation graph at runtime. It initializes
- * the graph from parameter and weights files, and allows setting
- * inputs and executing the graph.
+ * This class builds a runtime representation of a neural network
+ * computation graph from saved model files. It initializes the graph
+ * topology and parameters, sets graph inputs, performs graph execution,
+ * and retrieves outputs.
  */
 class RuntimeGraph {
  public:
@@ -94,11 +95,11 @@ class RuntimeGraph {
   bool is_output_op(const std::string& op_name) const;
 
   /**
-   * @brief Builds the computation graph
+   * @brief Builds the runtime graph
    *
-   * Performs the actual construction of the graph based on the provided
-   * parameter and weights files. This must be called after
-   * initing the the graph and before executing the graph.
+   * Performs the actual construction of the runtime graph based on
+   * initialized operators and parameters.
+   * This must be called after initialization and before execution.
    */
   void Build();
 
@@ -168,7 +169,8 @@ class RuntimeGraph {
   /**
    * @brief Creates graph node relations
    *
-   * Connects graph operators based on their input and output relations.
+   * Connects graph operators based on their input and output relations to
+   * construct the graph topology.
    */
   void CreateNodeRelation();
 
@@ -178,7 +180,7 @@ class RuntimeGraph {
    * Initializes the input tensors of a graph operator.
    *
    * @param inputs Operator inputs in PNNX graph
-   * @param runtime_operator Runtime graph operator
+   * @param runtime_operator The runtime operator to initialize inputs for
    */
   static void InitGraphOperatorsInput(
       const std::vector<pnnx::Operand*>& inputs,
@@ -190,7 +192,7 @@ class RuntimeGraph {
    * Initializes the output tensors of a graph operator.
    *
    * @param outputs Operator outputs in PNNX graph
-   * @param runtime_operator Runtime graph operator
+   * @param runtime_operator The runtime operator to initialize outputs for
    */
   static void InitGraphOperatorsOutput(
       const std::vector<pnnx::Operand*>& outputs,
@@ -202,7 +204,7 @@ class RuntimeGraph {
    * Initializes attributes of a graph operator.
    *
    * @param attrs Operator attributes in PNNX graph
-   * @param runtime_operator Runtime graph operator
+   * @param runtime_operator The runtime operator to initialize attributes for
    */
   static void InitGraphAttrs(
       const std::map<std::string, pnnx::Attribute>& attrs,
@@ -214,31 +216,32 @@ class RuntimeGraph {
    * Initializes the parameters of a graph operator.
    *
    * @param params Operator parameters in PNNX graph
-   * @param runtime_operator Runtime graph operator
+   * @param runtime_operator The runtime operator to initialize parameters for
    */
   static void InitGraphParams(
       const std::map<std::string, pnnx::Parameter>& params,
       const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
   /**
-   * @brief Creates layer from graph operator
+   * @brief Creates a Layer object for a graph operator
    *
-   * Creates a Layer object from a graph operator.
+   * Creates and initializes a Layer object corresponding to the given
+   * RuntimeOperator.
    *
-   * @param op Graph operator
-   * @return Pointer to created Layer object
+   * @param op The RuntimeOperator to create a Layer for
+   * @return Pointer to the created Layer object
    */
   static std::shared_ptr<Layer<float>> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);
 
   /**
-   * @brief Probes next operator layer
+   * @brief Feeds the current op outputs to next op inputs
    *
-   * Feeds the outputs of the current operator to the inputs
-   * of the next operator.
+   * Takes the output tensors from the current operator and assigns them
+   * to the input tensors of the next dependent operators.
    *
-   * @param current_op Current operator
-   * @param layer_output_data Outputs of current operator
+   * @param current_op The current operator
+   * @param layer_output_data Vector of output tensors from current op
    */
   static void ProbeNextLayer(
       const std::shared_ptr<RuntimeOperator>& current_op,
