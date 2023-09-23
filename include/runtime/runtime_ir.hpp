@@ -101,7 +101,12 @@ class RuntimeGraph {
    */
   void ReverseTopoSort();
 
+  /**
+   * 构建模型的拓扑执行顺序
+   */
   void ReverseTopoSort_(const std::shared_ptr<RuntimeOperator>& root_op);
+
+  void CreateNodeRelation();
 
   /**
    * 初始化kuiper infer计算图节点中的输入操作数
