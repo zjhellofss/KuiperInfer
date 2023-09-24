@@ -28,13 +28,21 @@
 #include <string>
 namespace kuiper_infer {
 
+/**
+ * @brief CSV data loader
+ *
+ * Provides utility to load CSV data into Armadillo matrices.
+ */
 class CSVDataLoader {
  public:
   /**
-   * 从csv文件中初始化张量
-   * @param file_path csv文件的路径
-   * @param split_char 分隔符号
-   * @return 根据csv文件得到的张量
+   * @brief Loads CSV file into matrix
+   *
+   * Loads data from a CSV file into an Armadillo matrix.
+   *
+   * @param file_path Path to CSV file
+   * @param split_char Delimiter character
+   * @return Matrix containing loaded data
    */
   template <typename T>
   static arma::Mat<T> LoadData(const std::string& file_path,
@@ -42,11 +50,14 @@ class CSVDataLoader {
 
  private:
   /**
-   * 得到csv文件的尺寸大小，LoadData中根据这里返回的尺寸大小初始化返回的fmat
-   * @param file csv文件的路径
-   * @param split_char 分割符号
-   * @return 根据csv文件的尺寸大小
-   */
+   * @brief Gets matrix dimensions from CSV
+   *
+   * Gets number of rows and cols for matrix based on CSV file.
+
+   * @param file CSV file stream
+   * @param split_char Delimiter character
+   * @return Pair of rows and cols
+  */
   static std::pair<size_t, size_t> GetMatrixSize(std::ifstream& file,
                                                  char split_char);
 };

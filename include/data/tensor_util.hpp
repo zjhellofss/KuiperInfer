@@ -26,11 +26,13 @@
 #include "data/tensor.hpp"
 
 namespace kuiper_infer {
+
 /**
- * 对张量进行形状上的扩展
- * @param tenor1 张量1
- * @param tensor2 张量2
- * @return 形状一致的张量
+ * @brief Broadcasts two tensors
+ *
+ * @param tensor1 Tensor 1
+ * @param tensor2 Tensor 2
+ * @return Tensors with same shape
  */
 template <typename T>
 std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>>
@@ -38,33 +40,38 @@ TensorBroadcast(const std::shared_ptr<Tensor<T>>& tensor1,
                 const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
- * 对张量的填充
- * @param tensor 待填充的张量
- * @param pads 填充的大小
- * @param padding_value 填充的值
- * @return 填充之后的张量
+ * @brief Pads a tensor
+ *
+ * @param tensor Tensor to pad
+ * @param pads Padding amount for dims
+ * @param padding_value Padding value
+ * @return Padded tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorPadding(
-    const std::shared_ptr<Tensor<T>>& tensor, const std::vector<uint32_t>& pads,
+    const std::shared_ptr<Tensor<T>>& tensor,
+    const std::vector<uint32_t>& pads,
     T padding_value);
 
 /**
- * 比较tensor的值是否相同
- * @param a 输入张量1
- * @param b 输入张量2
- * @param threshold 张量之间差距的阈值
- * @return 比较结果
+ * @brief Checks tensor equality
+ *
+ * @param a Tensor 1
+ * @param b Tensor 2
+ * @param threshold Tolerance
+ * @return True if equal within tolerance
  */
 template <typename T>
 bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a,
-                  const std::shared_ptr<Tensor<T>>& b, T threshold = 1e-5f);
+                  const std::shared_ptr<Tensor<T>>& b,
+                  T threshold = 1e-5f);
 
 /**
- * 张量相加
- * @param tensor1 输入张量1
- * @param tensor2 输入张量2
- * @return 张量相加的结果
+ * @brief Element-wise tensor add
+ *
+ * @param tensor1 Tensor 1
+ * @param tensor2 Tensor 2
+ * @return Output tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorElementAdd(
@@ -72,10 +79,11 @@ std::shared_ptr<Tensor<T>> TensorElementAdd(
     const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
- * 张量相加
- * @param tensor1 输入张量1
- * @param tensor2 输入张量2
- * @param output_tensor 输出张量
+ * @brief In-place element-wise tensor add
+ *
+ * @param tensor1 Tensor 1
+ * @param tensor2 Tensor 2
+ * @param output_tensor Output
  */
 template <typename T>
 void TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
@@ -83,21 +91,11 @@ void TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
                       const std::shared_ptr<Tensor<T>>& output_tensor);
 
 /**
- * 矩阵点乘
- * @param tensor1 输入张量1
- * @param tensor2 输入张量2
- * @param output_tensor 输出张量
- */
-template <typename T>
-void TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
-                           const std::shared_ptr<Tensor<T>>& tensor2,
-                           const std::shared_ptr<Tensor<T>>& output_tensor);
-
-/**
- * 张量相乘
- * @param tensor1 输入张量1
- * @param tensor2 输入张量2
- * @return 张量相乘的结果
+ * @brief Element-wise tensor multiply
+ *
+ * @param tensor1 Tensor 1
+ * @param tensor2 Tensor 2
+ * @return Output tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorElementMultiply(
@@ -105,45 +103,62 @@ std::shared_ptr<Tensor<T>> TensorElementMultiply(
     const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
- * 创建一个张量
- * @param channels 通道数量
- * @param rows 行数
- * @param cols 列数
- * @return 创建后的张量
+ * @brief In-place element-wise tensor multiply
+ *
+ * @param tensor1 Tensor 1
+ * @param tensor2 Tensor 2
+ * @param output_tensor Output
+ */
+template <typename T>
+void TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
+                           const std::shared_ptr<Tensor<T>>& tensor2,
+                           const std::shared_ptr<Tensor<T>>& output_tensor);
+
+/**
+ * @brief Creates a 3D tensor
+ *
+ * @param channels Number of channels
+ * @param rows Number of rows
+ * @param cols Number of columns
+ * @return New 3D tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorCreate(uint32_t channels, uint32_t rows,
                                         uint32_t cols);
 
 /**
- * 创建一个张量
- * @param rows 行数
- * @param cols 列数
- * @return 创建后的张量
+ * @brief Creates a 2D matrix tensor
+ *
+ * @param rows Number of rows
+ * @param cols Number of columns
+ * @return New 2D tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorCreate(uint32_t rows, uint32_t cols);
 
 /**
- * 创建一个张量
- * @param size 数据数
- * @return 创建后的张量
+ * @brief Creates a 1D vector tensor
+ *
+ * @param size Vector length
+ * @return New 1D tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorCreate(uint32_t size);
 
 /**
- * 创建一个张量
- * @param shapes 张量的形状
- * @return 创建后的张量
+ * @brief Creates tensor with shape
+ *
+ * @param shapes Tensor dimensions
+ * @return New tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorCreate(const std::vector<uint32_t>& shapes);
 
 /**
- * 返回一个深拷贝后的张量
- * @param 待Clone的张量
- * @return 新的张量
+ * @brief Clones a tensor
+ *
+ * @param tensor Tensor to clone
+ * @return Deep copy of tensor
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorClone(std::shared_ptr<Tensor<T>> tensor);
