@@ -50,6 +50,8 @@ class Layer<int8_t> {};
 template <>
 class Layer<float> {
  public:
+  explicit Layer(std::string layer_name) : layer_name_(std::move(layer_name)) {}
+
   /**
    * @brief Performs forward inference
    *
@@ -63,6 +65,24 @@ class Layer<float> {
    * @return Status code indicating success or failure
    */
   virtual StatusCode Forward();
+
+  /**
+   * @brief Performs forward pass
+   *
+   * This method implements the forward pass for this layer.
+   * It takes the input tensors, performs the required computations
+   * (convolution, matrix multiply etc.), and produces the output tensors.
+   *
+   * Takes the input tensors, executes the required computations
+   * (conv, matrix multiply etc.), and produces the output tensors.
+   *
+   * @param inputs Input tensors
+   * @param outputs Output tensors
+   * @return Status code
+   */
+  virtual StatusCode Forward(
+      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+      std::vector<std::shared_ptr<Tensor<float>>>& outputs);
 
   /**
    * @brief Gets layer weights
@@ -95,11 +115,43 @@ class Layer<float> {
       const std::vector<std::shared_ptr<Tensor<float>>>& bias);
 
   /**
+   * @brief Sets weights from float vector
+   *
+   * Sets the weight values from a vector of floats.
+   *
+   * The length of the vector should match the total number of weight values.
+   *
+   * @param weights Vector of weight values
+   */
+  virtual void set_weights(const std::vector<float>& weights);
+
+  /**
+   * @brief Sets biases from float vector
+   *
+   * Sets the bias values from a vector of floats.
+   *
+   * The length of the vector should match the total number of bias values.
+   *
+   * @param bias Vector of bias values
+   */
+  virtual void set_bias(const std::vector<float>& bias);
+
+  /**
    * @brief Gets layer name
    *
    * @return Layer name
    */
-  virtual const std::string& layer_name() const;
+  virtual const std::string& layer_name() const { return this->layer_name_; }
+
+  /**
+   * @brief Sets corresponding runtime operator
+   *
+   * Associates this layer instance with the given runtime operator.
+   *
+   * @param runtime_operator The RuntimeOperator for this layer
+   */
+  void set_runtime_operator(
+      const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
  protected:
   std::string layer_name_;

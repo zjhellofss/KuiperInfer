@@ -36,24 +36,36 @@ using Time = std::chrono::steady_clock;
 /**
  * @brief Timing state for a layer type
  *
- * Contains timing information for a layer type, including the
- * layer name, type, and duration.
+ * Contains timing information for a specific layer, including the
+ * execution duration, layer name, and type.
+ *
+ * Used to collect per layer execution time statistics. Thread safe.
  */
 struct LayerTimeState {
   /**
-   * @brief Construct new LayerTimeState
+   * @brief Construct and start time logging
    *
-   * @param duration_time Duration in ns
-   * @param layer_name Name of layer
-   * @param layer_type Type of layer
+   * Starts timing for the layer execution.
+   *
+   * Records the start time and initializes layer name and type.
+   *
+   * @param layer_name Name of the layer
+   * @param layer_type Type of the layer
    */
   explicit LayerTimeState(long duration_time, std::string layer_name,
-                          std::string layer_type);
+                          std::string layer_type)
+      : duration_time_(duration_time),
+        layer_name_(std::move(layer_name)),
+        layer_type_(std::move(layer_type)) {}
 
-  /// Duration in ns
+  /// Duration in ms
   long duration_time_;
 
-  /// Mutex for thread safety
+  /**
+   * @brief Mutex for thread safety
+   *
+   * Locks access to duration_time_ across threads.
+   */
   std::mutex time_mutex_;
 
   /// Name of the layer
@@ -63,24 +75,19 @@ struct LayerTimeState {
   std::string layer_type_;
 };
 
-/**
- * @brief Map of layer times by type
- *
- * Maps layer type string to LayerTimeState pointer.
- */
 using LayerTimeStatesCollector =
     std::map<std::string, std::shared_ptr<LayerTimeState>>;
 
-/**
- * @brief Pointer to layer time collector map
- */
 using PtrLayerTimeStatesCollector = std::shared_ptr<LayerTimeStatesCollector>;
 
 /**
- * @brief Singleton for layer timing stats
+ * @brief Singleton for layer timing stats collector
  *
- * Manages a singleton instance of a collector that stores
- * timing information per layer type. Thread safe.
+ * Implements a singleton pattern to provide thread-safe access
+ * to a unique instance of the layer timing collector.
+ *
+ * The PtrLayerTimeStatesCollector object containing the map of
+ * layer timing information can be accessed via the singleton.
  */
 class LayerTimeStatesSingleton {
  public:
@@ -106,18 +113,23 @@ class LayerTimeStatesSingleton {
 };
 
 /**
- * @brief Logs timing for a layer
+ * @brief Logs execution time for a layer
  *
- * Logs the start and end time for executing a layer to compute
- * the layer duration. Collects timing per layer type.
+ * Helper class to log the start and end time when executing a layer.
+ * Computes the layer execution duration and collects the timing
+ * statistics per layer type via a singleton.
  */
 class LayerTimeLogging {
  public:
   /**
-   * @brief Construct and start time log
+   * @brief Construct and start time logging
    *
-   * @param layer_name Layer name
-   * @param layer_type Layer type
+   * Starts timing for the layer execution.
+   *
+   * Records the start time and initializes layer name and type.
+   *
+   * @param layer_name Name of the layer
+   * @param layer_type Type of the layer
    */
   explicit LayerTimeLogging(std::string layer_name, std::string layer_type);
 

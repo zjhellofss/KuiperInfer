@@ -42,12 +42,13 @@ class LayerRegisterer {
   friend class RegistryGarbageCollector;
 
   /**
-   * @brief Registers a layer creator
+   * @brief Registers a layer creator function
    *
    * Registers a layer creation function for the given layer type.
+   * The creation function generates a layer instance from runtime operator.
    *
-   * @param layer_type The type name of the layer
-   * @param creator The layer creation function
+   * @param layer_type The name of the layer type
+   * @param creator Function to create the layer
    */
   static void RegisterCreator(const std::string& layer_type,
                               const Creator& creator);
@@ -55,11 +56,11 @@ class LayerRegisterer {
   /**
    * @brief Creates a layer object
    *
-   * Creates a layer object from the given runtime operator.
-   * Calls the registered creator function if found.
+   * Calls the registered creator function for the given runtime operator
+   * to create a layer instance.
    *
    * @param op The runtime operator
-   * @return A shared pointer to the created layer
+   * @return A shared pointer to the created layer object
    */
   static std::shared_ptr<Layer<float>> CreateLayer(
       const std::shared_ptr<RuntimeOperator>& op);

@@ -37,13 +37,25 @@ namespace kuiper_infer {
  * Contains the attribute data, shape, and data type.
  */
 struct RuntimeAttribute {
-  /// Attribute data (e.g. weight values)
+  /**
+   * @brief Attribute data
+   *
+   * Typically contains the binary weight values.
+   */
   std::vector<char> weight_data;
 
-  /// Shape of the attribute
+  /**
+   * @brief Shape of the attribute
+   *
+   * Describes the dimensions of the attribute data.
+   */
   std::vector<int32_t> shape;
 
-  /// Data type of the attribute
+  /**
+   * @brief Data type of the attribute
+   *
+   * Such as float32, int8, etc.
+   */
   RuntimeDataType type = RuntimeDataType::kTypeUnknown;
 
   /**

@@ -62,7 +62,8 @@ struct Token {
    * @param start_pos Start position
    * @param end_pos End position
    */
-  Token(TokenType token_type, int32_t start_pos, int32_t end_pos);
+  Token(TokenType token_type, int32_t start_pos, int32_t end_pos)
+      : token_type(token_type), start_pos(start_pos), end_pos(end_pos) {}
 };
 
 /**
@@ -104,7 +105,8 @@ class ExpressionParser {
    *
    * @param statement The expression string
    */
-  explicit ExpressionParser(std::string statement);
+  explicit ExpressionParser(std::string statement)
+      : statement_(std::move(statement)) {}
 
   /**
    * @brief Performs lexical analysis
