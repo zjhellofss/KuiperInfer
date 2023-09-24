@@ -55,7 +55,7 @@ class Layer<float> {
   /**
    * @brief Performs forward inference
    *
-   * This method implements the forward pass for this layer.
+   * This method implements the forward inference for this layer.
    * It takes the input tensors, performs the required computations
    * (convolution, matrix multiply etc.), and produces the output tensors.
    *
@@ -67,9 +67,9 @@ class Layer<float> {
   virtual StatusCode Forward();
 
   /**
-   * @brief Performs forward pass
+   * @brief Performs forward inference
    *
-   * This method implements the forward pass for this layer.
+   * This method implements the forward inference for this layer.
    * It takes the input tensors, performs the required computations
    * (convolution, matrix multiply etc.), and produces the output tensors.
    *

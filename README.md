@@ -20,18 +20,18 @@
 
 第二次课程是第一次课程的重置版，内容更加充实和完善，第一次课程大纲见下方章节。
 
-| 课程节数                                              | 进度     | 课程链接                                    |
-| ----------------------------------------------------- | -------- | ------------------------------------------- |
-| **第一讲** 项目预览和环境配置                         | 完成     | https://www.bilibili.com/video/BV118411f7yM |
-| **第二讲** 张量(Tensor)的设计与实现                   | 完成     | https://www.bilibili.com/video/BV1hN411k7q7 |
-| **第三讲** 计算图的定义                               | 完成     | https://www.bilibili.com/video/BV1vc411M7Yp |
-| **第四讲** 构建计算图关系和执行顺序                   | 完成     | https://www.bilibili.com/video/BV19s4y1r7az |
-| **第五讲** KuiperInfer中的算⼦和注册⼯⼚                 | 完成     | https://www.bilibili.com/video/BV1gx4y1o7pj |
-| **第六讲** 卷积和池化算子的实现                       | 完成     | https://www.bilibili.com/video/BV1hx4y197dS |
-| **第七讲** 表达式层中词法分析和语法分析以及算子的实现 | 完成     | https://www.bilibili.com/video/BV1j8411o7ao |
-| **第八讲** 自制推理框架支持Resnet网络的推理           | 完成     | https://www.bilibili.com/video/BV1o84y1o7ni |
-| **第九讲** 自制推理框架支持YoloV5网络的推理           | 写课件中 |                                             |
-| **第十讲** 让自制推理框架的执行速度更快一点           | 未完成   |                                             |
+| 课程节数                                              | 进度  | 课程链接                                    |
+| ----------------------------------------------------- |-----| ------------------------------------------- |
+| **第一讲** 项目预览和环境配置                         | 完成  | https://www.bilibili.com/video/BV118411f7yM |
+| **第二讲** 张量(Tensor)的设计与实现                   | 完成  | https://www.bilibili.com/video/BV1hN411k7q7 |
+| **第三讲** 计算图的定义                               | 完成  | https://www.bilibili.com/video/BV1vc411M7Yp |
+| **第四讲** 构建计算图关系和执行顺序                   | 完成  | https://www.bilibili.com/video/BV19s4y1r7az |
+| **第五讲** KuiperInfer中的算⼦和注册⼯⼚                 | 完成  | https://www.bilibili.com/video/BV1gx4y1o7pj |
+| **第六讲** 卷积和池化算子的实现                       | 完成  | https://www.bilibili.com/video/BV1hx4y197dS |
+| **第七讲** 表达式层中词法分析和语法分析以及算子的实现 | 完成  | https://www.bilibili.com/video/BV1j8411o7ao |
+| **第八讲** 自制推理框架支持Resnet网络的推理           | 完成  | https://www.bilibili.com/video/BV1o84y1o7ni |
+| **第九讲** 自制推理框架支持YoloV5网络的推理           | 完成  |    https://www.bilibili.com/video/BV1Qk4y1A7XL                                        |
+| **第十讲** 让自制推理框架的执行速度更快一点           | 未完成 |                                             |
 
 ## 知乎专栏（更新中）
 <a href="https://www.zhihu.com/column/c_1682405983161356288"> <img src="https://is1-ssl.mzstatic.com/image/thumb/Purple116/v4/8c/ec/b0/8cecb054-1279-1b92-668b-46e371b9f65f/AppIcon-0-0-1x_U007emarketing-0-0-0-6-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/1200x630wa.png" height="200" width="400" /> </a>
@@ -244,3 +244,5 @@ gcc (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
 优秀的数学库Armadillo: https://arma.sourceforge.net/docs.html
 
 给予我灵感的Caffe框架: https://github.com/BVLC/caffe
+
+fmath框架：https://github.com/herumi/fmath/
