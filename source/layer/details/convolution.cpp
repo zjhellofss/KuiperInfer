@@ -29,118 +29,57 @@
 #include "utils/math/fmath.hpp"
 
 namespace kuiper_infer {
-ConvolutionLayer::ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
-                                   uint32_t in_channel, uint32_t kernel_h,
-                                   uint32_t kernel_w, uint32_t padding_h,
-                                   uint32_t padding_w, uint32_t stride_h,
-                                   uint32_t stride_w, uint32_t groups,
-                                   bool use_bias, uint32_t output_padding_h,
-                                   uint32_t output_padding_w,
-                                   uint32_t dilation_h, uint32_t dilation_w)
-    : ParamLayer("convolution"),
-      conv_type_(conv_type),
-      use_bias_(use_bias),
-      groups_(groups),
-      padding_h_(padding_h),
-      padding_w_(padding_w),
-      stride_h_(stride_h),
-      stride_w_(stride_w),
-      output_padding_h_(output_padding_h),
-      output_padding_w_(output_padding_w),
-      dilation_h_(dilation_h),
-      dilation_w_(dilation_w) {
-  if (groups != 1) {
-    in_channel /= groups;
-  }
-
-  CHECK_GT(kernel_h, 0);
-  CHECK_GT(kernel_w, 0);
-  if (conv_type_ == ConvType::OpDeconv && dilation_h > 1) {
-    // dilation后的卷积大小
-    kernel_h = (kernel_h - 1) * (dilation_h_ - 1) + kernel_h;
-  }
-  if (conv_type_ == ConvType::OpDeconv && dilation_w > 1) {
-    // dilation后的卷积大小
-    kernel_w = (kernel_w - 1) * (dilation_w_ - 1) + kernel_w;
-  }
-  this->InitWeightParam(output_channel, in_channel, kernel_h, kernel_w);
-  if (use_bias_) {
-    this->InitBiasParam(output_channel, 1, 1, 1);
-  }
-
-  CHECK_GE(groups_, 1);
-  CHECK_GT(stride_h_, 0);
-  CHECK_GT(stride_w_, 0);
-  CHECK_GT(dilation_h_, 0);
-  CHECK_GT(dilation_w_, 0);
-
-  if (conv_type_ == ConvType::OpConv) {
-    CHECK_EQ(output_padding_h_, 0);
-    CHECK_EQ(output_padding_w_, 0);
-  }
-  CHECK(conv_type_ == ConvType::OpConv || conv_type_ == ConvType::OpDeconv);
-}
-
-void ConvolutionLayer::set_weights(
+void DeconvolutionLayer::set_weights(
     const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
-  if (conv_type_ == ConvType::OpConv) {
-    return ParamLayer::set_weights(weights);
-  } else {
-    LOG(FATAL)
-        << "The set weights function does not support this convolution type: "
-        << int32_t(conv_type_);
-  }
+  LOG(FATAL)
+      << "The set weights function does not support this convolution type: "
+      << int32_t(conv_type_);
 }
 
-void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
-  if (conv_type_ == ConvType::OpConv) {
-    return ParamLayer::set_weights(weights);
-  } else {
-    const uint32_t kernel_count = this->weights_.size();
-    CHECK(kernel_count > 0);
-    const uint32_t kernel_count_group = kernel_count / groups_;
-    const uint32_t kernel_channel = this->weights_.at(0)->channels();
-    uint32_t kernel_height = this->weights_.at(0)->rows();
-    uint32_t kernel_width = this->weights_.at(0)->cols();
-    if (dilation_h_ > 1) {
-      kernel_height = (kernel_height + dilation_h_ - 1) / dilation_h_;
-    }
+void DeconvolutionLayer::set_weights(const std::vector<float>& weights) {
+  const uint32_t kernel_count = this->weights_.size();
+  CHECK(kernel_count > 0);
+  const uint32_t kernel_count_group = kernel_count / groups_;
+  const uint32_t kernel_channel = this->weights_.at(0)->channels();
+  uint32_t kernel_height = this->weights_.at(0)->rows();
+  uint32_t kernel_width = this->weights_.at(0)->cols();
+  if (dilation_h_ > 1) {
+    kernel_height = (kernel_height + dilation_h_ - 1) / dilation_h_;
+  }
 
-    if (dilation_w_ > 1) {
-      kernel_width = (kernel_width + dilation_w_ - 1) / dilation_w_;
-    }
+  if (dilation_w_ > 1) {
+    kernel_width = (kernel_width + dilation_w_ - 1) / dilation_w_;
+  }
 
-    const uint32_t kernel_hw = kernel_height * kernel_width;
-    const uint32_t kernel_nhw = kernel_count_group * kernel_hw;
-    const uint32_t kernel_plane = kernel_channel * kernel_nhw;
+  const uint32_t kernel_hw = kernel_height * kernel_width;
+  const uint32_t kernel_nhw = kernel_count_group * kernel_hw;
+  const uint32_t kernel_plane = kernel_channel * kernel_nhw;
 
-    for (uint32_t group = 0; group < groups_; ++group) {
-      // sub_weights表示一个group内所有卷积核的权重值
-      std::vector<float> sub_weights(kernel_plane);
-      std::copy(weights.data() + group * kernel_plane,
-                weights.data() + (group + 1) * kernel_plane,
-                sub_weights.begin());
-      for (uint32_t kg = 0; kg < kernel_count_group; ++kg) {
-        const uint32_t channel_offset = kg * kernel_hw;
-        const uint32_t kernel_idx = group * kernel_count_group + kg;
-        /*
-         * 卷积核权重摆放的顺序是c n h w， 需要将它调整到n c h w
-         * 其中n表示卷积核次序，kernel_idx = group * kernel_count_group + kg;
-         * origin_pixel_idx = ic * kernel_nhw (nhw) + kg(n) * kernel_hw + ...
-         */
-        for (uint32_t ic = 0; ic < kernel_channel; ++ic) {
-          const uint32_t kernel_offset = ic * kernel_nhw;
-          arma::fmat& kernel_channel_mat =
-              this->weights_.at(kernel_idx)->slice(ic);
+  for (uint32_t group = 0; group < groups_; ++group) {
+    // sub_weights表示一个group内所有卷积核的权重值
+    std::vector<float> sub_weights(kernel_plane);
+    std::copy(weights.data() + group * kernel_plane,
+              weights.data() + (group + 1) * kernel_plane, sub_weights.begin());
+    for (uint32_t kg = 0; kg < kernel_count_group; ++kg) {
+      const uint32_t channel_offset = kg * kernel_hw;
+      const uint32_t kernel_idx = group * kernel_count_group + kg;
+      /*
+       * 卷积核权重摆放的顺序是c n h w， 需要将它调整到n c h w
+       * 其中n表示卷积核次序，kernel_idx = group * kernel_count_group + kg;
+       * origin_pixel_idx = ic * kernel_nhw (nhw) + kg(n) * kernel_hw + ...
+       */
+      for (uint32_t ic = 0; ic < kernel_channel; ++ic) {
+        const uint32_t kernel_offset = ic * kernel_nhw;
+        arma::fmat& kernel_channel_mat =
+            this->weights_.at(kernel_idx)->slice(ic);
 
-          for (uint32_t kw = 0; kw < kernel_width; ++kw) {
-            uint32_t kw_dilation = kw * dilation_w_;
-            float* kernel_ptr = kernel_channel_mat.colptr(kw_dilation);
-            for (uint32_t kh = 0; kh < kernel_height; ++kh) {
-              uint32_t kh_dilation = kh * dilation_h_;
-              *(kernel_ptr + kh_dilation) = sub_weights.at(
-                  kernel_offset + channel_offset + kh * kernel_width + kw);
-            }
+        for (uint32_t kw = 0; kw < kernel_width; ++kw) {
+          uint32_t kw_dilation = kw * dilation_w_;
+          float* kernel_ptr = kernel_channel_mat.colptr(kw_dilation);
+          for (uint32_t kh = 0; kh < kernel_height; ++kh) {
+            uint32_t kh_dilation = kh * dilation_h_;
+            *(kernel_ptr + kh_dilation) = sub_weights.at(
+                kernel_offset + channel_offset + kh * kernel_width + kw);
           }
         }
       }
@@ -148,7 +87,110 @@ void ConvolutionLayer::set_weights(const std::vector<float>& weights) {
   }
 }
 
-StatusCode ConvolutionLayer::Forward(
+void DeconvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
+                                       uint32_t kernel_h, uint32_t kernel_w,
+                                       uint32_t kernel_count_group,
+                                       uint32_t input_h, uint32_t input_w,
+                                       uint32_t channels_per_group,
+                                       uint32_t output_h, uint32_t output_w,
+                                       uint32_t group) const {
+#pragma omp parallel for
+  for (uint32_t k = 0; k < kernel_count_group; ++k) {
+    const arma::fmat& gemm_result =
+        DeconvGemm(input, input_h, input_w, channels_per_group, group, k,
+                   kernel_count_group);
+    DeconvCol2ImBias(gemm_result, output_tensor, input_h, input_w, group, k,
+                     kernel_count_group, kernel_h, kernel_w, output_h,
+                     output_w);
+  }
+}
+
+std::pair<uint32_t, uint32_t> DeconvolutionLayer::ComputeOutputSize(
+    const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
+    const uint32_t kernel_w) const {
+  uint32_t output_h = 0;
+  uint32_t output_w = 0;
+
+  output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
+  output_w = (input_w - 1) * stride_w_ + kernel_w + output_padding_w_;
+  CHECK(output_h > 2 * padding_h_ && output_w > 2 * padding_w_);
+  output_h -= 2 * padding_h_;
+  output_w -= 2 * padding_w_;
+  return {output_h, output_w};
+}
+
+arma::fmat DeconvolutionLayer::DeconvGemm(sftensor input, uint32_t input_h,
+                                          uint32_t input_w,
+                                          uint32_t channels_per_group,
+                                          uint32_t group, uint32_t kernel_index,
+                                          uint32_t kernel_count_group) const {
+  CHECK(input != nullptr && !input->empty());
+
+  kernel_index = kernel_index + group * kernel_count_group;
+  CHECK(kernel_index < this->weights_.size());
+
+  sftensor group_kernel = this->weights_.at(kernel_index);
+  CHECK(group_kernel != nullptr && !group_kernel->empty());
+
+  uint32_t input_hw = input_h * input_w;
+  uint32_t kernel_hw = group_kernel->rows() * group_kernel->cols();
+
+  arma::fmat multi_input_channel(
+      input->matrix_raw_ptr(group * channels_per_group), input_hw,
+      channels_per_group, false, true);
+
+  arma::fmat multi_kernel_channel(group_kernel->raw_ptr(), kernel_hw,
+                                  channels_per_group, false, true);
+  return multi_kernel_channel * (multi_input_channel.t());
+}
+
+void DeconvolutionLayer::DeconvCol2ImBias(
+    const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
+    uint32_t input_w, uint32_t group, uint32_t kernel_index,
+    uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
+    uint32_t output_h, uint32_t output_w) const {
+  CHECK(!gemm_result.empty());
+  CHECK(input_h > 0 && input_w > 0);
+  CHECK(output_tensor != nullptr && !output_tensor->empty());
+
+  arma::fmat output_padding(output_h + 2 * padding_h_,
+                            output_w + 2 * padding_w_);
+
+  uint32_t slide_count_w = input_w;
+  uint32_t slide_count_h = input_h;
+
+  for (uint32_t index = 0; index < slide_count_w * slide_count_h; ++index) {
+    uint32_t x = index / slide_count_h;
+    uint32_t y = index % slide_count_h;
+    const uint32_t offset_x = x * stride_w_;
+    const uint32_t offset_y = y * stride_h_;
+    arma::fmat gemm_column((float*)gemm_result.colptr(index), kernel_h,
+                           kernel_w, false, true);
+
+    uint32_t gemm_rows = gemm_column.n_rows;
+    uint32_t gemm_cols = gemm_column.n_cols;
+
+    for (uint32_t col = 0; col < gemm_cols; ++col) {
+      float* gemm_ptr = gemm_column.colptr(col);
+      float* output_ptr = output_padding.colptr(offset_x + col);
+      for (uint32_t row = 0; row < gemm_rows; ++row) {
+        *(output_ptr + offset_y + row) += *(gemm_ptr + row);
+      }
+    }
+  }
+
+  kernel_index = kernel_index + group * kernel_count_group;
+  arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h,
+                    output_w, false, true);
+
+  output =
+      output_padding.submat(padding_h_, padding_w_, output_h + padding_h_ - 1,
+                            output_w + padding_w_ - 1);
+
+  AddBias(output, kernel_index);
+}
+
+StatusCode BaseConvolutionLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
@@ -278,54 +320,56 @@ StatusCode ConvolutionLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-void ConvolutionLayer::DeconvCol2ImBias(
-    const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
-    uint32_t input_w, uint32_t group, uint32_t kernel_index,
-    uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
-    uint32_t output_h, uint32_t output_w) const {
-  CHECK(this->conv_type_ == ConvType::OpDeconv);
-  CHECK(!gemm_result.empty());
-  CHECK(input_h > 0 && input_w > 0);
-  CHECK(output_tensor != nullptr && !output_tensor->empty());
-
-  arma::fmat output_padding(output_h + 2 * padding_h_,
-                            output_w + 2 * padding_w_);
-
-  uint32_t slide_count_w = input_w;
-  uint32_t slide_count_h = input_h;
-
-  for (uint32_t index = 0; index < slide_count_w * slide_count_h; ++index) {
-    uint32_t x = index / slide_count_h;
-    uint32_t y = index % slide_count_h;
-    const uint32_t offset_x = x * stride_w_;
-    const uint32_t offset_y = y * stride_h_;
-    arma::fmat gemm_column((float*)gemm_result.colptr(index), kernel_h,
-                           kernel_w, false, true);
-
-    uint32_t gemm_rows = gemm_column.n_rows;
-    uint32_t gemm_cols = gemm_column.n_cols;
-
-    for (uint32_t col = 0; col < gemm_cols; ++col) {
-      float* gemm_ptr = gemm_column.colptr(col);
-      float* output_ptr = output_padding.colptr(offset_x + col);
-      for (uint32_t row = 0; row < gemm_rows; ++row) {
-        *(output_ptr + offset_y + row) += *(gemm_ptr + row);
-      }
-    }
+BaseConvolutionLayer::BaseConvolutionLayer(
+    ConvType conv_type, uint32_t output_channel, uint32_t in_channel,
+    uint32_t kernel_h, uint32_t kernel_w, uint32_t padding_h,
+    uint32_t padding_w, uint32_t stride_h, uint32_t stride_w, uint32_t groups,
+    bool use_bias, uint32_t output_padding_h, uint32_t output_padding_w,
+    uint32_t dilation_h, uint32_t dilation_w)
+    : ParamLayer("convolution"),
+      conv_type_(conv_type),
+      use_bias_(use_bias),
+      groups_(groups),
+      padding_h_(padding_h),
+      padding_w_(padding_w),
+      stride_h_(stride_h),
+      stride_w_(stride_w),
+      output_padding_h_(output_padding_h),
+      output_padding_w_(output_padding_w),
+      dilation_h_(dilation_h),
+      dilation_w_(dilation_w) {
+  if (groups != 1) {
+    in_channel /= groups;
   }
 
-  kernel_index = kernel_index + group * kernel_count_group;
-  arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h,
-                    output_w, false, true);
+  CHECK_GE(groups_, 1);
+  CHECK_GT(stride_h_, 0);
+  CHECK_GT(stride_w_, 0);
+  CHECK_GT(dilation_h_, 0);
+  CHECK_GT(dilation_w_, 0);
 
-  output =
-      output_padding.submat(padding_h_, padding_w_, output_h + padding_h_ - 1,
-                            output_w + padding_w_ - 1);
+  if (conv_type_ == ConvType::OpConv) {
+    CHECK_EQ(output_padding_h_, 0);
+    CHECK_EQ(output_padding_w_, 0);
+  } else if (conv_type_ == ConvType::OpDeconv) {
+    if (dilation_h > 1)
+      kernel_h = (kernel_h - 1) * (dilation_h_ - 1) + kernel_h;
+    if (dilation_w > 1)
+      kernel_w = (kernel_w - 1) * (dilation_w_ - 1) + kernel_w;
+  } else {
+    LOG(FATAL) << "Unsupported convolution type: " << int(conv_type_);
+  }
 
-  AddBias(output, kernel_index);
+  CHECK_GT(kernel_h, 0);
+  CHECK_GT(kernel_w, 0);
+  this->InitWeightParam(output_channel, in_channel, kernel_h, kernel_w);
+  if (use_bias_) {
+    this->InitBiasParam(output_channel, 1, 1, 1);
+  }
 }
 
-void ConvolutionLayer::AddBias(arma::fmat& output, uint32_t bias_index) const {
+void BaseConvolutionLayer::AddBias(arma::fmat& output,
+                                   uint32_t bias_index) const {
   if (!this->bias_.empty() && this->use_bias_) {
     std::shared_ptr<Tensor<float>> bias;
     bias = this->bias_.at(bias_index);
@@ -338,103 +382,8 @@ void ConvolutionLayer::AddBias(arma::fmat& output, uint32_t bias_index) const {
   }
 }
 
-arma::fmat ConvolutionLayer::DeconvGemm(sftensor input, uint32_t input_h,
-                                        uint32_t input_w,
-                                        uint32_t channels_per_group,
-                                        uint32_t group, uint32_t kernel_index,
-                                        uint32_t kernel_count_group) const {
-  CHECK(conv_type_ == ConvType::OpDeconv);
-  CHECK(input != nullptr && !input->empty());
-
-  kernel_index = kernel_index + group * kernel_count_group;
-  CHECK(kernel_index < this->weights_.size());
-
-  sftensor group_kernel = this->weights_.at(kernel_index);
-  CHECK(group_kernel != nullptr && !group_kernel->empty());
-
-  uint32_t input_hw = input_h * input_w;
-  uint32_t kernel_hw = group_kernel->rows() * group_kernel->cols();
-
-  arma::fmat multi_input_channel(
-      input->matrix_raw_ptr(group * channels_per_group), input_hw,
-      channels_per_group, false, true);
-
-  arma::fmat multi_kernel_channel(group_kernel->raw_ptr(), kernel_hw,
-                                  channels_per_group, false, true);
-  return multi_kernel_channel * (multi_input_channel.t());
-}
-
-arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
-                                        uint32_t kernel_w, uint32_t input_h,
-                                        uint32_t input_w,
-                                        uint32_t channels_per_group,
-                                        uint32_t output_h, uint32_t output_w,
-                                        uint32_t group, uint32_t row_len,
-                                        uint32_t col_len) const {
-  CHECK(conv_type_ == ConvType::OpConv);
-  CHECK(input && !input->empty());
-  arma::fmat input_matrix(channels_per_group * row_len, col_len);
-
-  const float padding_value = 0.f;
-#pragma omp parallel for
-  for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
-    float* input_channel_ptr =
-        input->matrix_raw_ptr(ic + group * channels_per_group);
-    uint32_t current_col = 0;
-    uint32_t channel_row = ic * row_len;
-    for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
-      for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
-        float* input_matrix_ptr =
-            input_matrix.colptr(current_col) + channel_row;
-        current_col += 1;
-        for (uint32_t kw = 0; kw < kernel_w * dilation_w_; kw += dilation_w_) {
-          const uint32_t region_w = input_h * (input_col + kw - padding_w_);
-          for (uint32_t kh = 0; kh < kernel_h * dilation_h_;
-               kh += dilation_h_) {
-            if ((kh + input_row >= padding_h_ &&
-                 kw + input_col >= padding_w_) &&
-                (kh + input_row < input_h + padding_h_ &&
-                 kw + input_col < input_w + padding_w_)) {
-              float* region_ptr =
-                  input_channel_ptr + region_w + (input_row + kh - padding_h_);
-              *input_matrix_ptr = *region_ptr;
-            } else {
-              *input_matrix_ptr = padding_value;  // only support zero mode
-            }
-            input_matrix_ptr += 1;
-          }
-        }
-        input_row += stride_h_;
-      }
-      input_col += stride_w_;
-    }
-  }
-  return input_matrix;
-}
-
-void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
-                                    sftensor output_tensor, uint32_t group,
-                                    uint32_t kernel_index,
-                                    uint32_t kernel_count_group,
-                                    uint32_t output_h,
-                                    uint32_t output_w) const {
-  CHECK(conv_type_ == ConvType::OpConv) << "Convolution type need be OpConv";
-
-  CHECK(!input_matrix.empty());
-  CHECK(output_tensor && !output_tensor->empty());
-
-  kernel_index = kernel_index + group * kernel_count_group;
-  const arma::frowvec& kernel = this->kernel_matrix_arr_.at(kernel_index);
-
-  arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h,
-                    output_w, false, true);
-  output = kernel * input_matrix;
-
-  AddBias(output, kernel_index);
-}
-
-void ConvolutionLayer::InitIm2ColWeight() {
-  if (this->conv_type_ != ConvType::OpConv) {
+void BaseConvolutionLayer::InitIm2ColWeight() {
+  if (conv_type_ != ConvType::OpConv) {
     return;
   }
   const uint32_t kernel_count = this->weights_.size();
@@ -484,27 +433,80 @@ void ConvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
                                      uint32_t channels_per_group,
                                      uint32_t output_h, uint32_t output_w,
                                      uint32_t group) const {
-  if (conv_type_ == ConvType::OpConv) {
-    const arma::fmat& input_matrix = ConvIm2Col(
-        input, kernel_h, kernel_w, input_h, input_w, channels_per_group,
-        output_h, output_w, group, kernel_h * kernel_w, output_h * output_w);
+  const arma::fmat& input_matrix = ConvIm2Col(
+      input, kernel_h, kernel_w, input_h, input_w, channels_per_group, output_h,
+      output_w, group, kernel_h * kernel_w, output_h * output_w);
 #pragma omp parallel for
-    for (uint32_t k = 0; k < kernel_count_group; ++k) {
-      ConvGemmBias(input_matrix, output_tensor, group, k, kernel_count_group,
-                   output_h, output_w);
-    }
-  } else {
-    CHECK(conv_type_ == ConvType::OpDeconv);
+  for (uint32_t k = 0; k < kernel_count_group; ++k) {
+    ConvGemmBias(input_matrix, output_tensor, group, k, kernel_count_group,
+                 output_h, output_w);
+  }
+}
+
+arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h,
+                                        uint32_t kernel_w, uint32_t input_h,
+                                        uint32_t input_w,
+                                        uint32_t channels_per_group,
+                                        uint32_t output_h, uint32_t output_w,
+                                        uint32_t group, uint32_t row_len,
+                                        uint32_t col_len) const {
+  CHECK(input && !input->empty());
+  arma::fmat input_matrix(channels_per_group * row_len, col_len);
+
+  const float padding_value = 0.f;
 #pragma omp parallel for
-    for (uint32_t k = 0; k < kernel_count_group; ++k) {
-      const arma::fmat& gemm_result =
-          DeconvGemm(input, input_h, input_w, channels_per_group, group, k,
-                     kernel_count_group);
-      DeconvCol2ImBias(gemm_result, output_tensor, input_h, input_w, group, k,
-                       kernel_count_group, kernel_h, kernel_w, output_h,
-                       output_w);
+  for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
+    float* input_channel_ptr =
+        input->matrix_raw_ptr(ic + group * channels_per_group);
+    uint32_t current_col = 0;
+    uint32_t channel_row = ic * row_len;
+    for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
+      for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
+        float* input_matrix_ptr =
+            input_matrix.colptr(current_col) + channel_row;
+        current_col += 1;
+        for (uint32_t kw = 0; kw < kernel_w * dilation_w_; kw += dilation_w_) {
+          const uint32_t region_w = input_h * (input_col + kw - padding_w_);
+          for (uint32_t kh = 0; kh < kernel_h * dilation_h_;
+               kh += dilation_h_) {
+            if ((kh + input_row >= padding_h_ &&
+                 kw + input_col >= padding_w_) &&
+                (kh + input_row < input_h + padding_h_ &&
+                 kw + input_col < input_w + padding_w_)) {
+              float* region_ptr =
+                  input_channel_ptr + region_w + (input_row + kh - padding_h_);
+              *input_matrix_ptr = *region_ptr;
+            } else {
+              *input_matrix_ptr = padding_value;  // only support zero mode
+            }
+            input_matrix_ptr += 1;
+          }
+        }
+        input_row += stride_h_;
+      }
+      input_col += stride_w_;
     }
   }
+  return input_matrix;
+}
+
+void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix,
+                                    sftensor output_tensor, uint32_t group,
+                                    uint32_t kernel_index,
+                                    uint32_t kernel_count_group,
+                                    uint32_t output_h,
+                                    uint32_t output_w) const {
+  CHECK(!input_matrix.empty());
+  CHECK(output_tensor && !output_tensor->empty());
+
+  kernel_index = kernel_index + group * kernel_count_group;
+  const arma::frowvec& kernel = this->kernel_matrix_arr_.at(kernel_index);
+
+  arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h,
+                    output_w, false, true);
+  output = kernel * input_matrix;
+
+  AddBias(output, kernel_index);
 }
 
 std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(
@@ -513,28 +515,19 @@ std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(
   uint32_t output_h = 0;
   uint32_t output_w = 0;
 
-  if (conv_type_ == ConvType::OpConv) {
-    CHECK_GT(kernel_h, 0);
-    CHECK_GT(kernel_w, 0);
+  CHECK_GT(kernel_h, 0);
+  CHECK_GT(kernel_w, 0);
 
-    output_h = (input_h + 2 * padding_h_ - dilation_h_ * (kernel_h - 1) - 1) /
-                   stride_h_ +
-               1;
-    output_w = (input_w + 2 * padding_w_ - dilation_w_ * (kernel_w - 1) - 1) /
-                   stride_w_ +
-               1;
-  } else {
-    CHECK(conv_type_ == ConvType::OpDeconv);
-    output_h = (input_h - 1) * stride_h_ + kernel_h + output_padding_h_;
-    output_w = (input_w - 1) * stride_w_ + kernel_w + output_padding_w_;
-    CHECK(output_h > 2 * padding_h_ && output_w > 2 * padding_w_);
-    output_h -= 2 * padding_h_;
-    output_w -= 2 * padding_w_;
-  }
+  output_h = (input_h + 2 * padding_h_ - dilation_h_ * (kernel_h - 1) - 1) /
+                 stride_h_ +
+             1;
+  output_w = (input_w + 2 * padding_w_ - dilation_w_ * (kernel_w - 1) - 1) /
+                 stride_w_ +
+             1;
   return {output_h, output_w};
 }
 
-StatusCode ConvolutionLayer::CreateInstance(
+StatusCode BaseConvolutionLayer::CreateInstance(
     const std::shared_ptr<RuntimeOperator>& op,
     std::shared_ptr<Layer<float>>& conv_layer) {
   CHECK(op != nullptr) << "Convolution operator is nullptr";
@@ -706,12 +699,19 @@ StatusCode ConvolutionLayer::CreateInstance(
     LOG(FATAL) << "Unknown convolution type: " << op->type;
   }
 
-  // kernel的方向是倒置的
-  conv_layer = std::make_shared<ConvolutionLayer>(
-      conv_type, out_channel->value, in_channel->value, kernels.at(0),
-      kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
-      strides.at(1), groups->value, use_bias->value, output_padding_h,
-      output_padding_w, dilation_h, dilation_w);
+  if (conv_type == ConvType::OpConv) {
+    conv_layer = std::make_shared<ConvolutionLayer>(
+        conv_type, out_channel->value, in_channel->value, kernels.at(0),
+        kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
+        strides.at(1), groups->value, use_bias->value, output_padding_h,
+        output_padding_w, dilation_h, dilation_w);
+  } else {
+    conv_layer = std::make_shared<DeconvolutionLayer>(
+        conv_type, out_channel->value, in_channel->value, kernels.at(0),
+        kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
+        strides.at(1), groups->value, use_bias->value, output_padding_h,
+        output_padding_w, dilation_h, dilation_w);
+  }
 
   // load weights
   const std::map<std::string, std::shared_ptr<RuntimeAttribute>>& attrs =
@@ -748,15 +748,15 @@ StatusCode ConvolutionLayer::CreateInstance(
   conv_layer->set_weights(weight_values);
 
   auto conv_layer_derived =
-      std::dynamic_pointer_cast<ConvolutionLayer>(conv_layer);
+      std::dynamic_pointer_cast<BaseConvolutionLayer>(conv_layer);
   CHECK(conv_layer_derived != nullptr);
   conv_layer_derived->InitIm2ColWeight();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kConvCreateInstance("nn.Conv2d",
-                                           ConvolutionLayer::CreateInstance);
+LayerRegistererWrapper kConvCreateInstance(
+    "nn.Conv2d", BaseConvolutionLayer::CreateInstance);
 
-LayerRegistererWrapper kDeConvCreateInstance("nn.ConvTranspose2d",
-                                             ConvolutionLayer::CreateInstance);
+LayerRegistererWrapper kDeConvCreateInstance(
+    "nn.ConvTranspose2d", BaseConvolutionLayer::CreateInstance);
 }  // namespace kuiper_infer

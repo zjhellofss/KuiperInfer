@@ -31,16 +31,15 @@ enum class ConvType {
 };
 
 namespace kuiper_infer {
-class ConvolutionLayer : public ParamLayer {
+class BaseConvolutionLayer : public ParamLayer {
  public:
-  explicit ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
-                            uint32_t in_channel, uint32_t kernel_h,
-                            uint32_t kernel_w, uint32_t padding_h,
-                            uint32_t padding_w, uint32_t stride_h,
-                            uint32_t stride_w, uint32_t groups,
-                            bool use_bias = true, uint32_t output_padding_h = 0,
-                            uint32_t output_padding_w = 0,
-                            uint32_t dilation_h = 1, uint32_t dilation_w = 1);
+  explicit BaseConvolutionLayer(
+      ConvType conv_type, uint32_t output_channel, uint32_t in_channel,
+      uint32_t kernel_h, uint32_t kernel_w, uint32_t padding_h,
+      uint32_t padding_w, uint32_t stride_h, uint32_t stride_w, uint32_t groups,
+      bool use_bias = true, uint32_t output_padding_h = 0,
+      uint32_t output_padding_w = 0, uint32_t dilation_h = 1,
+      uint32_t dilation_w = 1);
 
   static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                    std::shared_ptr<Layer<float>>& conv_layer);
@@ -49,52 +48,24 @@ class ConvolutionLayer : public ParamLayer {
       const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
       std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
-
-  void set_weights(const std::vector<float>& weights) override;
-
-  /**
-   * 初始化kernel的im2col排布
-   */
-  void InitIm2ColWeight();
-
  private:
-  void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
-                     uint32_t kernel_w, uint32_t kernel_count_group,
-                     uint32_t input_h, uint32_t input_w, uint32_t input_c_group,
-                     uint32_t output_h, uint32_t output_w,
-                     uint32_t group) const;
+  virtual void ComputeOutput(sftensor input, sftensor output_tensor,
+                             uint32_t kernel_h, uint32_t kernel_w,
+                             uint32_t kernel_count_group, uint32_t input_h,
+                             uint32_t input_w, uint32_t input_c_group,
+                             uint32_t output_h, uint32_t output_w,
+                             uint32_t group) const = 0;
 
-  std::pair<uint32_t, uint32_t> ComputeOutputSize(
-      const uint32_t input_h, const uint32_t input_w, const uint32_t kernel_h,
-      const uint32_t kernel_w) const;
+  virtual std::pair<uint32_t, uint32_t> ComputeOutputSize(
+      uint32_t input_h, uint32_t input_w, uint32_t kernel_h,
+      uint32_t kernel_w) const = 0;
 
-  void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
-                    uint32_t group, uint32_t kernel_index,
-                    uint32_t kernel_count_group, uint32_t output_h,
-                    uint32_t output_w) const;
-
-  void DeconvCol2ImBias(const arma::fmat& gemm_result, sftensor output_tensor,
-                        uint32_t input_h, uint32_t input_w, uint32_t group,
-                        uint32_t kernel_index, uint32_t kernel_count_group,
-                        uint32_t kernel_h, uint32_t kernel_w, uint32_t output_h,
-                        uint32_t output_w) const;
+ protected:
+  void InitIm2ColWeight();
 
   void AddBias(arma::fmat& output, uint32_t bias_index) const;
 
-  arma::fmat DeconvGemm(sftensor input, uint32_t input_h, uint32_t input_w,
-                        uint32_t input_c_group, uint32_t group,
-                        uint32_t kernel_index,
-                        uint32_t kernel_count_group) const;
-
-  arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w,
-                        uint32_t input_h, uint32_t input_w,
-                        uint32_t input_c_group, uint32_t output_h,
-                        uint32_t output_w, uint32_t group, uint32_t row_len,
-                        uint32_t col_len) const;
-
- private:
+ protected:
   ConvType conv_type_ = ConvType::OpConvUnknown;
   bool use_bias_ = false;
   uint32_t groups_ = 1;
@@ -109,6 +80,88 @@ class ConvolutionLayer : public ParamLayer {
   uint32_t dilation_h_ = 1;
   uint32_t dilation_w_ = 1;
   std::vector<arma::frowvec> kernel_matrix_arr_;
+};
+
+class ConvolutionLayer : public BaseConvolutionLayer {
+ public:
+  explicit ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
+                            uint32_t in_channel, uint32_t kernel_h,
+                            uint32_t kernel_w, uint32_t padding_h,
+                            uint32_t padding_w, uint32_t stride_h,
+                            uint32_t stride_w, uint32_t groups,
+                            bool use_bias = true, uint32_t output_padding_h = 0,
+                            uint32_t output_padding_w = 0,
+                            uint32_t dilation_h = 1, uint32_t dilation_w = 1)
+      : BaseConvolutionLayer(conv_type, output_channel, in_channel, kernel_h,
+                             kernel_w, padding_h, padding_w, stride_h, stride_w,
+                             groups, use_bias, output_padding_h,
+                             output_padding_w, dilation_h, dilation_w) {}
+
+ private:
+  void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
+                     uint32_t kernel_w, uint32_t kernel_count_group,
+                     uint32_t input_h, uint32_t input_w,
+                     uint32_t channels_per_group, uint32_t output_h,
+                     uint32_t output_w, uint32_t group) const override;
+
+  std::pair<uint32_t, uint32_t> ComputeOutputSize(
+      uint32_t input_h, uint32_t input_w, uint32_t kernel_h,
+      uint32_t kernel_w) const override;
+
+  void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
+                    uint32_t group, uint32_t kernel_index,
+                    uint32_t kernel_count_group, uint32_t output_h,
+                    uint32_t output_w) const;
+
+  arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w,
+                        uint32_t input_h, uint32_t input_w,
+                        uint32_t channels_per_group, uint32_t output_h,
+                        uint32_t output_w, uint32_t group, uint32_t row_len,
+                        uint32_t col_len) const;
+};
+
+class DeconvolutionLayer : public BaseConvolutionLayer {
+ public:
+  explicit DeconvolutionLayer(ConvType conv_type, uint32_t output_channel,
+                              uint32_t in_channel, uint32_t kernel_h,
+                              uint32_t kernel_w, uint32_t padding_h,
+                              uint32_t padding_w, uint32_t stride_h,
+                              uint32_t stride_w, uint32_t groups,
+                              bool use_bias = true,
+                              uint32_t output_padding_h = 0,
+                              uint32_t output_padding_w = 0,
+                              uint32_t dilation_h = 1, uint32_t dilation_w = 1)
+      : BaseConvolutionLayer(conv_type, output_channel, in_channel, kernel_h,
+                             kernel_w, padding_h, padding_w, stride_h, stride_w,
+                             groups, use_bias, output_padding_h,
+                             output_padding_w, dilation_h, dilation_w) {}
+
+  void set_weights(const std::vector<float>& weights) override;
+
+  void set_weights(
+      const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
+
+ private:
+  void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
+                     uint32_t kernel_w, uint32_t kernel_count_group,
+                     uint32_t input_h, uint32_t input_w,
+                     uint32_t channels_per_group, uint32_t output_h,
+                     uint32_t output_w, uint32_t group) const override;
+
+  std::pair<uint32_t, uint32_t> ComputeOutputSize(
+      uint32_t input_h, uint32_t input_w, uint32_t kernel_h,
+      uint32_t kernel_w) const override;
+
+  void DeconvCol2ImBias(const arma::fmat& gemm_result, sftensor output_tensor,
+                        uint32_t input_h, uint32_t input_w, uint32_t group,
+                        uint32_t kernel_index, uint32_t kernel_count_group,
+                        uint32_t kernel_h, uint32_t kernel_w, uint32_t output_h,
+                        uint32_t output_w) const;
+
+  arma::fmat DeconvGemm(sftensor input, uint32_t input_h, uint32_t input_w,
+                        uint32_t channels_per_group, uint32_t group,
+                        uint32_t kernel_index,
+                        uint32_t kernel_count_group) const;
 };
 
 }  // namespace kuiper_infer
