@@ -87,6 +87,8 @@ void DeconvolutionLayer::set_weights(const std::vector<float>& weights) {
   }
 }
 
+void DeconvolutionLayer::InitIm2ColWeight() {}
+
 void DeconvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
                                        uint32_t kernel_h, uint32_t kernel_w,
                                        uint32_t kernel_count_group,
@@ -265,7 +267,7 @@ StatusCode BaseConvolutionLayer::Forward(
   const uint32_t batch_size = inputs.size();
   const uint32_t kernel_count_group = kernel_count / groups_;
 
-  if (conv_type_ == ConvType::OpConv && kernel_matrix_arr_.empty()) {
+  if (kernel_matrix_arr_.empty()) {
     this->InitIm2ColWeight();
   }
 
@@ -382,10 +384,7 @@ void BaseConvolutionLayer::AddBias(arma::fmat& output,
   }
 }
 
-void BaseConvolutionLayer::InitIm2ColWeight() {
-  if (conv_type_ != ConvType::OpConv) {
-    return;
-  }
+void ConvolutionLayer::InitIm2ColWeight() {
   const uint32_t kernel_count = this->weights_.size();
   CHECK(kernel_count > 0) << "kernel count must greater than zero";
   const uint32_t kernel_h = this->weights_.at(0)->rows();
@@ -701,16 +700,16 @@ StatusCode BaseConvolutionLayer::CreateInstance(
 
   if (conv_type == ConvType::OpConv) {
     conv_layer = std::make_shared<ConvolutionLayer>(
-        conv_type, out_channel->value, in_channel->value, kernels.at(0),
-        kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
-        strides.at(1), groups->value, use_bias->value, output_padding_h,
-        output_padding_w, dilation_h, dilation_w);
+        out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
+        paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
+        groups->value, use_bias->value, output_padding_h, output_padding_w,
+        dilation_h, dilation_w);
   } else {
     conv_layer = std::make_shared<DeconvolutionLayer>(
-        conv_type, out_channel->value, in_channel->value, kernels.at(0),
-        kernels.at(1), paddings.at(0), paddings.at(1), strides.at(0),
-        strides.at(1), groups->value, use_bias->value, output_padding_h,
-        output_padding_w, dilation_h, dilation_w);
+        out_channel->value, in_channel->value, kernels.at(0), kernels.at(1),
+        paddings.at(0), paddings.at(1), strides.at(0), strides.at(1),
+        groups->value, use_bias->value, output_padding_h, output_padding_w,
+        dilation_h, dilation_w);
   }
 
   // load weights
@@ -751,6 +750,7 @@ StatusCode BaseConvolutionLayer::CreateInstance(
       std::dynamic_pointer_cast<BaseConvolutionLayer>(conv_layer);
   CHECK(conv_layer_derived != nullptr);
   conv_layer_derived->InitIm2ColWeight();
+
   return StatusCode::kSuccess;
 }
 

@@ -162,7 +162,6 @@ void RuntimeGraph::Forward(bool debug) {
   }
 
   for (const auto& current_op : operators_) {
-    StatusCode status;
     if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
       continue;
@@ -171,21 +170,20 @@ void RuntimeGraph::Forward(bool debug) {
     CHECK(current_op->layer != nullptr)
         << "The layer corresponding to the op " << current_op->name
         << " is empty, indicating that it may not have been created.";
+
+    StatusCode status;
     std::shared_ptr<Layer<float>> layer = current_op->layer;
     if (debug) {
       {
         LayerTimeLogging layer_time_logging(current_op->name, current_op->type);
         status = layer->Forward();
-        CHECK(status == StatusCode::kSuccess)
-            << layer->layer_name()
-            << " layer forward failed, error code: " << int32_t(status);
       }
     } else {
       status = layer->Forward();
-      CHECK(status == StatusCode::kSuccess)
-          << layer->layer_name()
-          << " layer forward failed, error code: " << int32_t(status);
     }
+    CHECK(status == StatusCode::kSuccess)
+        << layer->layer_name()
+        << " layer forward failed, error code: " << int32_t(status);
 
     current_op->has_forward = true;
     ProbeNextLayer(current_op, current_op->output_operands->datas);

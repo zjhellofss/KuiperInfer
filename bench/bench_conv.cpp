@@ -47,8 +47,8 @@ static void BM_Convolutionk3x3s1x1(benchmark::State& state) {
   std::vector<sftensor> outputs(1);
   std::vector<sftensor> inputs;
   inputs.push_back(input);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, channels, 3, 3, 0,
-                              0, 1, 1, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 1, 1, 1,
+                              false);
   conv_layer.set_weights(weights);
   for (auto _ : state) {
     conv_layer.Forward(inputs, outputs);
@@ -97,8 +97,8 @@ static void BM_DeConvolutionk2x2s2x2(benchmark::State& state) {
   for (uint32_t i = 0; i < batch; ++i) {
     inputs.push_back(input);
   }
-  ConvolutionLayer conv_layer(ConvType::OpDeconv, kernel_count, channels, 3, 3,
-                              0, 0, 2, 2, 1, false);
+  DeconvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 2, 2, 1,
+                                false);
   conv_layer.set_weights(weight_values);
   for (auto _ : state) {
     conv_layer.Forward(inputs, outputs);

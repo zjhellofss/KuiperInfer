@@ -60,9 +60,9 @@ class BaseConvolutionLayer : public ParamLayer {
       uint32_t input_h, uint32_t input_w, uint32_t kernel_h,
       uint32_t kernel_w) const = 0;
 
- protected:
-  void InitIm2ColWeight();
+  virtual void InitIm2ColWeight() = 0;
 
+ protected:
   void AddBias(arma::fmat& output, uint32_t bias_index) const;
 
  protected:
@@ -84,20 +84,22 @@ class BaseConvolutionLayer : public ParamLayer {
 
 class ConvolutionLayer : public BaseConvolutionLayer {
  public:
-  explicit ConvolutionLayer(ConvType conv_type, uint32_t output_channel,
-                            uint32_t in_channel, uint32_t kernel_h,
-                            uint32_t kernel_w, uint32_t padding_h,
-                            uint32_t padding_w, uint32_t stride_h,
-                            uint32_t stride_w, uint32_t groups,
-                            bool use_bias = true, uint32_t output_padding_h = 0,
+  explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel,
+                            uint32_t kernel_h, uint32_t kernel_w,
+                            uint32_t padding_h, uint32_t padding_w,
+                            uint32_t stride_h, uint32_t stride_w,
+                            uint32_t groups, bool use_bias = true,
+                            uint32_t output_padding_h = 0,
                             uint32_t output_padding_w = 0,
                             uint32_t dilation_h = 1, uint32_t dilation_w = 1)
-      : BaseConvolutionLayer(conv_type, output_channel, in_channel, kernel_h,
-                             kernel_w, padding_h, padding_w, stride_h, stride_w,
-                             groups, use_bias, output_padding_h,
+      : BaseConvolutionLayer(ConvType::OpConv, output_channel, in_channel,
+                             kernel_h, kernel_w, padding_h, padding_w, stride_h,
+                             stride_w, groups, use_bias, output_padding_h,
                              output_padding_w, dilation_h, dilation_w) {}
 
  private:
+  void InitIm2ColWeight() override;
+
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
                      uint32_t kernel_w, uint32_t kernel_count_group,
                      uint32_t input_h, uint32_t input_w,
@@ -122,18 +124,17 @@ class ConvolutionLayer : public BaseConvolutionLayer {
 
 class DeconvolutionLayer : public BaseConvolutionLayer {
  public:
-  explicit DeconvolutionLayer(ConvType conv_type, uint32_t output_channel,
-                              uint32_t in_channel, uint32_t kernel_h,
-                              uint32_t kernel_w, uint32_t padding_h,
-                              uint32_t padding_w, uint32_t stride_h,
-                              uint32_t stride_w, uint32_t groups,
-                              bool use_bias = true,
+  explicit DeconvolutionLayer(uint32_t output_channel, uint32_t in_channel,
+                              uint32_t kernel_h, uint32_t kernel_w,
+                              uint32_t padding_h, uint32_t padding_w,
+                              uint32_t stride_h, uint32_t stride_w,
+                              uint32_t groups, bool use_bias = true,
                               uint32_t output_padding_h = 0,
                               uint32_t output_padding_w = 0,
                               uint32_t dilation_h = 1, uint32_t dilation_w = 1)
-      : BaseConvolutionLayer(conv_type, output_channel, in_channel, kernel_h,
-                             kernel_w, padding_h, padding_w, stride_h, stride_w,
-                             groups, use_bias, output_padding_h,
+      : BaseConvolutionLayer(ConvType::OpDeconv, output_channel, in_channel,
+                             kernel_h, kernel_w, padding_h, padding_w, stride_h,
+                             stride_w, groups, use_bias, output_padding_h,
                              output_padding_w, dilation_h, dilation_w) {}
 
   void set_weights(const std::vector<float>& weights) override;
@@ -142,6 +143,8 @@ class DeconvolutionLayer : public BaseConvolutionLayer {
       const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
 
  private:
+  void InitIm2ColWeight() override;
+
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
                      uint32_t kernel_w, uint32_t kernel_count_group,
                      uint32_t input_h, uint32_t input_w,

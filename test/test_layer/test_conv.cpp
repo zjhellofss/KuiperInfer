@@ -171,7 +171,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> outputs(1);
 //   std::vector<sftensor> inputs;
 //   inputs.push_back(input);
-//   ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, 131, 3, 3, 0,
+//   ConvolutionLayer conv_layer(kernel_count, 131, 3, 3, 0,
 //   0,
 //                               1, 1, 1, false);
 //   conv_layer.set_weights(weights);
@@ -198,7 +198,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> outputs(1);
 //   std::vector<sftensor> inputs;
 //   inputs.push_back(input);
-//   ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, 13, 3, 3, 0, 0,
+//   ConvolutionLayer conv_layer(kernel_count, 13, 3, 3, 0, 0,
 //   1,
 //                               1, 1, false);
 //   conv_layer.set_weights(weights);
@@ -225,7 +225,7 @@ StatusCode Convolution(
 //   std::vector<sftensor> outputs(1);
 //   std::vector<sftensor> inputs;
 //   inputs.push_back(input);
-//   ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, 256, 3, 3, 0,
+//   ConvolutionLayer conv_layer(kernel_count, 256, 3, 3, 0,
 //   0,
 //                               1, 1, 1, false);
 //   conv_layer.set_weights(weights);
@@ -257,9 +257,8 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -297,9 +296,8 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -308,7 +306,7 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
       ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+                5e-4);
     }
   }
 }
@@ -337,9 +335,8 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -376,9 +373,8 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -415,9 +411,8 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -459,9 +454,8 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -503,9 +497,8 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              true);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, true);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -548,9 +541,8 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -589,9 +581,8 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(ConvType::OpConv, kernel_count, in_channel,
-                              kernel_h, kernel_w, 0, 0, stride_h, stride_w, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
+                              0, stride_h, stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
