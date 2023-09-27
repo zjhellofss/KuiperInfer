@@ -38,7 +38,8 @@ void DeconvolutionLayer::set_weights(
 
 void DeconvolutionLayer::set_weights(const std::vector<float>& weights) {
   const uint32_t kernel_count = this->weights_.size();
-  CHECK(kernel_count > 0);
+
+  CHECK_GT(kernel_count, 0);
   const uint32_t kernel_count_group = kernel_count / groups_;
   const uint32_t kernel_channel = this->weights_.at(0)->channels();
   uint32_t kernel_height = this->weights_.at(0)->rows();
@@ -46,10 +47,12 @@ void DeconvolutionLayer::set_weights(const std::vector<float>& weights) {
   if (dilation_h_ > 1) {
     kernel_height = (kernel_height + dilation_h_ - 1) / dilation_h_;
   }
-
   if (dilation_w_ > 1) {
     kernel_width = (kernel_width + dilation_w_ - 1) / dilation_w_;
   }
+
+  CHECK_EQ(kernel_count * kernel_channel * kernel_width * kernel_height,
+           weights.size());
 
   const uint32_t kernel_hw = kernel_height * kernel_width;
   const uint32_t kernel_nhw = kernel_count_group * kernel_hw;
@@ -86,8 +89,6 @@ void DeconvolutionLayer::set_weights(const std::vector<float>& weights) {
     }
   }
 }
-
-void DeconvolutionLayer::InitIm2ColWeight() {}
 
 void DeconvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor,
                                        uint32_t kernel_h, uint32_t kernel_w,
@@ -264,12 +265,11 @@ StatusCode BaseConvolutionLayer::Forward(
     CHECK(kernel->channels() == kernel_channel);
   }
 
+  if (this->kernel_matrix_arr_.empty()) {
+    InitIm2ColWeight();
+  }
   const uint32_t batch_size = inputs.size();
   const uint32_t kernel_count_group = kernel_count / groups_;
-
-  if (kernel_matrix_arr_.empty()) {
-    this->InitIm2ColWeight();
-  }
 
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
@@ -369,6 +369,8 @@ BaseConvolutionLayer::BaseConvolutionLayer(
     this->InitBiasParam(output_channel, 1, 1, 1);
   }
 }
+
+void BaseConvolutionLayer::InitIm2ColWeight() {}
 
 void BaseConvolutionLayer::AddBias(arma::fmat& output,
                                    uint32_t bias_index) const {

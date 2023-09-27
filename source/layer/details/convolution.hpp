@@ -60,7 +60,7 @@ class BaseConvolutionLayer : public ParamLayer {
       uint32_t input_h, uint32_t input_w, uint32_t kernel_h,
       uint32_t kernel_w) const = 0;
 
-  virtual void InitIm2ColWeight() = 0;
+  virtual void InitIm2ColWeight();
 
  protected:
   void AddBias(arma::fmat& output, uint32_t bias_index) const;
@@ -143,8 +143,6 @@ class DeconvolutionLayer : public BaseConvolutionLayer {
       const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
 
  private:
-  void InitIm2ColWeight() override;
-
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
                      uint32_t kernel_w, uint32_t kernel_count_group,
                      uint32_t input_h, uint32_t input_w,

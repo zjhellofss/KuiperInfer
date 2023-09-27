@@ -179,14 +179,6 @@ BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
       eps_(eps) {
   this->InitWeightParam(num_features, 1, 1, 1);
   this->InitBiasParam(num_features, 1, 1, 1);
-  // for (uint32_t i = 0; i < num_features; ++i) {
-  //   std::shared_ptr<Tensor<float>> weight =
-  //   std::make_shared<Tensor<float>>(1, 1, 1);
-  //   this->weights_.push_back(weight);
-
-  //   std::shared_ptr<Tensor<float>> bias = std::make_shared<Tensor<float>>(1,
-  //   1, 1); this->bias_.push_back(bias);
-  // }
 }
 
 LayerRegistererWrapper kBatchNorm2dCreateInstance(

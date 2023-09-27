@@ -49,8 +49,7 @@ TensorBroadcast(const std::shared_ptr<Tensor<T>>& tensor1,
  */
 template <typename T>
 std::shared_ptr<Tensor<T>> TensorPadding(
-    const std::shared_ptr<Tensor<T>>& tensor,
-    const std::vector<uint32_t>& pads,
+    const std::shared_ptr<Tensor<T>>& tensor, const std::vector<uint32_t>& pads,
     T padding_value);
 
 /**
@@ -63,8 +62,7 @@ std::shared_ptr<Tensor<T>> TensorPadding(
  */
 template <typename T>
 bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a,
-                  const std::shared_ptr<Tensor<T>>& b,
-                  T threshold = 1e-5f);
+                  const std::shared_ptr<Tensor<T>>& b, T threshold = 1e-5f);
 
 /**
  * @brief Element-wise tensor add
@@ -313,8 +311,7 @@ std::shared_ptr<Tensor<T>> TensorPadding(
     const uint32_t in_channel_height = in_channel.n_rows;
 
     for (uint32_t w = 0; w < in_channel_width; ++w) {
-      T* output_channel_ptr =
-          const_cast<T*>(output_channel.colptr(w + pad_cols1));
+      T* output_channel_ptr = output_channel.colptr(w + pad_cols1);
       const T* in_channel_ptr = in_channel.colptr(w);
       for (uint32_t h = 0; h < in_channel_height; ++h) {
         const T value = *(in_channel_ptr + h);
@@ -332,15 +329,15 @@ std::shared_ptr<Tensor<T>> TensorPadding(
     }
 
     for (uint32_t w = 0; w < pad_cols1; ++w) {
-      T* output_channel_ptr = const_cast<T*>(output_channel.colptr(w));
+      T* output_channel_ptr = output_channel.colptr(w);
       for (uint32_t h = 0; h < in_channel_height + pad_rows1 + pad_rows2; ++h) {
         *(output_channel_ptr + h) = padding_value;
       }
     }
 
     for (uint32_t w = 0; w < pad_cols2; ++w) {
-      T* output_channel_ptr = const_cast<T*>(
-          output_channel.colptr(pad_cols1 + w + in_channel_width));
+      T* output_channel_ptr =
+          output_channel.colptr(pad_cols1 + w + in_channel_width);
       for (uint32_t h = 0; h < in_channel_height + pad_rows1 + pad_rows2; ++h) {
         *(output_channel_ptr + h) = padding_value;
       }
