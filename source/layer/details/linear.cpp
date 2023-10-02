@@ -57,7 +57,7 @@ StatusCode LinearLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the linear "
                   "layer do not match";
-    return StatusCode::kInferInOutSizeMismatch;
+    return StatusCode::kInferInOutDimMismatch;
   }
 
   if (this->weights_.empty()) {

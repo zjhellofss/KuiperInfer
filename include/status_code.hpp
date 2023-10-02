@@ -44,9 +44,9 @@ enum class StatusCode {
   kInferInputsEmpty = 1,
   kInferOutputsEmpty = 2,
   kInferParameterError = 3,
+  kInferInOutDimMismatch = 4,
 
-  kInferInOutSizeMismatch = 4,
-  kLayerNotImplement = 5,
+  kFunctionNotImplement = 5,
   kParameterMissing = 6,
   kAttributeMissing = 7,
 };

@@ -209,7 +209,7 @@ StatusCode BaseConvolutionLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the convolution "
                   "layer do not match";
-    return StatusCode::kInferInOutSizeMismatch;
+    return StatusCode::kInferInOutDimMismatch;
   }
 
   if (weights_.empty()) {
@@ -282,7 +282,7 @@ StatusCode BaseConvolutionLayer::Forward(
     const uint32_t input_h = input->rows();
     const uint32_t input_w = input->cols();
     const uint32_t input_c = input->channels();
-    CHECK(input_h > 0 && input_w > 0);
+    CHECK(input_h > 0 && input_w > 0 && input_c > 0);
 
     const auto [output_h, output_w] =
         ComputeOutputSize(input_h, input_w, kernel_h, kernel_w);

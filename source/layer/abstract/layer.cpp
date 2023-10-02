@@ -54,7 +54,7 @@ StatusCode Layer<float>::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   LOG(FATAL) << this->layer_name_ << " layer not implement yet!";
-  return StatusCode::kLayerNotImplement;
+  return StatusCode::kFunctionNotImplement;
 }
 
 StatusCode Layer<float>::Forward() {

@@ -44,7 +44,7 @@ StatusCode SigmoidLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the sigmoid "
                   "layer do not match";
-    return StatusCode::kInferInOutSizeMismatch;
+    return StatusCode::kInferInOutDimMismatch;
   }
 
   const uint32_t batch_size = inputs.size();

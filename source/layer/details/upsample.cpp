@@ -79,7 +79,7 @@ StatusCode UpSampleLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the upsample "
                   "layer do not match";
-    return StatusCode::kInferInOutSizeMismatch;
+    return StatusCode::kInferInOutDimMismatch;
   }
 
   if (this->mode_ != UpSampleMode::kModeNearest &&

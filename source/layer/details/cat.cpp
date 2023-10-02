@@ -47,7 +47,7 @@ StatusCode CatLayer::Forward(
   if (inputs.size() % output_size != 0) {
     LOG(ERROR)
         << "The input and output tensor array size of cat layer do not match";
-    return StatusCode::kInferInOutSizeMismatch;
+    return StatusCode::kInferInOutDimMismatch;
   }
 
   const uint32_t packet_size = inputs.size() / output_size;
