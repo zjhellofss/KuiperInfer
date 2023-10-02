@@ -41,7 +41,3 @@ jobs:
         working-directory: ${{github.workspace}}
         run: ${{github.workspace}}/build/test/test_kuiper
 
-      - name: Bench
-        working-directory: ${{github.workspace}}
-        run: ${{github.workspace}}/build/bench/bench_kuiper
-
