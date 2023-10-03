@@ -76,8 +76,7 @@ struct RuntimeOperatorBase {
   std::vector<std::shared_ptr<RuntimeOperandBase<T>>> input_operands_seq;
 
   /// Output operators mapped by output name
-  std::map<std::string, std::shared_ptr<RuntimeOperatorBase<T>>>
-      output_operators;
+  std::map<std::string, std::shared_ptr<RuntimeOperatorBase<T>>> output_operators;
 
   /// Operator parameters
   std::map<std::string, std::shared_ptr<RuntimeParameter>> params;
@@ -110,8 +109,7 @@ class RuntimeOperatorUtils<float> {
    *
    * @param operators Vector of runtime operators
    */
-  static void InitOperatorInput(
-      const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
+  static void InitOperatorInput(const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 
   /**
    * @brief Initializes float operator outputs
@@ -122,9 +120,8 @@ class RuntimeOperatorUtils<float> {
    * @param pnnx_operators Vector of PNNX operators
    * @param operators Vector of runtime operators
    */
-  static void InitOperatorOutput(
-      const std::vector<pnnx::Operator*>& pnnx_operators,
-      const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
+  static void InitOperatorOutput(const std::vector<pnnx::Operator*>& pnnx_operators,
+                                 const std::vector<std::shared_ptr<RuntimeOperator>>& operators);
 };
 
 }  // namespace kuiper_infer

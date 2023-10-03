@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-21.
 #include <gtest/gtest.h>
 #include "data/tensor.hpp"
@@ -30,7 +30,7 @@ TEST(test_reshape, reshape1) {
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({224, 224, 3});
 
-  const auto &raw_shapes = tensor1.raw_shapes();
+  const auto& raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 3);
   ASSERT_EQ(raw_shapes.at(0), 224);
   ASSERT_EQ(raw_shapes.at(1), 224);
@@ -50,7 +50,7 @@ TEST(test_reshape, reshape2) {
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({672, 224});
 
-  const auto &raw_shapes = tensor1.raw_shapes();
+  const auto& raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 2);
   ASSERT_EQ(raw_shapes.at(0), 672);
   ASSERT_EQ(raw_shapes.at(1), 224);
@@ -69,7 +69,7 @@ TEST(test_reshape, reshape3) {
   Tensor<float> tensor2 = tensor1;
   tensor1.Reshape({150528});
 
-  const auto &raw_shapes = tensor1.raw_shapes();
+  const auto& raw_shapes = tensor1.raw_shapes();
   ASSERT_EQ(raw_shapes.size(), 1);
   ASSERT_EQ(raw_shapes.at(0), 150528);
 
@@ -79,4 +79,3 @@ TEST(test_reshape, reshape3) {
     ASSERT_EQ(tensor1.index(i), tensor2.index(i));
   }
 }
-

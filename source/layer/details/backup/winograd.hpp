@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fushenshen on 2023/3/15.
 
 #ifndef KUIPER_INFER_WINOGRAD_HPP
@@ -26,7 +26,6 @@
 #include "data/tensor.hpp"
 namespace kuiper_infer {
 void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
-                      std::shared_ptr<Tensor<float>>& output,
-                      const std::vector<sftensor>& weights);
+                      std::shared_ptr<Tensor<float>>& output, const std::vector<sftensor>& weights);
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_WINOGRAD_HPP

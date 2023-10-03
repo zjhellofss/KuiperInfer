@@ -27,9 +27,8 @@
 namespace kuiper_infer {
 HardSwishLayer::HardSwishLayer() : NonParamLayer("HardSwish") {}
 
-StatusCode HardSwishLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                   std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the hardswish layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -51,13 +50,11 @@ StatusCode HardSwishLayer::Forward(
   for (uint32_t i = 0; i < batch; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the hardswish layer has an empty tensor "
-        << i << " th";
+        << "The input tensor array in the hardswish layer has an empty tensor " << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(),
-                                               input->cols());
+      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
       outputs.at(i) = output;
     }
 
@@ -72,15 +69,13 @@ StatusCode HardSwishLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode HardSwishLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& hardswish_layer) {
+StatusCode HardSwishLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                          std::shared_ptr<Layer<float>>& hardswish_layer) {
   CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
   hardswish_layer = std::make_shared<HardSwishLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish",
-                                                HardSwishLayer::CreateInstance);
+LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish", HardSwishLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -37,13 +37,11 @@ class UpSampleLayer : public NonParamLayer {
                          UpSampleMode mode = UpSampleMode::kModeNearest,
                          bool is_align_scale = false);
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& upsample_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& upsample_layer);
 
  private:
   float scale_h_ = 1.f;

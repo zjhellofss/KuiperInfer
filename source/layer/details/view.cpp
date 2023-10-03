@@ -28,9 +28,8 @@
 
 namespace kuiper_infer {
 
-StatusCode ViewLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                              std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the view layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -48,18 +47,15 @@ StatusCode ViewLayer::Forward(
   }
 
   const uint32_t batch_size = inputs.size();
-  if (shapes_.empty() ||
-      (shapes_.front() != -1 && shapes_.front() != batch_size)) {
-    LOG(ERROR)
-        << "The shape parameter in the view layer has an incorrectly size! ";
+  if (shapes_.empty() || (shapes_.front() != -1 && shapes_.front() != batch_size)) {
+    LOG(ERROR) << "The shape parameter in the view layer has an incorrectly size! ";
     return StatusCode::kInferParameterError;
   }
 
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input_data = inputs.at(i);
     CHECK(input_data != nullptr && !input_data->empty())
-        << "The input tensor array in the view layer has an empty tensor " << i
-        << " th";
+        << "The input tensor array in the view layer has an empty tensor " << i << " th";
 
     // 检查形状中-1的数量，最多只可以存在一个
     size_t current_size = 1;
@@ -96,19 +92,16 @@ StatusCode ViewLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode ViewLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& view_layer) {
+StatusCode ViewLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                     std::shared_ptr<Layer<float>>& view_layer) {
   CHECK(op != nullptr) << "View operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
-      op->params;
+  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
   if (params.find("shape") == params.end()) {
     LOG(ERROR) << "View layer missing shape";
     return StatusCode::kParameterMissing;
   }
 
-  auto shape =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("shape"));
+  auto shape = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("shape"));
   if (!shape) {
     LOG(ERROR) << "View layer missing shape";
     return StatusCode::kParameterMissing;
@@ -120,7 +113,6 @@ StatusCode ViewLayer::CreateInstance(
 ViewLayer::ViewLayer(std::vector<int32_t> shapes)
     : NonParamLayer("view"), shapes_(std::move(shapes)) {}
 
-LayerRegistererWrapper kViewCreateInstance("Tensor.view",
-                                           ViewLayer::CreateInstance);
+LayerRegistererWrapper kViewCreateInstance("Tensor.view", ViewLayer::CreateInstance);
 
 }  // namespace kuiper_infer

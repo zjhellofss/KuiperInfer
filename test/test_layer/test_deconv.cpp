@@ -28,16 +28,14 @@
 
 TEST(test_layer, deconv_nogroup) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/unet/demo_deconv.pnnx.param",
-                     "tmp/unet/demo_deconv.pnnx.bin");
+  RuntimeGraph graph("tmp/unet/demo_deconv.pnnx.param", "tmp/unet/demo_deconv.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(13, 13, 31);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(13, 13, 31);
     input->Ones();
     inputs.push_back(input);
   }
@@ -51,23 +49,20 @@ TEST(test_layer, deconv_nogroup) {
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
 TEST(test_layer, deconv_group1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/unet/demo_deconv2_.pnnx.param",
-                     "tmp/unet/demo_deconv2_.pnnx.bin");
+  RuntimeGraph graph("tmp/unet/demo_deconv2_.pnnx.param", "tmp/unet/demo_deconv2_.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(12, 13, 31);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(12, 13, 31);
     input->Ones();
     inputs.push_back(input);
   }
@@ -81,23 +76,20 @@ TEST(test_layer, deconv_group1) {
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
 TEST(test_layer, deconv_group2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/unet/demo_deconv3_.pnnx.param",
-                     "tmp/unet/demo_deconv3_.pnnx.bin");
+  RuntimeGraph graph("tmp/unet/demo_deconv3_.pnnx.param", "tmp/unet/demo_deconv3_.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(16, 16, 31);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(16, 16, 31);
     input->Ones();
     inputs.push_back(input);
   }
@@ -111,8 +103,7 @@ TEST(test_layer, deconv_group2) {
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
@@ -126,8 +117,7 @@ TEST(test_layer, deconv_group_dilation1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(1, 2, 2);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 2, 2);
     input->at(0, 0, 0) = 1;
     input->at(0, 1, 1) = 1;
     inputs.push_back(input);
@@ -143,8 +133,7 @@ TEST(test_layer, deconv_group_dilation1) {
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-5f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i) << " i: " << i;
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i) << " i: " << i;
   }
 }
 
@@ -158,8 +147,7 @@ TEST(test_layer, deconv_group_dilation2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(16, 16, 31);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(16, 16, 31);
     input->Ones();
     inputs.push_back(input);
   }
@@ -168,14 +156,12 @@ TEST(test_layer, deconv_group_dilation2) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
@@ -189,8 +175,7 @@ TEST(test_layer, deconv_group_dilation3) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(16, 16, 31);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(16, 16, 31);
     input->Ones();
     inputs.push_back(input);
   }
@@ -199,13 +184,11 @@ TEST(test_layer, deconv_group_dilation3) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d31.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test_convtranspose_d31.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }

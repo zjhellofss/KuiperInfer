@@ -30,9 +30,8 @@ namespace kuiper_infer {
 
 SiLULayer::SiLULayer() : NonParamLayer("SiLU") {}
 
-StatusCode SiLULayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                              std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the silu layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -54,8 +53,7 @@ StatusCode SiLULayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the silu layer has an empty tensor " << i
-        << " th";
+        << "The input tensor array in the silu layer has an empty tensor " << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
@@ -64,23 +62,20 @@ StatusCode SiLULayer::Forward(
     }
 
     CHECK(output->shapes() == input->shapes())
-        << "The input and output tensor shapes of the silu layer do not match "
-        << i << " th";
+        << "The input and output tensor shapes of the silu layer do not match " << i << " th";
     using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationSilu)(input, output);
   }
   return StatusCode::kSuccess;
 }
 
-StatusCode SiLULayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& silu_layer) {
+StatusCode SiLULayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                     std::shared_ptr<Layer<float>>& silu_layer) {
   CHECK(op != nullptr) << "SiLU operator is nullptr";
   silu_layer = std::make_shared<SiLULayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kSiluCreateInstance("nn.SiLU",
-                                           SiLULayer::CreateInstance);
+LayerRegistererWrapper kSiluCreateInstance("nn.SiLU", SiLULayer::CreateInstance);
 
 }  // namespace kuiper_infer

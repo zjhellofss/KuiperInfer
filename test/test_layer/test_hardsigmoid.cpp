@@ -18,13 +18,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
-// Created by fss on 23-1-2.
-#include <gtest/gtest.h>
-#include <glog/logging.h>
 
-#include "data/tensor.hpp"
+// Created by fss on 23-1-2.
+#include <glog/logging.h>
+#include <gtest/gtest.h>
 #include "../../source/layer/details/hardsigmoid.hpp"
+#include "data/tensor.hpp"
 
 TEST(test_layer, forward_hardsigmoid1) {
   using namespace kuiper_infer;
@@ -88,7 +87,7 @@ TEST(test_layer, forward_hardsigmoid2) {
   }
 }
 
-TEST(test_layer,  forward_hardsigmoid3) {
+TEST(test_layer, forward_hardsigmoid3) {
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 16);
   input->RandN();

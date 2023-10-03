@@ -18,12 +18,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-26.
-#include <gtest/gtest.h>
 #include <glog/logging.h>
-#include "data/tensor.hpp"
+#include <gtest/gtest.h>
 #include "../../source/layer/details/cat.hpp"
+#include "data/tensor.hpp"
 
 TEST(test_layer, cat1) {
   using namespace kuiper_infer;
@@ -55,9 +55,9 @@ TEST(test_layer, cat1) {
 
   for (int i = input_size / 2; i < input_size; ++i) {
     for (int input_channel = input_channels; input_channel < input_channels * 2; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(
-          inputs.at(i)->slice(input_channel - input_channels),
-          outputs.at(i - output_size)->slice(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->slice(input_channel - input_channels),
+                                     outputs.at(i - output_size)->slice(input_channel), "absdiff",
+                                     0.01f));
     }
   }
 }
@@ -92,9 +92,9 @@ TEST(test_layer, cat2) {
 
   for (int i = input_size / 2; i < input_size; ++i) {
     for (int input_channel = input_channels; input_channel < input_channels * 2; ++input_channel) {
-      ASSERT_TRUE(arma::approx_equal(
-          inputs.at(i)->slice(input_channel - input_channels),
-          outputs.at(i - output_size)->slice(input_channel), "absdiff", 0.01f));
+      ASSERT_TRUE(arma::approx_equal(inputs.at(i)->slice(input_channel - input_channels),
+                                     outputs.at(i - output_size)->slice(input_channel), "absdiff",
+                                     0.01f));
     }
   }
 }
@@ -122,8 +122,8 @@ TEST(test_layer, cat3) {
   }
 
   for (int i = 0; i < input_size; ++i) {
-    const arma::fmat &in_channel = inputs.at(i)->slice(0);
-    const arma::fmat &out_channel = outputs.at(0)->slice(i);
+    const arma::fmat& in_channel = inputs.at(i)->slice(0);
+    const arma::fmat& out_channel = outputs.at(0)->slice(i);
     ASSERT_TRUE(arma::approx_equal(in_channel, out_channel, "absdiff", 0.01f));
   }
 }
@@ -151,8 +151,8 @@ TEST(test_layer, cat4) {
   }
 
   for (int i = 0; i < input_size; ++i) {
-    const arma::fmat &in_channel = inputs.at(i)->slice(0);
-    const arma::fmat &out_channel = outputs.at(0)->slice(i);
+    const arma::fmat& in_channel = inputs.at(i)->slice(0);
+    const arma::fmat& out_channel = outputs.at(0)->slice(i);
     ASSERT_TRUE(arma::approx_equal(in_channel, out_channel, "absdiff", 0.01f));
   }
 }

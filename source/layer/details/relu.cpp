@@ -25,14 +25,13 @@
 #include "layer/abstract/layer_factory.hpp"
 
 namespace kuiper_infer {
-StatusCode ReluLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                              std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the relu layer is empty";
     return StatusCode::kInferInputsEmpty;
   }
-  
+
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the relu layer is empty";
     return StatusCode::kInferOutputsEmpty;
@@ -48,8 +47,7 @@ StatusCode ReluLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the relu layer has an empty tensor " << i
-        << " th";
+        << "The input tensor array in the relu layer has an empty tensor " << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
@@ -57,21 +55,18 @@ StatusCode ReluLayer::Forward(
       outputs.at(i) = output;
     }
     CHECK(output != nullptr && output->shapes() == input->shapes())
-        << "The input and output tensor shapes of the relu layer do not match "
-        << i << " th";
+        << "The input and output tensor shapes of the relu layer do not match " << i << " th";
     using namespace kuiper_infer::activation;
     ApplySSEActivation(ActivationType::kActivationRelu)(input, output);
   }
   return StatusCode::kSuccess;
 }
-StatusCode ReluLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& relu_layer) {
+StatusCode ReluLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                     std::shared_ptr<Layer<float>>& relu_layer) {
   CHECK(op != nullptr) << "Relu operator is nullptr";
   relu_layer = std::make_shared<ReluLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kReluCreateInstance("nn.ReLU",
-                                           ReluLayer::CreateInstance);
+LayerRegistererWrapper kReluCreateInstance("nn.ReLU", ReluLayer::CreateInstance);
 }  // namespace kuiper_infer

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-19.
 
 #include <glog/logging.h>
@@ -30,8 +30,7 @@
 TEST(test_layer, forward_softmax_dim1) {
   // softmax on dim = 1
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/softmax/softmax_dim1.pnnx.param",
-                     "tmp/softmax/softmax_dim1.pnnx.bin");
+  RuntimeGraph graph("tmp/softmax/softmax_dim1.pnnx.param", "tmp/softmax/softmax_dim1.pnnx.bin");
 
   graph.Build();
   const uint32_t size = 24;
@@ -49,8 +48,7 @@ TEST(test_layer, forward_softmax_dim1) {
   }
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
 
   arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {
@@ -85,8 +83,7 @@ TEST(test_layer, forward_softmax_dim1_minus2) {
   }
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
 
   arma::fmat real = CSVDataLoader::LoadData<float>("tmp/softmax/softmax_dim1.csv");
   for (const auto& output : outputs) {
@@ -94,8 +91,7 @@ TEST(test_layer, forward_softmax_dim1_minus2) {
     for (int i = 0; i < 24; ++i) {
       float a = output->index(i);
       float b = real.at(i);
-      ASSERT_LE(std::abs(a - b), 1e-5f)
-          << "a: " << a << " b: " << b << " i:" << i;
+      ASSERT_LE(std::abs(a - b), 1e-5f) << "a: " << a << " b: " << b << " i:" << i;
     }
   }
 }

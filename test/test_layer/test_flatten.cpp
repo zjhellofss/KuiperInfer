@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-24.
 #include <glog/logging.h>
 #include <gtest/gtest.h>
@@ -27,8 +27,7 @@
 
 TEST(test_layer, forward_flatten_layer1) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 24, 32);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -59,8 +58,7 @@ TEST(test_layer, forward_flatten_layer1) {
 
 TEST(test_layer, forward_flatten_layer2) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 24, 32);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -92,8 +90,7 @@ TEST(test_layer, forward_flatten_layer2) {
 
 TEST(test_layer, forward_flatten_layer3) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 24, 32);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -127,8 +124,7 @@ TEST(test_layer, forward_flatten_layer3) {
 
 TEST(test_layer, forward_flatten_layer4) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 24, 32);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -162,8 +158,7 @@ TEST(test_layer, forward_flatten_layer4) {
 
 TEST(test_layer, forward_flatten_layer5) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 24, 32);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 24, 32);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -197,8 +192,7 @@ TEST(test_layer, forward_flatten_layer5) {
 
 TEST(test_layer, forward_flatten_layer6) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 4, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 4, 4);
   std::vector<float> values;
   for (int i = 0; i < 128; ++i) {
     values.push_back(float(i));
@@ -218,8 +212,7 @@ TEST(test_layer, forward_flatten_layer6) {
 
 TEST(test_layer, forward_flatten_layer7) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 4, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 4, 4);
   std::vector<float> values;
   for (int i = 0; i < 128; ++i) {
     values.push_back(float(i));
@@ -244,8 +237,7 @@ TEST(test_layer, forward_flatten_layer7) {
 
 TEST(test_layer, forward_flatten_layer8) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(8, 4, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(8, 4, 4);
   std::vector<float> values;
   for (int i = 0; i < 128; ++i) {
     values.push_back(float(i));
@@ -274,8 +266,7 @@ TEST(test_layer, forward_flatten_layer9) {
   for (int i = 0; i < 24; ++i) {
     values.push_back(float(i));
   }
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(2, 3, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 3, 4);
   input->Fill(values);
 
   std::vector<sftensor> inputs;
@@ -295,8 +286,7 @@ TEST(test_layer, forward_flatten_layer10) {
   for (int i = 0; i < 24; ++i) {
     values.push_back(float(i));
   }
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(2, 3, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 3, 4);
   input->Fill(values);
 
   std::vector<sftensor> inputs;
@@ -316,8 +306,7 @@ TEST(test_layer, forward_flatten_layer11) {
   for (int i = 0; i < 24; ++i) {
     values.push_back(float(i));
   }
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(2, 3, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 3, 4);
   input->Fill(values);
 
   std::vector<sftensor> inputs;
@@ -331,15 +320,13 @@ TEST(test_layer, forward_flatten_layer11) {
   ASSERT_EQ(output->channels(), 1);
 }
 
-
 TEST(test_layer, forward_flatten_layer12) {
   using namespace kuiper_infer;
   std::vector<float> values;
   for (int i = 0; i < 24; ++i) {
     values.push_back(float(i));
   }
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(2, 3, 4);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(2, 3, 4);
   input->Fill(values);
 
   std::vector<sftensor> inputs;

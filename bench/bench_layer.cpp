@@ -44,8 +44,8 @@ static void BM_Concat16to8(benchmark::State& state) {
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   for (int i = 0; i < input_size; ++i) {
-    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(
-        input_channels, state.range(1), state.range(2));
+    std::shared_ptr<Tensor<float>> input =
+        std::make_shared<Tensor<float>>(input_channels, state.range(1), state.range(2));
     input->RandN();
     inputs.push_back(input);
   }
@@ -123,12 +123,10 @@ static void BM_Linear(benchmark::State& state) {
   std::vector<float> weights(in_features * out_features, 1.f);
   linear_layer.set_weights(weights);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   input->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -156,19 +154,15 @@ static void BM_Expression(benchmark::State& state) {
   using namespace kuiper_infer;
   const std::string& str = "mul(add(@0,@1),add(@2,@3))";
   ExpressionLayer layer(str);
-  std::shared_ptr<Tensor<float>> input1 =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(channels, rows, cols);
   input1->Fill(2.f);
-  std::shared_ptr<Tensor<float>> input2 =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input2 = std::make_shared<Tensor<float>>(channels, rows, cols);
   input2->Fill(3.f);
 
-  std::shared_ptr<Tensor<float>> input3 =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input3 = std::make_shared<Tensor<float>>(channels, rows, cols);
   input3->Fill(4.f);
 
-  std::shared_ptr<Tensor<float>> input4 =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input4 = std::make_shared<Tensor<float>>(channels, rows, cols);
   input4->Fill(4.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -288,18 +282,10 @@ static void BM_MaxPooling_k3x3s1x1(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_MaxPooling_k3x3s1x1)
-    ->Args({3, 320, 320})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_MaxPooling_k3x3s1x1)
-    ->Args({32, 160, 160})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_MaxPooling_k3x3s1x1)
-    ->Args({64, 80, 80})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_MaxPooling_k3x3s1x1)
-    ->Args({128, 40, 40})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_MaxPooling_k3x3s1x1)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_View(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -334,8 +320,7 @@ static void BM_Upsample(benchmark::State& state) {
   uint32_t cols = state.range(2);
 
   UpSampleMode mode = UpSampleMode(state.range(3));
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -385,18 +370,10 @@ static void BM_AdaptivePooling(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_AdaptivePooling)
-    ->Args({3, 320, 320})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_AdaptivePooling)
-    ->Args({32, 160, 160})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_AdaptivePooling)
-    ->Args({64, 80, 80})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_AdaptivePooling)
-    ->Args({128, 40, 40})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_AdaptivePooling)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);
 
 static void BM_Flatten(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -476,21 +453,9 @@ BENCHMARK(BM_Softmax)->Args({512})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Softmax)->Args({1024})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_Softmax)->Args({4096})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({1, 224, 224})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({8, 128, 128})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({3, 320, 320})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({32, 160, 160})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({64, 80, 80})
-    ->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_SoftmaxDim1Batch8)
-    ->Args({128, 40, 40})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({1, 224, 224})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({8, 128, 128})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({3, 320, 320})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({32, 160, 160})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({64, 80, 80})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_SoftmaxDim1Batch8)->Args({128, 40, 40})->Unit(benchmark::kMillisecond);

@@ -25,9 +25,8 @@
 namespace kuiper_infer {
 CatLayer::CatLayer(int32_t dim) : NonParamLayer("cat"), dim_(dim) {}
 
-StatusCode CatLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                             std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the cat layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -45,8 +44,7 @@ StatusCode CatLayer::Forward(
 
   const uint32_t output_size = outputs.size();
   if (inputs.size() % output_size != 0) {
-    LOG(ERROR)
-        << "The input and output tensor array size of cat layer do not match";
+    LOG(ERROR) << "The input and output tensor array size of cat layer do not match";
     return StatusCode::kInferInOutDimMismatch;
   }
 
@@ -57,10 +55,9 @@ StatusCode CatLayer::Forward(
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
-      CHECK(input != nullptr && !input->empty())
-          << "The input tensor array in the cat layer has "
-             "an empty tensor "
-          << j << " th";
+      CHECK(input != nullptr && !input->empty()) << "The input tensor array in the cat layer has "
+                                                    "an empty tensor "
+                                                 << j << " th";
       uint32_t in_rows = input->rows();
       uint32_t in_cols = input->cols();
       const uint32_t in_channels = input->channels();
@@ -70,12 +67,11 @@ StatusCode CatLayer::Forward(
           << j << " th";
 
       if (output == nullptr || output->empty()) {
-        output = std::make_shared<Tensor<float>>(in_channels * packet_size,
-                                                 in_rows, in_cols);
+        output = std::make_shared<Tensor<float>>(in_channels * packet_size, in_rows, in_cols);
         outputs.at(i) = output;
       }
-      CHECK(output->channels() == in_channels * packet_size &&
-            output->rows() == in_rows && output->cols() == in_cols)
+      CHECK(output->channels() == in_channels * packet_size && output->rows() == in_rows &&
+            output->cols() == in_cols)
           << "The output tensor array in the cat layer "
              "has an incorrectly sized tensor "
           << i << " th";
@@ -98,8 +94,7 @@ StatusCode CatLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
     return StatusCode::kParameterMissing;
   }
 
-  auto dim_param =
-      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
+  auto dim_param = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
   if (!dim_param) {
     LOG(ERROR) << "Can not find the dim parameter";
     return StatusCode::kParameterMissing;
@@ -109,6 +104,5 @@ StatusCode CatLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kCatCreateInstance("torch.cat",
-                                          CatLayer::CreateInstance);
+LayerRegistererWrapper kCatCreateInstance("torch.cat", CatLayer::CreateInstance);
 }  // namespace kuiper_infer

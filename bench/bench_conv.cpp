@@ -47,33 +47,22 @@ static void BM_Convolutionk3x3s1x1(benchmark::State& state) {
   std::vector<sftensor> outputs(1);
   std::vector<sftensor> inputs;
   inputs.push_back(input);
-  ConvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 1, 1, 1,
-                              false);
+  ConvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 1, 1, 1, false);
   conv_layer.set_weights(weights);
   for (auto _ : state) {
     conv_layer.Forward(inputs, outputs);
   }
 }
 
-BENCHMARK(BM_Convolutionk3x3s1x1)
-    ->Args({32, 3, 320, 320})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Convolutionk3x3s1x1)->Args({32, 3, 320, 320})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_Convolutionk3x3s1x1)
-    ->Args({64, 32, 160, 160})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Convolutionk3x3s1x1)->Args({64, 32, 160, 160})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_Convolutionk3x3s1x1)
-    ->Args({128, 64, 80, 80})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Convolutionk3x3s1x1)->Args({128, 64, 80, 80})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_Convolutionk3x3s1x1)
-    ->Args({256, 128, 40, 40})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Convolutionk3x3s1x1)->Args({256, 128, 40, 40})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_Convolutionk3x3s1x1)
-    ->Args({512, 256, 20, 20})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_Convolutionk3x3s1x1)->Args({512, 256, 20, 20})->Unit(benchmark::kMillisecond);
 
 static void BM_DeConvolutionk2x2s2x2(benchmark::State& state) {
   using namespace kuiper_infer;
@@ -97,8 +86,7 @@ static void BM_DeConvolutionk2x2s2x2(benchmark::State& state) {
   for (uint32_t i = 0; i < batch; ++i) {
     inputs.push_back(input);
   }
-  DeconvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 2, 2, 1,
-                                true);
+  DeconvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 2, 2, 1, true);
   conv_layer.set_weights(weight_values);
   for (auto _ : state) {
     conv_layer.Forward(inputs, outputs);
@@ -127,43 +115,26 @@ static void BM_DeConvolutionk2x2s2x2g4(benchmark::State& state) {
   for (uint32_t i = 0; i < batch; ++i) {
     inputs.push_back(input);
   }
-  DeconvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 2, 2, 4,
-                                true);
+  DeconvolutionLayer conv_layer(kernel_count, channels, 3, 3, 0, 0, 2, 2, 4, true);
   conv_layer.set_weights(weight_values);
   for (auto _ : state) {
     conv_layer.Forward(inputs, outputs);
   }
 }
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2)
-    ->Args({64, 128, 192, 192, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2)->Args({64, 128, 192, 192, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2)
-    ->Args({128, 256, 96, 96, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2)->Args({128, 256, 96, 96, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2)
-    ->Args({256, 512, 48, 48, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2)->Args({256, 512, 48, 48, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2)
-    ->Args({512, 1024, 24, 24, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2)->Args({512, 1024, 24, 24, 1})->Unit(benchmark::kMillisecond);
 
 /////////////////////////////////////////
-BENCHMARK(BM_DeConvolutionk2x2s2x2g4)
-    ->Args({64, 128, 192, 192, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2g4)->Args({64, 128, 192, 192, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2g4)
-    ->Args({128, 256, 96, 96, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2g4)->Args({128, 256, 96, 96, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2g4)
-    ->Args({256, 512, 48, 48, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2g4)->Args({256, 512, 48, 48, 1})->Unit(benchmark::kMillisecond);
 
-BENCHMARK(BM_DeConvolutionk2x2s2x2g4)
-    ->Args({512, 1024, 24, 24, 1})
-    ->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_DeConvolutionk2x2s2x2g4)->Args({512, 1024, 24, 24, 1})->Unit(benchmark::kMillisecond);

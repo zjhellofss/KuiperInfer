@@ -29,9 +29,8 @@ namespace kuiper_infer {
 FlattenLayer::FlattenLayer(int32_t start_dim, int32_t end_dim)
     : NonParamLayer("Flatten"), start_dim_(start_dim), end_dim_(end_dim) {}
 
-StatusCode FlattenLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                 std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the flatten layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -75,16 +74,14 @@ StatusCode FlattenLayer::Forward(
 
     std::vector<uint32_t> shapes = input->shapes();
     shapes.insert(shapes.begin(), batch_size);
-    uint32_t elements_size =
-        std::accumulate(shapes.begin() + start_dim,
-                        shapes.begin() + end_dim + 1, 1, std::multiplies());
+    uint32_t elements_size = std::accumulate(shapes.begin() + start_dim,
+                                             shapes.begin() + end_dim + 1, 1, std::multiplies());
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     output = TensorClone(input);
-    CHECK(input->size() == output->size())
-        << "The output and input shapes of the flatten layer do "
-           "not match "
-        << i << " th";
+    CHECK(input->size() == output->size()) << "The output and input shapes of the flatten layer do "
+                                              "not match "
+                                           << i << " th";
     outputs.at(i) = output;
 
     if (start_dim == 1 && end_dim == 3) {
@@ -103,9 +100,8 @@ StatusCode FlattenLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode FlattenLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& flatten_layer) {
+StatusCode FlattenLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                        std::shared_ptr<Layer<float>>& flatten_layer) {
   CHECK(op != nullptr) << "Flatten operator is nullptr";
   const auto& params = op->params;
 
@@ -119,22 +115,18 @@ StatusCode FlattenLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto start_dim =
-      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("start_dim"));
+  auto start_dim = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("start_dim"));
 
-  auto end_dim =
-      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("end_dim"));
+  auto end_dim = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("end_dim"));
 
   if (start_dim == nullptr || end_dim == nullptr) {
     return StatusCode::kParameterMissing;
   }
 
-  flatten_layer =
-      std::make_shared<FlattenLayer>(start_dim->value, end_dim->value);
+  flatten_layer = std::make_shared<FlattenLayer>(start_dim->value, end_dim->value);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kFlattenCreateInstance("torch.flatten",
-                                              FlattenLayer::CreateInstance);
+LayerRegistererWrapper kFlattenCreateInstance("torch.flatten", FlattenLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -28,19 +28,18 @@
 
 namespace kuiper_infer {
 
-StatusCode SigmoidLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                 std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the sigmoid layer is empty";
     return StatusCode::kInferInputsEmpty;
   }
-  
+
   if (outputs.empty()) {
     LOG(ERROR) << "The output tensor array in the sigmoid layer is empty";
     return StatusCode::kInferOutputsEmpty;
   }
-  
+
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the sigmoid "
                   "layer do not match";
@@ -52,8 +51,7 @@ StatusCode SigmoidLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the sigmoid layer has an empty tensor "
-        << i << "th";
+        << "The input tensor array in the sigmoid layer has an empty tensor " << i << "th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
@@ -71,14 +69,12 @@ StatusCode SigmoidLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode SigmoidLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& sigmoid_layer) {
+StatusCode SigmoidLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                        std::shared_ptr<Layer<float>>& sigmoid_layer) {
   CHECK(op != nullptr) << "Sigmoid operator is nullptr";
   sigmoid_layer = std::make_shared<SigmoidLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kSigmoidCreateInstance("nn.Sigmoid",
-                                           SigmoidLayer::CreateInstance);
+LayerRegistererWrapper kSigmoidCreateInstance("nn.Sigmoid", SigmoidLayer::CreateInstance);
 }  // namespace kuiper_infer

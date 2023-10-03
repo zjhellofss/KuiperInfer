@@ -24,13 +24,12 @@
 #include <glog/logging.h>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-#include "data/tensor.hpp"
 #include "../image_util.hpp"
+#include "data/tensor.hpp"
 #include "runtime/runtime_ir.hpp"
 #include "tick.hpp"
 
-kuiper_infer::sftensor PreProcessImage(const cv::Mat& image,
-                                       const int32_t input_h,
+kuiper_infer::sftensor PreProcessImage(const cv::Mat& image, const int32_t input_h,
                                        const int32_t input_w) {
   assert(!image.empty());
   using namespace kuiper_infer;
@@ -38,8 +37,7 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image,
 
   int stride = 32;
   cv::Mat out_image;
-  Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114},
-            true);
+  Letterbox(image, out_image, {input_h, input_w}, stride, {114, 114, 114}, true);
 
   cv::Mat rgb_image;
   cv::cvtColor(out_image, rgb_image, cv::COLOR_BGR2RGB);
@@ -51,8 +49,7 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image,
   cv::split(normalize_image, split_images);
   assert(split_images.size() == input_c);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(input_c, input_h, input_w);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(input_c, input_h, input_w);
   input->Fill(0.f);
 
   int index = 0;
@@ -60,18 +57,16 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image,
   for (const auto& split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
     const cv::Mat& split_image_t = split_image.t();
-    memcpy(input->slice(index).memptr(), split_image_t.data,
-           sizeof(float) * split_image.total());
+    memcpy(input->slice(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
     index += 1;
     offset += split_image.total();
   }
   return input;
 }
 
-void YoloDemo(const std::vector<std::string>& image_paths,
-              const std::string& param_path, const std::string& bin_path,
-              const uint32_t batch_size, const float conf_thresh = 0.25f,
-              const float iou_thresh = 0.25f) {
+void YoloDemo(const std::vector<std::string>& image_paths, const std::string& param_path,
+              const std::string& bin_path, const uint32_t batch_size,
+              const float conf_thresh = 0.25f, const float iou_thresh = 0.25f) {
   using namespace kuiper_infer;
   const int32_t input_h = 640;
   const int32_t input_w = 640;
@@ -148,8 +143,7 @@ void YoloDemo(const std::vector<std::string>& image_paths,
     for (int idx : indices) {
       Detection det;
       det.box = cv::Rect(boxes[idx]);
-      ScaleCoords(cv::Size{input_w, input_h}, det.box,
-                  cv::Size{origin_input_w, origin_input_h});
+      ScaleCoords(cv::Size{input_w, input_h}, det.box, cv::Size{origin_input_w, origin_input_h});
 
       det.conf = confs[idx];
       det.class_id = class_ids[idx];
@@ -162,8 +156,8 @@ void YoloDemo(const std::vector<std::string>& image_paths,
     for (const auto& detection : detections) {
       cv::rectangle(image, detection.box, cv::Scalar(255, 255, 255), 4);
       cv::putText(image, std::to_string(detection.class_id),
-                  cv::Point(detection.box.x, detection.box.y), font_face,
-                  font_scale, cv::Scalar(255, 255, 0), 4);
+                  cv::Point(detection.box.x, detection.box.y), font_face, font_scale,
+                  cv::Scalar(255, 255, 0), 4);
     }
     cv::imwrite(std::string("output") + std::to_string(i) + ".jpg", image);
   }

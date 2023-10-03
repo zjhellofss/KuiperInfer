@@ -44,8 +44,7 @@
 #define __GNUC_PREREQ(major, minor) \
   ((((__GNUC__) << 16) + (__GNUC_MINOR__)) >= (((major) << 16) + (minor)))
 #endif
-#if __GNUC_PREREQ(4, 4) || (__clang__ > 0 && __clang_major__ >= 3) || \
-    !defined(__GNUC__)
+#if __GNUC_PREREQ(4, 4) || (__clang__ > 0 && __clang_major__ >= 3) || !defined(__GNUC__)
 /* GCC >= 4.4 or clang or non-GCC compilers */
 #include <x86intrin.h>
 #elif __GNUC_PREREQ(4, 1)
@@ -145,11 +144,7 @@ struct ExpVar {
 
 template <size_t sbit_ = EXPD_TABLE_SIZE>
 struct ExpdVar {
-  enum {
-    sbit = sbit_,
-    s = 1UL << sbit,
-    adj = (1UL << (sbit + 10)) - (1UL << sbit)
-  };
+  enum { sbit = sbit_, s = 1UL << sbit, adj = (1UL << (sbit + 10)) - (1UL << sbit) };
   // A = 1, B = 1, C = 1/2, D = 1/6
   double C1[2];  // A
   double C2[2];  // D
@@ -494,8 +489,7 @@ inline __m128d exp_pd(__m128d x) {
   __m128d d = _mm_mul_pd(x, ma);
   d = _mm_add_pd(d, _mm_set1_pd(b));
   int adr0 = _mm_cvtsi128_si32(_mm_castpd_si128(d)) & mask(c.sbit);
-  int adr1 =
-      _mm_cvtsi128_si32(_mm_srli_si128(_mm_castpd_si128(d), 8)) & mask(c.sbit);
+  int adr1 = _mm_cvtsi128_si32(_mm_srli_si128(_mm_castpd_si128(d), 8)) & mask(c.sbit);
   __m128i iaxL = _mm_castpd_si128(_mm_load_sd((const double*)&c.tbl[adr0]));
   __m128i iax = _mm_castpd_si128(_mm_load_sd((const double*)&c.tbl[adr1]));
   iax = _mm_unpacklo_epi64(iaxL, iax);
@@ -543,8 +537,7 @@ inline void expd_v(double* px, size_t n) {
     d = _mm256_add_pd(d, _mm256_set1_pd(b));
     __m256i adr = _mm256_and_si256(_mm256_castpd_si256(d), maskSbit);
     __m256i iax = _mm256_i64gather_epi64((const long long*)c.tbl, adr, 8);
-    __m256d t = _mm256_sub_pd(
-        _mm256_mul_pd(_mm256_sub_pd(d, _mm256_set1_pd(b)), mra), x);
+    __m256d t = _mm256_sub_pd(_mm256_mul_pd(_mm256_sub_pd(d, _mm256_set1_pd(b)), mra), x);
     __m256i u = _mm256_castpd_si256(d);
     u = _mm256_add_epi64(u, madj);
     u = _mm256_srli_epi64(u, c.sbit);
@@ -579,8 +572,7 @@ inline void expd_v(double* px, size_t n) {
     __m128d d = _mm_mul_pd(x, ma);
     d = _mm_add_pd(d, _mm_set1_pd(b));
     int adr0 = _mm_cvtsi128_si32(_mm_castpd_si128(d)) & mask(c.sbit);
-    int adr1 = _mm_cvtsi128_si32(_mm_srli_si128(_mm_castpd_si128(d), 8)) &
-               mask(c.sbit);
+    int adr1 = _mm_cvtsi128_si32(_mm_srli_si128(_mm_castpd_si128(d), 8)) & mask(c.sbit);
 
     __m128i iaxL = _mm_castpd_si128(_mm_load_sd((const double*)&c.tbl[adr0]));
     __m128i iax = _mm_castpd_si128(_mm_load_sd((const double*)&c.tbl[adr1]));
@@ -613,18 +605,15 @@ inline __m128 exp_ps(__m128 x)
   using namespace local;
   const ExpVar<>& expVar = C<>::expVar;
 
-  __m128i limit =
-      _mm_castps_si128(_mm_and_ps(x, *cast_to<__m128>(expVar.i7fffffff)));
-  int over =
-      _mm_movemask_epi8(_mm_cmpgt_epi32(limit, *cast_to<__m128i>(expVar.maxX)));
+  __m128i limit = _mm_castps_si128(_mm_and_ps(x, *cast_to<__m128>(expVar.i7fffffff)));
+  int over = _mm_movemask_epi8(_mm_cmpgt_epi32(limit, *cast_to<__m128i>(expVar.maxX)));
   if (over) {
     x = _mm_min_ps(x, _mm_load_ps(expVar.maxX));
     x = _mm_max_ps(x, _mm_load_ps(expVar.minX));
   }
 
   __m128i r = _mm_cvtps_epi32(_mm_mul_ps(x, *cast_to<__m128>(expVar.a)));
-  __m128 t =
-      _mm_sub_ps(x, _mm_mul_ps(_mm_cvtepi32_ps(r), *cast_to<__m128>(expVar.b)));
+  __m128 t = _mm_sub_ps(x, _mm_mul_ps(_mm_cvtepi32_ps(r), *cast_to<__m128>(expVar.b)));
   t = _mm_add_ps(t, *cast_to<__m128>(expVar.f1));
 
   __m128i v4 = _mm_and_si128(r, *cast_to<__m128i>(expVar.mask_s));
@@ -673,24 +662,20 @@ inline __m256 exp_ps256(__m256 x) {
   using namespace local;
   const ExpVar<>& expVar = C<>::expVar;
 
-  __m256i limit = _mm256_castps_si256(
-      _mm256_and_ps(x, *reinterpret_cast<const __m256*>(expVar.i7fffffff)));
-  int over = _mm256_movemask_epi8(_mm256_cmpgt_epi32(
-      limit, *reinterpret_cast<const __m256i*>(expVar.maxX)));
+  __m256i limit =
+      _mm256_castps_si256(_mm256_and_ps(x, *reinterpret_cast<const __m256*>(expVar.i7fffffff)));
+  int over = _mm256_movemask_epi8(
+      _mm256_cmpgt_epi32(limit, *reinterpret_cast<const __m256i*>(expVar.maxX)));
   if (over) {
     x = _mm256_min_ps(x, _mm256_load_ps(expVar.maxX));
     x = _mm256_max_ps(x, _mm256_load_ps(expVar.minX));
   }
-  __m256i r = _mm256_cvtps_epi32(
-      _mm256_mul_ps(x, *reinterpret_cast<const __m256*>(expVar.a)));
+  __m256i r = _mm256_cvtps_epi32(_mm256_mul_ps(x, *reinterpret_cast<const __m256*>(expVar.a)));
   __m256 t = _mm256_sub_ps(
-      x, _mm256_mul_ps(_mm256_cvtepi32_ps(r),
-                       *reinterpret_cast<const __m256*>(expVar.b)));
+      x, _mm256_mul_ps(_mm256_cvtepi32_ps(r), *reinterpret_cast<const __m256*>(expVar.b)));
   t = _mm256_add_ps(t, *reinterpret_cast<const __m256*>(expVar.f1));
-  __m256i v8 =
-      _mm256_and_si256(r, *reinterpret_cast<const __m256i*>(expVar.mask_s));
-  __m256i u8 =
-      _mm256_add_epi32(r, *reinterpret_cast<const __m256i*>(expVar.i127s));
+  __m256i v8 = _mm256_and_si256(r, *reinterpret_cast<const __m256i*>(expVar.mask_s));
+  __m256i u8 = _mm256_add_epi32(r, *reinterpret_cast<const __m256i*>(expVar.i127s));
   u8 = _mm256_srli_epi32(u8, expVar.s);
   u8 = _mm256_slli_epi32(u8, 23);
 #if 1
@@ -743,11 +728,9 @@ inline __m128 log_ps(__m128 x) {
   const LogVar<>& logVar = C<>::logVar;
 
   __m128i xi = _mm_castps_si128(x);
-  __m128i idx = _mm_srli_epi32(_mm_and_si128(xi, *cast_to<__m128i>(logVar.m2)),
-                               (23 - logVar.LEN));
+  __m128i idx = _mm_srli_epi32(_mm_and_si128(xi, *cast_to<__m128i>(logVar.m2)), (23 - logVar.LEN));
   __m128 a = _mm_cvtepi32_ps(
-      _mm_sub_epi32(_mm_and_si128(xi, *cast_to<__m128i>(logVar.m1)),
-                    *cast_to<__m128i>(logVar.m5)));
+      _mm_sub_epi32(_mm_and_si128(xi, *cast_to<__m128i>(logVar.m1)), *cast_to<__m128i>(logVar.m5)));
   __m128 b2 = _mm_cvtepi32_ps(_mm_and_si128(xi, *cast_to<__m128i>(logVar.m3)));
 
   a = _mm_mul_ps(a, *cast_to<__m128>(logVar.m4));  // c_log2
@@ -854,15 +837,11 @@ inline __m128d log_pd(__m128d x) {
   memcpy(&m, d, sizeof(m));
   return m;
 }
-inline __m128 pow_ps(__m128 x, __m128 y) {
-  return exp_ps(_mm_mul_ps(y, log_ps(x)));
-}
-inline __m128d pow_pd(__m128d x, __m128d y) {
-  return exp_pd(_mm_mul_pd(y, log_pd(x)));
-}
+inline __m128 pow_ps(__m128 x, __m128 y) { return exp_ps(_mm_mul_ps(y, log_ps(x))); }
+inline __m128d pow_pd(__m128d x, __m128d y) { return exp_pd(_mm_mul_pd(y, log_pd(x))); }
 
-inline void add_ps_vec(const float* arr1, size_t n1, const float* arr2, size_t n2,
-                       float* output, size_t n3) {
+inline void add_ps_vec(const float* arr1, size_t n1, const float* arr2, size_t n2, float* output,
+                       size_t n3) {
   assert(n1 == n2 && n2 == n3);
   size_t n = n1;
   size_t j = 0;

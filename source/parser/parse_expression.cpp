@@ -44,43 +44,36 @@ void ExpressionParser::Tokenizer(bool retokenize) {
   }
 
   CHECK(!statement_.empty()) << "The input statement is empty!";
-  statement_.erase(std::remove_if(statement_.begin(), statement_.end(),
-                                  [](char c) { return std::isspace(c); }),
-                   statement_.end());
+  statement_.erase(
+      std::remove_if(statement_.begin(), statement_.end(), [](char c) { return std::isspace(c); }),
+      statement_.end());
   CHECK(!statement_.empty()) << "The input statement is empty!";
 
   for (int32_t i = 0; i < statement_.size();) {
     char c = statement_.at(i);
     if (c == 'a') {
       CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'd')
-          << "Parse add token failed, illegal character: "
-          << statement_.at(i + 1);
+          << "Parse add token failed, illegal character: " << statement_.at(i + 1);
       CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'd')
-          << "Parse add token failed, illegal character: "
-          << statement_.at(i + 2);
+          << "Parse add token failed, illegal character: " << statement_.at(i + 2);
       Token token(TokenType::TokenAdd, i, i + 3);
       tokens_.push_back(token);
-      std::string token_operation =
-          std::string(statement_.begin() + i, statement_.begin() + i + 3);
+      std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
       token_strs_.push_back(token_operation);
       i = i + 3;
     } else if (c == 'm') {
       CHECK(i + 1 < statement_.size() && statement_.at(i + 1) == 'u')
-          << "Parse multiply token failed, illegal character: "
-          << statement_.at(i + 1);
+          << "Parse multiply token failed, illegal character: " << statement_.at(i + 1);
       CHECK(i + 2 < statement_.size() && statement_.at(i + 2) == 'l')
-          << "Parse multiply token failed, illegal character: "
-          << statement_.at(i + 2);
+          << "Parse multiply token failed, illegal character: " << statement_.at(i + 2);
       Token token(TokenType::TokenMul, i, i + 3);
       tokens_.push_back(token);
-      std::string token_operation =
-          std::string(statement_.begin() + i, statement_.begin() + i + 3);
+      std::string token_operation = std::string(statement_.begin() + i, statement_.begin() + i + 3);
       token_strs_.push_back(token_operation);
       i = i + 3;
     } else if (c == '@') {
       CHECK(i + 1 < statement_.size() && std::isdigit(statement_.at(i + 1)))
-          << "Parse number token failed, illegal character: "
-          << statement_.at(i + 1);
+          << "Parse number token failed, illegal character: " << statement_.at(i + 1);
       int32_t j = i + 1;
       for (; j < statement_.size(); ++j) {
         if (!std::isdigit(statement_.at(j))) {
@@ -90,15 +83,13 @@ void ExpressionParser::Tokenizer(bool retokenize) {
       Token token(TokenType::TokenInputNumber, i, j);
       CHECK(token.start_pos < token.end_pos);
       tokens_.push_back(token);
-      std::string token_input_number =
-          std::string(statement_.begin() + i, statement_.begin() + j);
+      std::string token_input_number = std::string(statement_.begin() + i, statement_.begin() + j);
       token_strs_.push_back(token_input_number);
       i = j;
     } else if (c == ',') {
       Token token(TokenType::TokenComma, i, i + 1);
       tokens_.push_back(token);
-      std::string token_comma =
-          std::string(statement_.begin() + i, statement_.begin() + i + 1);
+      std::string token_comma = std::string(statement_.begin() + i, statement_.begin() + i + 1);
       token_strs_.push_back(token_comma);
       i += 1;
     } else if (c == '(') {
@@ -121,13 +112,9 @@ void ExpressionParser::Tokenizer(bool retokenize) {
   }
 }
 
-const std::vector<Token>& ExpressionParser::tokens() const {
-  return this->tokens_;
-}
+const std::vector<Token>& ExpressionParser::tokens() const { return this->tokens_; }
 
-const std::vector<std::string>& ExpressionParser::token_strs() const {
-  return this->token_strs_;
-}
+const std::vector<std::string>& ExpressionParser::token_strs() const { return this->token_strs_; }
 
 std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
   CHECK(index < this->tokens_.size());
@@ -141,8 +128,7 @@ std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
     CHECK(end_pos > start_pos || end_pos <= this->statement_.length())
         << "Current token has a wrong length";
     const std::string& str_number =
-        std::string(this->statement_.begin() + start_pos,
-                    this->statement_.begin() + end_pos);
+        std::string(this->statement_.begin() + start_pos, this->statement_.begin() + end_pos);
     return std::make_shared<TokenNode>(std::stoi(str_number), nullptr, nullptr);
 
   } else if (current_token.token_type == TokenType::TokenMul ||

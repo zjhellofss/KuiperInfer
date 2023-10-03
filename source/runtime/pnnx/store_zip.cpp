@@ -72,13 +72,10 @@ PACK(struct end_of_central_directory_record {
 
 static uint32_t CRC32_TABLE[256];
 
-static void CRC32_TABLE_INIT()
-{
-  for (int i = 0; i < 256; i++)
-  {
+static void CRC32_TABLE_INIT() {
+  for (int i = 0; i < 256; i++) {
     uint32_t c = i;
-    for (int j = 0; j < 8; j++)
-    {
+    for (int j = 0; j < 8; j++) {
       if (c & 1)
         c = (c >> 1) ^ 0xedb88320;
       else
@@ -88,63 +85,47 @@ static void CRC32_TABLE_INIT()
   }
 }
 
-static uint32_t CRC32(uint32_t x, unsigned char ch)
-{
+static uint32_t CRC32(uint32_t x, unsigned char ch) {
   return (x >> 8) ^ CRC32_TABLE[(x ^ ch) & 0xff];
 }
 
-static uint32_t CRC32_buffer(const unsigned char* data, int len)
-{
+static uint32_t CRC32_buffer(const unsigned char* data, int len) {
   uint32_t x = 0xffffffff;
 
-  for (int i = 0; i < len; i++)
-    x = CRC32(x, data[i]);
+  for (int i = 0; i < len; i++) x = CRC32(x, data[i]);
 
   return x ^ 0xffffffff;
 }
 
-StoreZipReader::StoreZipReader()
-{
-  fp = 0;
-}
+StoreZipReader::StoreZipReader() { fp = 0; }
 
-StoreZipReader::~StoreZipReader()
-{
-  close();
-}
+StoreZipReader::~StoreZipReader() { close(); }
 
-int StoreZipReader::open(const std::string& path)
-{
+int StoreZipReader::open(const std::string& path) {
   close();
 
   fp = fopen(path.c_str(), "rb");
-  if (!fp)
-  {
+  if (!fp) {
     fprintf(stderr, "open failed\n");
     return -1;
   }
 
-  while (!feof(fp))
-  {
+  while (!feof(fp)) {
     // peek signature
     uint32_t signature;
     int nread = fread((char*)&signature, sizeof(signature), 1, fp);
-    if (nread != 1)
-      break;
+    if (nread != 1) break;
 
-    if (signature == 0x04034b50)
-    {
+    if (signature == 0x04034b50) {
       local_file_header lfh;
       fread((char*)&lfh, sizeof(lfh), 1, fp);
 
-      if (lfh.flag & 0x08)
-      {
+      if (lfh.flag & 0x08) {
         fprintf(stderr, "zip file contains data descriptor, this is not supported yet\n");
         return -1;
       }
 
-      if (lfh.compression != 0 || lfh.compressed_size != lfh.uncompressed_size)
-      {
+      if (lfh.compression != 0 || lfh.compressed_size != lfh.uncompressed_size) {
         fprintf(stderr, "not stored zip file %d %d\n", lfh.compressed_size, lfh.uncompressed_size);
         return -1;
       }
@@ -166,9 +147,7 @@ int StoreZipReader::open(const std::string& path)
       //             fprintf(stderr, "%s = %d  %d\n", name.c_str(), fm.offset, fm.size);
 
       fseek(fp, lfh.compressed_size, SEEK_CUR);
-    }
-    else if (signature == 0x02014b50)
-    {
+    } else if (signature == 0x02014b50) {
       central_directory_file_header cdfh;
       fread((char*)&cdfh, sizeof(cdfh), 1, fp);
 
@@ -180,17 +159,13 @@ int StoreZipReader::open(const std::string& path)
 
       // skip file comment
       fseek(fp, cdfh.file_comment_length, SEEK_CUR);
-    }
-    else if (signature == 0x06054b50)
-    {
+    } else if (signature == 0x06054b50) {
       end_of_central_directory_record eocdr;
       fread((char*)&eocdr, sizeof(eocdr), 1, fp);
 
       // skip comment
       fseek(fp, eocdr.comment_length, SEEK_CUR);
-    }
-    else
-    {
+    } else {
       fprintf(stderr, "unsupported signature %x\n", signature);
       return -1;
     }
@@ -199,10 +174,8 @@ int StoreZipReader::open(const std::string& path)
   return 0;
 }
 
-size_t StoreZipReader::get_file_size(const std::string& name)
-{
-  if (filemetas.find(name) == filemetas.end())
-  {
+size_t StoreZipReader::get_file_size(const std::string& name) {
+  if (filemetas.find(name) == filemetas.end()) {
     fprintf(stderr, "no such file %s\n", name.c_str());
     return 0;
   }
@@ -210,10 +183,8 @@ size_t StoreZipReader::get_file_size(const std::string& name)
   return filemetas[name].size;
 }
 
-int StoreZipReader::read_file(const std::string& name, char* data)
-{
-  if (filemetas.find(name) == filemetas.end())
-  {
+int StoreZipReader::read_file(const std::string& name, char* data) {
+  if (filemetas.find(name) == filemetas.end()) {
     fprintf(stderr, "no such file %s\n", name.c_str());
     return -1;
   }
@@ -227,10 +198,8 @@ int StoreZipReader::read_file(const std::string& name, char* data)
   return 0;
 }
 
-int StoreZipReader::close()
-{
-  if (!fp)
-    return 0;
+int StoreZipReader::close() {
+  if (!fp) return 0;
 
   fclose(fp);
   fp = 0;
@@ -238,25 +207,19 @@ int StoreZipReader::close()
   return 0;
 }
 
-StoreZipWriter::StoreZipWriter()
-{
+StoreZipWriter::StoreZipWriter() {
   fp = 0;
 
   CRC32_TABLE_INIT();
 }
 
-StoreZipWriter::~StoreZipWriter()
-{
-  close();
-}
+StoreZipWriter::~StoreZipWriter() { close(); }
 
-int StoreZipWriter::open(const std::string& path)
-{
+int StoreZipWriter::open(const std::string& path) {
   close();
 
   fp = fopen(path.c_str(), "wb");
-  if (!fp)
-  {
+  if (!fp) {
     fprintf(stderr, "open failed\n");
     return -1;
   }
@@ -264,8 +227,7 @@ int StoreZipWriter::open(const std::string& path)
   return 0;
 }
 
-int StoreZipWriter::write_file(const std::string& name, const char* data, size_t size)
-{
+int StoreZipWriter::write_file(const std::string& name, const char* data, size_t size) {
   int offset = ftell(fp);
 
   uint32_t signature = 0x04034b50;
@@ -302,15 +264,12 @@ int StoreZipWriter::write_file(const std::string& name, const char* data, size_t
   return 0;
 }
 
-int StoreZipWriter::close()
-{
-  if (!fp)
-    return 0;
+int StoreZipWriter::close() {
+  if (!fp) return 0;
 
   int offset = ftell(fp);
 
-  for (const StoreZipMeta& szm : filemetas)
-  {
+  for (const StoreZipMeta& szm : filemetas) {
     uint32_t signature = 0x02014b50;
     fwrite((char*)&signature, sizeof(signature), 1, fp);
 
@@ -361,7 +320,7 @@ int StoreZipWriter::close()
   return 0;
 }
 
-} // namespace pnnx
+}  // namespace pnnx
 
 #if 0
 int main()

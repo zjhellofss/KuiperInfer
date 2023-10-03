@@ -94,7 +94,6 @@ BENCHMARK(BM_SiluArma)->Args({255, 80, 80})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiluArma)->Args({255, 40, 40})->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_SiluArma)->Args({255, 20, 20})->Unit(benchmark::kMillisecond);
 
-
 static void BM_SiluSimd(benchmark::State& state) {
   using namespace kuiper_infer;
   uint32_t input_c = state.range(0);

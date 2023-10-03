@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-18.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_MONOCULAR_EXPRESSION_HPP_
@@ -29,15 +29,13 @@
 namespace kuiper_infer {
 class ExpressionLayer : public NonParamLayer {
  public:
-  explicit ExpressionLayer( std::string statement);
+  explicit ExpressionLayer(std::string statement);
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& expression_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& expression_layer);
 
  private:
   std::string statement_;

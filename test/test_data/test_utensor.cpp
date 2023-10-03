@@ -321,8 +321,7 @@ TEST(test_utensor, transform2_uint8) {
 TEST(test_utensor, clone) {
   using namespace kuiper_infer;
 
-  std::shared_ptr<Tensor<uint8_t>> f3 =
-      std::make_shared<Tensor<uint8_t>>(3, 3, 3);
+  std::shared_ptr<Tensor<uint8_t>> f3 = std::make_shared<Tensor<uint8_t>>(3, 3, 3);
   ASSERT_EQ(f3->empty(), false);
   f3->RandU();
 
@@ -337,8 +336,7 @@ TEST(test_utensor, clone) {
 TEST(test_utensor, clone_uint8) {
   using namespace kuiper_infer;
 
-  std::shared_ptr<Tensor<uint8_t>> f3 =
-      std::make_shared<Tensor<uint8_t>>(3, 3, 3);
+  std::shared_ptr<Tensor<uint8_t>> f3 = std::make_shared<Tensor<uint8_t>>(3, 3, 3);
   ASSERT_EQ(f3->empty(), false);
   f3->RandU();
   const auto& f4 = TensorClone(f3);
@@ -579,8 +577,7 @@ TEST(test_utensor, fill2_colmajor2) {
 
 TEST(test_utensor, create1) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor_ptr =
-      TensorCreate<uint8_t>(3, 32, 32);
+  const std::shared_ptr<u1tensor>& tensor_ptr = TensorCreate<uint8_t>(3, 32, 32);
   ASSERT_EQ(tensor_ptr->empty(), false);
   ASSERT_EQ(tensor_ptr->channels(), 3);
   ASSERT_EQ(tensor_ptr->rows(), 32);
@@ -589,8 +586,7 @@ TEST(test_utensor, create1) {
 
 TEST(test_utensor, create2) {
   using namespace kuiper_infer;
-  const std::shared_ptr<u1tensor>& tensor_ptr =
-      TensorCreate<uint8_t>({3, 32, 32});
+  const std::shared_ptr<u1tensor>& tensor_ptr = TensorCreate<uint8_t>({3, 32, 32});
   ASSERT_EQ(tensor_ptr->empty(), false);
   ASSERT_EQ(tensor_ptr->channels(), 3);
   ASSERT_EQ(tensor_ptr->rows(), 32);
@@ -611,8 +607,7 @@ TEST(test_utensor, tensor_broadcast1) {
   ASSERT_EQ(tensor11->rows(), 32);
   ASSERT_EQ(tensor11->cols(), 32);
 
-  ASSERT_TRUE(
-      arma::approx_equal(tensor21->data(), tensor2->data(), "absdiff", 1e-4));
+  ASSERT_TRUE(arma::approx_equal(tensor21->data(), tensor2->data(), "absdiff", 1e-4));
 }
 
 TEST(test_utensor, tensor_broadcast2) {
@@ -1170,36 +1165,30 @@ TEST(test_utensor, at3) {
 
 TEST(test_utensor, is_same1) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<uint8_t>> in1 =
-      std::make_shared<Tensor<uint8_t>>(3, 32, 32);
+  std::shared_ptr<Tensor<uint8_t>> in1 = std::make_shared<Tensor<uint8_t>>(3, 32, 32);
   in1->Fill(2.f);
 
-  std::shared_ptr<Tensor<uint8_t>> in2 =
-      std::make_shared<Tensor<uint8_t>>(3, 32, 32);
+  std::shared_ptr<Tensor<uint8_t>> in2 = std::make_shared<Tensor<uint8_t>>(3, 32, 32);
   in2->Fill(2.f);
   ASSERT_EQ(TensorIsSame(in1, in2), true);
 }
 
 TEST(test_utensor, is_same2) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<uint8_t>> in1 =
-      std::make_shared<Tensor<uint8_t>>(3, 32, 32);
+  std::shared_ptr<Tensor<uint8_t>> in1 = std::make_shared<Tensor<uint8_t>>(3, 32, 32);
   in1->Fill(1.f);
 
-  std::shared_ptr<Tensor<uint8_t>> in2 =
-      std::make_shared<Tensor<uint8_t>>(3, 32, 32);
+  std::shared_ptr<Tensor<uint8_t>> in2 = std::make_shared<Tensor<uint8_t>>(3, 32, 32);
   in2->Fill(2.f);
   ASSERT_EQ(TensorIsSame(in1, in2), false);
 }
 
 TEST(test_utensor, is_same3) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<uint8_t>> in1 =
-      std::make_shared<Tensor<uint8_t>>(3, 32, 32);
+  std::shared_ptr<Tensor<uint8_t>> in1 = std::make_shared<Tensor<uint8_t>>(3, 32, 32);
   in1->Fill(1.f);
 
-  std::shared_ptr<Tensor<uint8_t>> in2 =
-      std::make_shared<Tensor<uint8_t>>(3, 31, 32);
+  std::shared_ptr<Tensor<uint8_t>> in2 = std::make_shared<Tensor<uint8_t>>(3, 31, 32);
   in2->Fill(1.f);
   ASSERT_EQ(TensorIsSame(in1, in2), false);
 }

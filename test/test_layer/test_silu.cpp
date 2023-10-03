@@ -21,11 +21,10 @@
 
 // Created by fss on 22-12-25.
 
-#include <gtest/gtest.h>
 #include <glog/logging.h>
-
-#include "data/tensor.hpp"
+#include <gtest/gtest.h>
 #include "../../source/layer/details/silu.hpp"
+#include "data/tensor.hpp"
 
 TEST(test_layer, forward_silu1) {
   using namespace kuiper_infer;
@@ -44,7 +43,8 @@ TEST(test_layer, forward_silu1) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))),
+                1e-6);
     }
   }
 }
@@ -66,7 +66,8 @@ TEST(test_layer, forward_silu2) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))),
+                1e-6);
     }
   }
 }
@@ -88,7 +89,8 @@ TEST(test_layer, forward_silu3) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))),
+                1e-6);
     }
   }
 }
@@ -110,7 +112,8 @@ TEST(test_layer, forward_silu4) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))),
+                1e-6);
     }
   }
 }
@@ -132,7 +135,8 @@ TEST(test_layer, forward_silu5) {
     CHECK(input_->size() == output_->size());
     uint32_t size = input_->size();
     for (uint32_t j = 0; j < size; ++j) {
-      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))), 1e-6);
+      ASSERT_LE(std::abs(output_->index(j) - input_->index(j) / (1 + std::exp(-input_->index(j)))),
+                1e-6);
     }
   }
 }

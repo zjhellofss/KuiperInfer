@@ -48,14 +48,13 @@ std::mutex LayerTimeStatesSingleton::mutex_;
 
 PtrLayerTimeStatesCollector LayerTimeStatesSingleton::time_states_collector_;
 
-LayerTimeLogging::LayerTimeLogging(std::string layer_name,
-                                   std::string layer_type)
+LayerTimeLogging::LayerTimeLogging(std::string layer_name, std::string layer_type)
     : layer_name_(std::move(layer_name)),
       layer_type_(std::move(layer_type)),
       start_time_(Time::now()) {
   auto layer_time_states = LayerTimeStatesSingleton::SingletonInstance();
-  layer_time_states->insert({layer_name_, std::make_shared<LayerTimeState>(
-                                              0l, layer_name_, layer_type_)});
+  layer_time_states->insert(
+      {layer_name_, std::make_shared<LayerTimeState>(0l, layer_name_, layer_type_)});
 }
 
 LayerTimeLogging::~LayerTimeLogging() {
@@ -67,25 +66,21 @@ LayerTimeLogging::~LayerTimeLogging() {
 
     std::lock_guard<std::mutex> lock_guard(layer_state->time_mutex_);
     const auto end_time = Time::now();
-    const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                              end_time - start_time_)
-                              .count();
+    const auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time_).count();
     layer_state->duration_time_ += duration;
   } else {
-    LOG(ERROR) << "Can not find the layer: " << layer_name_
-               << " in the time logging.";
+    LOG(ERROR) << "Can not find the layer: " << layer_name_ << " in the time logging.";
   }
 }
 
 void LayerTimeLogging::SummaryLogging() {
   auto layer_time_states = LayerTimeStatesSingleton::SingletonInstance();
   CHECK(layer_time_states != nullptr);
-  LayerTimeStatesCollector layer_time_states_collector =
-      *layer_time_states.get();
+  LayerTimeStatesCollector layer_time_states_collector = *layer_time_states.get();
 
   long total_time_costs = 0;
-  for (const auto& [layer_name, layer_time_state] :
-       layer_time_states_collector) {
+  for (const auto& [layer_name, layer_time_state] : layer_time_states_collector) {
     CHECK(layer_time_state != nullptr);
 
     std::lock_guard<std::mutex> lock(layer_time_state->time_mutex_);

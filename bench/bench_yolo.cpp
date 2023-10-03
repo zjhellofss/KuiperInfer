@@ -34,8 +34,7 @@ static void BM_Yolov5nano_Batch4_320x320(benchmark::State& state) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(3, 320, 320);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 320, 320);
     input->Ones();
     inputs.push_back(input);
   }
@@ -56,8 +55,7 @@ static void BM_Yolov5s_Batch4_640x640(benchmark::State& state) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(3, 640, 640);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 640, 640);
     input->Ones();
     inputs.push_back(input);
   }
@@ -77,8 +75,7 @@ static void BM_Yolov5s_Batch8_640x640(benchmark::State& state) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(3, 640, 640);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 640, 640);
     input->Ones();
     inputs.push_back(input);
   }
@@ -88,12 +85,6 @@ static void BM_Yolov5s_Batch8_640x640(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_Yolov5nano_Batch4_320x320)
-    ->Unit(benchmark::kMillisecond)
-    ->Iterations(5);
-BENCHMARK(BM_Yolov5s_Batch4_640x640)
-    ->Unit(benchmark::kMillisecond)
-    ->Iterations(5);
-BENCHMARK(BM_Yolov5s_Batch8_640x640)
-    ->Unit(benchmark::kMillisecond)
-    ->Iterations(5);
+BENCHMARK(BM_Yolov5nano_Batch4_320x320)->Unit(benchmark::kMillisecond)->Iterations(5);
+BENCHMARK(BM_Yolov5s_Batch4_640x640)->Unit(benchmark::kMillisecond)->Iterations(5);
+BENCHMARK(BM_Yolov5s_Batch8_640x640)->Unit(benchmark::kMillisecond)->Iterations(5);

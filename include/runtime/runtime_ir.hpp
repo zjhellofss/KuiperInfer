@@ -61,8 +61,7 @@ class RuntimeGraph {
    * @param input_name Name of the input
    * @param inputs Vector of input tensors
    */
-  void set_inputs(const std::string& input_name,
-                  const std::vector<sftensor>& inputs);
+  void set_inputs(const std::string& input_name, const std::vector<sftensor>& inputs);
 
   /**
    * @brief Gets output tensors from the graph
@@ -182,9 +181,8 @@ class RuntimeGraph {
    * @param inputs Operator inputs in PNNX graph
    * @param runtime_operator The runtime operator to initialize inputs for
    */
-  static void InitGraphOperatorsInput(
-      const std::vector<pnnx::Operand*>& inputs,
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  static void InitGraphOperatorsInput(const std::vector<pnnx::Operand*>& inputs,
+                                      const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
   /**
    * @brief Initializes operator outputs
@@ -194,9 +192,8 @@ class RuntimeGraph {
    * @param outputs Operator outputs in PNNX graph
    * @param runtime_operator The runtime operator to initialize outputs for
    */
-  static void InitGraphOperatorsOutput(
-      const std::vector<pnnx::Operand*>& outputs,
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  static void InitGraphOperatorsOutput(const std::vector<pnnx::Operand*>& outputs,
+                                       const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
   /**
    * @brief Initializes operator attributes
@@ -206,9 +203,8 @@ class RuntimeGraph {
    * @param attrs Operator attributes in PNNX graph
    * @param runtime_operator The runtime operator to initialize attributes for
    */
-  static void InitGraphAttrs(
-      const std::map<std::string, pnnx::Attribute>& attrs,
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  static void InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& attrs,
+                             const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
   /**
    * @brief Initializes operator parameters
@@ -218,9 +214,8 @@ class RuntimeGraph {
    * @param params Operator parameters in PNNX graph
    * @param runtime_operator The runtime operator to initialize parameters for
    */
-  static void InitGraphParams(
-      const std::map<std::string, pnnx::Parameter>& params,
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  static void InitGraphParams(const std::map<std::string, pnnx::Parameter>& params,
+                              const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
   /**
    * @brief Creates a Layer object for a graph operator
@@ -231,8 +226,7 @@ class RuntimeGraph {
    * @param op The RuntimeOperator to create a Layer for
    * @return Pointer to the created Layer object
    */
-  static std::shared_ptr<Layer<float>> CreateLayer(
-      const std::shared_ptr<RuntimeOperator>& op);
+  static std::shared_ptr<Layer<float>> CreateLayer(const std::shared_ptr<RuntimeOperator>& op);
 
   /**
    * @brief Feeds the current op outputs to next op inputs
@@ -243,9 +237,8 @@ class RuntimeGraph {
    * @param current_op The current operator
    * @param layer_output_data Vector of output tensors from current op
    */
-  static void ProbeNextLayer(
-      const std::shared_ptr<RuntimeOperator>& current_op,
-      const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
+  static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator>& current_op,
+                             const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
 
  private:
   /**

@@ -26,9 +26,8 @@
 
 namespace kuiper_infer {
 
-StatusCode BatchNorm2dLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the batchnorm2d layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -89,21 +88,18 @@ StatusCode BatchNorm2dLayer::Forward(
       const float mean_value = weights_.at(i)->index(0);
       const float var_value = bias_.at(i)->index(0);
       CHECK(input->channels() > i)
-          << "In the batchnorm2d layer, too few channels for input tensor " << b
-          << " th";
+          << "In the batchnorm2d layer, too few channels for input tensor " << b << " th";
 
       const float var_value_ = std::sqrt(var_value + eps_);
       output->slice(i) =
-          ((input->slice(i) - mean_value) / var_value_) * affine_weight_.at(i) +
-          affine_bias_.at(i);
+          ((input->slice(i) - mean_value) / var_value_) * affine_weight_.at(i) + affine_bias_.at(i);
     }
   }
   return StatusCode::kSuccess;
 }
 
-StatusCode BatchNorm2dLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& batch_layer) {
+StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                            std::shared_ptr<Layer<float>>& batch_layer) {
   CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
 
   const auto& params = op->params;
@@ -125,8 +121,7 @@ StatusCode BatchNorm2dLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto num_features =
-      std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("num_features"));
+  auto num_features = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("num_features"));
   if (!num_features) {
     LOG(ERROR) << "Can not find the num features parameter";
     return StatusCode::kParameterMissing;
@@ -152,8 +147,8 @@ StatusCode BatchNorm2dLayer::CreateInstance(
 
   const std::vector<float>& affine_weight = attrs.at("weight")->get<float>();
   const std::vector<float>& affine_bias = attrs.at("bias")->get<float>();
-  batch_layer = std::make_shared<BatchNorm2dLayer>(
-      num_features->value, eps->value, affine_weight, affine_bias);
+  batch_layer = std::make_shared<BatchNorm2dLayer>(num_features->value, eps->value, affine_weight,
+                                                   affine_bias);
 
   const auto& mean_attr = attrs.at("running_mean");
   const std::vector<float>& mean = mean_attr->get<float>();
@@ -173,15 +168,12 @@ StatusCode BatchNorm2dLayer::CreateInstance(
 BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
                                    const std::vector<float>& affine_weight,
                                    const std::vector<float>& affine_bias)
-    : ParamLayer("Batchnorm"),
-      affine_weight_(affine_weight),
-      affine_bias_(affine_bias),
-      eps_(eps) {
+    : ParamLayer("Batchnorm"), affine_weight_(affine_weight), affine_bias_(affine_bias), eps_(eps) {
   this->InitWeightParam(num_features, 1, 1, 1);
   this->InitBiasParam(num_features, 1, 1, 1);
 }
 
-LayerRegistererWrapper kBatchNorm2dCreateInstance(
-    "nn.BatchNorm2d", BatchNorm2dLayer::CreateInstance);
+LayerRegistererWrapper kBatchNorm2dCreateInstance("nn.BatchNorm2d",
+                                                  BatchNorm2dLayer::CreateInstance);
 
 }  // namespace kuiper_infer

@@ -30,12 +30,9 @@ namespace kuiper_infer {
 namespace activation {
 
 static void SigmoidSSE(sftensor input, sftensor output) {
-  CHECK(input != nullptr && output != nullptr)
-      << "The input or output tensor is empty.";
-  CHECK(!input->empty() && !output->empty())
-      << "The input or output tensor is empty.";
-  CHECK(input->size() == output->size())
-      << "The input and output sizes are not equal.";
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
   int64_t index = 0;
   int64_t packet_size = 4;
   int64_t in_size = static_cast<int64_t>(input->size());
@@ -47,8 +44,7 @@ static void SigmoidSSE(sftensor input, sftensor output) {
   __m256 _zero = _mm256_setzero_ps();
   for (; index <= in_size - packet_size; index += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
-    _p = _mm256_div_ps(
-        _one, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
+    _p = _mm256_div_ps(_one, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
     _mm256_storeu_ps(out_ptr, _p);
     in_ptr += packet_size;
     out_ptr += packet_size;
@@ -58,8 +54,7 @@ static void SigmoidSSE(sftensor input, sftensor output) {
   __m128 _zero = _mm_setzero_ps();
   for (; index <= in_size - packet_size; index += packet_size) {
     __m128 _p = _mm_loadu_ps(in_ptr);
-    _p = _mm_div_ps(_one,
-                    _mm_add_ps(_one, fmath::exp_ps(_mm_sub_ps(_zero, _p))));
+    _p = _mm_div_ps(_one, _mm_add_ps(_one, fmath::exp_ps(_mm_sub_ps(_zero, _p))));
     _mm_storeu_ps(out_ptr, _p);
     in_ptr += packet_size;
     out_ptr += packet_size;
@@ -75,12 +70,9 @@ static void SigmoidSSE(sftensor input, sftensor output) {
 }
 
 static void ReluSSE(sftensor input, sftensor output) {
-  CHECK(input != nullptr && output != nullptr)
-      << "The input or output tensor is empty.";
-  CHECK(!input->empty() && !output->empty())
-      << "The input or output tensor is empty.";
-  CHECK(input->size() == output->size())
-      << "The input and output sizes are not equal.";
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
   int64_t j = 0;
   int64_t packet_size = 4;
   int64_t size = static_cast<int64_t>(input->size());
@@ -116,12 +108,9 @@ static void ReluSSE(sftensor input, sftensor output) {
 }
 
 static void SiluSSE(sftensor input, sftensor output) {
-  CHECK(input != nullptr && output != nullptr)
-      << "The input or output tensor is empty.";
-  CHECK(!input->empty() && !output->empty())
-      << "The input or output tensor is empty.";
-  CHECK(input->size() == output->size())
-      << "The input and output sizes are not equal.";
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
   int64_t j = 0;
   int64_t packet_size = 4;
   int64_t size = static_cast<int64_t>(input->size());
@@ -134,8 +123,7 @@ static void SiluSSE(sftensor input, sftensor output) {
 
   for (j = 0; j <= size - packet_size; j += packet_size) {
     __m256 _p = _mm256_loadu_ps(in_ptr);
-    _p = _mm256_div_ps(
-        _p, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
+    _p = _mm256_div_ps(_p, _mm256_add_ps(_one, fmath::exp_ps256(_mm256_sub_ps(_zero, _p))));
     _mm256_storeu_ps(out_ptr, _p);
     in_ptr += packet_size;
     out_ptr += packet_size;
@@ -162,12 +150,9 @@ static void SiluSSE(sftensor input, sftensor output) {
 }
 
 static void HardSwishSSE(sftensor input, sftensor output) {
-  CHECK(input != nullptr && output != nullptr)
-      << "The input or output tensor is empty.";
-  CHECK(!input->empty() && !output->empty())
-      << "The input or output tensor is empty.";
-  CHECK(input->size() == output->size())
-      << "The input and output sizes are not equal.";
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
 
   int64_t j = 0;
   float threshold = 3.f;
@@ -187,15 +172,13 @@ static void HardSwishSSE(sftensor input, sftensor output) {
 
     __m256 le_branch = _mm256_cmp_ps(x, minus_three, _CMP_LE_OS);  // <= -3
     __m256 ge_branch = _mm256_cmp_ps(x, three, _CMP_GE_OS);        // >= 3
-    __m256 mid_branch =
-        _mm256_and_ps(_mm256_cmp_ps(x, minus_three, _CMP_GT_OS),
-                      _mm256_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
+    __m256 mid_branch = _mm256_and_ps(_mm256_cmp_ps(x, minus_three, _CMP_GT_OS),
+                                      _mm256_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
 
     __m256 f1 = _mm256_and_ps(zero, le_branch);
     __m256 f2 = _mm256_and_ps(x, ge_branch);
-    __m256 f3 = _mm256_and_ps(
-        _mm256_div_ps(_mm256_mul_ps(x, _mm256_add_ps(x, three)), six),
-        mid_branch);
+    __m256 f3 =
+        _mm256_and_ps(_mm256_div_ps(_mm256_mul_ps(x, _mm256_add_ps(x, three)), six), mid_branch);
 
     __m256 result = _mm256_add_ps(_mm256_add_ps(f1, f2), f3);
     _mm256_storeu_ps(out_ptr, result);
@@ -213,13 +196,12 @@ static void HardSwishSSE(sftensor input, sftensor output) {
 
     __m128 le_branch = _mm_cmple_ps(x, minus_three);  // <= -3
     __m128 ge_branch = _mm_cmpge_ps(x, three);        // >= 3
-    __m128 mid_branch = _mm_and_ps(_mm_cmpgt_ps(x, minus_three),
-                                   _mm_cmplt_ps(x, three));  // -3 < x < 3
+    __m128 mid_branch =
+        _mm_and_ps(_mm_cmpgt_ps(x, minus_three), _mm_cmplt_ps(x, three));  // -3 < x < 3
 
     __m128 f1 = _mm_and_ps(zero, le_branch);
     __m128 f2 = _mm_and_ps(x, ge_branch);
-    __m128 f3 = _mm_and_ps(_mm_div_ps(_mm_mul_ps(x, _mm_add_ps(x, three)), six),
-                           mid_branch);
+    __m128 f3 = _mm_and_ps(_mm_div_ps(_mm_mul_ps(x, _mm_add_ps(x, three)), six), mid_branch);
 
     __m128 result = _mm_add_ps(_mm_add_ps(f1, f2), f3);
     _mm_storeu_ps(out_ptr, result);
@@ -246,12 +228,9 @@ static void HardSwishSSE(sftensor input, sftensor output) {
 }
 
 static void HardSigmoidSSE(sftensor input, sftensor output) {
-  CHECK(input != nullptr && output != nullptr)
-      << "The input or output tensor is empty.";
-  CHECK(!input->empty() && !output->empty())
-      << "The input or output tensor is empty.";
-  CHECK(input->size() == output->size())
-      << "The input and output sizes are not equal.";
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
 
   int64_t j = 0;
   float threshold = 3.f;
@@ -273,14 +252,12 @@ static void HardSigmoidSSE(sftensor input, sftensor output) {
     __m256 x = _mm256_loadu_ps(in_ptr);
     __m256 le_branch = _mm256_cmp_ps(x, minus_three, _CMP_LE_OS);  // <= -3
     __m256 ge_branch = _mm256_cmp_ps(x, three, _CMP_GE_OS);        // >= 3
-    __m256 mid_branch =
-        _mm256_and_ps(_mm256_cmp_ps(x, minus_three, _CMP_GT_OS),
-                      _mm256_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
+    __m256 mid_branch = _mm256_and_ps(_mm256_cmp_ps(x, minus_three, _CMP_GT_OS),
+                                      _mm256_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
 
     __m256 f1 = _mm256_and_ps(zero, le_branch);
     __m256 f2 = _mm256_and_ps(one, ge_branch);
-    __m256 f3 = _mm256_and_ps(_mm256_add_ps(_mm256_div_ps(x, six), point_five),
-                              mid_branch);
+    __m256 f3 = _mm256_and_ps(_mm256_add_ps(_mm256_div_ps(x, six), point_five), mid_branch);
 
     __m256 result = _mm256_add_ps(_mm256_add_ps(f1, f2), f3);
     _mm256_storeu_ps(out_ptr, result);
@@ -300,14 +277,12 @@ static void HardSigmoidSSE(sftensor input, sftensor output) {
     __m128 x = _mm_loadu_ps(in_ptr);
     __m128 le_branch = _mm_cmp_ps(x, minus_three, _CMP_LE_OS);  // <= -3
     __m128 ge_branch = _mm_cmp_ps(x, three, _CMP_GE_OS);        // >= 3
-    __m128 mid_branch =
-        _mm_and_ps(_mm_cmp_ps(x, minus_three, _CMP_GT_OS),
-                   _mm_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
+    __m128 mid_branch = _mm_and_ps(_mm_cmp_ps(x, minus_three, _CMP_GT_OS),
+                                   _mm_cmp_ps(x, three, _CMP_LT_OS));  // -3 < x < 3
 
     __m128 f1 = _mm_and_ps(zero, le_branch);
     __m128 f2 = _mm_and_ps(one, ge_branch);
-    __m128 f3 =
-        _mm_and_ps(_mm_add_ps(_mm_div_ps(x, six), point_five), mid_branch);
+    __m128 f3 = _mm_and_ps(_mm_add_ps(_mm_div_ps(x, six), point_five), mid_branch);
 
     __m128 result = _mm_add_ps(_mm_add_ps(f1, f2), f3);
     _mm_storeu_ps(out_ptr, result);

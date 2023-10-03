@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-17.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_BATCHNORM2D_HPP_
@@ -35,13 +35,11 @@ class BatchNorm2dLayer : public ParamLayer {
                             const std::vector<float>& affine_weight,
                             const std::vector<float>& affine_bias);
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& batch_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& batch_layer);
 
  private:
   float eps_ = 1e-5;

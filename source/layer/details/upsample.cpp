@@ -25,11 +25,9 @@
 #include "layer/abstract/layer_factory.hpp"
 namespace kuiper_infer {
 
-static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
-                               float div_scale, int32_t output_idx,
-                               float& lambda0, float& lambda1,
-                               int32_t& input_index0, int32_t& input_index1,
-                               bool is_align_corner) {
+static void CalcIndexAndLambda(int32_t input_size, int32_t output_size, float div_scale,
+                               int32_t output_idx, float& lambda0, float& lambda1,
+                               int32_t& input_index0, int32_t& input_index1, bool is_align_corner) {
   if (output_size == input_size) {
     input_index0 = input_index1 = output_idx;
     lambda0 = 1;
@@ -37,8 +35,7 @@ static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
   } else {
     float real_input_idx = 0.f;
     if (!is_align_corner) {
-      real_input_idx =
-          div_scale * (static_cast<float>(output_idx) + 0.5f) - 0.5f;
+      real_input_idx = div_scale * (static_cast<float>(output_idx) + 0.5f) - 0.5f;
       if (real_input_idx < 0) {
         real_input_idx = 0;
       }
@@ -55,17 +52,15 @@ static void CalcIndexAndLambda(int32_t input_size, int32_t output_size,
   }
 }
 
-UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode,
-                             bool is_align_corner)
+UpSampleLayer::UpSampleLayer(float scale_h, float scale_w, UpSampleMode mode, bool is_align_corner)
     : NonParamLayer("upsample"),
       scale_h_(scale_h),
       scale_w_(scale_w),
       mode_(mode),
       is_align_corner_(is_align_corner) {}
 
-StatusCode UpSampleLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                  std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the upsample layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -82,8 +77,7 @@ StatusCode UpSampleLayer::Forward(
     return StatusCode::kInferInOutDimMismatch;
   }
 
-  if (this->mode_ != UpSampleMode::kModeNearest &&
-      this->mode_ != UpSampleMode::kModeBilinear) {
+  if (this->mode_ != UpSampleMode::kModeNearest && this->mode_ != UpSampleMode::kModeBilinear) {
     LOG(ERROR) << "Unsupported upsample mode: " << int32_t(mode_);
     return StatusCode::kInferParameterError;
   }
@@ -93,14 +87,12 @@ StatusCode UpSampleLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const arma::fcube& input_data = inputs.at(i)->data();
     LOG_IF(FATAL, input_data.empty())
-        << "The input tensor array in the upsample layer has an empty tensor "
-        << i << " th";
+        << "The input tensor array in the upsample layer has an empty tensor " << i << " th";
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(
-          input_data.n_slices,
-          input_data.n_rows * static_cast<uint32_t>(scale_h_),
-          input_data.n_cols * static_cast<uint32_t>(scale_w_));
+      output = std::make_shared<Tensor<float>>(input_data.n_slices,
+                                               input_data.n_rows * static_cast<uint32_t>(scale_h_),
+                                               input_data.n_cols * static_cast<uint32_t>(scale_w_));
       outputs.at(i) = output;
     }
     auto& output_data = output->data();
@@ -141,8 +133,7 @@ StatusCode UpSampleLayer::Forward(
               const uint32_t scaled_h = h * static_cast<uint32_t>(scale_h_);
               float* output_ptr = output_col_ptr + scaled_h;
               float input_value = *(input_col_ptr + h);
-              for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_);
-                   ++sh) {
+              for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_); ++sh) {
                 if (scaled_h + sh < output_h) {
                   *(output_ptr + sh) = input_value;
                 }
@@ -170,10 +161,8 @@ StatusCode UpSampleLayer::Forward(
           CHECK(input_h > 0 && input_w > 0);
           CHECK(output_h > 0 && output_w > 0);
 
-          div_scale_h = static_cast<float>(input_h - 1) /
-                        static_cast<float>(output_h - 1);
-          div_scale_w = static_cast<float>(input_w - 1) /
-                        static_cast<float>(output_w - 1);
+          div_scale_h = static_cast<float>(input_h - 1) / static_cast<float>(output_h - 1);
+          div_scale_w = static_cast<float>(input_w - 1) / static_cast<float>(output_w - 1);
         }
         for (uint32_t w = 0; w < output_w; ++w) {
           float w0_lambda = 0.f;
@@ -181,10 +170,9 @@ StatusCode UpSampleLayer::Forward(
           int32_t input_w0 = 0;
           int32_t input_w1 = 0;
           float* output_ptr = output_channel.colptr(w);
-          CalcIndexAndLambda(static_cast<int32_t>(input_w),
-                             static_cast<int32_t>(output_w), div_scale_w,
-                             static_cast<int32_t>(w), w0_lambda, w1_lambda,
-                             input_w0, input_w1, is_align_corner_);
+          CalcIndexAndLambda(static_cast<int32_t>(input_w), static_cast<int32_t>(output_w),
+                             div_scale_w, static_cast<int32_t>(w), w0_lambda, w1_lambda, input_w0,
+                             input_w1, is_align_corner_);
           const float* input_ptr0 = input_channel.colptr(input_w0);
           const float* input_ptr1 = input_channel.colptr(input_w1);
           for (uint32_t h = 0; h < output_h; ++h) {
@@ -192,16 +180,14 @@ StatusCode UpSampleLayer::Forward(
             float h1_lambda = 0.f;
             int32_t input_h0 = 0;
             int32_t input_h1 = 0;
-            CalcIndexAndLambda(static_cast<int32_t>(input_h),
-                               static_cast<int32_t>(output_h), div_scale_h,
-                               static_cast<int32_t>(h), h0_lambda, h1_lambda,
-                               input_h0, input_h1, is_align_corner_);
+            CalcIndexAndLambda(static_cast<int32_t>(input_h), static_cast<int32_t>(output_h),
+                               div_scale_h, static_cast<int32_t>(h), h0_lambda, h1_lambda, input_h0,
+                               input_h1, is_align_corner_);
 
-            *(output_ptr + h) =
-                h0_lambda * w0_lambda * (*(input_ptr0 + input_h0)) +
-                h0_lambda * w1_lambda * (*(input_ptr1 + input_h0)) +
-                h1_lambda * w0_lambda * (*(input_ptr0 + input_h1)) +
-                h1_lambda * w1_lambda * (*(input_ptr1 + input_h1));
+            *(output_ptr + h) = h0_lambda * w0_lambda * (*(input_ptr0 + input_h0)) +
+                                h0_lambda * w1_lambda * (*(input_ptr1 + input_h0)) +
+                                h1_lambda * w0_lambda * (*(input_ptr0 + input_h1)) +
+                                h1_lambda * w1_lambda * (*(input_ptr1 + input_h1));
           }
         }
       }
@@ -210,9 +196,8 @@ StatusCode UpSampleLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode UpSampleLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& upsample_layer) {
+StatusCode UpSampleLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                         std::shared_ptr<Layer<float>>& upsample_layer) {
   CHECK(op != nullptr) << "Upsample operator is null";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
@@ -221,8 +206,7 @@ StatusCode UpSampleLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto scales = std::dynamic_pointer_cast<RuntimeParameterFloatArray>(
-      params.at("scale_factor"));
+  auto scales = std::dynamic_pointer_cast<RuntimeParameterFloatArray>(params.at("scale_factor"));
   if (scales == nullptr) {
     LOG(ERROR) << "Can not find the scale factor parameter";
     return StatusCode::kParameterMissing;
@@ -234,8 +218,7 @@ StatusCode UpSampleLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto mode_param =
-      std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
+  auto mode_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
 
   UpSampleMode mode;
   if (mode_param->value == "nearest") {
@@ -248,8 +231,8 @@ StatusCode UpSampleLayer::CreateInstance(
 
   bool is_align_corner = false;
   if (params.find("align_corners") != params.end()) {
-    auto align_corner_param = std::dynamic_pointer_cast<RuntimeParameterBool>(
-        params.at("align_corners"));
+    auto align_corner_param =
+        std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("align_corners"));
     if (!align_corner_param) {
       return StatusCode::kParameterMissing;
     }
@@ -262,13 +245,10 @@ StatusCode UpSampleLayer::CreateInstance(
   CHECK_GT(scale_h, 0.f);
   CHECK_GT(scale_w, 0.f);
 
-  upsample_layer =
-      std::make_shared<UpSampleLayer>(scale_h, scale_w, mode, is_align_corner);
+  upsample_layer = std::make_shared<UpSampleLayer>(scale_h, scale_w, mode, is_align_corner);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample",
-                                                UpSampleLayer::CreateInstance);
-LayerRegistererWrapper kUpSamplerFCreateInstance("F.upsample",
-                                                 UpSampleLayer::CreateInstance);
+LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample", UpSampleLayer::CreateInstance);
+LayerRegistererWrapper kUpSamplerFCreateInstance("F.upsample", UpSampleLayer::CreateInstance);
 }  // namespace kuiper_infer

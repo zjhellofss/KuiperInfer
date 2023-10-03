@@ -26,11 +26,8 @@
 
 namespace kuiper_infer {
 
-AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h,
-                                                         uint32_t output_w)
-    : NonParamLayer("AdaptiveAveragePooling"),
-      output_h_(output_h),
-      output_w_(output_w) {
+AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w)
+    : NonParamLayer("AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
   CHECK_GT(output_h_, 0);
   CHECK_GT(output_w_, 0);
 }
@@ -39,14 +36,12 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
     const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
-    LOG(ERROR)
-        << "The input tensor array in the adaptive pooling layer is empty";
+    LOG(ERROR) << "The input tensor array in the adaptive pooling layer is empty";
     return StatusCode::kInferInputsEmpty;
   }
 
   if (outputs.empty()) {
-    LOG(ERROR)
-        << "The output tensor array in the adaptive pooling layer is empty";
+    LOG(ERROR) << "The output tensor array in the adaptive pooling layer is empty";
     return StatusCode::kInferOutputsEmpty;
   }
 
@@ -57,9 +52,8 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
   }
 
   if (!output_h_ || !output_w_) {
-    LOG(ERROR)
-        << "The output_h and output_w in the adaptive pooling layer should be "
-           "greater than zero";
+    LOG(ERROR) << "The output_h and output_w in the adaptive pooling layer should be "
+                  "greater than zero";
     return StatusCode::kInferParameterError;
   }
 
@@ -81,10 +75,8 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
         << "The stride parameter is set incorrectly. It must always be greater "
            "than 0";
 
-    const uint32_t pooling_h =
-        (int32_t)input_h - (int32_t(output_h_) - 1) * int32_t(stride_h);
-    const uint32_t pooling_w =
-        (int32_t)input_w - (int32_t(output_w_) - 1) * int32_t(stride_w);
+    const uint32_t pooling_h = (int32_t)input_h - (int32_t(output_h_) - 1) * int32_t(stride_h);
+    const uint32_t pooling_w = (int32_t)input_w - (int32_t(output_w_) - 1) * int32_t(stride_w);
 
     CHECK(pooling_w > 0 && pooling_h > 0)
         << "The pooling parameter is set incorrectly. It must always be "
@@ -92,13 +84,11 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
-      output_data =
-          std::make_shared<Tensor<float>>(input_c, output_h_, output_w_);
+      output_data = std::make_shared<Tensor<float>>(input_c, output_h_, output_w_);
       outputs.at(i) = output_data;
     }
 
-    CHECK(output_data->rows() == output_h_ &&
-          output_data->cols() == output_w_ &&
+    CHECK(output_data->rows() == output_h_ && output_data->cols() == output_w_ &&
           output_data->channels() == input_c)
         << "The output tensor array in the adaptive pooling layer has an "
            "incorrectly sized tensor "
@@ -129,15 +119,14 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode AdaptiveAveragePoolingLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& avg_layer) {
+StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                                       std::shared_ptr<Layer<float>>& avg_layer) {
   CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
   const auto& params = op->params;
   CHECK(!params.empty()) << "Operator parameter is empty";
 
-  auto output_size_param = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
-      params.at("output_size"));
+  auto output_size_param =
+      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("output_size"));
   if (!output_size_param) {
     LOG(ERROR) << "Can not find the output size parameter";
     return StatusCode::kParameterMissing;
@@ -148,8 +137,8 @@ StatusCode AdaptiveAveragePoolingLayer::CreateInstance(
     LOG(ERROR) << "Can not find the output size parameter";
     return StatusCode::kParameterMissing;
   }
-  avg_layer = std::make_shared<AdaptiveAveragePoolingLayer>(
-      output_size_arr.at(0), output_size_arr.at(1));
+  avg_layer =
+      std::make_shared<AdaptiveAveragePoolingLayer>(output_size_arr.at(0), output_size_arr.at(1));
   return StatusCode::kSuccess;
 }
 

@@ -36,12 +36,10 @@ TEST(test_layer, forward_linear1) {
   std::vector<float> weights(in_features * out_features, 1.f);
   linear_layer.set_weights(weights);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   input->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -69,12 +67,10 @@ TEST(test_layer, forward_linear2) {
   std::vector<float> weights(in_features * out_features, 1.f);
   linear_layer.set_weights(weights);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   input->Fill(2.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -99,8 +95,7 @@ TEST(test_layer, forward_linear3) {
   const uint32_t in_dims = 4;
   LinearLayer linear_layer(in_features, out_features, false);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   std::vector<float> weights_raw;
 
   for (int i = 0; i < out_features; ++i) {
@@ -112,8 +107,7 @@ TEST(test_layer, forward_linear3) {
   linear_layer.set_weights(weights_raw);
   input->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -138,8 +132,7 @@ TEST(test_layer, forward_linear4) {
   const uint32_t in_dims = 4;
   LinearLayer linear_layer(in_features, out_features, false);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   std::vector<float> weights_raw;
 
   for (int i = 0; i < out_features; ++i) {
@@ -151,8 +144,7 @@ TEST(test_layer, forward_linear4) {
   linear_layer.set_weights(weights_raw);
   input->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -177,8 +169,7 @@ TEST(test_layer, forward_linear5) {
   const uint32_t in_dims = 4;
   LinearLayer linear_layer(in_features, out_features, false);
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(1, in_dims, in_features);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   std::vector<float> weights_raw;
 
   for (int i = 0; i < out_features; ++i) {
@@ -190,8 +181,7 @@ TEST(test_layer, forward_linear5) {
   linear_layer.set_weights(weights_raw);
   input->Fill(2.f);
 
-  std::shared_ptr<Tensor<float>> output =
-      std::make_shared<Tensor<float>>(1, in_dims, out_features);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, in_dims, out_features);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
 
@@ -227,12 +217,10 @@ TEST(test_layer, forward_linear7) {
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
   outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/linear/linear_512x1000.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/linear/linear_512x1000.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
-      bool is_same =
-          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
+      bool is_same = arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
       ASSERT_EQ(is_same, true);
     }
   }
@@ -254,15 +242,12 @@ TEST(test_layer, forward_linear8) {
   }
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
 
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
-      bool is_same =
-          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
+      bool is_same = arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
       ASSERT_EQ(is_same, true);
     }
   }
@@ -284,14 +269,11 @@ TEST(test_layer, forward_linear9) {
   }
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
-      bool is_same =
-          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
+      bool is_same = arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-4f);
       ASSERT_EQ(is_same, true);
     }
   }
@@ -317,14 +299,11 @@ TEST(test_layer, forward_linear10) {
 
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047_arange.csv");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/linear/linear_1305x2047_arange.csv");
   for (const auto& output : outputs) {
     for (uint32_t c = 0; c < output->channels(); ++c) {
-      bool is_same =
-          arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-1f);
+      bool is_same = arma::approx_equal(real_data, output->slice(c), "absdiff", 1e-1f);
       ASSERT_EQ(is_same, true);
     }
   }

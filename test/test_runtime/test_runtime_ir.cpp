@@ -38,10 +38,8 @@ TEST(test_runtime, runtime_graph_input_init1) {
     runtime_operand2->shapes = {3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert(
-        {std::string("size1"), runtime_operand1});
-    runtime_operator->input_operands.insert(
-        {std::string("size2"), runtime_operand2});
+    runtime_operator->input_operands.insert({std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert({std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
@@ -81,10 +79,8 @@ TEST(test_runtime, runtime_graph_input_init2) {
     runtime_operand2->shapes = {4, 3, 64, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert(
-        {std::string("size1"), runtime_operand1});
-    runtime_operator->input_operands.insert(
-        {std::string("size2"), runtime_operand2});
+    runtime_operator->input_operands.insert({std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert({std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
@@ -124,10 +120,8 @@ TEST(test_runtime, runtime_graph_input_init3) {
     runtime_operand2->shapes = {5, 64};
     runtime_operand2->type = RuntimeDataType::kTypeFloat32;
 
-    runtime_operator->input_operands.insert(
-        {std::string("size1"), runtime_operand1});
-    runtime_operator->input_operands.insert(
-        {std::string("size2"), runtime_operand2});
+    runtime_operator->input_operands.insert({std::string("size1"), runtime_operand1});
+    runtime_operator->input_operands.insert({std::string("size2"), runtime_operand2});
 
     operators.push_back(runtime_operator);
   }
@@ -586,8 +580,7 @@ TEST(test_runtime, set_bin_path) {
 
 TEST(test_runtime, graph_build1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
-                     "tmp/add/resnet_add.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param", "tmp/add/resnet_add.pnnx.bin");
   ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
   graph.Build();
   ASSERT_EQ(int(graph.graph_state()), 0);
@@ -595,8 +588,7 @@ TEST(test_runtime, graph_build1) {
 
 TEST(test_runtime, op_is_input) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
-                     "tmp/add/resnet_add.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param", "tmp/add/resnet_add.pnnx.bin");
   ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
   graph.Build();
   ASSERT_EQ(int(graph.graph_state()), 0);
@@ -606,8 +598,7 @@ TEST(test_runtime, op_is_input) {
 
 TEST(test_runtime, op_is_output) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param",
-                     "tmp/add/resnet_add.pnnx.bin");
+  RuntimeGraph graph("tmp/add/resnet_add.pnnx.param", "tmp/add/resnet_add.pnnx.bin");
   ASSERT_EQ(int(graph.graph_state()), -2);  // need_init
   graph.Build();
   ASSERT_EQ(int(graph.graph_state()), 0);

@@ -28,8 +28,7 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image) {
   for (const auto& split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
     const cv::Mat& split_image_t = split_image.t();
-    memcpy(input->slice(index).memptr(), split_image_t.data,
-           sizeof(float) * split_image.total());
+    memcpy(input->slice(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
     index += 1;
   }
 
@@ -40,8 +39,7 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image) {
 
 int main(int argc, char* argv[]) {
   if (argc != 4) {
-    printf(
-        "usage: ./unet_test [image path] [pnnx_param path] [pnnx_bin path]\n");
+    printf("usage: ./unet_test [image path] [pnnx_param path] [pnnx_bin path]\n");
     exit(-1);
   }
   using namespace kuiper_infer;
@@ -64,8 +62,7 @@ int main(int argc, char* argv[]) {
   std::cout << "start inference!" << std::endl;
   TICK(forward)
   graph.Forward(true);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   TOCK(forward)
   assert(outputs.size() == batch_size);
 

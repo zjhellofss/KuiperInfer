@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-2-2.
 #include <algorithm>
 #include <cassert>
@@ -51,8 +51,7 @@ kuiper_infer::sftensor PreProcessImage(const cv::Mat& image) {
   for (const auto& split_image : split_images) {
     assert(split_image.total() == input_w * input_h);
     const cv::Mat& split_image_t = split_image.t();
-    memcpy(input->slice(index).memptr(), split_image_t.data,
-           sizeof(float) * split_image.total());
+    memcpy(input->slice(index).memptr(), split_image_t.data, sizeof(float) * split_image.total());
     index += 1;
   }
 
@@ -98,8 +97,7 @@ int main(int argc, char* argv[]) {
   // 推理
   TICK(forward)
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   TOCK(forward)
 
   assert(outputs.size() == batch_size);

@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-12.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_HARDSWISH_HPP_
@@ -31,12 +31,10 @@ class HardSwishLayer : public NonParamLayer {
  public:
   explicit HardSwishLayer();
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& hardswish_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& hardswish_layer);
 };
 }  // namespace kuiper_infer

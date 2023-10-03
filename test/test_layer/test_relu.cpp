@@ -18,14 +18,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-12-25.
 
-#include <gtest/gtest.h>
 #include <glog/logging.h>
-
-#include "data/tensor.hpp"
+#include <gtest/gtest.h>
 #include "../../source/layer/details/relu.hpp"
+#include "data/tensor.hpp"
 
 TEST(test_layer, forward_relu1) {
   using namespace kuiper_infer;

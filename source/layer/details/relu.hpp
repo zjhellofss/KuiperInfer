@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-18.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_
@@ -28,13 +28,11 @@ namespace kuiper_infer {
 class ReluLayer : public NonParamLayer {
  public:
   ReluLayer() : NonParamLayer("Relu") {}
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& relu_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& relu_layer);
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_

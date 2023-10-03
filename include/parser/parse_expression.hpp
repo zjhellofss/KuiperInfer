@@ -86,8 +86,7 @@ struct TokenNode {
    * @param left Left child node
    * @param right Right child node
    */
-  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left,
-            std::shared_ptr<TokenNode> right);
+  TokenNode(int32_t num_index, std::shared_ptr<TokenNode> left, std::shared_ptr<TokenNode> right);
 
   TokenNode() = default;
 };
@@ -105,8 +104,7 @@ class ExpressionParser {
    *
    * @param statement The expression string
    */
-  explicit ExpressionParser(std::string statement)
-      : statement_(std::move(statement)) {}
+  explicit ExpressionParser(std::string statement) : statement_(std::move(statement)) {}
 
   /**
    * @brief Performs lexical analysis

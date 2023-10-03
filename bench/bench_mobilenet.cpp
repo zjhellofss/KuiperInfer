@@ -18,15 +18,14 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-22.
 #include <benchmark/benchmark.h>
 #include "runtime/runtime_ir.hpp"
 
-static void BM_MobilenetV3_Batch8_224x224(benchmark::State &state) {
+static void BM_MobilenetV3_Batch8_224x224(benchmark::State& state) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/mobilenet/mobile_batch8.pnnx.param",
-                     "tmp/mobilenet/mobile_batch8.bin");
+  RuntimeGraph graph("tmp/mobilenet/mobile_batch8.pnnx.param", "tmp/mobilenet/mobile_batch8.bin");
 
   graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -44,4 +43,3 @@ static void BM_MobilenetV3_Batch8_224x224(benchmark::State &state) {
 }
 
 BENCHMARK(BM_MobilenetV3_Batch8_224x224)->Unit(benchmark::kMillisecond);
-

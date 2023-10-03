@@ -35,9 +35,8 @@ namespace kuiper_infer {
  * @return Tensors with same shape
  */
 template <typename T>
-std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>>
-TensorBroadcast(const std::shared_ptr<Tensor<T>>& tensor1,
-                const std::shared_ptr<Tensor<T>>& tensor2);
+std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>> TensorBroadcast(
+    const std::shared_ptr<Tensor<T>>& tensor1, const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
  * @brief Pads a tensor
@@ -48,9 +47,8 @@ TensorBroadcast(const std::shared_ptr<Tensor<T>>& tensor1,
  * @return Padded tensor
  */
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorPadding(
-    const std::shared_ptr<Tensor<T>>& tensor, const std::vector<uint32_t>& pads,
-    T padding_value);
+std::shared_ptr<Tensor<T>> TensorPadding(const std::shared_ptr<Tensor<T>>& tensor,
+                                         const std::vector<uint32_t>& pads, T padding_value);
 
 /**
  * @brief Checks tensor equality
@@ -61,8 +59,8 @@ std::shared_ptr<Tensor<T>> TensorPadding(
  * @return True if equal within tolerance
  */
 template <typename T>
-bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a,
-                  const std::shared_ptr<Tensor<T>>& b, T threshold = 1e-5f);
+bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a, const std::shared_ptr<Tensor<T>>& b,
+                  T threshold = 1e-5f);
 
 /**
  * @brief Element-wise tensor add
@@ -72,9 +70,8 @@ bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a,
  * @return Output tensor
  */
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorElementAdd(
-    const std::shared_ptr<Tensor<T>>& tensor1,
-    const std::shared_ptr<Tensor<T>>& tensor2);
+std::shared_ptr<Tensor<T>> TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
+                                            const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
  * @brief In-place element-wise tensor add
@@ -96,9 +93,8 @@ void TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
  * @return Output tensor
  */
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorElementMultiply(
-    const std::shared_ptr<Tensor<T>>& tensor1,
-    const std::shared_ptr<Tensor<T>>& tensor2);
+std::shared_ptr<Tensor<T>> TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
+                                                 const std::shared_ptr<Tensor<T>>& tensor2);
 
 /**
  * @brief In-place element-wise tensor multiply
@@ -121,8 +117,7 @@ void TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
  * @return New 3D tensor
  */
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorCreate(uint32_t channels, uint32_t rows,
-                                        uint32_t cols);
+std::shared_ptr<Tensor<T>> TensorCreate(uint32_t channels, uint32_t rows, uint32_t cols);
 
 /**
  * @brief Creates a 2D matrix tensor
@@ -162,8 +157,8 @@ template <typename T>
 std::shared_ptr<Tensor<T>> TensorClone(std::shared_ptr<Tensor<T>> tensor);
 
 template <typename T>
-bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a,
-                  const std::shared_ptr<Tensor<T>>& b, T threshold) {
+bool TensorIsSame(const std::shared_ptr<Tensor<T>>& a, const std::shared_ptr<Tensor<T>>& b,
+                  T threshold) {
   CHECK(a != nullptr);
   CHECK(b != nullptr);
   if (a->shapes() != b->shapes()) {
@@ -182,10 +177,8 @@ void TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
     CHECK(tensor1->shapes() == output_tensor->shapes());
     output_tensor->set_data(tensor1->data() + tensor2->data());
   } else {
-    CHECK(tensor1->channels() == tensor2->channels())
-        << "Tensors shape are not adapting";
-    const auto& [input_tensor1, input_tensor2] =
-        TensorBroadcast(tensor1, tensor2);
+    CHECK(tensor1->channels() == tensor2->channels()) << "Tensors shape are not adapting";
+    const auto& [input_tensor1, input_tensor2] = TensorBroadcast(tensor1, tensor2);
     CHECK(output_tensor->shapes() == input_tensor1->shapes() &&
           output_tensor->shapes() == input_tensor2->shapes());
     output_tensor->set_data(input_tensor1->data() + input_tensor2->data());
@@ -201,10 +194,8 @@ void TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
     CHECK(tensor1->shapes() == output_tensor->shapes());
     output_tensor->set_data(tensor1->data() % tensor2->data());
   } else {
-    CHECK(tensor1->channels() == tensor2->channels())
-        << "Tensors shape are not adapting";
-    const auto& [input_tensor1, input_tensor2] =
-        TensorBroadcast(tensor1, tensor2);
+    CHECK(tensor1->channels() == tensor2->channels()) << "Tensors shape are not adapting";
+    const auto& [input_tensor1, input_tensor2] = TensorBroadcast(tensor1, tensor2);
     CHECK(output_tensor->shapes() == input_tensor1->shapes() &&
           output_tensor->shapes() == input_tensor2->shapes());
     output_tensor->set_data(input_tensor1->data() % input_tensor2->data());
@@ -212,56 +203,45 @@ void TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
 }
 
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorElementAdd(
-    const std::shared_ptr<Tensor<T>>& tensor1,
-    const std::shared_ptr<Tensor<T>>& tensor2) {
+std::shared_ptr<Tensor<T>> TensorElementAdd(const std::shared_ptr<Tensor<T>>& tensor1,
+                                            const std::shared_ptr<Tensor<T>>& tensor2) {
   CHECK(tensor1 != nullptr && tensor2 != nullptr);
   if (tensor1->shapes() == tensor2->shapes()) {
-    std::shared_ptr<Tensor<T>> output_tensor =
-        TensorCreate<T>(tensor1->shapes());
+    std::shared_ptr<Tensor<T>> output_tensor = TensorCreate<T>(tensor1->shapes());
     output_tensor->set_data(tensor1->data() + tensor2->data());
     return output_tensor;
   } else {
     // broadcast
-    CHECK(tensor1->channels() == tensor2->channels())
-        << "Tensors shape are not adapting";
-    const auto& [input_tensor1, input_tensor2] =
-        TensorBroadcast(tensor1, tensor2);
+    CHECK(tensor1->channels() == tensor2->channels()) << "Tensors shape are not adapting";
+    const auto& [input_tensor1, input_tensor2] = TensorBroadcast(tensor1, tensor2);
     CHECK(input_tensor1->shapes() == input_tensor2->shapes());
-    std::shared_ptr<Tensor<T>> output_tensor =
-        TensorCreate<T>(input_tensor1->shapes());
+    std::shared_ptr<Tensor<T>> output_tensor = TensorCreate<T>(input_tensor1->shapes());
     output_tensor->set_data(input_tensor1->data() + input_tensor2->data());
     return output_tensor;
   }
 }
 
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorElementMultiply(
-    const std::shared_ptr<Tensor<T>>& tensor1,
-    const std::shared_ptr<Tensor<T>>& tensor2) {
+std::shared_ptr<Tensor<T>> TensorElementMultiply(const std::shared_ptr<Tensor<T>>& tensor1,
+                                                 const std::shared_ptr<Tensor<T>>& tensor2) {
   CHECK(tensor1 != nullptr && tensor2 != nullptr);
   if (tensor1->shapes() == tensor2->shapes()) {
-    std::shared_ptr<Tensor<T>> output_tensor =
-        TensorCreate<T>(tensor1->shapes());
+    std::shared_ptr<Tensor<T>> output_tensor = TensorCreate<T>(tensor1->shapes());
     output_tensor->set_data(tensor1->data() % tensor2->data());
     return output_tensor;
   } else {
     // broadcast
-    CHECK(tensor1->channels() == tensor2->channels())
-        << "Tensors shape are not adapting";
-    const auto& [input_tensor1, input_tensor2] =
-        TensorBroadcast(tensor1, tensor2);
+    CHECK(tensor1->channels() == tensor2->channels()) << "Tensors shape are not adapting";
+    const auto& [input_tensor1, input_tensor2] = TensorBroadcast(tensor1, tensor2);
     CHECK(input_tensor1->shapes() == input_tensor2->shapes());
-    std::shared_ptr<Tensor<T>> output_tensor =
-        TensorCreate<T>(input_tensor1->shapes());
+    std::shared_ptr<Tensor<T>> output_tensor = TensorCreate<T>(input_tensor1->shapes());
     output_tensor->set_data(input_tensor1->data() % input_tensor2->data());
     return output_tensor;
   }
 }
 
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorCreate(uint32_t channels, uint32_t rows,
-                                        uint32_t cols) {
+std::shared_ptr<Tensor<T>> TensorCreate(uint32_t channels, uint32_t rows, uint32_t cols) {
   return std::make_shared<Tensor<T>>(channels, rows, cols);
 }
 
@@ -283,15 +263,13 @@ std::shared_ptr<Tensor<T>> TensorCreate(const std::vector<uint32_t>& shapes) {
   } else if (shapes.size() == 2) {
     return std::make_shared<Tensor<T>>(shapes.at(0), shapes.at(1));
   } else {
-    return std::make_shared<Tensor<T>>(shapes.at(0), shapes.at(1),
-                                       shapes.at(2));
+    return std::make_shared<Tensor<T>>(shapes.at(0), shapes.at(1), shapes.at(2));
   }
 }
 
 template <typename T>
-std::shared_ptr<Tensor<T>> TensorPadding(
-    const std::shared_ptr<Tensor<T>>& tensor, const std::vector<uint32_t>& pads,
-    T padding_value) {
+std::shared_ptr<Tensor<T>> TensorPadding(const std::shared_ptr<Tensor<T>>& tensor,
+                                         const std::vector<uint32_t>& pads, T padding_value) {
   CHECK(tensor != nullptr && !tensor->empty());
   CHECK(pads.size() == 4);
   uint32_t pad_rows1 = pads.at(0);  // up
@@ -299,9 +277,9 @@ std::shared_ptr<Tensor<T>> TensorPadding(
   uint32_t pad_cols1 = pads.at(2);  // left
   uint32_t pad_cols2 = pads.at(3);  // right
 
-  std::shared_ptr<Tensor<T>> output = std::make_shared<Tensor<T>>(
-      tensor->channels(), tensor->rows() + pad_rows1 + pad_rows2,
-      tensor->cols() + pad_cols1 + pad_cols2);
+  std::shared_ptr<Tensor<T>> output =
+      std::make_shared<Tensor<T>>(tensor->channels(), tensor->rows() + pad_rows1 + pad_rows2,
+                                  tensor->cols() + pad_cols1 + pad_cols2);
 
   const uint32_t channels = tensor->channels();
   for (uint32_t channel = 0; channel < channels; ++channel) {
@@ -323,8 +301,7 @@ std::shared_ptr<Tensor<T>> TensorPadding(
       }
 
       for (uint32_t h = 0; h < pad_rows2; ++h) {
-        *(output_channel_ptr + in_channel_height + pad_rows1 + h) =
-            padding_value;
+        *(output_channel_ptr + in_channel_height + pad_rows1 + h) = padding_value;
       }
     }
 
@@ -336,8 +313,7 @@ std::shared_ptr<Tensor<T>> TensorPadding(
     }
 
     for (uint32_t w = 0; w < pad_cols2; ++w) {
-      T* output_channel_ptr =
-          output_channel.colptr(pad_cols1 + w + in_channel_width);
+      T* output_channel_ptr = output_channel.colptr(pad_cols1 + w + in_channel_width);
       for (uint32_t h = 0; h < in_channel_height + pad_rows1 + pad_rows2; ++h) {
         *(output_channel_ptr + h) = padding_value;
       }
@@ -347,25 +323,24 @@ std::shared_ptr<Tensor<T>> TensorPadding(
 }
 
 template <typename T>
-std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>>
-TensorBroadcast(const std::shared_ptr<Tensor<T>>& tensor1,
-                const std::shared_ptr<Tensor<T>>& tensor2) {
+std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>> TensorBroadcast(
+    const std::shared_ptr<Tensor<T>>& tensor1, const std::shared_ptr<Tensor<T>>& tensor2) {
   CHECK(tensor1 != nullptr && tensor2 != nullptr);
   if (tensor1->shapes() == tensor2->shapes()) {
     return {tensor1, tensor2};
   } else {
     CHECK(tensor1->channels() == tensor2->channels());
     if (tensor2->rows() == 1 && tensor2->cols() == 1) {
-      std::shared_ptr<Tensor<T>> new_tensor = TensorCreate<T>(
-          tensor2->channels(), tensor1->rows(), tensor1->cols());
+      std::shared_ptr<Tensor<T>> new_tensor =
+          TensorCreate<T>(tensor2->channels(), tensor1->rows(), tensor1->cols());
       CHECK(tensor2->size() == tensor2->channels());
       for (uint32_t c = 0; c < tensor2->channels(); ++c) {
         new_tensor->slice(c).fill(tensor2->index(c));
       }
       return {tensor1, new_tensor};
     } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
-      std::shared_ptr<Tensor<T>> new_tensor = TensorCreate<T>(
-          tensor1->channels(), tensor2->rows(), tensor2->cols());
+      std::shared_ptr<Tensor<T>> new_tensor =
+          TensorCreate<T>(tensor1->channels(), tensor2->rows(), tensor2->cols());
       CHECK(tensor1->size() == tensor1->channels());
       for (uint32_t c = 0; c < tensor1->channels(); ++c) {
         new_tensor->slice(c).fill(tensor1->index(c));

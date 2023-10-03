@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-1-15.
 
 #include <glog/logging.h>
@@ -52,7 +52,7 @@ TEST(test_tensor, tensor_init1_2d) {
   ASSERT_EQ(raw_shapes.at(1), 24);
 }
 
-TEST(test_tensor,test_init1_2d_1){
+TEST(test_tensor, test_init1_2d_1) {
   using namespace kuiper_infer;
   Tensor<float> f1(1, 24);
   const auto& raw_shapes = f1.raw_shapes();
@@ -381,8 +381,7 @@ TEST(test_tensor, tensor_broadcast1) {
   ASSERT_EQ(tensor11->rows(), 32);
   ASSERT_EQ(tensor11->cols(), 32);
 
-  ASSERT_TRUE(
-      arma::approx_equal(tensor21->data(), tensor2->data(), "absdiff", 1e-4));
+  ASSERT_TRUE(arma::approx_equal(tensor21->data(), tensor2->data(), "absdiff", 1e-4));
 }
 
 TEST(test_tensor, tensor_broadcast2) {
@@ -928,36 +927,30 @@ TEST(test_tensor, at3) {
 
 TEST(test_tensor, is_same1) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> in1 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> in1 = std::make_shared<Tensor<float>>(3, 32, 32);
   in1->Fill(2.f);
 
-  std::shared_ptr<Tensor<float>> in2 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> in2 = std::make_shared<Tensor<float>>(3, 32, 32);
   in2->Fill(2.f);
   ASSERT_EQ(TensorIsSame(in1, in2), true);
 }
 
 TEST(test_tensor, is_same2) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> in1 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> in1 = std::make_shared<Tensor<float>>(3, 32, 32);
   in1->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> in2 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> in2 = std::make_shared<Tensor<float>>(3, 32, 32);
   in2->Fill(2.f);
   ASSERT_EQ(TensorIsSame(in1, in2), false);
 }
 
 TEST(test_tensor, is_same3) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> in1 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> in1 = std::make_shared<Tensor<float>>(3, 32, 32);
   in1->Fill(1.f);
 
-  std::shared_ptr<Tensor<float>> in2 =
-      std::make_shared<Tensor<float>>(3, 31, 32);
+  std::shared_ptr<Tensor<float>> in2 = std::make_shared<Tensor<float>>(3, 31, 32);
   in2->Fill(1.f);
   ASSERT_EQ(TensorIsSame(in1, in2), false);
 }

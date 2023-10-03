@@ -29,20 +29,16 @@
 namespace kuiper_infer {
 class YoloDetectLayer : public Layer<float> {
  public:
-  explicit YoloDetectLayer(
-      int32_t stages, int32_t num_classes, int32_t num_anchors,
-      std::vector<float> strides, std::vector<arma::fmat> anchor_grids,
-      std::vector<arma::fmat> grids,
-      std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers);
+  explicit YoloDetectLayer(int32_t stages, int32_t num_classes, int32_t num_anchors,
+                           std::vector<float> strides, std::vector<arma::fmat> anchor_grids,
+                           std::vector<arma::fmat> grids,
+                           std::vector<std::shared_ptr<ConvolutionLayer>> conv_layers);
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& yolo_detect_layer);
-
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& yolo_detect_layer);
 
  private:
   int32_t stages_ = 0;

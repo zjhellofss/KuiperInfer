@@ -18,23 +18,23 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 23-1-22.
 
 #include <gtest/gtest.h>
 #include "layer/abstract/layer_factory.hpp"
 
 using namespace kuiper_infer;
-StatusCode TestCreateLayer(const std::shared_ptr<RuntimeOperator> &op,
-                                         std::shared_ptr<Layer<float>> &layer) {
+StatusCode TestCreateLayer(const std::shared_ptr<RuntimeOperator>& op,
+                           std::shared_ptr<Layer<float>>& layer) {
   layer = std::make_shared<Layer<float>>("test3");
   return StatusCode::kSuccess;
 }
 
 TEST(test_layer_factory, init) {
   using namespace kuiper_infer;
-  const auto &r1 = LayerRegisterer::Registry();
-  const auto &r2 = LayerRegisterer::Registry();
+  const auto& r1 = LayerRegisterer::Registry();
+  const auto& r2 = LayerRegisterer::Registry();
   ASSERT_EQ(r1, r2);
 }
 
@@ -56,5 +56,5 @@ TEST(test_layer_factory, create) {
   std::shared_ptr<RuntimeOperator> op = std::make_shared<RuntimeOperator>();
   op->type = "test3";
   std::shared_ptr<Layer<float>> layer = LayerRegisterer::CreateLayer(op);
-  ASSERT_EQ(layer->layer_name(),"test3");
+  ASSERT_EQ(layer->layer_name(), "test3");
 }

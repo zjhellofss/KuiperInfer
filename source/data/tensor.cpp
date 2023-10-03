@@ -100,12 +100,9 @@ size_t Tensor<T>::size() const {
 
 template <typename T>
 void Tensor<T>::set_data(const arma::Cube<T>& data) {
-  CHECK(data.n_rows == this->data_.n_rows)
-      << data.n_rows << " != " << this->data_.n_rows;
-  CHECK(data.n_cols == this->data_.n_cols)
-      << data.n_cols << " != " << this->data_.n_cols;
-  CHECK(data.n_slices == this->data_.n_slices)
-      << data.n_slices << " != " << this->data_.n_slices;
+  CHECK(data.n_rows == this->data_.n_rows) << data.n_rows << " != " << this->data_.n_rows;
+  CHECK(data.n_cols == this->data_.n_cols) << data.n_cols << " != " << this->data_.n_cols;
+  CHECK(data.n_slices == this->data_.n_slices) << data.n_slices << " != " << this->data_.n_slices;
   this->data_ = data;
 }
 
@@ -180,16 +177,13 @@ void Tensor<T>::Padding(const std::vector<uint32_t>& pads, T padding_value) {
   uint32_t pad_cols2 = pads.at(3);  // right
 
   arma::Cube<T> new_data(this->data_.n_rows + pad_rows1 + pad_rows2,
-                         this->data_.n_cols + pad_cols1 + pad_cols2,
-                         this->data_.n_slices);
+                         this->data_.n_cols + pad_cols1 + pad_cols2, this->data_.n_slices);
   new_data.fill(padding_value);
 
   new_data.subcube(pad_rows1, pad_cols1, 0, new_data.n_rows - pad_rows2 - 1,
-                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) =
-      this->data_;
+                   new_data.n_cols - pad_cols2 - 1, new_data.n_slices - 1) = this->data_;
   this->data_ = std::move(new_data);
-  this->raw_shapes_ =
-      std::vector<uint32_t>{this->channels(), this->rows(), this->cols()};
+  this->raw_shapes_ = std::vector<uint32_t>{this->channels(), this->rows(), this->cols()};
 }
 
 template <typename T>
@@ -211,8 +205,8 @@ void Tensor<T>::Fill(const std::vector<T>& values, bool row_major) {
 
     for (uint32_t i = 0; i < channels; ++i) {
       arma::Mat<T>& channel_data = this->data_.slice(i);
-      arma::Mat<T> channel_data_t((T*)values.data() + i * planes, this->cols(),
-                                  this->rows(), false, true);
+      arma::Mat<T> channel_data_t((T*)values.data() + i * planes, this->cols(), this->rows(), false,
+                                  true);
       channel_data = channel_data_t.t();
     }
   } else {
@@ -316,8 +310,8 @@ void Tensor<T>::Reshape(const std::vector<uint32_t>& shapes, bool row_major) {
   CHECK(!this->data_.empty());
   CHECK(!shapes.empty());
   const size_t origin_size = this->size();
-  const size_t current_size = std::accumulate(shapes.begin(), shapes.end(), 1,
-                                              std::multiplies<size_t>());
+  const size_t current_size =
+      std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<size_t>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
 
@@ -366,8 +360,7 @@ std::vector<T> Tensor<T>::values(bool row_major) {
   std::vector<T> values(this->data_.size());
 
   if (!row_major) {
-    std::copy(this->data_.mem, this->data_.mem + this->data_.size(),
-              values.begin());
+    std::copy(this->data_.mem, this->data_.mem + this->data_.size(), values.begin());
   } else {
     uint32_t index = 0;
     for (uint32_t c = 0; c < this->data_.n_slices; ++c) {
@@ -391,12 +384,9 @@ T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
 
 template <typename T>
 void Tensor<T>::set_data(arma::Cube<T>&& data) {
-  CHECK(data.n_rows == this->data_.n_rows)
-      << data.n_rows << " != " << this->data_.n_rows;
-  CHECK(data.n_cols == this->data_.n_cols)
-      << data.n_cols << " != " << this->data_.n_cols;
-  CHECK(data.n_slices == this->data_.n_slices)
-      << data.n_slices << " != " << this->data_.n_slices;
+  CHECK(data.n_rows == this->data_.n_rows) << data.n_rows << " != " << this->data_.n_rows;
+  CHECK(data.n_cols == this->data_.n_cols) << data.n_cols << " != " << this->data_.n_cols;
+  CHECK(data.n_slices == this->data_.n_slices) << data.n_slices << " != " << this->data_.n_slices;
   this->data_ = std::move(data);
 }
 
@@ -418,13 +408,10 @@ void Tensor<T>::Review(const std::vector<uint32_t>& shapes) {
     for (uint32_t src_col = 0; src_col < this->data_.n_cols; ++src_col) {
       const T* col_ptr = channel_data.colptr(src_col);
       for (uint32_t src_row = 0; src_row < this->data_.n_rows; ++src_row) {
-        const uint32_t pos_index =
-            plane_start + src_row * data_.n_cols + src_col;
+        const uint32_t pos_index = plane_start + src_row * data_.n_cols + src_col;
         const uint32_t dest_channel = pos_index / plane_size;
-        const uint32_t dest_row =
-            (pos_index - dest_channel * plane_size) / target_cols;
-        const uint32_t dest_col =
-            (pos_index - dest_channel * plane_size - dest_row * target_cols);
+        const uint32_t dest_row = (pos_index - dest_channel * plane_size) / target_cols;
+        const uint32_t dest_col = (pos_index - dest_channel * plane_size - dest_row * target_cols);
         new_data.at(dest_row, dest_col, dest_channel) = *(col_ptr + src_row);
       }
     }

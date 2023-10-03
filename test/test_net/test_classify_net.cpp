@@ -27,14 +27,12 @@
 
 TEST(test_net, forward_resnet18) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet/resnet18_batch1.param",
-                     "tmp/resnet/resnet18_batch1.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet/resnet18_batch1.param", "tmp/resnet/resnet18_batch1.pnnx.bin");
   graph.Build();
 
   int repeat_number = 2;
   for (int i = 0; i < repeat_number; ++i) {
-    std::shared_ptr<Tensor<float>> input1 =
-        std::make_shared<Tensor<float>>(3, 224, 224);
+    std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 224, 224);
     input1->Fill(2.);
 
     std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -42,8 +40,7 @@ TEST(test_net, forward_resnet18) {
 
     graph.set_inputs("pnnx_input_0", inputs);
     graph.Forward(false);
-    std::vector<std::shared_ptr<Tensor<float>>> outputs =
-        graph.get_outputs("pnnx_output_0");
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
     ASSERT_EQ(outputs.size(), 1);
 
     const auto& output2 = CSVDataLoader::LoadData<float>("tmp/resnet/1.csv");
@@ -57,12 +54,10 @@ TEST(test_net, forward_resnet18) {
 
 TEST(test_net, forward_group_conv) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/group_conv/group_conv.pnnx.param",
-                     "tmp/group_conv/group_conv.pnnx.bin");
+  RuntimeGraph graph("tmp/group_conv/group_conv.pnnx.param", "tmp/group_conv/group_conv.pnnx.bin");
 
   graph.Build();
-  std::shared_ptr<Tensor<float>> input1 =
-      std::make_shared<Tensor<float>>(4, 16, 16);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(4, 16, 16);
   input1->Fill(2.f);
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -70,8 +65,7 @@ TEST(test_net, forward_group_conv) {
 
   graph.set_inputs("pnnx_input_0", inputs);
   graph.Forward(false);
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   const auto& output1 = outputs.front()->data().slice(0);
@@ -84,12 +78,10 @@ TEST(test_net, forward_group_conv) {
 
 TEST(test_net, forward_mobilenet1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/mobilenet/mobile.pnnx.param",
-                     "tmp/mobilenet/mobile.pnnx.bin");
+  RuntimeGraph graph("tmp/mobilenet/mobile.pnnx.param", "tmp/mobilenet/mobile.pnnx.bin");
 
   graph.Build();
-  std::shared_ptr<Tensor<float>> input1 =
-      std::make_shared<Tensor<float>>(3, 32, 32);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(3, 32, 32);
   input1->Fill(1.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
@@ -99,8 +91,7 @@ TEST(test_net, forward_mobilenet1) {
 
   for (int i = 0; i < repeat_size; ++i) {
     graph.Forward(false);
-    std::vector<std::shared_ptr<Tensor<float>>> outputs =
-        graph.get_outputs("pnnx_output_0");
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
     ASSERT_EQ(outputs.size(), 1);
 
     const auto& output1 = outputs.front()->data();
@@ -114,13 +105,11 @@ TEST(test_net, forward_mobilenet1) {
 
 TEST(test_net, forward_mobilenet2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/mobilenet/mobile_224.pnnx.param",
-                     "tmp/mobilenet/mobile_224.pnnx.bin");
+  RuntimeGraph graph("tmp/mobilenet/mobile_224.pnnx.param", "tmp/mobilenet/mobile_224.pnnx.bin");
 
   graph.Build();
   const uint32_t channels = 3;
-  std::shared_ptr<Tensor<float>> input1 =
-      std::make_shared<Tensor<float>>(channels, 224, 224);
+  std::shared_ptr<Tensor<float>> input1 = std::make_shared<Tensor<float>>(channels, 224, 224);
   input1->Fill(1.f);
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input1);
@@ -130,8 +119,7 @@ TEST(test_net, forward_mobilenet2) {
   int repeat_size = 3;
   for (int i = 0; i < repeat_size; ++i) {
     graph.Forward(false);
-    std::vector<std::shared_ptr<Tensor<float>>> outputs =
-        graph.get_outputs("pnnx_output_0");
+    std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
     ASSERT_EQ(outputs.size(), 1);
 
     const auto& output2 = CSVDataLoader::LoadData<float>("tmp/mobilenet/3.csv");

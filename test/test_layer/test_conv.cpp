@@ -31,11 +31,10 @@
 
 using namespace kuiper_infer;
 
-StatusCode Convolution(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs,
-    const uint32_t stride_h_, const uint32_t stride_w_,
-    const std::vector<sftensor>& weights_) {
+StatusCode Convolution(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                       std::vector<std::shared_ptr<Tensor<float>>>& outputs,
+                       const uint32_t stride_h_, const uint32_t stride_w_,
+                       const std::vector<sftensor>& weights_) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input feature map of convolution layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -64,18 +63,15 @@ StatusCode Convolution(
       const uint32_t kernel_h = kernel->rows();
       const uint32_t kernel_w = kernel->cols();
 
-      uint32_t output_h =
-          uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
-      uint32_t output_w =
-          uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
+      uint32_t output_h = uint32_t(std::floor((input_h - kernel_h) / stride_h_ + 1));
+      uint32_t output_w = uint32_t(std::floor((input_w - kernel_w) / stride_w_ + 1));
       if (output_h <= 0 || output_w <= 0) {
         LOG(ERROR) << "The size of the output feature map is less than zero";
         return StatusCode::kInferParameterError;
       }
 
       if (!output_data) {
-        output_data =
-            std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
+        output_data = std::make_shared<Tensor<float>>(kernel_count, output_h, output_w);
         output_data->Fill(0.f);
       }
 
@@ -94,8 +90,7 @@ StatusCode Convolution(
             const arma::fmat& region =
                 input_channel.submat(r, c, r + kernel_h - 1, c + kernel_w - 1);
             const float sum_value = arma::accu(region % kernel_channel);
-            output_channel.at(int(r / stride_h_), int(c / stride_w_)) +=
-                sum_value;
+            output_channel.at(int(r / stride_h_), int(c / stride_w_)) += sum_value;
           }
         }
       }
@@ -257,8 +252,8 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -266,8 +261,7 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -296,8 +290,8 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -305,8 +299,7 @@ TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                5e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 5e-4);
     }
   }
 }
@@ -335,8 +328,8 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -344,8 +337,7 @@ TEST(test_layer, convolution3x3x32_stride2x2_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -373,8 +365,8 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -382,8 +374,7 @@ TEST(test_layer, convolution3x3x32_stride5x5_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
     }
   }
 }
@@ -411,8 +402,8 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -421,11 +412,9 @@ TEST(test_layer, convolution5x5x32_stride5x5_padding2) {
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
 #ifdef _MSC_VER
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
 #else
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
 #endif
     }
   }
@@ -454,8 +443,8 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -464,11 +453,9 @@ TEST(test_layer, convolution5x5x32_stride7x7_padding2) {
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
 #ifdef _MSC_VER
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
 #else
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-4);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
 #endif
     }
   }
@@ -497,8 +484,8 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
     weights.push_back(kernel);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, true);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, true);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -507,11 +494,9 @@ TEST(test_layer, convolution13x13x32_stride7x7_padding2) {
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
 #ifdef _MSC_VER
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-2);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-2);
 #else
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
 #endif
     }
   }
@@ -541,8 +526,8 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -550,8 +535,7 @@ TEST(test_layer, convolution13x13x31_stride19x19_padding2) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
     }
   }
 }
@@ -581,8 +565,8 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
     sftensor bias = std::make_shared<ftensor>(1, 1, 1);
   }
   Convolution(inputs, outputs1, stride_h, stride_w, weights);
-  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0,
-                              0, stride_h, stride_w, 1, false);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
   conv_layer.set_weights(weights);
   conv_layer.Forward(inputs, outputs2);
   ASSERT_EQ(outputs1.size(), outputs2.size());
@@ -590,8 +574,7 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
     ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
     const uint32_t output_size = outputs1.at(i)->size();
     for (uint32_t j = 0; j < output_size; ++j) {
-      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)),
-                1e-3);
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-3);
     }
   }
 }
@@ -599,16 +582,14 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
 
 TEST(test_layer, conv3x3_fromtorch) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/resnet/conv1.pnnx.param",
-                     "tmp/resnet/conv1.pnnx.bin");
+  RuntimeGraph graph("tmp/resnet/conv1.pnnx.param", "tmp/resnet/conv1.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(18, 5, 5);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(18, 5, 5);
     std::vector<float> values;
     for (int j = 0; j < 450; ++j) {
       values.push_back((float)j);
@@ -621,12 +602,10 @@ TEST(test_layer, conv3x3_fromtorch) {
   graph.Forward(false);
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
   const std::vector<float> outputs_values = outputs.front()->values(true);
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/resnet/test13.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test13.csv");
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 1e-4f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
@@ -640,8 +619,7 @@ TEST(test_layer, conv_dilation1) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(3, 25, 25);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 25, 25);
     input->Ones();
     inputs.push_back(input);
   }
@@ -650,14 +628,12 @@ TEST(test_layer, conv_dilation1) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/resnet/test_dilation.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test_dilation.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }
 
@@ -671,8 +647,7 @@ TEST(test_layer, conv_dilation2) {
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
 
   for (int i = 0; i < batch_size; ++i) {
-    std::shared_ptr<Tensor<float>> input =
-        std::make_shared<Tensor<float>>(3, 36, 36);
+    std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(3, 36, 36);
     input->Ones();
     inputs.push_back(input);
   }
@@ -681,13 +656,11 @@ TEST(test_layer, conv_dilation2) {
   graph.Forward(false);
 
   std::vector<sftensor> outputs = graph.get_outputs("pnnx_output_0");
-  arma::fmat real_data =
-      CSVDataLoader::LoadData<float>("tmp/resnet/test_dilation2.csv");
+  arma::fmat real_data = CSVDataLoader::LoadData<float>("tmp/resnet/test_dilation2.csv");
   const auto& outputs_values = outputs.front()->values(true);
 
   for (int i = 0; i < outputs_values.size(); ++i) {
     ASSERT_LE(std::abs(real_data.at(i) - outputs_values.at(i)), 2e-6f)
-        << i << " real: " << real_data.at(i)
-        << " predict: " << outputs_values.at(i);
+        << i << " real: " << real_data.at(i) << " predict: " << outputs_values.at(i);
   }
 }

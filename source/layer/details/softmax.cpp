@@ -29,12 +29,10 @@
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 
-SoftmaxLayer::SoftmaxLayer(int32_t dim)
-    : NonParamLayer("Softmax"), softmax_dim_(dim) {}
+SoftmaxLayer::SoftmaxLayer(int32_t dim) : NonParamLayer("Softmax"), softmax_dim_(dim) {}
 
-StatusCode SoftmaxLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                 std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the softmax layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -56,8 +54,7 @@ StatusCode SoftmaxLayer::Forward(
   for (uint32_t i = 0; i < batch_size; ++i) {
     const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the softmax layer has an empty tensor "
-        << i << " th";
+        << "The input tensor array in the softmax layer has an empty tensor " << i << " th";
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
@@ -91,10 +88,10 @@ StatusCode SoftmaxLayer::Forward(
      * 开始位置到dim轴位置的数据量是inner_size,
      * dim轴位置到结束位置的数据量是outer_sizes
      */
-    const uint32_t inner_sizes = std::accumulate(
-        raw_shapes.begin() + dim + 1, raw_shapes.end(), 1, std::multiplies());
-    const uint32_t outer_sizes = std::accumulate(
-        raw_shapes.begin(), raw_shapes.begin() + dim, 1, std::multiplies());
+    const uint32_t inner_sizes =
+        std::accumulate(raw_shapes.begin() + dim + 1, raw_shapes.end(), 1, std::multiplies());
+    const uint32_t outer_sizes =
+        std::accumulate(raw_shapes.begin(), raw_shapes.begin() + dim, 1, std::multiplies());
 
     // dim轴数据的数量
     const uint32_t axis_sizes = raw_shapes.at(dim);
@@ -107,8 +104,7 @@ StatusCode SoftmaxLayer::Forward(
       for (uint32_t inner_size = 0; inner_size < inner_sizes; ++inner_size) {
         float max_value = std::numeric_limits<float>::lowest();
         // 迭代当前dim中的数据，并找到其中的最大值
-        uint32_t base_index =
-            outer_size * axis_sizes * inner_sizes + inner_size;
+        uint32_t base_index = outer_size * axis_sizes * inner_sizes + inner_size;
         for (uint32_t axis_size = 0; axis_size < axis_sizes; ++axis_size) {
           uint32_t index = base_index + axis_size * inner_sizes;
           float cur_value = input_values.at(index);
@@ -141,9 +137,8 @@ StatusCode SoftmaxLayer::Forward(
   }
   return StatusCode::kSuccess;
 }
-StatusCode SoftmaxLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& softmax_layer) {
+StatusCode SoftmaxLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                        std::shared_ptr<Layer<float>>& softmax_layer) {
   CHECK(op != nullptr) << "SoftMax operator is nullptr";
   const auto& params = op->params;
   if (params.find("dim") == params.end()) {
@@ -162,8 +157,6 @@ StatusCode SoftmaxLayer::CreateInstance(
   softmax_layer = std::make_shared<SoftmaxLayer>(dim->value);  // 创建softmax层
   return StatusCode::kSuccess;
 }
-LayerRegistererWrapper kSoftMaxCreateInstanceNN("nn.Softmax",
-                                                SoftmaxLayer::CreateInstance);
-LayerRegistererWrapper kSoftMaxCreateInstanceF("F.softmax",
-                                               SoftmaxLayer::CreateInstance);
+LayerRegistererWrapper kSoftMaxCreateInstanceNN("nn.Softmax", SoftmaxLayer::CreateInstance);
+LayerRegistererWrapper kSoftMaxCreateInstanceF("F.softmax", SoftmaxLayer::CreateInstance);
 }  // namespace kuiper_infer

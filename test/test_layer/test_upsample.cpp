@@ -34,8 +34,7 @@ TEST(test_layer, forward_upsample1) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -55,8 +54,7 @@ TEST(test_layer, forward_upsample1) {
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 2, c_ / 2), output_channel.at(r, c_))
-              << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 2, c_ / 2), output_channel.at(r, c_)) << r << " " << c_;
         }
       }
     }
@@ -71,8 +69,7 @@ TEST(test_layer, forward_upsample2) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -92,8 +89,7 @@ TEST(test_layer, forward_upsample2) {
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 2, c_ / 3), output_channel.at(r, c_))
-              << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 2, c_ / 3), output_channel.at(r, c_)) << r << " " << c_;
         }
       }
     }
@@ -107,8 +103,7 @@ TEST(test_layer, forward_upsample3) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -128,8 +123,7 @@ TEST(test_layer, forward_upsample3) {
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 3, c_ / 2), output_channel.at(r, c_))
-              << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 3, c_ / 2), output_channel.at(r, c_)) << r << " " << c_;
         }
       }
     }
@@ -143,8 +137,7 @@ TEST(test_layer, forward_upsample4) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -164,8 +157,7 @@ TEST(test_layer, forward_upsample4) {
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 3, c_ / 3), output_channel.at(r, c_))
-              << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 3, c_ / 3), output_channel.at(r, c_)) << r << " " << c_;
         }
       }
     }
@@ -179,8 +171,7 @@ TEST(test_layer, forward_upsample5) {
   const uint32_t rows = 224;
   const uint32_t cols = 224;
 
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -200,8 +191,7 @@ TEST(test_layer, forward_upsample5) {
 
       for (int r = 0; r < output_channel.n_rows; ++r) {
         for (int c_ = 0; c_ < output_channel.n_cols; ++c_) {
-          ASSERT_EQ(input_channel.at(r / 4, c_ / 4), output_channel.at(r, c_))
-              << r << " " << c_;
+          ASSERT_EQ(input_channel.at(r / 4, c_ / 4), output_channel.at(r, c_)) << r << " " << c_;
         }
       }
     }
@@ -210,8 +200,7 @@ TEST(test_layer, forward_upsample5) {
 
 TEST(test_layer, forward_upsample_bilinear_noalign1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod.pnnx.param",
-                     "tmp/up/up_layer_mod.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod.pnnx.param", "tmp/up/up_layer_mod.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
@@ -228,13 +217,11 @@ TEST(test_layer, forward_upsample_bilinear_noalign1) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -246,8 +233,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign1) {
 
 TEST(test_layer, forward_upsample_bilinear_noalign2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod1.pnnx.param",
-                     "tmp/up/up_layer_mod1.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod1.pnnx.param", "tmp/up/up_layer_mod1.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
@@ -264,13 +250,11 @@ TEST(test_layer, forward_upsample_bilinear_noalign2) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear11.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear11.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -282,8 +266,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign2) {
 
 TEST(test_layer, forward_upsample_bilinear_noalign3) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod2.pnnx.param",
-                     "tmp/up/up_layer_mod2.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod2.pnnx.param", "tmp/up/up_layer_mod2.pnnx.bin");
 
   graph.Build();
   const uint32_t batch_size = 1;
@@ -300,13 +283,11 @@ TEST(test_layer, forward_upsample_bilinear_noalign3) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align3.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align3.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -318,8 +299,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign3) {
 
 TEST(test_layer, forward_upsample_bilinear_noalign4) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod4.pnnx.param",
-                     "tmp/up/up_layer_mod4.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod4.pnnx.param", "tmp/up/up_layer_mod4.pnnx.bin");
 
   graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -335,13 +315,11 @@ TEST(test_layer, forward_upsample_bilinear_noalign4) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align4.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align4.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -353,8 +331,7 @@ TEST(test_layer, forward_upsample_bilinear_noalign4) {
 
 TEST(test_layer, forward_upsample_bilinear_align1) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod5.pnnx.param",
-                     "tmp/up/up_layer_mod5.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod5.pnnx.param", "tmp/up/up_layer_mod5.pnnx.bin");
 
   graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -370,13 +347,11 @@ TEST(test_layer, forward_upsample_bilinear_align1) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align5.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align5.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -388,8 +363,7 @@ TEST(test_layer, forward_upsample_bilinear_align1) {
 
 TEST(test_layer, forward_upsample_bilinear_align2) {
   using namespace kuiper_infer;
-  RuntimeGraph graph("tmp/up/up_layer_mod6.pnnx.param",
-                     "tmp/up/up_layer_mod6.pnnx.bin");
+  RuntimeGraph graph("tmp/up/up_layer_mod6.pnnx.param", "tmp/up/up_layer_mod6.pnnx.bin");
 
   graph.Build();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -405,13 +379,11 @@ TEST(test_layer, forward_upsample_bilinear_align2) {
   graph.set_inputs("pnnx_input_0", inputs);
 
   graph.Forward();
-  std::vector<std::shared_ptr<Tensor<float>>> outputs =
-      graph.get_outputs("pnnx_output_0");
+  std::vector<std::shared_ptr<Tensor<float>>> outputs = graph.get_outputs("pnnx_output_0");
   ASSERT_EQ(outputs.size(), 1);
 
   sftensor output = outputs.front();
-  arma::fmat real =
-      CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align6.csv");
+  arma::fmat real = CSVDataLoader::LoadData<float>("tmp/up/test_upsample_bilinear_align6.csv");
   auto output_values = output->values(true);
   for (uint32_t i = 0; i < output->size(); ++i) {
     float output1 = real.at(i);
@@ -427,8 +399,7 @@ TEST(test_layer, forward_upsample_bilinear_equal) {
   const uint32_t rows = 32;
   const uint32_t cols = 61;
   UpSampleMode mode = UpSampleMode::kModeBilinear;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
@@ -452,8 +423,7 @@ TEST(test_layer, forward_upsample_nearest_equal) {
   const uint32_t rows = 32;
   const uint32_t cols = 61;
   UpSampleMode mode = UpSampleMode::kModeNearest;
-  std::shared_ptr<Tensor<float>> input =
-      std::make_shared<Tensor<float>>(channels, rows, cols);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(channels, rows, cols);
   input->RandN();
 
   std::vector<std::shared_ptr<Tensor<float>>> inputs;

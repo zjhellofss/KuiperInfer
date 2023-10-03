@@ -10,7 +10,7 @@ PointerAlignment: Left
 # The Google Style Guide only asks for consistency w.r.t. "east const" vs.
 # "const west" alignment of cv-qualifiers. In this project we use "east const".
 QualifierAlignment: Left
-
+ColumnLimit: 100
 IncludeBlocks: Merge
 # Format raw string literals with a `pb` or `proto` tag as proto.
 RawStringFormats:

@@ -15,15 +15,14 @@
 #ifndef PNNX_STOREZIP_H
 #define PNNX_STOREZIP_H
 
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
-#include <cstdint>
 
 namespace pnnx {
 
-class StoreZipReader
-{
+class StoreZipReader {
  public:
   StoreZipReader();
   ~StoreZipReader();
@@ -39,8 +38,7 @@ class StoreZipReader
  private:
   FILE* fp;
 
-  struct StoreZipMeta
-  {
+  struct StoreZipMeta {
     size_t offset;
     size_t size;
   };
@@ -48,8 +46,7 @@ class StoreZipReader
   std::map<std::string, StoreZipMeta> filemetas;
 };
 
-class StoreZipWriter
-{
+class StoreZipWriter {
  public:
   StoreZipWriter();
   ~StoreZipWriter();
@@ -63,8 +60,7 @@ class StoreZipWriter
  private:
   FILE* fp;
 
-  struct StoreZipMeta
-  {
+  struct StoreZipMeta {
     std::string name;
     size_t lfh_offset;
     uint32_t crc32;
@@ -74,6 +70,6 @@ class StoreZipWriter
   std::vector<StoreZipMeta> filemetas;
 };
 
-} // namespace pnnx
+}  // namespace pnnx
 
-#endif // PNNX_STOREZIP_H
+#endif  // PNNX_STOREZIP_H

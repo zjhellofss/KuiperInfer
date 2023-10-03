@@ -27,9 +27,8 @@
 namespace kuiper_infer {
 HardSigmoid::HardSigmoid() : NonParamLayer("HardSigmoid") {}
 
-StatusCode HardSigmoid::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the hardsigmoid layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -57,8 +56,7 @@ StatusCode HardSigmoid::Forward(
 
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(),
-                                               input->cols());
+      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
       outputs.at(i) = output;
     }
 
@@ -72,15 +70,13 @@ StatusCode HardSigmoid::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode HardSigmoid::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& hardsigmoid_layer) {
+StatusCode HardSigmoid::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                       std::shared_ptr<Layer<float>>& hardsigmoid_layer) {
   CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid",
-                                                  HardSigmoid::CreateInstance);
+LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid", HardSigmoid::CreateInstance);
 
 }  // namespace kuiper_infer

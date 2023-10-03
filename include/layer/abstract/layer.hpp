@@ -80,9 +80,8 @@ class Layer<float> {
    * @param outputs Output tensors
    * @return Status code
    */
-  virtual StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs);
+  virtual StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                             std::vector<std::shared_ptr<Tensor<float>>>& outputs);
 
   /**
    * @brief Gets layer weights
@@ -103,16 +102,14 @@ class Layer<float> {
    *
    * @param weights Vector of weight tensors
    */
-  virtual void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>>& weights);
+  virtual void set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights);
 
   /**
    * @brief Sets the layer biases
    *
    * @param bias Vector of bias tensors
    */
-  virtual void set_bias(
-      const std::vector<std::shared_ptr<Tensor<float>>>& bias);
+  virtual void set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias);
 
   /**
    * @brief Sets weights from float vector
@@ -150,8 +147,7 @@ class Layer<float> {
    *
    * @param runtime_operator The RuntimeOperator for this layer
    */
-  void set_runtime_operator(
-      const std::shared_ptr<RuntimeOperator>& runtime_operator);
+  void set_runtime_operator(const std::shared_ptr<RuntimeOperator>& runtime_operator);
 
  protected:
   std::string layer_name_;

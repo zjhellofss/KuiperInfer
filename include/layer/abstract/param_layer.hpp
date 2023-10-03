@@ -41,8 +41,8 @@ class ParamLayer : public Layer<float> {
    * @param param_height Height of kernels
    * @param param_width Width of kernels
    */
-  void InitWeightParam(uint32_t param_count, uint32_t param_channel,
-                       uint32_t param_height, uint32_t param_width);
+  void InitWeightParam(uint32_t param_count, uint32_t param_channel, uint32_t param_height,
+                       uint32_t param_width);
 
   /**
    * @brief Initializes bias tensors
@@ -55,8 +55,8 @@ class ParamLayer : public Layer<float> {
    * @param param_height Height
    * @param param_width Width
    */
-  void InitBiasParam(uint32_t param_count, uint32_t param_channel,
-                     uint32_t param_height, uint32_t param_width);
+  void InitBiasParam(uint32_t param_count, uint32_t param_channel, uint32_t param_height,
+                     uint32_t param_width);
 
   /**
    * @brief Gets the layer weight tensors
@@ -111,8 +111,7 @@ class ParamLayer : public Layer<float> {
    *
    * @param weights Weight tensors to set
    */
-  void set_weights(
-      const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
+  void set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
 
   /**
    * @brief Sets the bias tensors
@@ -121,8 +120,7 @@ class ParamLayer : public Layer<float> {
    *
    * @param bias Bias tensors to set
    */
-  void set_bias(
-      const std::vector<std::shared_ptr<Tensor<float>>>& bias) override;
+  void set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) override;
 
  protected:
   std::vector<std::shared_ptr<Tensor<float>>> weights_;

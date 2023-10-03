@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fushenshen on 2023/3/15.
 #include "winograd.hpp"
 #include <glog/logging.h>
@@ -58,8 +58,7 @@ static void WinogradTransformG(const arma::fmat& g, arma::fmat& transform_g) {
   }
 }
 
-static void Winograd4x32(const arma::fmat& transform_g, float* in[6],
-                         float Y[16]) {
+static void Winograd4x32(const arma::fmat& transform_g, float* in[6], float Y[16]) {
   CHECK_EQ(transform_g.empty(), false);
   CHECK(transform_g.n_cols == 6 && transform_g.n_rows == 6);
 
@@ -141,10 +140,8 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
   const uint32_t kernel_w = 3;
   const uint32_t kernel_count = weights.size();
 
-  const uint32_t output_h =
-      std::floor((int32_t(input_h) - int32_t(kernel_h)) / stride_h + 1);
-  const uint32_t output_w =
-      std::floor((int32_t(input_w) - int32_t(kernel_w)) / stride_w + 1);
+  const uint32_t output_h = std::floor((int32_t(input_h) - int32_t(kernel_h)) / stride_h + 1);
+  const uint32_t output_w = std::floor((int32_t(input_w) - int32_t(kernel_w)) / stride_w + 1);
   if (output == nullptr || output->empty()) {
     output = std::make_shared<ftensor>(kernel_count, output_h, output_w);
   }
@@ -162,8 +159,7 @@ void Convolution3x3s1(const std::shared_ptr<Tensor<float>>& input,
 
   sftensor padded_input;
   if (padded_in_w != input_w && padded_in_h != input_h) {
-    padded_input =
-        std::make_shared<ftensor>(input_channels, padded_in_h, padded_in_w);
+    padded_input = std::make_shared<ftensor>(input_channels, padded_in_h, padded_in_w);
     for (uint32_t c = 0; c < input_channels; ++c) {
       arma::fmat& padded_input_channel = padded_input->slice(c);
       const arma::fmat& input_channel = input->slice(c);

@@ -29,8 +29,7 @@
 
 namespace kuiper_infer {
 
-std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream& file,
-                                                       char split_char) {
+std::pair<size_t, size_t> CSVDataLoader::GetMatrixSize(std::ifstream& file, char split_char) {
   bool load_ok = file.good();
   file.clear();
   size_t fn_rows = 0;

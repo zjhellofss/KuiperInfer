@@ -50,8 +50,7 @@ class LayerRegisterer {
    * @param layer_type The name of the layer type
    * @param creator Function to create the layer
    */
-  static void RegisterCreator(const std::string& layer_type,
-                              const Creator& creator);
+  static void RegisterCreator(const std::string& layer_type, const Creator& creator);
 
   /**
    * @brief Creates a layer object
@@ -62,8 +61,7 @@ class LayerRegisterer {
    * @param op The runtime operator
    * @return A shared pointer to the created layer object
    */
-  static std::shared_ptr<Layer<float>> CreateLayer(
-      const std::shared_ptr<RuntimeOperator>& op);
+  static std::shared_ptr<Layer<float>> CreateLayer(const std::shared_ptr<RuntimeOperator>& op);
 
   /**
    * @brief Gets the layer registry
@@ -91,8 +89,7 @@ class LayerRegisterer {
  */
 class LayerRegistererWrapper {
  public:
-  LayerRegistererWrapper(const std::string& layer_type,
-                         const LayerRegisterer::Creator& creator) {
+  LayerRegistererWrapper(const std::string& layer_type, const LayerRegisterer::Creator& creator) {
     LayerRegisterer::RegisterCreator(layer_type, creator);
   }
 };

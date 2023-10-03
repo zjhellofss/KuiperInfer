@@ -27,10 +27,8 @@
 #include "runtime/runtime_ir.hpp"
 namespace kuiper_infer {
 
-MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
-                                 uint32_t pooling_size_h,
-                                 uint32_t pooling_size_w, uint32_t stride_h,
-                                 uint32_t stride_w)
+MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
+                                 uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w)
     : NonParamLayer("MaxPooling"),
       padding_h_(padding_h),
       padding_w_(padding_w),
@@ -44,9 +42,8 @@ MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
   CHECK_GT(pooling_size_w_, 0);
 }
 
-StatusCode MaxPoolingLayer::Forward(
-    const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
+StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                                    std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
     LOG(ERROR) << "The input tensor array in the maxpooling layer is empty";
     return StatusCode::kInferInputsEmpty;
@@ -94,15 +91,14 @@ StatusCode MaxPoolingLayer::Forward(
 
     const uint32_t input_c = input_data->channels();
 
-    const uint32_t output_h = uint32_t(
-        std::floor((int32_t(input_padded_h) - int32_t(pooling_h)) / stride_h_ + 1));
-    const uint32_t output_w = uint32_t(
-        std::floor((int32_t(input_padded_w) - int32_t(pooling_w)) / stride_w_ + 1));
+    const uint32_t output_h =
+        uint32_t(std::floor((int32_t(input_padded_h) - int32_t(pooling_h)) / stride_h_ + 1));
+    const uint32_t output_w =
+        uint32_t(std::floor((int32_t(input_padded_w) - int32_t(pooling_w)) / stride_w_ + 1));
 
     std::shared_ptr<Tensor<float>> output_data = outputs.at(i);
     if (output_data == nullptr || output_data->empty()) {
-      output_data =
-          std::make_shared<Tensor<float>>(input_c, output_h, output_w);
+      output_data = std::make_shared<Tensor<float>>(input_c, output_h, output_w);
       outputs.at(i) = output_data;
     }
 
@@ -117,8 +113,7 @@ StatusCode MaxPoolingLayer::Forward(
       arma::fmat& output_channel = output_data->slice(ic);
       for (uint32_t c = 0; c < input_padded_w - pooling_w + 1; c += stride_w_) {
         uint32_t output_col = uint32_t(c / stride_w_);
-        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1;
-             r += stride_h_) {
+        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1; r += stride_h_) {
           uint32_t output_row = uint32_t(r / stride_h_);
           float* output_channel_ptr = output_channel.colptr(output_col);
           float max_value = std::numeric_limits<float>::lowest();
@@ -127,8 +122,7 @@ StatusCode MaxPoolingLayer::Forward(
             for (uint32_t h = 0; h < pooling_h; ++h) {
               float current_value = 0.f;
               if ((h + r >= padding_h_ && w + c >= padding_w_) &&
-                  (h + r < input_h + padding_h_ &&
-                   w + c < input_w + padding_w_)) {
+                  (h + r < input_h + padding_h_ && w + c < input_w + padding_w_)) {
                 current_value = *(col_ptr + r + h - padding_h_);
               } else {
                 current_value = std::numeric_limits<float>::lowest();
@@ -144,19 +138,16 @@ StatusCode MaxPoolingLayer::Forward(
   return StatusCode::kSuccess;
 }
 
-StatusCode MaxPoolingLayer::CreateInstance(
-    const std::shared_ptr<RuntimeOperator>& op,
-    std::shared_ptr<Layer<float>>& max_layer) {
+StatusCode MaxPoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                           std::shared_ptr<Layer<float>>& max_layer) {
   CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params =
-      op->params;
+  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
     return StatusCode::kParameterMissing;
   }
 
-  auto stride =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
+  auto stride = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
     return StatusCode::kParameterMissing;
@@ -167,8 +158,7 @@ StatusCode MaxPoolingLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto padding =
-      std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
+  auto padding = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
     return StatusCode::kParameterMissing;
@@ -179,8 +169,7 @@ StatusCode MaxPoolingLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(
-      params.at("kernel_size"));
+  auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
   if (!kernel_size) {
     LOG(ERROR) << "Can not find the kernel size parameter";
     return StatusCode::kParameterMissing;
@@ -205,14 +194,13 @@ StatusCode MaxPoolingLayer::CreateInstance(
     return StatusCode::kParameterMissing;
   }
 
-  max_layer = std::make_shared<MaxPoolingLayer>(
-      padding_values.at(0), padding_values.at(1), kernel_values.at(0),
-      kernel_values.at(1), stride_values.at(0), stride_values.at(1));
+  max_layer = std::make_shared<MaxPoolingLayer>(padding_values.at(0), padding_values.at(1),
+                                                kernel_values.at(0), kernel_values.at(1),
+                                                stride_values.at(0), stride_values.at(1));
 
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kMaxPoolingCreateInstance(
-    "nn.MaxPool2d", MaxPoolingLayer::CreateInstance);
+LayerRegistererWrapper kMaxPoolingCreateInstance("nn.MaxPool2d", MaxPoolingLayer::CreateInstance);
 
 }  // namespace kuiper_infer

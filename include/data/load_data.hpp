@@ -45,8 +45,7 @@ class CSVDataLoader {
    * @return Matrix containing loaded data
    */
   template <typename T>
-  static arma::Mat<T> LoadData(const std::string& file_path,
-                               char split_char = ',');
+  static arma::Mat<T> LoadData(const std::string& file_path, char split_char = ',');
 
  private:
   /**
@@ -58,13 +57,11 @@ class CSVDataLoader {
    * @param split_char Delimiter character
    * @return Pair of rows and cols
   */
-  static std::pair<size_t, size_t> GetMatrixSize(std::ifstream& file,
-                                                 char split_char);
+  static std::pair<size_t, size_t> GetMatrixSize(std::ifstream& file, char split_char);
 };
 
 template <typename T>
-arma::Mat<T> CSVDataLoader::LoadData(const std::string& file_path,
-                                     const char split_char) {
+arma::Mat<T> CSVDataLoader::LoadData(const std::string& file_path, const char split_char) {
   arma::Mat<T> data;
   if (file_path.empty()) {
     LOG(ERROR) << "CSV file path is empty: " << file_path;
@@ -106,8 +103,8 @@ arma::Mat<T> CSVDataLoader::LoadData(const std::string& file_path,
           LOG(FATAL) << "Unsupported data type \n";
         }
       } catch (std::exception& e) {
-        DLOG(ERROR) << "Parse CSV File meet error: " << e.what()
-                    << " row:" << row << " col:" << col;
+        DLOG(ERROR) << "Parse CSV File meet error: " << e.what() << " row:" << row
+                    << " col:" << col;
       }
       col += 1;
       CHECK(col <= cols) << "There are excessive elements on the column";

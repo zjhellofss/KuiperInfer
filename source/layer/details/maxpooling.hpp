@@ -18,7 +18,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-    
+
 // Created by fss on 22-11-12.
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
@@ -27,17 +27,14 @@
 namespace kuiper_infer {
 class MaxPoolingLayer : public NonParamLayer {
  public:
-  explicit MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w,
-                           uint32_t pooling_size_h, uint32_t pooling_size_w,
-                           uint32_t stride_h, uint32_t stride_w);
+  explicit MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
+                           uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w);
 
-  StatusCode Forward(
-      const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
-  static StatusCode CreateInstance(
-      const std::shared_ptr<RuntimeOperator>& op,
-      std::shared_ptr<Layer<float>>& max_layer);
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& max_layer);
 
  private:
   uint32_t padding_h_ = 0;

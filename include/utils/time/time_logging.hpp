@@ -52,8 +52,7 @@ struct LayerTimeState {
    * @param layer_name Name of the layer
    * @param layer_type Type of the layer
    */
-  explicit LayerTimeState(long duration_time, std::string layer_name,
-                          std::string layer_type)
+  explicit LayerTimeState(long duration_time, std::string layer_name, std::string layer_type)
       : duration_time_(duration_time),
         layer_name_(std::move(layer_name)),
         layer_type_(std::move(layer_type)) {}
@@ -75,8 +74,7 @@ struct LayerTimeState {
   std::string layer_type_;
 };
 
-using LayerTimeStatesCollector =
-    std::map<std::string, std::shared_ptr<LayerTimeState>>;
+using LayerTimeStatesCollector = std::map<std::string, std::shared_ptr<LayerTimeState>>;
 
 using PtrLayerTimeStatesCollector = std::shared_ptr<LayerTimeStatesCollector>;
 
