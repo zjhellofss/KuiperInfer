@@ -38,7 +38,7 @@ enum class RuntimeParameterType {
 };
 
 enum class StatusCode {
-  kInferUnknown = -1,
+  kUnknownCode = -1,
   kSuccess = 0,
 
   kInferInputsEmpty = 1,
