@@ -98,23 +98,25 @@ StatusCode LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>
         << "The col of weight tensor should be same to input_features_";
 
     arma::fmat input_vec((float*)input->raw_ptr(), feature_dims, in_features_, false, true);
-
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, out_features_, feature_dims);
       outputs.at(i) = output;
     }
+
     CHECK(output->channels() == 1 && output->rows() == feature_dims &&
           output->cols() == out_features_)
         << "The row of output tensor should be same to feature_dims_ and the "
            "col of output tensor should be same to output_features_ "
         << i << " th";
+
     const auto& output_raw_shapes = output->raw_shapes();
     if (output_raw_shapes.size() == 2) {
       CHECK(output_raw_shapes.at(0) == feature_dims && output_raw_shapes.at(1) == out_features_);
-    }
-    if (output_raw_shapes.size() == 1) {
+    } else if (output_raw_shapes.size() == 1) {
       CHECK(output_raw_shapes.at(0) == out_features_);
+    } else {
+      LOG(FATAL) << "The shape of output tensor need be equal to one or two";
     }
 
     arma::fmat& result = output->slice(0);
