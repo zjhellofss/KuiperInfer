@@ -329,37 +329,22 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   }
 }
 
-void RuntimeGraph::ProbeNextLayer(
-    const std::shared_ptr<RuntimeOperator>& current_op,
-    const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_datas) {
-  // 当前节点的后继节点next_ops
+void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator>& current_op,
+                                  const std::vector<sftensor>& layer_output_datas) {
+  // For each next operator of current operator
   const auto& next_ops = current_op->output_operators;
-  // 对所有后继节点进行遍历
   for (const auto& [_, next_op] : next_ops) {
-    // 得到后继节点的输入next_input_operands
+    // Get next op's input operands corresponding to current op's output
     const auto& next_input_operands = next_op->input_operands;
-    // 确定后继节点的输入来自于current_op
-    const auto& next_input_operands_iter = next_input_operands.find(current_op->name);
-    if (next_input_operands_iter != next_input_operands.end()) {
-      /**
-       * 得到后继节点的关于current_op输出的输入空间 next_input_datas
-       * next_input_operands:
-       * {
-       *    输入1 -- current_op.name: current_op对应的输出空间
-       *    输入2 -- other_op.name: other_op对应的输出空间
-       * }
-       */
-      std::vector<std::shared_ptr<ftensor>>& next_input_datas =
-          next_input_operands_iter->second->datas;
-      CHECK(next_input_datas.size() == layer_output_datas.size())
-          << "Input data size do not match with output data size";
-      // 将当前current_op的输出赋值到next_input_datas中
+    const auto& next_input_op_iter = next_input_operands.find(current_op->name);
+    if (next_input_op_iter != next_input_operands.end()) {
+      // Get input data spaces for those operands
+      std::vector<sftensor>& next_input_datas = next_input_op_iter->second->datas;
+      // Copy current op output data to next op input data
       for (uint32_t i = 0; i < next_input_datas.size(); ++i) {
         sftensor layer_output_data = layer_output_datas.at(i);
-        CHECK(layer_output_data != nullptr);
         if (next_input_datas.at(i) != nullptr) {
-          CHECK(next_input_datas.at(i)->shapes() == layer_output_data->shapes())
-              << "Input data shape do not match with output data shapes";
+          CHECK(next_input_datas.at(i)->shapes() == layer_output_data->shapes());
         }
         next_input_datas.at(i) = layer_output_data;
       }

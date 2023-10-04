@@ -229,13 +229,10 @@ class RuntimeGraph {
   static std::shared_ptr<Layer<float>> CreateLayer(const std::shared_ptr<RuntimeOperator>& op);
 
   /**
-   * @brief Feeds the current op outputs to next op inputs
+   * Propagate output data from current operator to inputs of next operators.
    *
-   * Takes the output tensors from the current operator and assigns them
-   * to the input tensors of the next dependent operators.
-   *
-   * @param current_op The current operator
-   * @param layer_output_data Vector of output tensors from current op
+   * @param current_op Current operator whose outputs will be propagated
+   * @param layer_output_datas Output data from current operator
    */
   static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator>& current_op,
                              const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
