@@ -46,7 +46,7 @@ StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
   }
 
   using namespace activation;
-  ActivationFunc hardswish_function = ApplySSEActivation(ActivationType::kActivationRelu);
+  ActivationFunc hardswish_function = ApplySSEActivation(ActivationType::kActivationHardSigmoid);
 
   const uint32_t batch = inputs.size();
 #pragma omp parallel for num_threads(batch)
