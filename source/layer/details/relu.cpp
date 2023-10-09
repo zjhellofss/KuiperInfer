@@ -42,9 +42,6 @@ StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
                   "layer do not match";
     return StatusCode::kInferInOutDimMismatch;
   }
-  using namespace activation;
-  ActivationFunc relu_function = ApplySSEActivation(ActivationType::kActivationRelu);
-
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
@@ -59,7 +56,8 @@ StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
     }
     CHECK(output != nullptr && output->shapes() == input->shapes())
         << "The input and output tensor shapes of the relu layer do not match " << i << " th";
-    relu_function(input, output);
+    using namespace kuiper_infer::activation;
+    ApplySSEActivation(ActivationType::kActivationRelu)(input, output);
   }
   return StatusCode::kSuccess;
 }
