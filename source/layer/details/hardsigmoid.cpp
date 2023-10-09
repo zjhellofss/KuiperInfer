@@ -45,6 +45,9 @@ StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>
     return StatusCode::kInferInOutDimMismatch;
   }
 
+  using namespace activation;
+  ActivationFunc hardsigmoid_function = ApplySSEActivation(ActivationType::kActivationHardSigmoid);
+
   const uint32_t batch = inputs.size();
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
@@ -65,7 +68,7 @@ StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>
            "not match "
         << i << " th";
     using namespace activation;
-    ApplySSEActivation(ActivationType::kActivationHardSigmoid)(input, output);
+    hardsigmoid_function(input, output);
   }
   return StatusCode::kSuccess;
 }
