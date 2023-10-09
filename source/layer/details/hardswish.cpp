@@ -45,6 +45,9 @@ StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
     return StatusCode::kInferInOutDimMismatch;
   }
 
+  using namespace activation;
+  ActivationFunc hardswish_function = ApplySSEActivation(ActivationType::kActivationRelu);
+
   const uint32_t batch = inputs.size();
 #pragma omp parallel for num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
@@ -63,8 +66,7 @@ StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
            "match "
         << i << " th";
 
-    using namespace activation;
-    ApplySSEActivation(ActivationType::kActivationHardSwish)(input, output);
+    hardswish_function(input, output);
   }
   return StatusCode::kSuccess;
 }
