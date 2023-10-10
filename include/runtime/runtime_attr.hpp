@@ -37,6 +37,11 @@ namespace kuiper_infer {
  * Contains the attribute data, shape, and data type.
  */
 struct RuntimeAttribute {
+  RuntimeAttribute() = default;
+
+  RuntimeAttribute(std::vector<int32_t> shape, RuntimeDataType type, std::vector<char> weight_data)
+      : shape(std::move(shape)), type(type), weight_data(std::move(weight_data)) {}
+
   /**
    * @brief Attribute data
    *

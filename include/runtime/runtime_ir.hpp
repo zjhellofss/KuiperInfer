@@ -256,9 +256,9 @@ class RuntimeGraph {
   GraphState graph_state() const;
 
  private:
+  int32_t start_forward_index_ = 0;
   std::string bin_path_;
   std::string param_path_;
-  int32_t start_forward_index_ = 0;
   std::unique_ptr<pnnx::Graph> graph_;
 
   GraphState graph_state_ = GraphState::NeedInit;

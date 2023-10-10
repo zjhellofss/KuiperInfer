@@ -315,10 +315,8 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   for (const auto& [name, attr] : attrs) {
     switch (attr.type) {
       case 1: {
-        std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<RuntimeAttribute>();
-        runtime_attribute->type = RuntimeDataType::kTypeFloat32;
-        runtime_attribute->weight_data = attr.data;
-        runtime_attribute->shape = attr.shape;
+        std::shared_ptr<RuntimeAttribute> runtime_attribute = std::make_shared<RuntimeAttribute>(
+            attr.shape, RuntimeDataType::kTypeFloat32, attr.data);
         runtime_operator->attribute.insert({name, runtime_attribute});
         break;
       }
