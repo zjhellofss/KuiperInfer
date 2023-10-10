@@ -65,6 +65,11 @@ StatusCode Layer<float>::Forward() {
               std::back_inserter(layer_input_datas));
   }
 
+  if (layer_input_datas.empty()) {
+    LOG(ERROR) << runtime_operator->name << " Layer input data is empty";
+    return StatusCode::kInferInputsEmpty;
+  }
+
   for (sftensor layer_input_data : layer_input_datas) {
     if (layer_input_data == nullptr || layer_input_data->empty()) {
       LOG(ERROR) << "Layer input data is empty";
@@ -73,7 +78,6 @@ StatusCode Layer<float>::Forward() {
   }
 
   const std::shared_ptr<RuntimeOperand>& output_operand_datas = runtime_operator->output_operands;
-  CHECK(!layer_input_datas.empty()) << runtime_operator->name << " Layer input data is empty";
   if (output_operand_datas == nullptr || output_operand_datas->datas.empty()) {
     LOG(ERROR) << "Layer output data is empty";
     return StatusCode::kInferOutputsEmpty;
