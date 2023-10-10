@@ -56,19 +56,29 @@ StatusCode Layer<float>::Forward(const std::vector<std::shared_ptr<Tensor<float>
 StatusCode Layer<float>::Forward() {
   LOG_IF(FATAL, this->runtime_operator_.expired()) << "Runtime operator is expired or nullptr";
   const auto& runtime_operator = this->runtime_operator_.lock();
-  // 准备节点layer计算所需要的输入
   std::vector<std::shared_ptr<Tensor<float>>> layer_input_datas;
   for (const auto& input_operand_data : runtime_operator->input_operands_seq) {
+    if (input_operand_data == nullptr) {
+      return StatusCode::kInferInputsEmpty;
+    }
     std::copy(input_operand_data->datas.begin(), input_operand_data->datas.end(),
               std::back_inserter(layer_input_datas));
   }
 
+  for (sftensor layer_input_data : layer_input_datas) {
+    if (layer_input_data == nullptr || layer_input_data->empty()) {
+      LOG(ERROR) << "Layer input data is empty";
+      return StatusCode::kInferInputsEmpty;
+    }
+  }
+
   const std::shared_ptr<RuntimeOperand>& output_operand_datas = runtime_operator->output_operands;
   CHECK(!layer_input_datas.empty()) << runtime_operator->name << " Layer input data is empty";
-  CHECK(output_operand_datas != nullptr && !output_operand_datas->datas.empty())
-      << "Layer output data is empty";
-  // 执行operator当中的layer计算过程
-  // layer的计算结果存放在current_op->output_operands->datas中
+  if (output_operand_datas == nullptr || output_operand_datas->datas.empty()) {
+    LOG(ERROR) << "Layer output data is empty";
+    return StatusCode::kInferOutputsEmpty;
+  }
+
   StatusCode status =
       runtime_operator->layer->Forward(layer_input_datas, output_operand_datas->datas);
   return status;
