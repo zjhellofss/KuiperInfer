@@ -67,7 +67,6 @@ StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>
         << "The output and input shapes of the hardsigmoid layer do "
            "not match "
         << i << " th";
-    using namespace activation;
     hardsigmoid_function(input, output);
   }
   return StatusCode::kSuccess;

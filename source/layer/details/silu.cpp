@@ -48,6 +48,9 @@ StatusCode SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
     return StatusCode::kInferInOutDimMismatch;
   }
 
+  using namespace kuiper_infer::activation;
+  ActivationFunc silu_function = ApplySSEActivation(ActivationType::kActivationSilu);
+
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
   for (uint32_t i = 0; i < batch_size; ++i) {
@@ -63,8 +66,7 @@ StatusCode SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
 
     CHECK(output->shapes() == input->shapes())
         << "The input and output tensor shapes of the silu layer do not match " << i << " th";
-    using namespace kuiper_infer::activation;
-    ApplySSEActivation(ActivationType::kActivationSilu)(input, output);
+    silu_function(input, output);
   }
   return StatusCode::kSuccess;
 }
