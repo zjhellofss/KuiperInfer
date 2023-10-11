@@ -25,8 +25,6 @@ if (MSVC)
 endif ()
 option(BUILD_DEMO "BUILD THE DEMO PROJECT")
 
-set(BUILD_DEMO ON)
-
 if (BUILD_DEMO)
     MESSAGE(STATUS "BUILD DEMO PROJECT")
     add_subdirectory(demos)

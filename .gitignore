@@ -931,3 +931,9 @@ cmake-build-release11/test/CTestTestfile.cmake
 cmake-build-release11/test/Makefile
 
 cmake-build-release11/Testing/Temporary/LastTest.log
+
+.config/clangd/config.yaml
+
+331/bench/CMakeFiles/bench_kuiper.dir/CXX.includecache
+
+331/bench/CMakeFiles/bench_kuiper.dir/depend.internal

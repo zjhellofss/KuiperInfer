@@ -79,7 +79,6 @@ StatusCode Convolution(const std::vector<std::shared_ptr<Tensor<float>>>& inputs
         LOG(ERROR) << "The channel of the weight and input is not adapting";
         return StatusCode::kInferParameterError;
       }
-
       arma::fmat& output_channel = output_data->slice(k);
       for (uint32_t ic = 0; ic < input_c; ++ic) {
         const arma::fmat& input_channel = input->slice(ic);
@@ -587,7 +586,6 @@ TEST(test_layer, conv3x3_fromtorch) {
   graph.Build();
   const uint32_t batch_size = 1;
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
-
   for (int i = 0; i < batch_size; ++i) {
     std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(18, 5, 5);
     std::vector<float> values;

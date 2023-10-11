@@ -19,30 +19,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Created by fss on 22-11-13.
+//
+// Created by fss on 23-10-11.
+//
 
-#ifndef KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_
-#define KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_
+#ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_DECONVOLUTION_H
+#define KUIPER_INFER_SOURCE_LAYER_DETAILS_DECONVOLUTION_H
 #include "base_convolution.hpp"
-#include "layer/abstract/param_layer.hpp"
-
+#include "data/tensor.hpp"
 namespace kuiper_infer {
-
-class ConvolutionLayer : public BaseConvolutionLayer {
+class DeconvolutionLayer : public BaseConvolutionLayer {
  public:
-  explicit ConvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
-                            uint32_t kernel_w, uint32_t padding_h, uint32_t padding_w,
-                            uint32_t stride_h, uint32_t stride_w, uint32_t groups,
-                            bool use_bias = true, uint32_t output_padding_h = 0,
-                            uint32_t output_padding_w = 0, uint32_t dilation_h = 1,
-                            uint32_t dilation_w = 1)
-      : BaseConvolutionLayer(ConvType::OpConv, output_channel, in_channel, kernel_h, kernel_w,
+  explicit DeconvolutionLayer(uint32_t output_channel, uint32_t in_channel, uint32_t kernel_h,
+                              uint32_t kernel_w, uint32_t padding_h, uint32_t padding_w,
+                              uint32_t stride_h, uint32_t stride_w, uint32_t groups,
+                              bool use_bias = true, uint32_t output_padding_h = 0,
+                              uint32_t output_padding_w = 0, uint32_t dilation_h = 1,
+                              uint32_t dilation_w = 1)
+      : BaseConvolutionLayer(ConvType::OpDeconv, output_channel, in_channel, kernel_h, kernel_w,
                              padding_h, padding_w, stride_h, stride_w, groups, use_bias,
                              output_padding_h, output_padding_w, dilation_h, dilation_w) {}
 
- private:
-  void InitIm2ColWeight() override;
+  void set_weights(const std::vector<float>& weights) override;
 
+  void set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights) override;
+
+ private:
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h, uint32_t kernel_w,
                      uint32_t kernel_count_group, uint32_t input_h, uint32_t input_w,
                      uint32_t channels_per_group, uint32_t output_h, uint32_t output_w,
@@ -52,16 +54,14 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                                                   uint32_t kernel_h,
                                                   uint32_t kernel_w) const override;
 
-  void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
-                    uint32_t kernel_index, uint32_t kernel_count_group, uint32_t output_h,
-                    uint32_t output_w) const;
+  void DeconvCol2ImBias(const arma::fmat& gemm_result, sftensor output_tensor, uint32_t input_h,
+                        uint32_t input_w, uint32_t group, uint32_t kernel_index,
+                        uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
+                        uint32_t output_h, uint32_t output_w) const;
 
-  arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w, uint32_t input_h,
-                        uint32_t input_w, uint32_t channels_per_group, uint32_t output_h,
-                        uint32_t output_w, uint32_t group, uint32_t row_len,
-                        uint32_t col_len) const;
+  arma::fmat DeconvGemm(const sftensor input, uint32_t input_h, uint32_t input_w,
+                        uint32_t channels_per_group, uint32_t group, uint32_t kernel_index,
+                        uint32_t kernel_count_group) const;
 };
-
 }  // namespace kuiper_infer
-
-#endif  // KUIPER_INFER_SOURCE_LAYER_CONVOLUTION_HPP_
+#endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_DECONVOLUTION_H

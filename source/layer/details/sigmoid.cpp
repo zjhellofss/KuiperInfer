@@ -45,6 +45,8 @@ StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
                   "layer do not match";
     return StatusCode::kInferInOutDimMismatch;
   }
+  using namespace kuiper_infer::activation;
+  ActivationFunc sigmoid_function = ApplySSEActivation(ActivationType::kActivationSigmoid);
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
@@ -63,8 +65,7 @@ StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
         << "The input and output tensor shapes of the sigmoid layer do not "
            "match "
         << i << " th";
-    using namespace kuiper_infer::activation;
-    ApplySSEActivation(ActivationType::kActivationSigmoid)(input, output);
+    sigmoid_function(input, output);
   }
   return StatusCode::kSuccess;
 }
