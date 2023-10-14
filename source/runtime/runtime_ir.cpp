@@ -60,7 +60,7 @@ bool RuntimeGraph::Init() {
     return false;
   }
 
-  this->operators_.clear();
+  operators_.clear();
   for (const pnnx::Operator* op : operators) {
     if (!op) {
       LOG(ERROR) << "Meet the empty node";
@@ -72,28 +72,16 @@ bool RuntimeGraph::Init() {
       runtime_operator->type = op->type;
 
       // 初始化算子中的input
-      const std::vector<pnnx::Operand*>& inputs = op->inputs;
-      if (!inputs.empty()) {
-        InitGraphOperatorsInput(inputs, runtime_operator);
-      }
+      InitGraphOperatorsInput(op->inputs, runtime_operator);
 
       // 记录输出operand中的名称
-      const std::vector<pnnx::Operand*>& outputs = op->outputs;
-      if (!outputs.empty()) {
-        InitGraphOperatorsOutput(outputs, runtime_operator);
-      }
+      InitGraphOperatorsOutput(op->outputs, runtime_operator);
 
       // 初始化算子中的attribute(权重)
-      const std::map<std::string, pnnx::Attribute>& attrs = op->attrs;
-      if (!attrs.empty()) {
-        InitGraphAttrs(attrs, runtime_operator);
-      }
+      InitGraphAttrs(op->attrs, runtime_operator);
 
       // 初始化算子中的parameter
-      const std::map<std::string, pnnx::Parameter>& params = op->params;
-      if (!params.empty()) {
-        InitGraphParams(params, runtime_operator);
-      }
+      InitGraphParams(op->params, runtime_operator);
       this->operators_.push_back(runtime_operator);
     }
   }
@@ -199,6 +187,10 @@ std::shared_ptr<Layer<float>> RuntimeGraph::CreateLayer(
 void RuntimeGraph::InitGraphOperatorsInput(
     const std::vector<pnnx::Operand*>& inputs,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+  if (inputs.empty()) {
+    return;
+  }
+
   for (const pnnx::Operand* input : inputs) {
     if (!input) {
       continue;
@@ -234,6 +226,10 @@ void RuntimeGraph::InitGraphOperatorsInput(
 void RuntimeGraph::InitGraphOperatorsOutput(
     const std::vector<pnnx::Operand*>& outputs,
     const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+  if (outputs.empty()) {
+    return;
+  }
+
   for (const pnnx::Operand* output : outputs) {
     if (!output) {
       continue;
@@ -247,6 +243,10 @@ void RuntimeGraph::InitGraphOperatorsOutput(
 
 void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>& params,
                                    const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+  if (params.empty()) {
+    return;
+  }
+
   for (const auto& [name, parameter] : params) {
     const int32_t type = parameter.type;
     switch (type) {
@@ -312,6 +312,9 @@ void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>&
 
 void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& attrs,
                                   const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+  if (attrs.empty()) {
+    return;
+  }
   for (const auto& [name, attr] : attrs) {
     switch (attr.type) {
       case 1: {
