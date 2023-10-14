@@ -195,6 +195,7 @@ void RuntimeGraph::InitGraphOperatorsInput(
     return;
   }
 
+  CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const pnnx::Operand* input : inputs) {
     if (!input) {
       continue;
@@ -234,6 +235,7 @@ void RuntimeGraph::InitGraphOperatorsOutput(
     return;
   }
 
+  CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const pnnx::Operand* output : outputs) {
     if (!output) {
       continue;
@@ -251,6 +253,7 @@ void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>&
     return;
   }
 
+  CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const auto& [name, parameter] : params) {
     const int32_t type = parameter.type;
     switch (type) {
@@ -319,6 +322,8 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   if (attrs.empty()) {
     return;
   }
+
+  CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const auto& [name, attr] : attrs) {
     switch (attr.type) {
       case 1: {
