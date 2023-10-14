@@ -126,10 +126,10 @@ void RuntimeGraph::Forward(bool debug) {
   using namespace utils;
   // 检查当前的执行图是否已经初始化完毕
   if (graph_state_ < GraphState::Complete) {
-    LOG(FATAL) << "Graph need be build!";
+    LOG(FATAL) << "Graph need be build!"
+               << ", current state is " << int32_t(graph_state_);
+    ;
   }
-  CHECK(graph_state_ == GraphState::Complete)
-      << "Graph status error, current state is " << int32_t(graph_state_);
 
   for (const auto& op : operators_) {
     op->has_forward = false;
