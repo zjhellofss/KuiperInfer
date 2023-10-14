@@ -123,12 +123,10 @@ void RuntimeGraph::Build() {
 }
 
 void RuntimeGraph::Forward(bool debug) {
-  using namespace utils;
   // 检查当前的执行图是否已经初始化完毕
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!"
                << ", current state is " << int32_t(graph_state_);
-    ;
   }
 
   for (const auto& op : operators_) {
@@ -137,7 +135,7 @@ void RuntimeGraph::Forward(bool debug) {
   }
 
   if (debug) {
-    LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
+    utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
 
   auto forward_layer = [&](const std::shared_ptr<Layer<float>>& layer, const std::string& op_name,
@@ -145,7 +143,7 @@ void RuntimeGraph::Forward(bool debug) {
     StatusCode status;
     if (debug) {
       {
-        LayerTimeLogging layer_time_logging(op_name, op_type);
+        utils::LayerTimeLogging layer_time_logging(op_name, op_type);
         status = layer->Forward();
       }
     } else {
@@ -174,7 +172,7 @@ void RuntimeGraph::Forward(bool debug) {
   }
 
   if (debug) {
-    LayerTimeLogging::SummaryLogging();
+    utils::LayerTimeLogging::SummaryLogging();
   }
 
   for (const auto& op : operators_) {
