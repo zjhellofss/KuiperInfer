@@ -163,7 +163,7 @@ class RuntimeGraph {
    *
    * @param root_op Root operator to start sort from
    */
-  void ReverseTopoSort_(const std::shared_ptr<RuntimeOperator>& root_op);
+  void ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op);
 
   /**
    * @brief Creates graph node relations
@@ -234,8 +234,9 @@ class RuntimeGraph {
    * @param current_op Current operator whose outputs will be propagated
    * @param layer_output_datas Output data from current operator
    */
-  static void ProbeNextLayer(const std::shared_ptr<RuntimeOperator>& current_op,
-                             const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
+  static void PropagateLayerOutputs(
+      const std::shared_ptr<RuntimeOperator>& current_op,
+      const std::vector<std::shared_ptr<Tensor<float>>>& layer_output_data);
 
  private:
   /**

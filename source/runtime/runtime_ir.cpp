@@ -129,11 +129,6 @@ void RuntimeGraph::Forward(bool debug) {
                << ", current state is " << int32_t(graph_state_);
   }
 
-  for (const auto& op : operators_) {
-    op->has_forward = false;
-    CHECK_GT(op->forward_index, 0);
-  }
-
   if (debug) {
     utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
@@ -153,6 +148,9 @@ void RuntimeGraph::Forward(bool debug) {
   };
 
   for (const auto& current_op : operators_) {
+    current_op->has_forward = false;
+    CHECK_GT(current_op->forward_index, 0);
+
     if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
       continue;
@@ -168,7 +166,7 @@ void RuntimeGraph::Forward(bool debug) {
         << layer->layer_name() << " layer forward failed, error code: " << int32_t(status);
 
     current_op->has_forward = true;
-    ProbeNextLayer(current_op, current_op->output_operands->datas);
+    PropagateLayerOutputs(current_op, current_op->output_operands->datas);
   }
 
   if (debug) {
@@ -194,7 +192,6 @@ void RuntimeGraph::InitGraphOperatorsInput(
   if (inputs.empty()) {
     return;
   }
-
   CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const pnnx::Operand* input : inputs) {
     if (!input) {
@@ -234,7 +231,6 @@ void RuntimeGraph::InitGraphOperatorsOutput(
   if (outputs.empty()) {
     return;
   }
-
   CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const pnnx::Operand* output : outputs) {
     if (!output) {
@@ -252,7 +248,6 @@ void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>&
   if (params.empty()) {
     return;
   }
-
   CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const auto& [name, parameter] : params) {
     const int32_t type = parameter.type;
@@ -322,7 +317,6 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   if (attrs.empty()) {
     return;
   }
-
   CHECK(runtime_operator != nullptr) << "The runtime operator is null pointer";
   for (const auto& [name, attr] : attrs) {
     switch (attr.type) {
@@ -339,8 +333,8 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   }
 }
 
-void RuntimeGraph::ProbeNextLayer(const std::shared_ptr<RuntimeOperator>& current_op,
-                                  const std::vector<sftensor>& layer_output_datas) {
+void RuntimeGraph::PropagateLayerOutputs(const std::shared_ptr<RuntimeOperator>& current_op,
+                                         const std::vector<sftensor>& layer_output_datas) {
   // For each next operator of current operator
   const auto& next_ops = current_op->output_operators;
   for (const auto& [_, next_op] : next_ops) {
@@ -368,7 +362,7 @@ void RuntimeGraph::ReverseTopoSort() {
   for (const auto& op : operators_) {
     // 根据输入节点构建拓扑排序
     if (!op->has_forward) {
-      this->ReverseTopoSort_(op);
+      this->ReverseTopoSortInternal(op);
     }
   }
 
@@ -384,7 +378,7 @@ void RuntimeGraph::ReverseTopoSort() {
   }
 }
 
-void RuntimeGraph::ReverseTopoSort_(const std::shared_ptr<RuntimeOperator>& root_op) {
+void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op) {
   CHECK(root_op != nullptr) << "current operator is nullptr";
   if (root_op->input_operands.empty() && !root_op->has_forward) {
     this->input_ops_.push_back(root_op);
@@ -398,7 +392,7 @@ void RuntimeGraph::ReverseTopoSort_(const std::shared_ptr<RuntimeOperator>& root
   for (const auto& [_, op] : next_ops) {
     if (op != nullptr) {
       if (!op->has_forward) {
-        this->ReverseTopoSort_(op);
+        this->ReverseTopoSortInternal(op);
       }
     }
   }
@@ -447,7 +441,7 @@ void RuntimeGraph::set_inputs(const std::string& input_name, const std::vector<s
     }
   }
   CHECK(input_op != nullptr) << "Can not find the input operator: " << input_name;
-  ProbeNextLayer(input_op, inputs);
+  PropagateLayerOutputs(input_op, inputs);
 }
 
 std::vector<sftensor> RuntimeGraph::get_outputs(const std::string& output_name) const {
