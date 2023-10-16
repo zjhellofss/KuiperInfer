@@ -120,7 +120,6 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
                 break;
               }
             }
-            CHECK_NE(tensor, nullptr) << "The output tensor create failed!";
             output_operand_datas.push_back(tensor);
           }
           runtime_op->output_operands =
