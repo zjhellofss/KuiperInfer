@@ -28,9 +28,9 @@
 #include "layer/abstract/param_layer.hpp"
 namespace kuiper_infer {
 enum class ConvType {
-  OpConvUnknown = -1,
-  OpConv = 0,    // 普通卷积
-  OpDeconv = 1,  // 转置卷积
+  kOpConvUnknown = -1,
+  kOpConv = 0,    // 普通卷积
+  kOpDeconv = 1,  // 转置卷积
 };
 
 class BaseConvolutionLayer : public ParamLayer {
@@ -78,7 +78,7 @@ class BaseConvolutionLayer : public ParamLayer {
   uint32_t dilation_h_ = 1;
   uint32_t dilation_w_ = 1;
 
-  ConvType conv_type_ = ConvType::OpConvUnknown;
+  ConvType conv_type_ = ConvType::kOpConvUnknown;
   std::vector<arma::frowvec> kernel_matrix_arr_;
 };
 }  // namespace kuiper_infer

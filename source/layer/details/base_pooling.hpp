@@ -19,31 +19,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Created by fss on 22-11-12.
+//
+// Created by fss on 23-10-20.
+//
 
-#ifndef KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
-#define KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
-#include "base_pooling.hpp"
+#ifndef KUIPER_INFER_SOURCE_LAYER_DETAILS_BASE_POOLING_HPP
+#define KUIPER_INFER_SOURCE_LAYER_DETAILS_BASE_POOLING_HPP
 #include "layer/abstract/non_param_layer.hpp"
+
 namespace kuiper_infer {
-class MaxPoolingLayer : public BasePoolingLayer{
- public:
-  explicit MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
-                           uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w);
 
-  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+enum class PoolingType {
+  kMaxPooling = 1,
+  kAveragePooling = 2,
+};
 
-  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
-                                   std::shared_ptr<Layer<float>>& max_layer);
+class BasePoolingLayer : public NonParamLayer {
+ protected:
+  explicit BasePoolingLayer(std::string layer_name) : NonParamLayer(std::move(layer_name)) {}
+
+  void ComputeOutput(const sftensor input_data, sftensor output_data, uint32_t input_padded_h,
+                     uint32_t input_padded_w, uint32_t input_c, uint32_t pooling_h,
+                     uint32_t pooling_w, uint32_t padding_h_, uint32_t padding_w_,
+                     uint32_t stride_h_, uint32_t stride_w_,
+                     kuiper_infer::PoolingType pooling_typ) const;
 
  private:
-  uint32_t padding_h_ = 0;
-  uint32_t padding_w_ = 0;
-  uint32_t pooling_size_h_ = 0;
-  uint32_t pooling_size_w_ = 0;
-  uint32_t stride_h_ = 1;
-  uint32_t stride_w_ = 1;
+  float ReduceMax(const std::vector<float>& window_values) const;
+
+  float ReduceAverage(const std::vector<float>& window_values) const;
 };
+
 }  // namespace kuiper_infer
-#endif  // KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
+#endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_BASE_POOLING_HPP

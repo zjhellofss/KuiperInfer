@@ -36,7 +36,7 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                             bool use_bias = true, uint32_t output_padding_h = 0,
                             uint32_t output_padding_w = 0, uint32_t dilation_h = 1,
                             uint32_t dilation_w = 1)
-      : BaseConvolutionLayer(ConvType::OpConv, output_channel, in_channel, kernel_h, kernel_w,
+      : BaseConvolutionLayer(ConvType::kOpConv, output_channel, in_channel, kernel_h, kernel_w,
                              padding_h, padding_w, stride_h, stride_w, groups, use_bias,
                              output_padding_h, output_padding_w, dilation_h, dilation_w) {}
 

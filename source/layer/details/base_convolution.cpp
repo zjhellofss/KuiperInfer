@@ -56,10 +56,10 @@ BaseConvolutionLayer::BaseConvolutionLayer(ConvType conv_type, uint32_t output_c
   CHECK_GT(dilation_h_, 0);
   CHECK_GT(dilation_w_, 0);
 
-  if (conv_type_ == ConvType::OpConv) {
+  if (conv_type_ == ConvType::kOpConv) {
     CHECK_EQ(output_padding_h_, 0);
     CHECK_EQ(output_padding_w_, 0);
-  } else if (conv_type_ == ConvType::OpDeconv) {
+  } else if (conv_type_ == ConvType::kOpDeconv) {
     if (dilation_h > 1) kernel_h = (kernel_h - 1) * (dilation_h_ - 1) + kernel_h;
     if (dilation_w > 1) kernel_w = (kernel_w - 1) * (dilation_w_ - 1) + kernel_w;
   } else {
@@ -136,7 +136,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
     return StatusCode::kInferParameterError;
   }
 
-  if (conv_type_ == ConvType::OpConv) {
+  if (conv_type_ == ConvType::kOpConv) {
     if (output_padding_h_ != 0 || output_padding_w_ != 0) {
       LOG(ERROR) << "The output padding in the convolution layer should be zero ";
       return StatusCode::kInferParameterError;
@@ -362,16 +362,16 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
     }
   }
 
-  ConvType conv_type = ConvType::OpConv;
+  ConvType conv_type = ConvType::kOpConv;
   if (op->type == "nn.Conv2d") {
-    conv_type = ConvType::OpConv;
+    conv_type = ConvType::kOpConv;
   } else if (op->type == "nn.ConvTranspose2d") {
-    conv_type = ConvType::OpDeconv;
+    conv_type = ConvType::kOpDeconv;
   } else {
     LOG(FATAL) << "Unknown convolution type: " << op->type;
   }
 
-  if (conv_type == ConvType::OpConv) {
+  if (conv_type == ConvType::kOpConv) {
     conv_layer = std::make_shared<ConvolutionLayer>(
         out_channel->value, in_channel->value, kernels.at(0), kernels.at(1), paddings.at(0),
         paddings.at(1), strides.at(0), strides.at(1), groups->value, use_bias->value,

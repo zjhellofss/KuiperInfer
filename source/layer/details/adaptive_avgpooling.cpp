@@ -27,7 +27,7 @@
 namespace kuiper_infer {
 
 AdaptiveAveragePoolingLayer::AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w)
-    : NonParamLayer("AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
+    : BasePoolingLayer("AdaptiveAveragePooling"), output_h_(output_h), output_w_(output_w) {
   CHECK_GT(output_h_, 0);
   CHECK_GT(output_w_, 0);
 }
@@ -94,27 +94,8 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
            "incorrectly sized tensor "
         << i << "th";
 
-    const uint32_t pooling_size = pooling_h * pooling_w;
-    for (uint32_t ic = 0; ic < input_c; ++ic) {
-      const arma::fmat& input_channel = input_data->slice(ic);
-      arma::fmat& output_channel = output_data->slice(ic);
-      for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w) {
-        uint32_t output_col = uint32_t(c / stride_w);
-        for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h) {
-          uint32_t output_row = uint32_t(r / stride_h);
-          float mean_value = 0.f;
-          float* output_channel_ptr = output_channel.colptr(output_col);
-          for (uint32_t w = 0; w < pooling_w; ++w) {
-            const float* col_ptr = input_channel.colptr(c + w) + r;
-            for (uint32_t h = 0; h < pooling_h; ++h) {
-              float current_value = *(col_ptr + h);
-              mean_value = mean_value + current_value;
-            }
-          }
-          *(output_channel_ptr + output_row) = mean_value / float(pooling_size);
-        }
-      }
-    }
+    ComputeOutput(input_data, output_data, input_h, input_w, input_c, pooling_h, pooling_w, 0, 0,
+                  stride_h, stride_w, PoolingType::kAveragePooling);
   }
   return StatusCode::kSuccess;
 }

@@ -166,9 +166,11 @@ StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperato
 }
 
 BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
-                                   const std::vector<float>& affine_weight,
-                                   const std::vector<float>& affine_bias)
-    : ParamLayer("Batchnorm"), affine_weight_(affine_weight), affine_bias_(affine_bias), eps_(eps) {
+                                   std::vector<float> affine_weight, std::vector<float> affine_bias)
+    : ParamLayer("Batchnorm"),
+      affine_weight_(std::move(affine_weight)),
+      affine_bias_(std::move(affine_bias)),
+      eps_(eps) {
   this->InitWeightParam(num_features, 1, 1, 1);
   this->InitBiasParam(num_features, 1, 1, 1);
 }
