@@ -118,12 +118,12 @@ StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
           float* output_channel_ptr = output_channel.colptr(output_col);
           float max_value = std::numeric_limits<float>::lowest();
           for (uint32_t w = 0; w < pooling_w; ++w) {
-            const float* col_ptr = input_channel.colptr(c + w - padding_w_);
+            const float* col_ptr = input_channel.colptr(c + w - padding_w_) + r;
             for (uint32_t h = 0; h < pooling_h; ++h) {
               float current_value = 0.f;
               if ((h + r >= padding_h_ && w + c >= padding_w_) &&
                   (h + r < input_h + padding_h_ && w + c < input_w + padding_w_)) {
-                current_value = *(col_ptr + r + h - padding_h_);
+                current_value = *(col_ptr + h - padding_h_);
               } else {
                 current_value = std::numeric_limits<float>::lowest();
               }
