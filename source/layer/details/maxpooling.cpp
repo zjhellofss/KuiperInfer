@@ -29,7 +29,7 @@ namespace kuiper_infer {
 
 MaxPoolingLayer::MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
                                  uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w)
-    : BasePoolingLayer("MaxPooling"),
+    : NonParamLayer("MaxPooling"),
       padding_h_(padding_h),
       padding_w_(padding_w),
       pooling_size_h_(pooling_size_h),
@@ -108,8 +108,32 @@ StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
            "has an incorrectly sized tensor "
         << i << "th";
 
-    ComputeOutput(input_data, output_data, input_h, input_w, input_c, pooling_h, pooling_w,
-                  padding_h_, padding_w_, stride_h_, stride_w_, PoolingType::kMaxPooling);
+    for (uint32_t ic = 0; ic < input_c; ++ic) {
+      const arma::fmat& input_channel = input_data->slice(ic);
+      arma::fmat& output_channel = output_data->slice(ic);
+      for (uint32_t c = 0; c < input_padded_w - pooling_w + 1; c += stride_w_) {
+        uint32_t output_col = uint32_t(c / stride_w_);
+        for (uint32_t r = 0; r < input_padded_h - pooling_h + 1; r += stride_h_) {
+          uint32_t output_row = uint32_t(r / stride_h_);
+          float* output_channel_ptr = output_channel.colptr(output_col);
+          float max_value = std::numeric_limits<float>::lowest();
+          for (uint32_t w = 0; w < pooling_w; ++w) {
+            const float* col_ptr = input_channel.colptr(c + w - padding_w_);
+            for (uint32_t h = 0; h < pooling_h; ++h) {
+              float current_value = 0.f;
+              if ((h + r >= padding_h_ && w + c >= padding_w_) &&
+                  (h + r < input_h + padding_h_ && w + c < input_w + padding_w_)) {
+                current_value = *(col_ptr + r + h - padding_h_);
+              } else {
+                current_value = std::numeric_limits<float>::lowest();
+              }
+              max_value = std::max(max_value, current_value);
+            }
+          }
+          *(output_channel_ptr + output_row) = max_value;
+        }
+      }
+    }
   }
   return StatusCode::kSuccess;
 }

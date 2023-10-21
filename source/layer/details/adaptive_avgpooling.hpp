@@ -23,10 +23,9 @@
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_AVGPOOLING_HPP_
 #define KUIPER_INFER_SOURCE_LAYER_AVGPOOLING_HPP_
-#include "base_pooling.hpp"
 #include "layer/abstract/non_param_layer.hpp"
 namespace kuiper_infer {
-class AdaptiveAveragePoolingLayer : public BasePoolingLayer {
+class AdaptiveAveragePoolingLayer : public NonParamLayer {
  public:
   explicit AdaptiveAveragePoolingLayer(uint32_t output_h, uint32_t output_w);
 

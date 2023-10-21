@@ -23,10 +23,9 @@
 
 #ifndef KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
 #define KUIPER_INFER_SOURCE_LAYER_MAX_POOLING_
-#include "base_pooling.hpp"
 #include "layer/abstract/non_param_layer.hpp"
 namespace kuiper_infer {
-class MaxPoolingLayer : public BasePoolingLayer{
+class MaxPoolingLayer : public NonParamLayer {
  public:
   explicit MaxPoolingLayer(uint32_t padding_h, uint32_t padding_w, uint32_t pooling_size_h,
                            uint32_t pooling_size_w, uint32_t stride_h, uint32_t stride_w);
