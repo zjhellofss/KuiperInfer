@@ -91,34 +91,31 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
                                         uint32_t output_w, uint32_t group, uint32_t row_len,
                                         uint32_t col_len) const {
   CHECK(input && !input->empty());
+  const float padding_value = 0.f;
   arma::fmat input_matrix(channels_per_group * row_len, col_len);
 
-  const float padding_value = 0.f;
 #pragma omp parallel for
   for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
     float* input_channel_ptr = input->matrix_raw_ptr(ic + group * channels_per_group);
     uint32_t current_col = 0;
     uint32_t channel_row = ic * row_len;
-    for (uint32_t w = 0, input_col = 0; w < output_w; ++w) {
-      for (uint32_t r = 0, input_row = 0; r < output_h; ++r) {
+    for (uint32_t w = 0, iw = 0; w < output_w; ++w, iw += stride_w_) {
+      for (uint32_t r = 0, ih = 0; r < output_h; ++r, ih += stride_h_) {
         float* input_matrix_ptr = input_matrix.colptr(current_col) + channel_row;
         current_col += 1;
         for (uint32_t kw = 0; kw < kernel_w * dilation_w_; kw += dilation_w_) {
-          const uint32_t region_w = input_h * (input_col + kw - padding_w_);
+          const uint32_t region_w = input_h * (iw + kw - padding_w_);
           for (uint32_t kh = 0; kh < kernel_h * dilation_h_; kh += dilation_h_) {
-            if ((kh + input_row >= padding_h_ && kw + input_col >= padding_w_) &&
-                (kh + input_row < input_h + padding_h_ && kw + input_col < input_w + padding_w_)) {
-              float* region_ptr = input_channel_ptr + region_w + (input_row + kh - padding_h_);
-              *input_matrix_ptr = *region_ptr;
+            if ((kh + ih >= padding_h_ && kw + iw >= padding_w_) &&
+                (kh + ih < input_h + padding_h_ && kw + iw < input_w + padding_w_)) {
+              float* region_ptr = input_channel_ptr + region_w + (ih + kh - padding_h_);
+              *(input_matrix_ptr++) = *region_ptr;
             } else {
-              *input_matrix_ptr = padding_value;  // only support zero mode
+              *(input_matrix_ptr++) = padding_value;  // only support zero mode
             }
-            input_matrix_ptr += 1;
           }
         }
-        input_row += stride_h_;
       }
-      input_col += stride_w_;
     }
   }
   return input_matrix;
@@ -137,7 +134,7 @@ void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix, sftensor out
   arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h, output_w, false, true);
   output = kernel * input_matrix;
 
-  AddBias(output, kernel_index);
+  return AddBias(output, kernel_index);
 }
 
 std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(const uint32_t input_h,

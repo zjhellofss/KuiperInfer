@@ -379,7 +379,10 @@ void RuntimeGraph::ReverseTopoSort() {
 }
 
 void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op) {
-  CHECK(root_op != nullptr) << "current operator is nullptr";
+  if (!root_op) {
+    LOG(INFO) << "Current operator is nullptr";
+    return;
+  }
   if (root_op->input_operands.empty() && !root_op->has_forward) {
     this->input_ops_.push_back(root_op);
   }
@@ -454,12 +457,12 @@ std::vector<sftensor> RuntimeGraph::get_outputs(const std::string& output_name) 
   }
 
   CHECK(output_op != nullptr) << "Can not find the output operator: " << output_name;
-  CHECK(output_op->input_operands_seq.size() == 1)
-      << "KuiperInfer only supports one output per operator.";
-
-  output_op->output_operands = output_op->input_operands_seq.front();
-  CHECK(output_op->output_operands != nullptr) << "Output from " << output_op->name << " is empty";
-  return output_op->output_operands->datas;
+  std::vector<sftensor> outputs;
+  for (const auto& input_operand : output_op->input_operands_seq) {
+    std::copy(input_operand->datas.begin(), input_operand->datas.end(),
+              std::back_inserter(outputs));
+  }
+  return outputs;
 }
 
 bool RuntimeGraph::is_input_op(const std::string& op_name) const {

@@ -78,7 +78,6 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
     } else if (operands_size > 1) {
       LOG(FATAL) << "Only support one node one output yet!";
     } else {
-      // 一个节点仅支持一个输出，实际上在pnnx中一个节点拥有两个不同输出的情况也是不存在的
       pnnx::Operand* operand = operands.front();
       const auto& runtime_op = operators.at(i);
 
