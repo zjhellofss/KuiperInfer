@@ -70,8 +70,7 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         input_token_nodes.push_back(inputs.at(i + input_start_pos));
       }
       op_stack.push(input_token_nodes);
-    } else if (current_token.token_type == TokenType::TokenAdd ||
-               current_token.token_type == TokenType::TokenMul) {
+    } else {
       // process operation
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
@@ -93,15 +92,17 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
         }
-      } else {
+        op_stack.push(output_token_nodes);
+      } else if (current_token.token_type == TokenType::TokenMul) {
 #pragma omp parallel for num_threads(batch_size)
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         }
+        op_stack.push(output_token_nodes);
+      } else {
+        LOG(FATAL) << "Unsupported operator type: " << int(current_token.token_type)
+                   << " in the expression layer.";
       }
-      op_stack.push(output_token_nodes);
-    } else {
-      continue;
     }
   }
   CHECK(op_stack.size() == 1) << "The expression has more than one output operand!";

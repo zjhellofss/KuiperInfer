@@ -250,6 +250,10 @@ TEST(test_layer, forward_flatten_layer8) {
   const auto status = flatten_layer.Forward(inputs, outputs);
   ASSERT_EQ(status, StatusCode::kSuccess);
   const auto& output = outputs.front();
+  const auto& raw_shapes = output->raw_shapes();
+  ASSERT_EQ(raw_shapes.size(), 2);
+  ASSERT_EQ(raw_shapes.at(0), 8);
+  ASSERT_EQ(raw_shapes.at(1), 16);
 
   uint32_t index = 0;
   for (uint32_t row = 0; row < output->rows(); ++row) {
