@@ -34,6 +34,8 @@ class ExpressionLayer : public NonParamLayer {
   StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
                      std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
+  bool TokenIsOperator(Token token) const;
+
   static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                    std::shared_ptr<Layer<float>>& expression_layer);
 

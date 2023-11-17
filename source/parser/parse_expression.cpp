@@ -114,7 +114,7 @@ void ExpressionParser::Tokenizer(bool retokenize) {
 
 const std::vector<Token>& ExpressionParser::tokens() const { return this->tokens_; }
 
-const std::vector<std::string>& ExpressionParser::token_strs() const { return this->token_strs_; }
+const std::vector<std::string>& ExpressionParser::token_str_array() const { return this->token_strs_; }
 
 std::shared_ptr<TokenNode> ExpressionParser::Generate_(int32_t& index) {
   CHECK(index < this->tokens_.size());

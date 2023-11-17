@@ -394,7 +394,7 @@ TEST(test_parser, tokenizer) {
   const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto& token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_str_array();
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
@@ -468,7 +468,7 @@ TEST(test_parser, tokenizer2) {
   const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto& token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_str_array();
   ASSERT_EQ(token_strs.empty(), false);
 
   ASSERT_EQ(token_strs.at(0), "add");
@@ -558,7 +558,7 @@ TEST(test_parser, tokenizer3) {
   const auto& tokens = parser.tokens();
   ASSERT_EQ(tokens.empty(), false);
 
-  const auto& token_strs = parser.token_strs();
+  const auto& token_strs = parser.token_str_array();
   ASSERT_EQ(token_strs.at(0), "add");
   ASSERT_EQ(tokens.at(0).token_type, TokenType::TokenAdd);
 

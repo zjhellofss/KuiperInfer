@@ -136,7 +136,7 @@ class ExpressionParser {
    *
    * @return The token strings
    */
-  const std::vector<std::string>& token_strs() const;
+  const std::vector<std::string>& token_str_array() const;
 
  private:
   std::shared_ptr<TokenNode> Generate_(int32_t& index);

@@ -32,6 +32,10 @@ ExpressionLayer::ExpressionLayer(std::string statement)
   parser_ = std::make_unique<ExpressionParser>(statement_);
 }
 
+bool ExpressionLayer::TokenIsOperator(Token token) const {
+  return token.token_type == TokenType::TokenAdd || token.token_type == TokenType::TokenMul;
+}
+
 StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
                                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
   if (inputs.empty()) {
@@ -47,8 +51,8 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
   CHECK(this->parser_ != nullptr) << "The parser in the expression layer is null!";
   this->parser_->Tokenizer(false);
   const auto& tokens = this->parser_->tokens();
-  const auto& token_strs = this->parser_->token_strs();
-  CHECK(!tokens.empty() && !token_strs.empty())
+  const auto& token_str_array = this->parser_->token_str_array();
+  CHECK(!tokens.empty() && !token_str_array.empty())
       << "The expression parser failed to parse " << statement_;
 
   const uint32_t batch_size = outputs.size();
@@ -57,7 +61,7 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
     const auto& current_token = *iter;
     // 如果是数据类型，就将对应分支的input插入到栈中
     if (current_token.token_type == TokenType::TokenInputNumber) {
-      std::string str_number = *(token_strs.rbegin() + std::distance(tokens.rbegin(), iter));
+      std::string str_number = *(token_str_array.rbegin() + std::distance(tokens.rbegin(), iter));
       str_number.erase(str_number.begin());
 
       int32_t input_branch = std::stoi(str_number);
@@ -70,7 +74,7 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         input_token_nodes.push_back(inputs.at(i + input_start_pos));
       }
       op_stack.push(input_token_nodes);
-    } else {
+    } else if (TokenIsOperator(current_token)) {
       // process operation
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
       std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
@@ -92,17 +96,13 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
         }
-        op_stack.push(output_token_nodes);
-      } else if (current_token.token_type == TokenType::TokenMul) {
+      } else {
 #pragma omp parallel for num_threads(batch_size)
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         }
-        op_stack.push(output_token_nodes);
-      } else {
-        LOG(FATAL) << "Unsupported operator type: " << int(current_token.token_type)
-                   << " in the expression layer.";
       }
+      op_stack.push(output_token_nodes);
     }
   }
   CHECK(op_stack.size() == 1) << "The expression has more than one output operand!";
