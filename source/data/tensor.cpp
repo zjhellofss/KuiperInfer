@@ -201,13 +201,12 @@ void Tensor<T>::Fill(const std::vector<T>& values, bool row_major) {
     const uint32_t rows = this->rows();
     const uint32_t cols = this->cols();
     const uint32_t planes = rows * cols;
-    const uint32_t channels = this->data_.n_slices;
+    const uint32_t channels = this->channels();
 
     for (uint32_t i = 0; i < channels; ++i) {
-      arma::Mat<T>& channel_data = this->data_.slice(i);
-      arma::Mat<T> channel_data_t((T*)values.data() + i * planes, this->cols(), this->rows(), false,
-                                  true);
-      channel_data = channel_data_t.t();
+      arma::Mat<T> channel_data_t(const_cast<T*>(values.data()) + i * planes, this->cols(),
+                                  this->rows(), false, true);
+      this->data_.slice(i) = channel_data_t.t();
     }
   } else {
     std::copy(values.begin(), values.end(), this->data_.memptr());
@@ -410,8 +409,9 @@ void Tensor<T>::Review(const std::vector<uint32_t>& shapes) {
       for (uint32_t src_row = 0; src_row < this->data_.n_rows; ++src_row) {
         const uint32_t pos_index = plane_start + src_row * data_.n_cols + src_col;
         const uint32_t dest_channel = pos_index / plane_size;
-        const uint32_t dest_row = (pos_index - dest_channel * plane_size) / target_cols;
-        const uint32_t dest_col = (pos_index - dest_channel * plane_size - dest_row * target_cols);
+        const uint32_t cube_size = dest_channel * plane_size;
+        const uint32_t dest_row = (pos_index - cube_size) / target_cols;
+        const uint32_t dest_col = (pos_index - cube_size - dest_row * target_cols);
         new_data.at(dest_row, dest_col, dest_channel) = *(col_ptr + src_row);
       }
     }

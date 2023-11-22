@@ -101,8 +101,8 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
       for (uint32_t c = 0; c < input_w - pooling_w + 1; c += stride_w) {
         uint32_t output_col = uint32_t(c / stride_w);
         for (uint32_t r = 0; r < input_h - pooling_h + 1; r += stride_h) {
-          uint32_t output_row = uint32_t(r / stride_h);
           float mean_value = 0.f;
+          uint32_t output_row = uint32_t(r / stride_h);
           float* output_channel_ptr = output_channel.colptr(output_col);
           for (uint32_t w = 0; w < pooling_w; ++w) {
             const float* col_ptr = input_channel.colptr(c + w) + r;
@@ -121,20 +121,20 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
 
 StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                                        std::shared_ptr<Layer<float>>& avg_layer) {
-  CHECK(op != nullptr) << "Adaptive pooling operator is nullptr";
+  CHECK(op != nullptr) << "The adaptive pooling operator is nullptr";
   const auto& params = op->params;
-  CHECK(!params.empty()) << "Operator parameter is empty";
+  CHECK(!params.empty()) << "The parameters of the operator are empty";
 
   auto output_size_param =
       std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("output_size"));
   if (!output_size_param) {
-    LOG(ERROR) << "Can not find the output size parameter";
+    LOG(ERROR) << "Can not find the output size parameter in the parameter list.";
     return StatusCode::kParameterMissing;
   }
 
   const auto& output_size_arr = output_size_param->value;
   if (output_size_arr.size() != 2) {
-    LOG(ERROR) << "Can not find the output size parameter";
+    LOG(ERROR) << "The dimension of the output size parameter should be 2.";
     return StatusCode::kParameterMissing;
   }
   avg_layer =

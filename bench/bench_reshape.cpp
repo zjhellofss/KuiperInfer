@@ -54,5 +54,15 @@ static void BM_ReshapeColMajor(benchmark::State& state) {
   }
 }
 
+static void BM_FillRowMajor(benchmark::State& state) {
+  using namespace kuiper_infer;
+  sftensor tensor = TensorCreate<float>({32, 320, 320});
+  std::vector<float> values(32 * 320 * 320, 1.f);
+  for (auto _ : state) {
+    tensor->Fill(values, true);
+  }
+}
+
+BENCHMARK(BM_FillRowMajor)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_ReshapeRowMajor)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_ReshapeColMajor)->Unit(benchmark::kMillisecond);

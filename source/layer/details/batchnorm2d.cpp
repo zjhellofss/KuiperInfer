@@ -86,13 +86,12 @@ StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     for (uint32_t i = 0; i < mean_value_size; ++i) {
       CHECK(weights_.at(i)->size() == 1 && bias_.at(i)->size() == 1);
       const float mean_value = weights_.at(i)->index(0);
-      const float var_value = bias_.at(i)->index(0);
       CHECK(input->channels() > i)
           << "In the batchnorm2d layer, too few channels for input tensor " << b << " th";
 
-      const float var_value_ = std::sqrt(var_value + eps_);
+      const float var_value = std::sqrt(bias_.at(i)->index(0) + eps_);
       output->slice(i) =
-          ((input->slice(i) - mean_value) / var_value_) * affine_weight_.at(i) + affine_bias_.at(i);
+          ((input->slice(i) - mean_value) / var_value) * affine_weight_.at(i) + affine_bias_.at(i);
     }
   }
   return StatusCode::kSuccess;
@@ -100,10 +99,10 @@ StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
 StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                             std::shared_ptr<Layer<float>>& batch_layer) {
-  CHECK(op != nullptr) << "BatchNorm get instance failed, operator is nullptr";
+  CHECK(op != nullptr) << "The batch norm layer create instance failed, operator is nullptr";
 
   const auto& params = op->params;
-  CHECK(!params.empty()) << "Operator parameter is empty";
+  CHECK(!params.empty()) << "The parameters of the operator is empty";
 
   if (params.find("eps") == params.end()) {
     LOG(ERROR) << "Can not find the eps parameter";

@@ -119,9 +119,12 @@ static void BM_Linear(benchmark::State& state) {
   const int32_t out_features = (int32_t)state.range(1);
   const int32_t in_dims = (int32_t)state.range(2);
 
-  LinearLayer linear_layer(in_features, out_features, false);
+  LinearLayer linear_layer(in_features, out_features, true);
   std::vector<float> weights(in_features * out_features, 1.f);
   linear_layer.set_weights(weights);
+
+  std::vector<float> bias(out_features, 3.f);
+  linear_layer.set_bias(bias);
 
   std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, in_dims, in_features);
   input->Fill(1.f);
