@@ -45,21 +45,21 @@ StatusCode CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& 
   const uint32_t output_size = outputs.size();
   if (inputs.size() % output_size != 0) {
     LOG(ERROR) << "The input and output tensor array size of cat layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   const uint32_t packet_size = inputs.size() / output_size;
 #pragma omp parallel for num_threads(outputs.size())
   for (uint32_t i = 0; i < outputs.size(); ++i) {
-    uint32_t start_channel = 0;
+    uint32_t copy_channel_offset = 0;
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     for (uint32_t j = i; j < inputs.size(); j += output_size) {
       const std::shared_ptr<Tensor<float>>& input = inputs.at(j);
       CHECK(input != nullptr && !input->empty()) << "The input tensor array in the cat layer has "
                                                     "an empty tensor "
                                                  << j << " th";
-      uint32_t in_rows = input->rows();
-      uint32_t in_cols = input->cols();
+      const uint32_t in_rows = input->rows();
+      const uint32_t in_cols = input->cols();
       const uint32_t in_channels = input->channels();
       CHECK(in_rows == input->rows() && in_cols == input->cols())
           << "The input tensor array in the cat layer "
@@ -76,9 +76,9 @@ StatusCode CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& 
              "has an incorrectly sized tensor "
           << i << " th";
       const uint32_t plane_size = in_rows * in_cols;
-      memcpy(output->raw_ptr(start_channel * plane_size), input->raw_ptr(),
+      memcpy(output->raw_ptr(copy_channel_offset * plane_size), input->raw_ptr(),
              sizeof(float) * plane_size * in_channels);
-      start_channel += input->channels();
+      copy_channel_offset += input->channels();
     }
   }
   return StatusCode::kSuccess;
@@ -86,23 +86,31 @@ StatusCode CatLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& 
 
 StatusCode CatLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                     std::shared_ptr<Layer<float>>& cat_layer) {
-  CHECK(op != nullptr) << "Cat operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The cat operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
-  CHECK(!params.empty()) << "Operator parameter is empty";
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the cat layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("dim") == params.end()) {
     LOG(ERROR) << "Can not find the dim parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto dim_param = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("dim"));
   if (!dim_param) {
     LOG(ERROR) << "Can not find the dim parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   const int32_t dim = dim_param->value;
   cat_layer = std::make_shared<CatLayer>(dim);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kCatCreateInstance("torch.cat", CatLayer::CreateInstance);
+LayerRegistererWrapper kCatCreateInstance(CatLayer::CreateInstance, "torch.cat");
 }  // namespace kuiper_infer

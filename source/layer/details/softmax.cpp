@@ -46,7 +46,7 @@ StatusCode SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the softmax "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -139,24 +139,33 @@ StatusCode SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 }
 StatusCode SoftmaxLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                         std::shared_ptr<Layer<float>>& softmax_layer) {
-  CHECK(op != nullptr) << "SoftMax operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The softmax operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the softmax layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("dim") == params.end()) {
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto dim_param = params.at("dim");
   if (dim_param == nullptr) {
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto dim = std::dynamic_pointer_cast<RuntimeParameterInt>(dim_param);
   if (dim == nullptr) {
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   softmax_layer = std::make_shared<SoftmaxLayer>(dim->value);  // 创建softmax层
   return StatusCode::kSuccess;
 }
-LayerRegistererWrapper kSoftMaxCreateInstanceNN("nn.Softmax", SoftmaxLayer::CreateInstance);
-LayerRegistererWrapper kSoftMaxCreateInstanceF("F.softmax", SoftmaxLayer::CreateInstance);
+LayerRegistererWrapper kSoftMaxCreateInstanceNN(SoftmaxLayer::CreateInstance, "F.softmax",
+                                                "nn.Softmax");
 }  // namespace kuiper_infer

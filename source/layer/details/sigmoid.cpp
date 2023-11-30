@@ -43,7 +43,7 @@ StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the sigmoid "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
   using namespace kuiper_infer::activation;
   ActivationFunc sigmoid_function = ApplySSEActivation(ActivationType::kActivationSigmoid);
@@ -72,10 +72,13 @@ StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
 StatusCode SigmoidLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                         std::shared_ptr<Layer<float>>& sigmoid_layer) {
-  CHECK(op != nullptr) << "Sigmoid operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The sigmoid operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
   sigmoid_layer = std::make_shared<SigmoidLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kSigmoidCreateInstance("nn.Sigmoid", SigmoidLayer::CreateInstance);
+LayerRegistererWrapper kSigmoidCreateInstance(SigmoidLayer::CreateInstance, "nn.Sigmoid");
 }  // namespace kuiper_infer

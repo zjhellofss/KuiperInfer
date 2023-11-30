@@ -55,7 +55,7 @@ StatusCode LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the linear "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   if (this->weights_.empty()) {
@@ -133,30 +133,42 @@ StatusCode LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>
 
 StatusCode LinearLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                        std::shared_ptr<Layer<float>>& linear_layer) {
-  CHECK(op != nullptr) << "The linear operator is nullptr.";
+  if (!op) {
+    LOG(ERROR) << "The linear operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the linear layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the use bias parameter in the parameter list.";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   auto use_bias_param = std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (use_bias_param == nullptr) {
     LOG(ERROR) << "Can not find the use bias parameter in the parameter list.";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   const auto& attr = op->attribute;
-  CHECK(!attr.empty()) << "The attributes of the operator is empty.";
+  if (attr.empty()) {
+    LOG_IF(ERROR, attr.empty()) << "The attributes of the operator is empty.";
+    return StatusCode::kParseWeightError;
+  }
 
   if (attr.find("weight") == attr.end()) {
     LOG(ERROR) << "Can not find the weight parameter in the parameter list.";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   if (use_bias_param->value) {
     if (attr.find("bias") == attr.end()) {
       LOG(ERROR) << "Can not find the bias parameter in the parameter list.";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
   }
 
@@ -165,7 +177,7 @@ StatusCode LinearLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& o
   const auto& shapes = weight->shape;
   if ((shapes.size() < 2)) {
     LOG(ERROR) << "The dimension of the linear weight parameter should be 2.";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   int32_t out_features = shapes.at(0);
@@ -182,6 +194,6 @@ StatusCode LinearLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& o
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kLinearCreateInstance("nn.Linear", LinearLayer::CreateInstance);
+LayerRegistererWrapper kLinearCreateInstance(LinearLayer::CreateInstance, "nn.Linear");
 
 }  // namespace kuiper_infer

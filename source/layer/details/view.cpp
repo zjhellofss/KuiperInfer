@@ -43,7 +43,7 @@ StatusCode ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the view "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -94,17 +94,26 @@ StatusCode ViewLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
 
 StatusCode ViewLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                      std::shared_ptr<Layer<float>>& view_layer) {
-  CHECK(op != nullptr) << "View operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
+  if (!op) {
+    LOG(ERROR) << "The view operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
+  const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the view layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("shape") == params.end()) {
     LOG(ERROR) << "View layer missing shape";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto shape = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("shape"));
   if (!shape) {
     LOG(ERROR) << "View layer missing shape";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   view_layer = std::make_shared<ViewLayer>(shape->value);
   return StatusCode::kSuccess;
@@ -113,6 +122,6 @@ StatusCode ViewLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
 ViewLayer::ViewLayer(std::vector<int32_t> shapes)
     : NonParamLayer("view"), shapes_(std::move(shapes)) {}
 
-LayerRegistererWrapper kViewCreateInstance("Tensor.view", ViewLayer::CreateInstance);
+LayerRegistererWrapper kViewCreateInstance(ViewLayer::CreateInstance, "Tensor.view");
 
 }  // namespace kuiper_infer

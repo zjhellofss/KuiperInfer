@@ -45,7 +45,7 @@ StatusCode SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the silu "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   using namespace kuiper_infer::activation;
@@ -73,11 +73,14 @@ StatusCode SiLULayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
 
 StatusCode SiLULayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                      std::shared_ptr<Layer<float>>& silu_layer) {
-  CHECK(op != nullptr) << "SiLU operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The SiLU operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
   silu_layer = std::make_shared<SiLULayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kSiluCreateInstance("nn.SiLU", SiLULayer::CreateInstance);
+LayerRegistererWrapper kSiluCreateInstance(SiLULayer::CreateInstance, "nn.SiLU");
 
 }  // namespace kuiper_infer

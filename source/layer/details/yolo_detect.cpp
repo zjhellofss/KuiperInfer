@@ -60,7 +60,7 @@ StatusCode YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
   if (input_size / batch_size != stages_ || input_size % batch_size != 0) {
     LOG(ERROR) << "The input and output tensor array size of the yolo detect "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages)
@@ -165,20 +165,26 @@ StatusCode YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
 StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                            std::shared_ptr<Layer<float>>& yolo_detect_layer) {
-  CHECK(op != nullptr) << "Yolo detect operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The yolo head operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
 
   const auto& attrs = op->attribute;
-  CHECK(!attrs.empty()) << "Operator attributes is empty!";
+  if (attrs.empty()) {
+    LOG(ERROR) << "The operator weight in the yolo head layer is empty.";
+    return StatusCode::kParseWeightError;
+  }
 
   if (attrs.find("pnnx_5") == attrs.end()) {
     LOG(ERROR) << "Can not find the in yolo strides attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   const auto& stages_attr = attrs.at("pnnx_5");
   if (stages_attr->shape.empty()) {
     LOG(ERROR) << "Can not find the in yolo strides attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   int32_t stages_number = stages_attr->shape.at(0);
@@ -195,7 +201,7 @@ StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
     const auto& anchor_grid_attr = attrs.find(pnnx_name);
     if (anchor_grid_attr == attrs.end()) {
       LOG(ERROR) << "Can not find the in yolo anchor grides attribute";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
     const auto& anchor_grid = anchor_grid_attr->second;
     const auto& anchor_shapes = anchor_grid->shape;
@@ -226,7 +232,7 @@ StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
     const auto& grid_attr = attrs.find(pnnx_name);
     if (grid_attr == attrs.end()) {
       LOG(ERROR) << "Can not find the in yolo grides attribute";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
 
     const auto& grid = grid_attr->second;
@@ -256,7 +262,7 @@ StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
     const std::string& weight_name = "m." + std::to_string(i) + ".weight";
     if (attrs.find(weight_name) == attrs.end()) {
       LOG(ERROR) << "Can not find the in weight attribute " << weight_name;
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
 
     const auto& conv_attr = attrs.at(weight_name);
@@ -283,7 +289,7 @@ StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
     const std::string& bias_name = "m." + std::to_string(i) + ".bias";
     if (attrs.find(bias_name) == attrs.end()) {
       LOG(ERROR) << "Can not find the in bias attribute";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
     const auto& bias_attr = attrs.at(bias_name);
     const std::vector<float>& bias = bias_attr->get<float>();
@@ -298,6 +304,6 @@ StatusCode YoloDetectLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kYoloCreateInstance("models.yolo.Detect", YoloDetectLayer::CreateInstance);
+LayerRegistererWrapper kYoloCreateInstance(YoloDetectLayer::CreateInstance, "models.yolo.Detect");
 
 }  // namespace kuiper_infer

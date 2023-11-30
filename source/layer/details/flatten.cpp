@@ -44,7 +44,7 @@ StatusCode FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the flatten "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   int32_t start_dim = start_dim_;
@@ -102,31 +102,39 @@ StatusCode FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
 StatusCode FlattenLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                         std::shared_ptr<Layer<float>>& flatten_layer) {
-  CHECK(op != nullptr) << "Flatten operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The flatten operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the flatten layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
 
   if (params.find("end_dim") == params.end()) {
     LOG(ERROR) << "Can not find the dimension parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("start_dim") == params.end()) {
     LOG(ERROR) << "Can not find the dimension parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto start_dim = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("start_dim"));
-
   auto end_dim = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("end_dim"));
 
   if (start_dim == nullptr || end_dim == nullptr) {
-    return StatusCode::kParameterMissing;
+    LOG(ERROR) << "The start or end dimension parameter in the flatten layer is empty.";
+    return StatusCode::kParseParameterError;
   }
 
   flatten_layer = std::make_shared<FlattenLayer>(start_dim->value, end_dim->value);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kFlattenCreateInstance("torch.flatten", FlattenLayer::CreateInstance);
+LayerRegistererWrapper kFlattenCreateInstance(FlattenLayer::CreateInstance, "torch.flatten");
 
 }  // namespace kuiper_infer

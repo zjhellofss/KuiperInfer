@@ -346,7 +346,7 @@ void RuntimeGraph::PropagateLayerOutputs(const std::shared_ptr<RuntimeOperator>&
       std::vector<sftensor>& next_input_datas = next_input_op_iter->second->datas;
       // Copy current op output data to next op input data
       for (uint32_t i = 0; i < next_input_datas.size(); ++i) {
-        sftensor layer_output_data = layer_output_datas.at(i);
+        const sftensor& layer_output_data = layer_output_datas.at(i);
         if (next_input_datas.at(i) != nullptr) {
           CHECK(next_input_datas.at(i)->shapes() == layer_output_data->shapes());
         }
@@ -393,10 +393,8 @@ void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator
   root_op->has_forward = true;
   const auto& next_ops = root_op->output_operators;
   for (const auto& [_, op] : next_ops) {
-    if (op != nullptr) {
-      if (!op->has_forward) {
-        this->ReverseTopoSortInternal(op);
-      }
+    if (op != nullptr && !op->has_forward) {
+      this->ReverseTopoSortInternal(op);
     }
   }
 

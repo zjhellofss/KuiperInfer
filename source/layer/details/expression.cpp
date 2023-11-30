@@ -96,18 +96,21 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
         }
-      } else {
+        op_stack.push(output_token_nodes);
+      } else if (current_token.token_type == TokenType::TokenMul) {
 #pragma omp parallel for num_threads(batch_size)
         for (uint32_t i = 0; i < batch_size; ++i) {
           output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
         }
+        op_stack.push(output_token_nodes);
+      } else {
+        LOG(FATAL) << "Unsupported operator type in the expression layer: "
+                   << int(current_token.token_type);
       }
-      op_stack.push(output_token_nodes);
     }
   }
   CHECK(op_stack.size() == 1) << "The expression has more than one output operand!";
   std::vector<sftensor> output_node = op_stack.top();
-  op_stack.pop();
   for (uint32_t i = 0; i < batch_size; ++i) {
     if (outputs.at(i) != nullptr && !outputs.at(i)->empty()) {
       CHECK(outputs.at(i)->shapes() == output_node.at(i)->shapes());
@@ -119,26 +122,35 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
 StatusCode ExpressionLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                            std::shared_ptr<Layer<float>>& expression_layer) {
-  CHECK(op != nullptr) << "Expression operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The expression operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the expression layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("expr") == params.end()) {
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto statement_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("expr"));
   if (statement_param == nullptr) {
     LOG(ERROR) << "Can not find the expression parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   if (statement_param->type != RuntimeParameterType::kParameterString) {
     LOG(ERROR) << "Can not find the expression parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   expression_layer = std::make_shared<ExpressionLayer>(statement_param->value);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kExpressionCreateInstance("pnnx.Expression",
-                                                 ExpressionLayer::CreateInstance);
+LayerRegistererWrapper kExpressionCreateInstance(ExpressionLayer::CreateInstance,
+                                                 "pnnx.Expression");
 }  // namespace kuiper_infer

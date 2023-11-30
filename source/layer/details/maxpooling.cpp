@@ -57,7 +57,7 @@ StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the maxpooling "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   if (!pooling_size_h_ || !pooling_size_w_) {
@@ -140,39 +140,48 @@ StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
 StatusCode MaxPoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                            std::shared_ptr<Layer<float>>& max_layer) {
-  CHECK(op != nullptr) << "MaxPooling get instance failed, operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
+  if (!op) {
+    LOG(ERROR) << "The maxpooling operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
+  const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the maxpooling layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto stride = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("padding") == params.end()) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto padding = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("kernel_size") == params.end()) {
     LOG(ERROR) << "Can not find the kernel size parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto kernel_size = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
   if (!kernel_size) {
     LOG(ERROR) << "Can not find the kernel size parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   const auto& padding_values = padding->value;
   const auto& stride_values = stride->value;
@@ -181,17 +190,17 @@ StatusCode MaxPoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
   const uint32_t dims = 2;
   if (padding_values.size() != dims) {
     LOG(ERROR) << "Can not find the right padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (stride_values.size() != dims) {
     LOG(ERROR) << "Can not find the right stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (kernel_values.size() != dims) {
     LOG(ERROR) << "Can not find the right kernel size parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   max_layer = std::make_shared<MaxPoolingLayer>(padding_values.at(0), padding_values.at(1),
@@ -201,6 +210,6 @@ StatusCode MaxPoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kMaxPoolingCreateInstance("nn.MaxPool2d", MaxPoolingLayer::CreateInstance);
+LayerRegistererWrapper kMaxPoolingCreateInstance(MaxPoolingLayer::CreateInstance, "nn.MaxPool2d");
 
 }  // namespace kuiper_infer

@@ -41,7 +41,7 @@ StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the batchnorm2d "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
@@ -99,31 +99,37 @@ StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
 StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                             std::shared_ptr<Layer<float>>& batch_layer) {
-  CHECK(op != nullptr) << "The batch norm layer create instance failed, operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The batchnorm operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
 
   const auto& params = op->params;
-  CHECK(!params.empty()) << "The parameters of the operator is empty";
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the batchnorm layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
 
   if (params.find("eps") == params.end()) {
     LOG(ERROR) << "Can not find the eps parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto eps = std::dynamic_pointer_cast<RuntimeParameterFloat>(params.at("eps"));
   if (!eps) {
     LOG(ERROR) << "Can not find the eps parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("num_features") == params.end()) {
     LOG(ERROR) << "Can not find the num features parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto num_features = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("num_features"));
   if (!num_features) {
     LOG(ERROR) << "Can not find the num features parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   // load weights
@@ -132,16 +138,16 @@ StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperato
 
   if (attrs.find("running_mean") == attrs.end()) {
     LOG(ERROR) << "Can not find the running mean attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the affine weight attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
   if (attrs.find("bias") == attrs.end()) {
     LOG(ERROR) << "Can not find the affine bias attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   const std::vector<float>& affine_weight = attrs.at("weight")->get<float>();
@@ -151,15 +157,23 @@ StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperato
 
   const auto& mean_attr = attrs.at("running_mean");
   const std::vector<float>& mean = mean_attr->get<float>();
+  if (mean.empty()) {
+    LOG(ERROR) << "The running mean weight in the batchnorm layer is empty!";
+    return StatusCode::kParseWeightError;
+  }
   batch_layer->set_weights(mean);
 
   if (attrs.find("running_var") == attrs.end()) {
-    LOG(ERROR) << "Can not find the running var attribute";
-    return StatusCode::kAttributeMissing;
+    LOG(ERROR) << "Can not find the running var weight.";
+    return StatusCode::kParseWeightError;
   }
 
   const auto& var_attr = attrs.at("running_var");
   const std::vector<float>& var = var_attr->get<float>();
+  if (var.empty()) {
+    LOG(ERROR) << "The running var weight in the batchnorm layer is empty!";
+    return StatusCode::kParseWeightError;
+  }
   batch_layer->set_bias(var);
   return StatusCode::kSuccess;
 }
@@ -174,7 +188,7 @@ BatchNorm2dLayer::BatchNorm2dLayer(uint32_t num_features, float eps,
   this->InitBiasParam(num_features, 1, 1, 1);
 }
 
-LayerRegistererWrapper kBatchNorm2dCreateInstance("nn.BatchNorm2d",
-                                                  BatchNorm2dLayer::CreateInstance);
+LayerRegistererWrapper kBatchNorm2dCreateInstance(BatchNorm2dLayer::CreateInstance,
+                                                  "nn.BatchNorm2d");
 
 }  // namespace kuiper_infer

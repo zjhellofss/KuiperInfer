@@ -42,7 +42,7 @@ StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardsigmoid "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   using namespace activation;
@@ -74,11 +74,14 @@ StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>
 
 StatusCode HardSigmoid::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                        std::shared_ptr<Layer<float>>& hardsigmoid_layer) {
-  CHECK(op != nullptr) << "HardSigmoid operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The hardsigmoid operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kHardSigmoidCreateInstance("nn.Hardsigmoid", HardSigmoid::CreateInstance);
+LayerRegistererWrapper kHardSigmoidCreateInstance(HardSigmoid::CreateInstance, "nn.Hardsigmoid");
 
 }  // namespace kuiper_infer

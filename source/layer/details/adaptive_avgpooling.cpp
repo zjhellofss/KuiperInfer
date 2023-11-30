@@ -48,7 +48,7 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the adaptive "
                   "pooling layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   if (!output_h_ || !output_w_) {
@@ -121,21 +121,28 @@ StatusCode AdaptiveAveragePoolingLayer::Forward(
 
 StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                                        std::shared_ptr<Layer<float>>& avg_layer) {
-  CHECK(op != nullptr) << "The adaptive pooling operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The adaptive pooling operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
-  CHECK(!params.empty()) << "The parameters of the operator are empty";
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the adaptive pooling layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
 
   auto output_size_param =
       std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("output_size"));
   if (!output_size_param) {
     LOG(ERROR) << "Can not find the output size parameter in the parameter list.";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   const auto& output_size_arr = output_size_param->value;
   if (output_size_arr.size() != 2) {
     LOG(ERROR) << "The dimension of the output size parameter should be 2.";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   avg_layer =
       std::make_shared<AdaptiveAveragePoolingLayer>(output_size_arr.at(0), output_size_arr.at(1));
@@ -143,6 +150,6 @@ StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<Run
 }
 
 LayerRegistererWrapper kAdaptiveAvgpoolingCreateInstance(
-    "nn.AdaptiveAvgPool2d", AdaptiveAveragePoolingLayer::CreateInstance);
+    AdaptiveAveragePoolingLayer::CreateInstance, "nn.AdaptiveAvgPool2d");
 
 }  // namespace kuiper_infer

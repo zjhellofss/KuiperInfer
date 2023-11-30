@@ -42,7 +42,7 @@ StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the hardswish "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   using namespace activation;
@@ -73,11 +73,14 @@ StatusCode HardSwishLayer::Forward(const std::vector<std::shared_ptr<Tensor<floa
 
 StatusCode HardSwishLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                           std::shared_ptr<Layer<float>>& hardswish_layer) {
-  CHECK(op != nullptr) << "HardSwishLayer operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The hardswish operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
   hardswish_layer = std::make_shared<HardSwishLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kHardSwishCreateInstance("nn.Hardswish", HardSwishLayer::CreateInstance);
+LayerRegistererWrapper kHardSwishCreateInstance(HardSwishLayer::CreateInstance, "nn.Hardswish");
 
 }  // namespace kuiper_infer

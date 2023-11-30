@@ -112,7 +112,7 @@ std::pair<uint32_t, uint32_t> DeconvolutionLayer::ComputeOutputSize(const uint32
   return {output_h, output_w};
 }
 
-arma::fmat DeconvolutionLayer::DeconvGemm(const sftensor input, uint32_t input_h, uint32_t input_w,
+arma::fmat DeconvolutionLayer::DeconvGemm(const sftensor& input, uint32_t input_h, uint32_t input_w,
                                           uint32_t channels_per_group, uint32_t group,
                                           uint32_t kernel_index,
                                           uint32_t kernel_count_group) const {
@@ -146,15 +146,16 @@ void DeconvolutionLayer::DeconvCol2ImBias(const arma::fmat& gemm_result, sftenso
 
   arma::fmat output_padding(output_h + 2 * padding_h_, output_w + 2 * padding_w_);
 
-  uint32_t slide_count_w = input_w;
-  uint32_t slide_count_h = input_h;
-
-  for (uint32_t index = 0; index < slide_count_w * slide_count_h; ++index) {
-    uint32_t x = index / slide_count_h;
-    uint32_t y = index % slide_count_h;
+  uint32_t slide_w = input_w;
+  uint32_t slide_h = input_h;
+  uint32_t slide_size = slide_h * slide_w;
+  for (uint32_t index = 0; index < slide_size; ++index) {
+    uint32_t x = index / slide_h;
+    uint32_t y = index % slide_h;
     const uint32_t offset_x = x * stride_w_;
     const uint32_t offset_y = y * stride_h_;
-    arma::fmat gemm_column((float*)gemm_result.colptr(index), kernel_h, kernel_w, false, true);
+    arma::fmat gemm_column(const_cast<float*>(gemm_result.colptr(index)), kernel_h, kernel_w, false,
+                           true);
 
     uint32_t gemm_rows = gemm_column.n_rows;
     uint32_t gemm_cols = gemm_column.n_cols;
@@ -174,9 +175,9 @@ void DeconvolutionLayer::DeconvCol2ImBias(const arma::fmat& gemm_result, sftenso
   output = output_padding.submat(padding_h_, padding_w_, output_h + padding_h_ - 1,
                                  output_w + padding_w_ - 1);
 
-  AddBias(output, kernel_index);
+  return AddBias(output, kernel_index);
 }
 
-LayerRegistererWrapper kDeConvCreateInstance("nn.ConvTranspose2d",
-                                             BaseConvolutionLayer::CreateInstance);
+LayerRegistererWrapper kDeConvCreateInstance(BaseConvolutionLayer::CreateInstance,
+                                             "nn.ConvTranspose2d");
 }  // namespace kuiper_infer

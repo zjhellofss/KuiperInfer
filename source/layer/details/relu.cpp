@@ -40,7 +40,7 @@ StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the relu "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   using namespace activation;
@@ -66,10 +66,14 @@ StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>&
 }
 StatusCode ReluLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                      std::shared_ptr<Layer<float>>& relu_layer) {
-  CHECK(op != nullptr) << "Relu operator is nullptr";
+  if (!op) {
+    LOG(ERROR) << "The relu operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   relu_layer = std::make_shared<ReluLayer>();
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kReluCreateInstance("nn.ReLU", ReluLayer::CreateInstance);
+LayerRegistererWrapper kReluCreateInstance(ReluLayer::CreateInstance, "nn.ReLU");
 }  // namespace kuiper_infer

@@ -104,7 +104,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the convolution "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   if (weights_.empty()) {
@@ -178,7 +178,9 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
     const uint32_t input_c = input->channels();
     CHECK(input_h > 0 && input_w > 0 && input_c > 0);
 
-    const auto [output_h, output_w] = ComputeOutputSize(input_h, input_w, kernel_h, kernel_w);
+    const auto& output_size = ComputeOutputSize(input_h, input_w, kernel_h, kernel_w);
+    const uint32_t output_h = output_size.first;
+    const uint32_t output_w = output_size.second;
     CHECK(output_h > 0 && output_w > 0)
         << "The size of the output tensor should be greater than zero " << i << " th";
 
@@ -212,19 +214,26 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
 
 StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                                 std::shared_ptr<Layer<float>>& conv_layer) {
-  CHECK(op != nullptr) << "Convolution operator is nullptr";
-  const std::map<std::string, std::shared_ptr<RuntimeParameter>>& params = op->params;
+  if (!op) {
+    LOG(ERROR) << "The convolution operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
+  const auto& params = op->params;
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the convolution layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
 
   if (params.find("dilation") == params.end()) {
     LOG(ERROR) << "Can not find the dilation parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto dilation_param = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("dilation"));
-
   if (dilation_param == nullptr || dilation_param->value.size() != 2) {
     LOG(ERROR) << "Can not find the dilation parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   const uint32_t dilation_h = dilation_param->value.at(0);
@@ -232,64 +241,64 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
 
   if (params.find("in_channels") == params.end()) {
     LOG(ERROR) << "Can not find the in channel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   auto in_channel = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("in_channels"));
   if (!in_channel) {
     LOG(ERROR) << "Can not find the in channel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("out_channels") == params.end()) {
     LOG(ERROR) << "Can not find the out channel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto out_channel = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("out_channels"));
   if (!out_channel) {
     LOG(ERROR) << "Can not find the out channel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("padding") == params.end()) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto padding = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("padding"));
   if (!padding) {
     LOG(ERROR) << "Can not find the padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("bias") == params.end()) {
     LOG(ERROR) << "Can not find the bias parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   auto use_bias = std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("bias"));
   if (!use_bias) {
     LOG(ERROR) << "Can not find the bias parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("stride") == params.end()) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   auto stride = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("stride"));
   if (!stride) {
     LOG(ERROR) << "Can not find the stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (params.find("kernel_size") == params.end()) {
     LOG(ERROR) << "Can not find the kernel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
   auto kernel = std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("kernel_size"));
   if (!kernel) {
     LOG(ERROR) << "Can not find the kernel parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (op->type == "nn.Conv2d") {
@@ -298,29 +307,29 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
           std::dynamic_pointer_cast<RuntimeParameterString>(params.at("padding_mode"));
       if (padding_mode == nullptr) {
         LOG(ERROR) << "Can not find the padding parameter";
-        return StatusCode::kParameterMissing;
+        return StatusCode::kParseParameterError;
       } else {
         const std::string& padding_mode_str = padding_mode->value;
         if (padding_mode_str != "zeros") {
           LOG(ERROR) << "Padding mode unsupported: " << padding_mode_str;
-          return StatusCode::kParameterMissing;
+          return StatusCode::kParseParameterError;
         }
       }
     } else {
       LOG(ERROR) << "Can not find the padding parameter";
-      return StatusCode::kParameterMissing;
+      return StatusCode::kParseParameterError;
     }
   }
 
   if (params.find("groups") == params.end()) {
     LOG(ERROR) << "Can not find the groups parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto groups = std::dynamic_pointer_cast<RuntimeParameterInt>(params.at("groups"));
   if (!groups) {
     LOG(ERROR) << "Can not find the groups parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   const uint32_t dims = 2;
@@ -329,17 +338,17 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
   const std::vector<int32_t>& strides = stride->value;
   if (paddings.size() != dims) {
     LOG(ERROR) << "Can not find the right padding parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (strides.size() != dims) {
     LOG(ERROR) << "Can not find the right stride parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   if (kernels.size() != dims) {
     LOG(ERROR) << "Can not find the right kernel size parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   uint32_t output_padding_h = 0;
@@ -349,16 +358,16 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
       auto output_padding_arr =
           std::dynamic_pointer_cast<RuntimeParameterIntArray>(params.at("output_padding"));
       if (!output_padding_arr) {
-        return StatusCode::kParameterMissing;
+        return StatusCode::kParseParameterError;
       } else {
         if (output_padding_arr->value.size() != 2) {
-          return StatusCode::kParameterMissing;
+          return StatusCode::kParseParameterError;
         }
         output_padding_h = output_padding_arr->value.at(0);
         output_padding_w = output_padding_arr->value.at(1);
       }
     } else {
-      return StatusCode::kParameterMissing;
+      return StatusCode::kParseParameterError;
     }
   }
 
@@ -368,7 +377,8 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
   } else if (op->type == "nn.ConvTranspose2d") {
     conv_type = ConvType::kOpDeconv;
   } else {
-    LOG(FATAL) << "Unknown convolution type: " << op->type;
+    LOG(ERROR) << "Unknown convolution type: " << op->type;
+    return StatusCode::kParseParameterError;
   }
 
   if (conv_type == ConvType::kOpConv) {
@@ -388,13 +398,13 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
   if (use_bias->value) {
     if (attrs.find("bias") == attrs.end()) {
       LOG(ERROR) << "Can not find the bias attribute";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
     const auto& bias = attrs.at("bias");
     const std::vector<int32_t>& bias_shape = bias->shape;
     if (bias_shape.empty() || bias_shape.at(0) != out_channel->value) {
       LOG(ERROR) << "The attribute of bias shape is wrong";
-      return StatusCode::kAttributeMissing;
+      return StatusCode::kParseWeightError;
     }
 
     const std::vector<float>& bias_values = bias->get<float>();
@@ -403,14 +413,14 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
 
   if (attrs.find("weight") == attrs.end()) {
     LOG(ERROR) << "Can not find the weight attribute";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   const auto& weight = attrs.at("weight");
   const std::vector<int32_t>& weight_shape = weight->shape;
   if (weight_shape.empty()) {
     LOG(ERROR) << "The attribute of weight shape is wrong";
-    return StatusCode::kAttributeMissing;
+    return StatusCode::kParseWeightError;
   }
 
   const std::vector<float>& weight_values = weight->get<float>();

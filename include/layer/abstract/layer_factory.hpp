@@ -89,9 +89,19 @@ class LayerRegisterer {
  */
 class LayerRegistererWrapper {
  public:
-  LayerRegistererWrapper(const std::string& layer_type, const LayerRegisterer::Creator& creator) {
+  explicit LayerRegistererWrapper(const LayerRegisterer::Creator& creator,
+                                  const std::string& layer_type) {
     LayerRegisterer::RegisterCreator(layer_type, creator);
   }
+
+  template <typename... Ts>
+  explicit LayerRegistererWrapper(const LayerRegisterer::Creator& creator,
+                                  const std::string& layer_type, const Ts&... other_layer_types)
+      : LayerRegistererWrapper(creator, other_layer_types...) {
+    LayerRegisterer::RegisterCreator(layer_type, creator);
+  }
+
+  explicit LayerRegistererWrapper(const LayerRegisterer::Creator& creator) {}
 };
 
 /**

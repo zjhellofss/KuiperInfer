@@ -48,8 +48,8 @@ void ConvolutionLayer::InitIm2ColWeight() {
   }
 
   std::vector<arma::frowvec> kernel_matrix_arr(kernel_count);
-  arma::frowvec kernel_matrix_c(row_len * kernel_c);
   for (uint32_t k = 0; k < kernel_count; ++k) {
+    arma::frowvec kernel_matrix_c(row_len * kernel_c);
     const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
     for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
       memcpy(kernel_matrix_c.memptr() + row_len * ic, kernel->matrix_raw_ptr(ic),
@@ -152,6 +152,6 @@ std::pair<uint32_t, uint32_t> ConvolutionLayer::ComputeOutputSize(const uint32_t
   return {output_h, output_w};
 }
 
-LayerRegistererWrapper kConvCreateInstance("nn.Conv2d", BaseConvolutionLayer::CreateInstance);
+LayerRegistererWrapper kConvCreateInstance(BaseConvolutionLayer::CreateInstance, "nn.Conv2d");
 
 }  // namespace kuiper_infer

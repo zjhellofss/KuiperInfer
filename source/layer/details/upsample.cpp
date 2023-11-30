@@ -74,12 +74,7 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the upsample "
                   "layer do not match";
-    return StatusCode::kInferInOutDimMismatch;
-  }
-
-  if (this->mode_ != UpSampleMode::kModeNearest && this->mode_ != UpSampleMode::kModeBilinear) {
-    LOG(ERROR) << "Unsupported upsample mode: " << int32_t(mode_);
-    return StatusCode::kInferParameterError;
+    return StatusCode::kInferInOutShapeMismatch;
   }
 
   const uint32_t batch_size = inputs.size();
@@ -111,85 +106,94 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
         << i << "th";
 
     const uint32_t channels = input_data.n_slices;
-    if (mode_ == UpSampleMode::kModeNearest) {
+    switch (mode_) {
+      case UpSampleMode::kModeNearest: {
 #pragma omp parallel for
-      for (uint32_t c = 0; c < channels; ++c) {
-        const arma::fmat& input_channel = input_data.slice(c);
-        arma::fmat& output_channel = output_data.slice(c);
+        for (uint32_t c = 0; c < channels; ++c) {
+          const arma::fmat& input_channel = input_data.slice(c);
+          arma::fmat& output_channel = output_data.slice(c);
 
-        const uint32_t input_w = input_channel.n_cols;
-        const uint32_t input_h = input_channel.n_rows;
-        const uint32_t output_w = output_channel.n_cols;
-        const uint32_t output_h = output_channel.n_rows;
-        for (uint32_t w = 0; w < input_w; ++w) {
-          const float* input_col_ptr = input_channel.colptr(w);
-          const uint32_t scaled_w = w * static_cast<uint32_t>(scale_w_);
-          for (uint32_t sw = 0; sw < static_cast<uint32_t>(scale_w_); ++sw) {
-            if (scaled_w + sw >= output_w) {
-              continue;
-            }
-            float* output_col_ptr = output_channel.colptr(scaled_w + sw);
-            for (uint32_t h = 0; h < input_h; ++h) {
-              const uint32_t scaled_h = h * static_cast<uint32_t>(scale_h_);
-              float* output_ptr = output_col_ptr + scaled_h;
-              float input_value = *(input_col_ptr + h);
-              for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_); ++sh) {
-                if (scaled_h + sh < output_h) {
-                  *(output_ptr + sh) = input_value;
+          const uint32_t input_w = input_channel.n_cols;
+          const uint32_t input_h = input_channel.n_rows;
+          const uint32_t output_w = output_channel.n_cols;
+          const uint32_t output_h = output_channel.n_rows;
+          for (uint32_t w = 0; w < input_w; ++w) {
+            const float* input_col_ptr = input_channel.colptr(w);
+            const uint32_t scaled_w = w * static_cast<uint32_t>(scale_w_);
+            for (uint32_t sw = 0; sw < static_cast<uint32_t>(scale_w_); ++sw) {
+              if (scaled_w + sw >= output_w) {
+                continue;
+              }
+              float* output_col_ptr = output_channel.colptr(scaled_w + sw);
+              for (uint32_t h = 0; h < input_h; ++h) {
+                const uint32_t scaled_h = h * static_cast<uint32_t>(scale_h_);
+                float* output_ptr = output_col_ptr + scaled_h;
+                float input_value = *(input_col_ptr + h);
+                for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_); ++sh) {
+                  if (scaled_h + sh < output_h) {
+                    *(output_ptr + sh) = input_value;
+                  }
                 }
               }
             }
           }
         }
+        break;
       }
-    } else {
+      case UpSampleMode::kModeBilinear: {
 #pragma omp parallel for
-      for (uint32_t c = 0; c < channels; ++c) {
-        const arma::fmat& input_channel = input_data.slice(c);
-        arma::fmat& output_channel = output_data.slice(c);
+        for (uint32_t c = 0; c < channels; ++c) {
+          const arma::fmat& input_channel = input_data.slice(c);
+          arma::fmat& output_channel = output_data.slice(c);
 
-        const uint32_t input_w = input_channel.n_cols;
-        const uint32_t input_h = input_channel.n_rows;
-        const uint32_t output_w = output_channel.n_cols;
-        const uint32_t output_h = output_channel.n_rows;
-        float div_scale_h = 1.f;
-        float div_scale_w = 1.f;
-        if (!is_align_corner_) {
-          div_scale_h = 1.f / scale_h_;
-          div_scale_w = 1.f / scale_w_;
-        } else {
-          CHECK(input_h > 0 && input_w > 0);
-          CHECK(output_h > 0 && output_w > 0);
+          const uint32_t input_w = input_channel.n_cols;
+          const uint32_t input_h = input_channel.n_rows;
+          const uint32_t output_w = output_channel.n_cols;
+          const uint32_t output_h = output_channel.n_rows;
+          float div_scale_h = 1.f;
+          float div_scale_w = 1.f;
+          if (!is_align_corner_) {
+            div_scale_h = 1.f / scale_h_;
+            div_scale_w = 1.f / scale_w_;
+          } else {
+            CHECK(input_h > 0 && input_w > 0);
+            CHECK(output_h > 0 && output_w > 0);
 
-          div_scale_h = static_cast<float>(input_h - 1) / static_cast<float>(output_h - 1);
-          div_scale_w = static_cast<float>(input_w - 1) / static_cast<float>(output_w - 1);
-        }
-        for (uint32_t w = 0; w < output_w; ++w) {
-          float w0_lambda = 0.f;
-          float w1_lambda = 0.f;
-          int32_t input_w0 = 0;
-          int32_t input_w1 = 0;
-          float* output_ptr = output_channel.colptr(w);
-          CalcIndexAndLambda(static_cast<int32_t>(input_w), static_cast<int32_t>(output_w),
-                             div_scale_w, static_cast<int32_t>(w), w0_lambda, w1_lambda, input_w0,
-                             input_w1, is_align_corner_);
-          const float* input_ptr0 = input_channel.colptr(input_w0);
-          const float* input_ptr1 = input_channel.colptr(input_w1);
-          for (uint32_t h = 0; h < output_h; ++h) {
-            float h0_lambda = 0.f;
-            float h1_lambda = 0.f;
-            int32_t input_h0 = 0;
-            int32_t input_h1 = 0;
-            CalcIndexAndLambda(static_cast<int32_t>(input_h), static_cast<int32_t>(output_h),
-                               div_scale_h, static_cast<int32_t>(h), h0_lambda, h1_lambda, input_h0,
-                               input_h1, is_align_corner_);
+            div_scale_h = static_cast<float>(input_h - 1) / static_cast<float>(output_h - 1);
+            div_scale_w = static_cast<float>(input_w - 1) / static_cast<float>(output_w - 1);
+          }
+          for (uint32_t w = 0; w < output_w; ++w) {
+            float w0_lambda = 0.f;
+            float w1_lambda = 0.f;
+            int32_t input_w0 = 0;
+            int32_t input_w1 = 0;
+            float* output_ptr = output_channel.colptr(w);
+            CalcIndexAndLambda(static_cast<int32_t>(input_w), static_cast<int32_t>(output_w),
+                               div_scale_w, static_cast<int32_t>(w), w0_lambda, w1_lambda, input_w0,
+                               input_w1, is_align_corner_);
+            const float* input_ptr0 = input_channel.colptr(input_w0);
+            const float* input_ptr1 = input_channel.colptr(input_w1);
+            for (uint32_t h = 0; h < output_h; ++h) {
+              float h0_lambda = 0.f;
+              float h1_lambda = 0.f;
+              int32_t input_h0 = 0;
+              int32_t input_h1 = 0;
+              CalcIndexAndLambda(static_cast<int32_t>(input_h), static_cast<int32_t>(output_h),
+                                 div_scale_h, static_cast<int32_t>(h), h0_lambda, h1_lambda,
+                                 input_h0, input_h1, is_align_corner_);
 
-            *(output_ptr + h) = h0_lambda * w0_lambda * (*(input_ptr0 + input_h0)) +
-                                h0_lambda * w1_lambda * (*(input_ptr1 + input_h0)) +
-                                h1_lambda * w0_lambda * (*(input_ptr0 + input_h1)) +
-                                h1_lambda * w1_lambda * (*(input_ptr1 + input_h1));
+              *(output_ptr + h) = h0_lambda * w0_lambda * (*(input_ptr0 + input_h0)) +
+                                  h0_lambda * w1_lambda * (*(input_ptr1 + input_h0)) +
+                                  h1_lambda * w0_lambda * (*(input_ptr0 + input_h1)) +
+                                  h1_lambda * w1_lambda * (*(input_ptr1 + input_h1));
+            }
           }
         }
+        break;
+      }
+      default: {
+        LOG(FATAL) << "Unsupported upsample mode in the upsample layer: " << int32_t(mode_);
+        break;
       }
     }
   }
@@ -198,35 +202,47 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
 
 StatusCode UpSampleLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                          std::shared_ptr<Layer<float>>& upsample_layer) {
-  CHECK(op != nullptr) << "Upsample operator is null";
+  if (!op) {
+    LOG(ERROR) << "The upsample operator parameter in the layer is null pointer.";
+    return StatusCode::kParseOperatorNullParam;
+  }
+
   const auto& params = op->params;
-  CHECK(!params.empty()) << "Operator parameter is empty";
+  if (params.empty()) {
+    LOG(ERROR) << "The operator parameter in the upsample layer is empty.";
+    return StatusCode::kParseParameterError;
+  }
+
   if (params.find("scale_factor") == params.end()) {
     LOG(ERROR) << "Can not find the scale factor parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
   auto scales = std::dynamic_pointer_cast<RuntimeParameterFloatArray>(params.at("scale_factor"));
   if (scales == nullptr) {
     LOG(ERROR) << "Can not find the scale factor parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
-  CHECK(scales->value.size() == 2) << "Scale factor need two dimension";
+
+  if (scales->value.size() != 2) {
+    LOG(ERROR) << "Scale factor need two dimension";
+    return StatusCode::kParseParameterError;
+  }
 
   if (params.find("mode") == params.end()) {
     LOG(ERROR) << "Can not find the mode parameter";
-    return StatusCode::kParameterMissing;
+    return StatusCode::kParseParameterError;
   }
 
-  auto mode_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
-
   UpSampleMode mode;
+  auto mode_param = std::dynamic_pointer_cast<RuntimeParameterString>(params.at("mode"));
   if (mode_param->value == "nearest") {
     mode = UpSampleMode::kModeNearest;
   } else if (mode_param->value == "bilinear") {
     mode = UpSampleMode::kModeBilinear;
   } else {
-    LOG(FATAL) << "The mode " << mode_param->value << " is not supported!";
+    LOG(ERROR) << "The mode " << mode_param->value << " is not supported!";
+    return StatusCode::kParseParameterError;
   }
 
   bool is_align_corner = false;
@@ -234,7 +250,7 @@ StatusCode UpSampleLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>&
     auto align_corner_param =
         std::dynamic_pointer_cast<RuntimeParameterBool>(params.at("align_corners"));
     if (!align_corner_param) {
-      return StatusCode::kParameterMissing;
+      return StatusCode::kParseParameterError;
     }
     is_align_corner = align_corner_param->value;
   }
@@ -242,13 +258,15 @@ StatusCode UpSampleLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>&
   const float scale_h = scales->value.at(0);
   const float scale_w = scales->value.at(1);
   // scale放大的倍数大于0
-  CHECK_GT(scale_h, 0.f);
-  CHECK_GT(scale_w, 0.f);
+  if (scale_h <= 0 || scale_w <= 0) {
+    LOG(ERROR) << "The parameter scale height and scale width should be greater than zero.";
+    return StatusCode::kParseParameterError;
+  }
 
   upsample_layer = std::make_shared<UpSampleLayer>(scale_h, scale_w, mode, is_align_corner);
   return StatusCode::kSuccess;
 }
 
-LayerRegistererWrapper kUpSamplerCreateInstance("nn.Upsample", UpSampleLayer::CreateInstance);
-LayerRegistererWrapper kUpSamplerFCreateInstance("F.upsample", UpSampleLayer::CreateInstance);
+LayerRegistererWrapper kUpSamplerCreateInstance(UpSampleLayer::CreateInstance, "nn.Upsample",
+                                                "F.upsample");
 }  // namespace kuiper_infer

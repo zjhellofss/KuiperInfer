@@ -28,6 +28,7 @@ namespace kuiper_infer {
 LayerRegisterer::CreateRegistry* LayerRegisterer::registry_ = nullptr;
 
 void LayerRegisterer::RegisterCreator(const std::string& layer_type, const Creator& creator) {
+  CHECK(!layer_type.empty());
   CHECK(creator != nullptr);
   CreateRegistry* registry = Registry();
   CHECK_EQ(registry->count(layer_type), 0)
