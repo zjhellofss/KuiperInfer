@@ -18,31 +18,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-//
-// Created by fss on 23-7-26.
-//
 
-#ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
-#define KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
-#include <armadillo>
-#include "data/tensor.hpp"
-#include "utils/math/fmath.hpp"
+// Created by fss on 22-11-18.
+
+#ifndef KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU6_HPP_
+#define KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU6_HPP_
+#include "layer/abstract/non_param_layer.hpp"
 namespace kuiper_infer {
-namespace activation {
-enum class ActivationType {
-  kActivatetionUnknown = -1,
-  kActivationRelu = 0,
-  kActivationSilu = 1,
-  kActivationSigmoid = 2,
-  kActivationHardSwish = 3,
-  kActivationHardSigmoid = 4,
-  kActivationRelu6 = 6,
+class Relu6Layer : public NonParamLayer {
+ public:
+  Relu6Layer() : NonParamLayer("Relu6") {}
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+
+  static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
+                                   std::shared_ptr<Layer<float>>& relu_layer);
 };
-
-using ActivationFunc = std::function<void(sftensor, sftensor)>;
-
-ActivationFunc ApplySSEActivation(ActivationType act_type);
-
-}  // namespace activation
 }  // namespace kuiper_infer
-#endif  // KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
+#endif  // KUIPER_INFER_SOURCE_LAYER_BINOCULAR_RELU_HPP_

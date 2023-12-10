@@ -150,6 +150,6 @@ StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<Run
 }
 
 LayerRegistererWrapper kAdaptiveAvgpoolingCreateInstance(
-    AdaptiveAveragePoolingLayer::CreateInstance, "nn.AdaptiveAvgPool2d");
+    AdaptiveAveragePoolingLayer::CreateInstance, "nn.AdaptiveAvgPool2d", "F.adaptive_avg_pool2d");
 
 }  // namespace kuiper_infer

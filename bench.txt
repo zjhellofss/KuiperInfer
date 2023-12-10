@@ -361,7 +361,7 @@
             |                     |                     |          
             |                     |                      --0.60%--0x7f5cad9a574a
             |                     |          
-            |                      --0.72%--kuiper_infer::ReluLayer::Forward
+            |                      --0.72%--kuiper_infer::Relu6Layer::Forward
             |          
              --0.53%--GOMP_parallel
 
@@ -389,7 +389,7 @@
             |                                |                     |          
             |                                |                      --0.60%--0x7f5cad9a574a
             |                                |          
-            |                                 --0.73%--kuiper_infer::ReluLayer::Forward
+            |                                 --0.73%--kuiper_infer::Relu6Layer::Forward
             |          
              --1.01%--kuiper_infer::ConvolutionLayer::Forward
 
@@ -436,7 +436,7 @@
                                                 |                     |          
                                                 |                      --0.60%--0x7f5cad9a574a
                                                 |          
-                                                 --0.74%--kuiper_infer::ReluLayer::Forward
+                                                 --0.74%--kuiper_infer::Relu6Layer::Forward
 
      0.03%     0.00%  bench_kuiper  libstdc++.so.6.0.30    
      0.00%     0.00%  bench_kuiper  libblas.so.3           

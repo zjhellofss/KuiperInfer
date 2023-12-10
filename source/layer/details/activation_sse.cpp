@@ -107,6 +107,47 @@ static void ReluSSE(sftensor input, sftensor output) {
   }
 }
 
+static void Relu6SSE(sftensor input, sftensor output) {
+  CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
+  CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
+  CHECK(input->size() == output->size()) << "The input and output sizes are not equal.";
+  int64_t j = 0;
+  int64_t packet_size = 4;
+  int64_t size = static_cast<int64_t>(input->size());
+  const float* in_ptr = input->raw_ptr();
+  float* out_ptr = output->raw_ptr();
+#ifndef __AVX2__
+  packet_size = 8;
+  __m256 _zero = _mm256_setzero_ps();
+  __m256 _six = _mm256_set1_ps(6.f);
+
+  for (j = 0; j <= size - packet_size; j += packet_size) {
+    __m256 _p = _mm256_loadu_ps(in_ptr);
+    __m256 _value = _mm256_min_ps(_mm256_max_ps(_zero, _p), _six);
+    _mm256_storeu_ps(out_ptr, _value);
+    in_ptr += packet_size;
+    out_ptr += packet_size;
+  }
+#elif __SSE__
+  __m128 _zero = _mm_setzero_ps();
+  __m128 _six = _mm_set1_ps(6.f);
+  for (j = 0; j <= size - packet_size; j += packet_size) {
+    __m128 _p = _mm_loadu_ps(in_ptr);
+    __m128 _value = _mm_min_ps(_mm_max_ps(_zero, _p), _six);
+    _mm_storeu_ps(out_ptr, _value);
+    in_ptr += packet_size;
+    out_ptr += packet_size;
+  }
+#endif
+  if (j < size) {
+    while (j < size) {
+      float value = input->index(j);
+      output->index(j) = std::min(std::max(value, 0.f), 6.f);
+      j += 1;
+    }
+  }
+}
+
 static void SiluSSE(sftensor input, sftensor output) {
   CHECK(input != nullptr && output != nullptr) << "The input or output tensor is empty.";
   CHECK(!input->empty() && !output->empty()) << "The input or output tensor is empty.";
@@ -313,6 +354,10 @@ ActivationFunc ApplySSEActivation(ActivationType act_type) {
   switch (act_type) {
     case ActivationType::kActivationRelu: {
       function = ReluSSE;
+      return function;
+    }
+    case ActivationType::kActivationRelu6: {
+      function = Relu6SSE;
       return function;
     }
     case ActivationType::kActivationSigmoid: {

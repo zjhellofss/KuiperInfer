@@ -249,7 +249,7 @@ static void BM_ReLU(benchmark::State& state) {
   std::vector<sftensor> inputs;
   inputs.push_back(input);
 
-  ReluLayer relu_layer;
+  Relu6Layer relu_layer;
   for (auto _ : state) {
     relu_layer.Forward(inputs, outputs);
   }
