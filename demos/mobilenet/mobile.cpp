@@ -87,7 +87,10 @@ int main(int argc, char* argv[]) {
     sftensor input = PreProcessImage(image);
     inputs.push_back(input);
   }
-
+  /**
+  https://cowtransfer.com/s/a10a87ffd40640 点击链接查看 [ mobilenet_v2.pnnx.param ] ，
+  或访问奶牛快传 cowtransfer.com 输入传输口令 951tw8 查看；
+  */
   const std::string& param_path = "tmp/mobilenet/mobilenet_v2.pnnx.param";
   const std::string& weight_path = "tmp/mobilenet/mobilenet_v2.pnnx.bin";
   RuntimeGraph graph(param_path, weight_path);
