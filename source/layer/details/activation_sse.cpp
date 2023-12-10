@@ -116,7 +116,7 @@ static void Relu6SSE(sftensor input, sftensor output) {
   int64_t size = static_cast<int64_t>(input->size());
   const float* in_ptr = input->raw_ptr();
   float* out_ptr = output->raw_ptr();
-#ifndef __AVX2__
+#ifdef __AVX2__
   packet_size = 8;
   __m256 _zero = _mm256_setzero_ps();
   __m256 _six = _mm256_set1_ps(6.f);
