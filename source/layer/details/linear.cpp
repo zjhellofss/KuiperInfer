@@ -97,7 +97,7 @@ StatusCode LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>
     CHECK(weight_data.n_cols == in_features && in_features == in_features_)
         << "The col of weight tensor should be same to input features.";
 
-    arma::fmat input_vec((float*)input->raw_ptr(), feature_dims, in_features_, false, true);
+    arma::fmat input_vec(input->raw_ptr(), feature_dims, in_features_, false, true);
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, out_features_, feature_dims);

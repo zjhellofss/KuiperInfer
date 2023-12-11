@@ -336,10 +336,9 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
 void RuntimeGraph::PropagateLayerOutputs(const std::shared_ptr<RuntimeOperator>& current_op,
                                          const std::vector<sftensor>& layer_output_datas) {
   // For each next operator of current operator
-  const auto& next_ops = current_op->output_operators;
-  for (const auto& [_, next_op] : next_ops) {
+  for (const auto& [_, output_op] : current_op->output_operators) {
     // Get next op's input operands corresponding to current op's output
-    const auto& next_input_operands = next_op->input_operands;
+    const auto& next_input_operands = output_op->input_operands;
     const auto& next_input_op_iter = next_input_operands.find(current_op->name);
     if (next_input_op_iter != next_input_operands.end()) {
       // Get input data spaces for those operands
