@@ -30,44 +30,8 @@ namespace kuiper_infer {
 
 StatusCode SigmoidLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
                                  std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
-  if (inputs.empty()) {
-    LOG(ERROR) << "The input tensor array in the sigmoid layer is empty";
-    return StatusCode::kInferInputsEmpty;
-  }
-
-  if (outputs.empty()) {
-    LOG(ERROR) << "The output tensor array in the sigmoid layer is empty";
-    return StatusCode::kInferOutputsEmpty;
-  }
-
-  if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the sigmoid "
-                  "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
-  }
-  using namespace kuiper_infer::activation;
-  ActivationFunc sigmoid_function = ApplySSEActivation(ActivationType::kActivationSigmoid);
-
-  const uint32_t batch_size = inputs.size();
-#pragma omp parallel for num_threads(batch_size)
-  for (uint32_t i = 0; i < batch_size; ++i) {
-    const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
-    CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the sigmoid layer has an empty tensor " << i << "th";
-
-    std::shared_ptr<Tensor<float>> output = outputs.at(i);
-    if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->shapes());
-      outputs.at(i) = output;
-    }
-
-    CHECK(output->shapes() == input->shapes())
-        << "The input and output tensor shapes of the sigmoid layer do not "
-           "match "
-        << i << " th";
-    sigmoid_function(input, output);
-  }
-  return StatusCode::kSuccess;
+  using namespace activation;
+  return ActivationForward(ActivationType::kActivationSigmoid, inputs, outputs);
 }
 
 StatusCode SigmoidLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,

@@ -29,47 +29,8 @@ HardSigmoid::HardSigmoid() : NonParamLayer("HardSigmoid") {}
 
 StatusCode HardSigmoid::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
                                 std::vector<std::shared_ptr<Tensor<float>>>& outputs) {
-  if (inputs.empty()) {
-    LOG(ERROR) << "The input tensor array in the hardsigmoid layer is empty";
-    return StatusCode::kInferInputsEmpty;
-  }
-
-  if (outputs.empty()) {
-    LOG(ERROR) << "The output tensor array in the hardsigmoid layer is empty";
-    return StatusCode::kInferOutputsEmpty;
-  }
-
-  if (inputs.size() != outputs.size()) {
-    LOG(ERROR) << "The input and output tensor array size of the hardsigmoid "
-                  "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
-  }
-
   using namespace activation;
-  ActivationFunc hardsigmoid_function = ApplySSEActivation(ActivationType::kActivationHardSigmoid);
-
-  const uint32_t batch = inputs.size();
-#pragma omp parallel for num_threads(batch)
-  for (uint32_t i = 0; i < batch; ++i) {
-    const std::shared_ptr<Tensor<float>>& input = inputs.at(i);
-    CHECK(input != nullptr && !input->empty())
-        << "The input tensor array in the hardsigmoid layer has an "
-           "empty tensor "
-        << i << " th";
-
-    std::shared_ptr<Tensor<float>> output = outputs.at(i);
-    if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input->channels(), input->rows(), input->cols());
-      outputs.at(i) = output;
-    }
-
-    CHECK(output->shapes() == input->shapes())
-        << "The output and input shapes of the hardsigmoid layer do "
-           "not match "
-        << i << " th";
-    hardsigmoid_function(input, output);
-  }
-  return StatusCode::kSuccess;
+  return ActivationForward(ActivationType::kActivationHardSigmoid, inputs, outputs);
 }
 
 StatusCode HardSigmoid::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,

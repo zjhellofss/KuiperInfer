@@ -77,13 +77,15 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
     } else if (TokenIsOperator(current_token)) {
       // process operation
       CHECK(op_stack.size() >= 2) << "The number of operand is less than two";
-      std::vector<std::shared_ptr<Tensor<float>>> input_node1 = op_stack.top();
+      std::shared_ptr<Tensor<float>> (*function)(const std::shared_ptr<Tensor<float>>& tensor1,
+                                                 const std::shared_ptr<Tensor<float>>& tensor2);
+      std::vector<std::shared_ptr<Tensor<float>>> input_node1(std::move(op_stack.top()));
       CHECK(input_node1.size() == batch_size)
           << "The first operand doesn't have appropriate number of tensors, "
              "which need "
           << batch_size;
       op_stack.pop();
-      std::vector<std::shared_ptr<Tensor<float>>> input_node2 = op_stack.top();
+      std::vector<std::shared_ptr<Tensor<float>>> input_node2(std::move(op_stack.top()));
       CHECK(input_node2.size() == batch_size)
           << "The second operand doesn't have appropriate number of tensors, "
              "which need "
@@ -92,21 +94,18 @@ StatusCode ExpressionLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
 
       std::vector<std::shared_ptr<Tensor<float>>> output_token_nodes(batch_size);
       if (current_token.token_type == TokenType::TokenAdd) {
-#pragma omp parallel for num_threads(batch_size)
-        for (uint32_t i = 0; i < batch_size; ++i) {
-          output_token_nodes.at(i) = TensorElementAdd(input_node1.at(i), input_node2.at(i));
-        }
-        op_stack.push(output_token_nodes);
+        function = TensorElementAdd;
       } else if (current_token.token_type == TokenType::TokenMul) {
-#pragma omp parallel for num_threads(batch_size)
-        for (uint32_t i = 0; i < batch_size; ++i) {
-          output_token_nodes.at(i) = TensorElementMultiply(input_node1.at(i), input_node2.at(i));
-        }
-        op_stack.push(output_token_nodes);
+        function = TensorElementMultiply;
       } else {
         LOG(FATAL) << "Unsupported operator type in the expression layer: "
                    << int(current_token.token_type);
       }
+#pragma omp parallel for num_threads(batch_size)
+      for (uint32_t i = 0; i < batch_size; ++i) {
+        output_token_nodes.at(i) = function(input_node1.at(i), input_node2.at(i));
+      }
+      op_stack.push(output_token_nodes);
     }
   }
   CHECK(op_stack.size() == 1) << "The expression has more than one output operand!";

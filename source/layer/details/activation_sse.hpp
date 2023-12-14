@@ -25,22 +25,11 @@
 #ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #define KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #include <armadillo>
+#include "activation.hpp"
 #include "data/tensor.hpp"
 #include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 namespace activation {
-enum class ActivationType {
-  kActivatetionUnknown = -1,
-  kActivationRelu = 0,
-  kActivationSilu = 1,
-  kActivationSigmoid = 2,
-  kActivationHardSwish = 3,
-  kActivationHardSigmoid = 4,
-  kActivationRelu6 = 6,
-};
-
-using ActivationFunc = std::function<void(sftensor, sftensor)>;
-
 ActivationFunc ApplySSEActivation(ActivationType act_type);
 
 }  // namespace activation
