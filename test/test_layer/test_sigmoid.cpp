@@ -118,7 +118,7 @@ TEST(test_layer, forward_sigmoid4) {
 
 TEST(test_layer, forward_sigmoid5) {
   using namespace kuiper_infer;
-  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 128);
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(1, 1, 125);
   input->RandN();
   std::vector<std::shared_ptr<Tensor<float>>> inputs;
   inputs.push_back(input);
