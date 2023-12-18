@@ -41,6 +41,8 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                              output_padding_h, output_padding_w, dilation_h, dilation_w) {}
 
  private:
+  bool IsSpecial1x1Conv(uint32_t kernel_h, uint32_t kernel_w) const;
+
   void InitIm2ColWeight() override;
 
   void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h, uint32_t kernel_w,

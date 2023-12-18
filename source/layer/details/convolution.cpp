@@ -30,6 +30,16 @@
 
 namespace kuiper_infer {
 
+bool ConvolutionLayer::IsSpecial1x1Conv(uint32_t kernel_h, uint32_t kernel_w) const {
+  if (stride_h_ == 1 && stride_w_ == 1 && dilation_h_ == 1 && dilation_w_ == 1 && kernel_w == 1 &&
+      kernel_h == 1) {
+    if (padding_w_ == 0 && padding_h_ == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
 void ConvolutionLayer::InitIm2ColWeight() {
   const uint32_t kernel_count = this->weights_.size();
   CHECK(kernel_count > 0) << "kernel count must greater than zero";
@@ -92,9 +102,13 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
                                         uint32_t col_len) const {
   CHECK(input && !input->empty()) << "The input tensor of the im2col function cannot be empty.";
   const float padding_value = 0.f;
+  if (IsSpecial1x1Conv(kernel_h, kernel_w)) {
+    arma::fmat input_matrix(input->raw_ptr(), col_len, channels_per_group * row_len, false, true);
+    return input_matrix.t();
+  }
+
   const uint32_t channels_offset = group * channels_per_group;
   arma::fmat input_matrix(channels_per_group * row_len, col_len);
-
 #pragma omp parallel for
   for (uint32_t ic = 0; ic < channels_per_group; ++ic) {
     float* input_channel_ptr = input->matrix_raw_ptr(ic + channels_offset);

@@ -265,6 +265,43 @@ TEST(test_layer, convolution3x3x32_stride1x1_padding0) {
   }
 }
 
+TEST(test_layer, convolution1x1x3_stride1x1_padding0) {
+  const uint32_t batch_size = 1;
+  std::vector<sftensor> inputs(batch_size);
+  std::vector<sftensor> outputs1(batch_size);
+  std::vector<sftensor> outputs2(batch_size);
+
+  const uint32_t in_channel = 5;
+  for (uint32_t i = 0; i < batch_size; ++i) {
+    inputs.at(i) = std::make_shared<ftensor>(in_channel, 151, 233);
+    inputs.at(i)->RandN();
+  }
+  const uint32_t kernel_h = 1;
+  const uint32_t kernel_w = 1;
+  const uint32_t stride_h = 1;
+  const uint32_t stride_w = 1;
+  const uint32_t kernel_count = 37;
+  std::vector<sftensor> weights;
+  for (uint32_t i = 0; i < kernel_count; ++i) {
+    sftensor kernel = std::make_shared<ftensor>(in_channel, kernel_h, kernel_w);
+    kernel->RandN();
+    weights.push_back(kernel);
+  }
+  Convolution(inputs, outputs1, stride_h, stride_w, weights);
+  ConvolutionLayer conv_layer(kernel_count, in_channel, kernel_h, kernel_w, 0, 0, stride_h,
+                              stride_w, 1, false);
+  conv_layer.set_weights(weights);
+  conv_layer.Forward(inputs, outputs2);
+  ASSERT_EQ(outputs1.size(), outputs2.size());
+  for (uint32_t i = 0; i < outputs1.size(); ++i) {
+    ASSERT_EQ(outputs1.at(i)->size(), outputs2.at(i)->size());
+    const uint32_t output_size = outputs1.at(i)->size();
+    for (uint32_t j = 0; j < output_size; ++j) {
+      ASSERT_LE(std::abs(outputs1.at(i)->index(j) - outputs2.at(i)->index(j)), 1e-4);
+    }
+  }
+}
+
 TEST(test_layer, convolution3x5x32_stride1x3_padding2) {
   const uint32_t batch_size = 8;
   std::vector<sftensor> inputs(batch_size);
@@ -548,7 +585,7 @@ TEST(test_layer, convolution1x1x1_stride1x1_padding0) {
 
   const uint32_t in_channel = 31;
   for (uint32_t i = 0; i < batch_size; ++i) {
-    inputs.at(i) = std::make_shared<ftensor>(in_channel, 4, 4);
+    inputs.at(i) = std::make_shared<ftensor>(in_channel, 41, 4);
     inputs.at(i)->RandN();
   }
   const uint32_t kernel_h = 1;

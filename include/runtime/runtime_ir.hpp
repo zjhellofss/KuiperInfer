@@ -163,7 +163,8 @@ class RuntimeGraph {
    *
    * @param root_op Root operator to start sort from
    */
-  void ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op);
+  void ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op,
+                               int32_t& current_forward_idx);
 
   /**
    * @brief Creates graph node relations
@@ -257,7 +258,6 @@ class RuntimeGraph {
   GraphState graph_state() const;
 
  private:
-  int32_t start_forward_index_ = 0;
   std::string bin_path_;
   std::string param_path_;
   std::unique_ptr<pnnx::Graph> graph_;

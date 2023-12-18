@@ -357,11 +357,11 @@ void RuntimeGraph::PropagateLayerOutputs(const std::shared_ptr<RuntimeOperator>&
 
 void RuntimeGraph::ReverseTopoSort() {
   // 构建拓扑顺序
-  start_forward_index_ = 0;
   for (const auto& op : operators_) {
     // 根据输入节点构建拓扑排序
-    if (!op->has_forward) {
-      this->ReverseTopoSortInternal(op);
+    if (op != nullptr && !op->has_forward) {
+      int32_t current_forward_idx = 0;
+      this->ReverseTopoSortInternal(op, current_forward_idx);
     }
   }
 
@@ -377,7 +377,8 @@ void RuntimeGraph::ReverseTopoSort() {
   }
 }
 
-void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op) {
+void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op,
+                                           int32_t& current_forward_idx) {
   if (!root_op) {
     LOG(INFO) << "Current operator is nullptr";
     return;
@@ -393,15 +394,15 @@ void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator
   const auto& next_ops = root_op->output_operators;
   for (const auto& [_, op] : next_ops) {
     if (op != nullptr && !op->has_forward) {
-      this->ReverseTopoSortInternal(op);
+      this->ReverseTopoSortInternal(op, current_forward_idx);
     }
   }
 
   for (const auto& [_, op] : next_ops) {
     CHECK_EQ(op->has_forward, true);
   }
-  root_op->forward_index = start_forward_index_;
-  start_forward_index_ += 1;
+  root_op->forward_index = current_forward_idx;
+  current_forward_idx += 1;
 }
 
 void RuntimeGraph::CreateNodeRelation() {
