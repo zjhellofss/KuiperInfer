@@ -57,9 +57,14 @@ void ConvolutionLayer::InitIm2ColWeight() {
     CHECK(kernel->channels() == kernel_c);
   }
 
-  std::vector<arma::frowvec> kernel_matrix_arr(kernel_count);
+  std::vector<arma::fmat> kernel_matrix_arr(kernel_count);
   for (uint32_t k = 0; k < kernel_count; ++k) {
-    arma::frowvec kernel_matrix_c(row_len * kernel_c);
+    arma::fmat kernel_matrix_c;
+    if (IsSpecial1x1Conv(kernel_h, kernel_w)) {
+      kernel_matrix_c = arma::fmat(row_len * kernel_c, 1);
+    } else {
+      kernel_matrix_c = arma::fmat(1, row_len * kernel_c);
+    }
     const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
     for (uint32_t ic = 0; ic < kernel->channels(); ++ic) {
       memcpy(kernel_matrix_c.memptr() + row_len * ic, kernel->matrix_raw_ptr(ic),
@@ -86,12 +91,14 @@ void ConvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor, uin
                                      uint32_t input_h, uint32_t input_w,
                                      uint32_t channels_per_group, uint32_t output_h,
                                      uint32_t output_w, uint32_t group) const {
+  bool is_special_1x1conv = IsSpecial1x1Conv(kernel_h, kernel_w);
   const arma::fmat& input_matrix =
       ConvIm2Col(input, kernel_h, kernel_w, input_h, input_w, channels_per_group, output_h,
                  output_w, group, kernel_h * kernel_w, output_h * output_w);
 #pragma omp parallel for
   for (uint32_t k = 0; k < kernel_count_group; ++k) {
-    ConvGemmBias(input_matrix, output_tensor, group, k, kernel_count_group, output_h, output_w);
+    ConvGemmBias(input_matrix, output_tensor, group, k, kernel_count_group, output_h, output_w,
+                 is_special_1x1conv);
   }
 }
 
@@ -104,7 +111,7 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
   const float padding_value = 0.f;
   if (IsSpecial1x1Conv(kernel_h, kernel_w)) {
     arma::fmat input_matrix(input->raw_ptr(), col_len, channels_per_group * row_len, false, true);
-    return input_matrix.t();
+    return input_matrix;
   }
 
   const uint32_t channels_offset = group * channels_per_group;
@@ -139,17 +146,20 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
 void ConvolutionLayer::ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor,
                                     uint32_t group, uint32_t kernel_index,
                                     uint32_t kernel_count_group, uint32_t output_h,
-                                    uint32_t output_w) const {
+                                    uint32_t output_w, bool is_special_1x1conv) const {
   CHECK(!input_matrix.empty()) << "The input tensor of the gemm function cannot be empty.";
   CHECK(output_tensor && !output_tensor->empty())
       << "The output tensor of the gemm function cannot be empty.";
 
   kernel_index = kernel_index + group * kernel_count_group;
-  const arma::frowvec& kernel = this->kernel_matrix_arr_.at(kernel_index);
+  const arma::fmat& kernel = this->kernel_matrix_arr_.at(kernel_index);
 
   arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h, output_w, false, true);
-  output = kernel * input_matrix;
-
+  if (is_special_1x1conv) {
+    output = input_matrix * kernel;
+  } else {
+    output = kernel * input_matrix;
+  }
   return AddBias(output, kernel_index);
 }
 

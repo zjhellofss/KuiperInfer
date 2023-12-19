@@ -79,7 +79,7 @@ class BaseConvolutionLayer : public ParamLayer {
   uint32_t dilation_w_ = 1;
 
   ConvType conv_type_ = ConvType::kOpConvUnknown;
-  std::vector<arma::frowvec> kernel_matrix_arr_;
+  std::vector<arma::fmat> kernel_matrix_arr_;
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_BASE_CONVOLUTION_H
