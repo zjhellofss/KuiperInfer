@@ -51,6 +51,8 @@ BaseConvolutionLayer::BaseConvolutionLayer(ConvType conv_type, uint32_t output_c
   }
 
   CHECK_GE(groups_, 1);
+  CHECK_GT(kernel_h, 0);
+  CHECK_GT(kernel_w, 0);
   CHECK_GT(stride_h_, 0);
   CHECK_GT(stride_w_, 0);
   CHECK_GT(dilation_h_, 0);
