@@ -112,7 +112,7 @@ bool Tensor<T>::empty() const {
 }
 
 template <typename T>
-T Tensor<T>::index(uint32_t offset) const {
+const T Tensor<T>::index(uint32_t offset) const {
   CHECK(offset < this->data_.size()) << "Tensor index out of bound!";
   return this->data_.at(offset);
 }
@@ -152,7 +152,7 @@ const arma::Mat<T>& Tensor<T>::slice(uint32_t channel) const {
 }
 
 template <typename T>
-T Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) const {
+const T Tensor<T>::at(uint32_t channel, uint32_t row, uint32_t col) const {
   CHECK_LT(row, this->rows());
   CHECK_LT(col, this->cols());
   CHECK_LT(channel, this->channels());
@@ -346,7 +346,21 @@ T* Tensor<T>::raw_ptr() {
 }
 
 template <typename T>
+const T* Tensor<T>::raw_ptr() const {
+  CHECK(!this->data_.empty()) << "The data area of the tensor is empty.";
+  return this->data_.memptr();
+}
+
+template <typename T>
 T* Tensor<T>::raw_ptr(size_t offset) {
+  const size_t size = this->size();
+  CHECK(!this->data_.empty()) << "The data area of the tensor is empty.";
+  CHECK_LT(offset, size);
+  return this->data_.memptr() + offset;
+}
+
+template <typename T>
+const T* Tensor<T>::raw_ptr(size_t offset) const {
   const size_t size = this->size();
   CHECK(!this->data_.empty()) << "The data area of the tensor is empty.";
   CHECK_LT(offset, size);
@@ -382,11 +396,12 @@ T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
 }
 
 template <typename T>
-void Tensor<T>::set_data(arma::Cube<T>&& data) {
-  CHECK(data.n_rows == this->data_.n_rows) << data.n_rows << " != " << this->data_.n_rows;
-  CHECK(data.n_cols == this->data_.n_cols) << data.n_cols << " != " << this->data_.n_cols;
-  CHECK(data.n_slices == this->data_.n_slices) << data.n_slices << " != " << this->data_.n_slices;
-  this->data_ = std::move(data);
+const T* Tensor<T>::matrix_raw_ptr(uint32_t index) const {
+  CHECK_LT(index, this->channels());
+  size_t offset = index * this->rows() * this->cols();
+  CHECK_LE(offset, this->size());
+  const T* mem_ptr = this->raw_ptr(offset);
+  return mem_ptr;
 }
 
 template <typename T>

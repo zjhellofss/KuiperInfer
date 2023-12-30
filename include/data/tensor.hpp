@@ -105,26 +105,11 @@ class Tensor {
   void set_data(const arma::Cube<T>& data);
 
   /**
-   * @brief Sets the tensor data by moving
-   *
-   * @param data Data to set
-   */
-  void set_data(arma::Cube<T>&& data);
-
-  /**
    * @brief Checks if tensor is empty
    *
    * @return True if empty, false otherwise
    */
   bool empty() const;
-
-  /**
-   * @brief Gets element at offset
-   *
-   * @param offset Element offset
-   * @return Element value
-   */
-  T index(uint32_t offset) const;
 
   /**
    * @brief Gets element reference at offset
@@ -133,6 +118,14 @@ class Tensor {
    * @return Element reference
    */
   T& index(uint32_t offset);
+
+  /**
+   * @brief Gets element at offset
+   *
+   * @param offset Element offset
+   * @return Element value
+   */
+  const T index(uint32_t offset) const;
 
   /**
    * @brief Gets tensor shape
@@ -186,7 +179,7 @@ class Tensor {
    * @param col Column index
    * @return Element at location
    */
-  T at(uint32_t channel, uint32_t row, uint32_t col) const;
+  const T at(uint32_t channel, uint32_t row, uint32_t col) const;
 
   /**
    * @brief Gets element reference at location
@@ -285,6 +278,13 @@ class Tensor {
   T* raw_ptr();
 
   /**
+   * @brief Gets raw data pointer
+   *
+   * @return Raw data pointer
+   */
+  const T* raw_ptr() const;
+
+  /**
    * @brief Gets raw data pointer with offset
    *
    * @param offset Offset
@@ -293,12 +293,28 @@ class Tensor {
   T* raw_ptr(size_t offset);
 
   /**
+   * @brief Gets raw data pointer with offset
+   *
+   * @param offset Offset
+   * @return Raw pointer + offset
+   */
+  const T* raw_ptr(size_t offset) const;
+
+  /**
    * @brief Gets matrix raw pointer
    *
    * @param index Matrix index
    * @return Raw pointer to matrix
    */
   T* matrix_raw_ptr(uint32_t index);
+
+  /**
+   * @brief Gets matrix raw pointer
+   *
+   * @param index Matrix index
+   * @return Raw pointer to matrix
+   */
+  const T* matrix_raw_ptr(uint32_t index) const;
 
  private:
   /**

@@ -24,6 +24,8 @@
 //
 #include "activation_sse.hpp"
 #include <glog/logging.h>
+#include <armadillo>
+#include "utils/math/fmath.hpp"
 
 namespace kuiper_infer {
 

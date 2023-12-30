@@ -24,10 +24,7 @@
 
 #ifndef KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
 #define KUIPER_INFER_INCLUDE_MATH_ARMA_SSE
-#include <armadillo>
 #include "activation.hpp"
-#include "data/tensor.hpp"
-#include "utils/math/fmath.hpp"
 namespace kuiper_infer {
 namespace activation {
 ActivationFunc ApplySSEActivation(ActivationType act_type);
