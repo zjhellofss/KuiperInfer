@@ -41,7 +41,7 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                              output_padding_h, output_padding_w, dilation_h, dilation_w) {}
 
  private:
-  bool IsSpecial1x1Conv(uint32_t kernel_h, uint32_t kernel_w) const;
+  bool Is1x1KernelNoPadding(uint32_t kernel_h, uint32_t kernel_w) const;
 
   void InitIm2ColWeight() override;
 
@@ -54,7 +54,7 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                                                   uint32_t kernel_h,
                                                   uint32_t kernel_w) const override;
 
-  void ConvGemmBias(const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
+  void ConvGEMMBias(const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
                     uint32_t kernel_index, uint32_t kernel_count_group, uint32_t output_h,
                     uint32_t output_w, bool is_special_1x1conv) const;
 

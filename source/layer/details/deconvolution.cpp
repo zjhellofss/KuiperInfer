@@ -91,7 +91,7 @@ void DeconvolutionLayer::ComputeOutput(sftensor input, sftensor output_tensor, u
 #pragma omp parallel for
   for (uint32_t k = 0; k < kernel_count_group; ++k) {
     const arma::fmat& gemm_result =
-        DeconvGemm(input, input_h, input_w, channels_per_group, group, k, kernel_count_group);
+        DeconvGEMM(input, input_h, input_w, channels_per_group, group, k, kernel_count_group);
     DeconvCol2ImBias(gemm_result, output_tensor, input_h, input_w, group, k, kernel_count_group,
                      kernel_h, kernel_w, output_h, output_w);
   }
@@ -112,7 +112,7 @@ std::pair<uint32_t, uint32_t> DeconvolutionLayer::ComputeOutputSize(const uint32
   return {output_h, output_w};
 }
 
-arma::fmat DeconvolutionLayer::DeconvGemm(const sftensor& input, uint32_t input_h, uint32_t input_w,
+arma::fmat DeconvolutionLayer::DeconvGEMM(const sftensor& input, uint32_t input_h, uint32_t input_w,
                                           uint32_t channels_per_group, uint32_t group,
                                           uint32_t kernel_index,
                                           uint32_t kernel_count_group) const {
@@ -161,10 +161,10 @@ void DeconvolutionLayer::DeconvCol2ImBias(const arma::fmat& gemm_result, sftenso
     uint32_t gemm_cols = gemm_column.n_cols;
 
     for (uint32_t col = 0; col < gemm_cols; ++col) {
-      float* gemm_ptr = gemm_column.colptr(col);
+      float* column_ptr = gemm_column.colptr(col);
       float* output_ptr = output_padding.colptr(offset_x + col);
       for (uint32_t row = 0; row < gemm_rows; ++row) {
-        *(output_ptr + offset_y + row) += *(gemm_ptr + row);
+        *(output_ptr + offset_y + row) += *(column_ptr + row);
       }
     }
   }

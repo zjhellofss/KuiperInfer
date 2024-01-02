@@ -120,7 +120,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
     return StatusCode::kInferParameterError;
   }
 
-  if (!stride_h_ || !stride_h_) {
+  if (!stride_h_ || !stride_w_) {
     LOG(ERROR) << "The stride in the convolution layer should be greater "
                   "than zero";
     return StatusCode::kInferParameterError;
