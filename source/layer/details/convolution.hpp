@@ -56,7 +56,7 @@ class ConvolutionLayer : public BaseConvolutionLayer {
 
   void ConvGEMMBias(const arma::fmat& input_matrix, sftensor output_tensor, uint32_t group,
                     uint32_t kernel_index, uint32_t kernel_count_group, uint32_t output_h,
-                    uint32_t output_w, bool is_special_1x1conv) const;
+                    uint32_t output_w, bool is_1x1conv_nopadding) const;
 
   arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w, uint32_t input_h,
                         uint32_t input_w, uint32_t channels_per_group, uint32_t output_h,

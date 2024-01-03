@@ -130,10 +130,11 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
             if ((kh + ih >= padding_h_ && kw + iw >= padding_w_) &&
                 (kh + ih < input_h + padding_h_ && kw + iw < input_w + padding_w_)) {
               float* region_ptr = input_channel_ptr + region_w + (ih + kh - padding_h_);
-              *(input_matrix_ptr++) = *region_ptr;
+              *input_matrix_ptr = *region_ptr;
             } else {
-              *(input_matrix_ptr++) = padding_value;  // only support zero mode
+              *input_matrix_ptr = padding_value;  // only support zero mode
             }
+            input_matrix_ptr++;
           }
         }
         current_col += 1;
@@ -146,7 +147,7 @@ arma::fmat ConvolutionLayer::ConvIm2Col(sftensor input, uint32_t kernel_h, uint3
 void ConvolutionLayer::ConvGEMMBias(const arma::fmat& input_matrix, sftensor output_tensor,
                                     uint32_t group, uint32_t kernel_index,
                                     uint32_t kernel_count_group, uint32_t output_h,
-                                    uint32_t output_w, bool is_special_1x1conv) const {
+                                    uint32_t output_w, bool is_1x1conv_nopadding) const {
   CHECK(!input_matrix.empty()) << "The input tensor of the gemm function cannot be empty.";
   CHECK(output_tensor && !output_tensor->empty())
       << "The output tensor of the gemm function cannot be empty.";
@@ -155,7 +156,7 @@ void ConvolutionLayer::ConvGEMMBias(const arma::fmat& input_matrix, sftensor out
   const arma::fmat& kernel = this->kernel_matrix_arr_.at(kernel_index);
 
   arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h, output_w, false, true);
-  if (is_special_1x1conv) {
+  if (is_1x1conv_nopadding) {
     output = input_matrix * kernel;
   } else {
     output = kernel * input_matrix;
