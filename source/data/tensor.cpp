@@ -417,17 +417,16 @@ void Tensor<T>::Review(const std::vector<uint32_t>& shapes) {
   const uint32_t plane_size = target_rows * target_cols;
 #pragma omp parallel for
   for (uint32_t channel = 0; channel < this->data_.n_slices; ++channel) {
-    const arma::Mat<T>& channel_data = this->data_.slice(channel);
     const uint32_t plane_start = channel * data_.n_rows * data_.n_cols;
     for (uint32_t src_col = 0; src_col < this->data_.n_cols; ++src_col) {
-      const T* col_ptr = channel_data.colptr(src_col);
+      const T* col_ptr = this->data_.slice_colptr(channel, src_col);
       for (uint32_t src_row = 0; src_row < this->data_.n_rows; ++src_row) {
-        const uint32_t pos_index = plane_start + src_row * data_.n_cols + src_col;
-        const uint32_t dest_channel = pos_index / plane_size;
-        const uint32_t cube_size = dest_channel * plane_size;
-        const uint32_t dest_row = (pos_index - cube_size) / target_cols;
-        const uint32_t dest_col = (pos_index - cube_size - dest_row * target_cols);
-        new_data.at(dest_row, dest_col, dest_channel) = *(col_ptr + src_row);
+        const uint32_t pos_idx = plane_start + src_row * data_.n_cols + src_col;
+        const uint32_t dst_ch = pos_idx / plane_size;
+        const uint32_t dst_ch_offset = pos_idx % plane_size;
+        const uint32_t dst_row = dst_ch_offset / target_cols;
+        const uint32_t dst_col = dst_ch_offset % target_cols;
+        new_data.at(dst_row, dst_col, dst_ch) = *(col_ptr + src_row);
       }
     }
   }
