@@ -137,14 +137,10 @@ void RuntimeGraph::Forward(bool debug) {
                            const std::string& op_type) {
     StatusCode status;
     if (debug) {
-      {
-        utils::LayerTimeLogging layer_time_logging(op_name, op_type);
-        status = layer->Forward();
-      }
-    } else {
-      status = layer->Forward();
+      utils::LayerTimeLogging layer_time_logging(op_name, op_type);
     }
-    return status;
+      status = layer->Forward();
+      return status;
   };
 
   for (const auto& current_op : operators_) {
