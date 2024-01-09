@@ -21,8 +21,8 @@
 
 // Created by fss on 22-12-12.
 #include "hardsigmoid.hpp"
-#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "simd.hpp"
 
 namespace kuiper_infer {
 HardSigmoid::HardSigmoid() : NonParamLayer("HardSigmoid") {}

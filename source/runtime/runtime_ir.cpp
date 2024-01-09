@@ -178,17 +178,19 @@ void RuntimeGraph::Forward(bool debug) {
   }
 }
 
-std::shared_ptr<Layer<float>> RuntimeGraph::CreateLayer(
-    const std::shared_ptr<RuntimeOperator>& op) {
+template <typename T>
+std::shared_ptr<Layer<T>> RuntimeGraph::CreateLayer(
+    const std::shared_ptr<RuntimeOperatorBase<T>>& op) {
   LOG_IF(FATAL, !op) << "Operator is empty!";
   auto layer = LayerRegisterer::CreateLayer(op);
   LOG_IF(FATAL, !layer) << "Layer init failed " << op->type;
   return layer;
 }
 
+template <typename T>
 void RuntimeGraph::InitGraphOperatorsInput(
     const std::vector<pnnx::Operand*>& inputs,
-    const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+    const std::shared_ptr<RuntimeOperatorBase<T>>& runtime_operator) {
   if (inputs.empty()) {
     return;
   }
@@ -225,9 +227,10 @@ void RuntimeGraph::InitGraphOperatorsInput(
   }
 }
 
+template <typename T>
 void RuntimeGraph::InitGraphOperatorsOutput(
     const std::vector<pnnx::Operand*>& outputs,
-    const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+    const std::shared_ptr<RuntimeOperatorBase<T>>& runtime_operator) {
   if (outputs.empty()) {
     return;
   }
@@ -243,8 +246,10 @@ void RuntimeGraph::InitGraphOperatorsOutput(
   }
 }
 
-void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>& params,
-                                   const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+template <typename T>
+void RuntimeGraph::InitGraphParams(
+    const std::map<std::string, pnnx::Parameter>& params,
+    const std::shared_ptr<RuntimeOperatorBase<T>>& runtime_operator) {
   if (params.empty()) {
     return;
   }
@@ -312,8 +317,9 @@ void RuntimeGraph::InitGraphParams(const std::map<std::string, pnnx::Parameter>&
   }
 }
 
+template <typename T>
 void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& attrs,
-                                  const std::shared_ptr<RuntimeOperator>& runtime_operator) {
+                                  const std::shared_ptr<RuntimeOperatorBase<T>>& runtime_operator) {
   if (attrs.empty()) {
     return;
   }
@@ -333,8 +339,10 @@ void RuntimeGraph::InitGraphAttrs(const std::map<std::string, pnnx::Attribute>& 
   }
 }
 
-void RuntimeGraph::PropagateLayerOutputs(const std::shared_ptr<RuntimeOperator>& current_op,
-                                         const std::vector<sftensor>& layer_output_datas) {
+template <typename T>
+void RuntimeGraph::PropagateLayerOutputs(
+    const std::shared_ptr<RuntimeOperatorBase<T>>& current_op,
+    const std::vector<std::shared_ptr<Tensor<T>>>& layer_output_datas) {
   // For each next operator of current operator
   for (const auto& [_, output_op] : current_op->output_operators) {
     // Get next op's input operands corresponding to current op's output
@@ -377,7 +385,8 @@ void RuntimeGraph::ReverseTopoSort() {
   }
 }
 
-void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator>& root_op,
+template <typename T>
+void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperatorBase<T>>& root_op,
                                            int32_t& current_forward_idx) {
   if (!root_op) {
     LOG(INFO) << "Current operator is nullptr";

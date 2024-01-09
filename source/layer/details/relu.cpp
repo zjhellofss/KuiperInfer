@@ -21,8 +21,8 @@
 
 // Created by fss on 22-11-18.
 #include "relu.hpp"
-#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "simd.hpp"
 
 namespace kuiper_infer {
 StatusCode ReluLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,

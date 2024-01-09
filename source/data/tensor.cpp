@@ -99,6 +99,12 @@ size_t Tensor<T>::size() const {
 }
 
 template <typename T>
+size_t Tensor<T>::plane_size() const {
+  CHECK(!this->data_.empty()) << "The data area of the tensor is empty.";
+  return this->rows() * this->cols();
+}
+
+template <typename T>
 void Tensor<T>::set_data(const arma::Cube<T>& data) {
   CHECK(data.n_rows == this->data_.n_rows) << data.n_rows << " != " << this->data_.n_rows;
   CHECK(data.n_cols == this->data_.n_cols) << data.n_cols << " != " << this->data_.n_cols;
@@ -389,7 +395,7 @@ std::vector<T> Tensor<T>::values(bool row_major) {
 template <typename T>
 T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
   CHECK_LT(index, this->channels());
-  size_t offset = index * this->rows() * this->cols();
+  size_t offset = index * this->plane_size();
   CHECK_LE(offset, this->size());
   T* mem_ptr = this->raw_ptr(offset);
   return mem_ptr;
@@ -398,7 +404,7 @@ T* Tensor<T>::matrix_raw_ptr(uint32_t index) {
 template <typename T>
 const T* Tensor<T>::matrix_raw_ptr(uint32_t index) const {
   CHECK_LT(index, this->channels());
-  size_t offset = index * this->rows() * this->cols();
+  size_t offset = index * this->plane_size();
   CHECK_LE(offset, this->size());
   const T* mem_ptr = this->raw_ptr(offset);
   return mem_ptr;

@@ -4,7 +4,7 @@
 
 #include <benchmark/benchmark.h>
 #include <armadillo>
-#include "../source/layer/details/activation_sse.hpp"
+#include "../source/layer/details/simd.hpp"
 static void BM_SigmoidSimd(benchmark::State& state) {
   using namespace kuiper_infer;
   uint32_t input_c = state.range(0);

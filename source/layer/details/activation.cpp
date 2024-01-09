@@ -2,7 +2,7 @@
 // Created by fss on 23-12-14.
 //
 #include "activation.hpp"
-#include "activation_sse.hpp"
+#include "simd.hpp"
 namespace kuiper_infer {
 namespace activation {
 StatusCode ActivationForward(ActivationType type,

@@ -21,9 +21,9 @@
 
 // Created by fss on 22-12-26.
 #include "yolo_detect.hpp"
-#include "activation_sse.hpp"
 #include "data/tensor_util.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "simd.hpp"
 
 namespace kuiper_infer {
 

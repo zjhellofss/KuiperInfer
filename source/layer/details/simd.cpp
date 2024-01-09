@@ -22,7 +22,7 @@
 //
 // Created by fss on 23-7-26.
 //
-#include "activation_sse.hpp"
+#include "simd.hpp"
 #include <glog/logging.h>
 #include <armadillo>
 #include "utils/math/fmath.hpp"

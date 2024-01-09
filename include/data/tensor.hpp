@@ -97,6 +97,8 @@ class Tensor {
    */
   size_t size() const;
 
+  size_t plane_size() const;
+
   /**
    * @brief Sets the tensor data
    *

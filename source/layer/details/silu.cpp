@@ -22,8 +22,8 @@
 // Created by fss on 22-12-25.
 
 #include "silu.hpp"
-#include "activation_sse.hpp"
 #include "layer/abstract/layer_factory.hpp"
+#include "simd.hpp"
 #include "tick.hpp"
 
 namespace kuiper_infer {
