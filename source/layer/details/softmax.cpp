@@ -129,11 +129,8 @@ StatusCode SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
           sum_vec = _mm256_add_ps(sum_vec, exp_sub_value);
           tmp_storage_ptr += packet_size;
         }
-        float result[8];
-        _mm256_storeu_ps(result, sum_vec);
-        for (int j = 0; j < packet_size; ++j) {
-          sum_value += result[j];
-        }
+        sum_vec = _mm256_hadd_ps(sum_vec, sum_vec);
+        sum_value = ((float*)&sum_vec)[0] + ((float*)&sum_vec)[4];
 #endif
         for (; axis_size < axis_sizes; ++axis_size) {
           float cur_value = tmp_storage.at(axis_size);
