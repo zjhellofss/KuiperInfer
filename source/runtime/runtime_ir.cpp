@@ -98,7 +98,7 @@ void RuntimeGraph::Build() {
 
   if (graph_state_ == GraphState::NeedInit) {
     bool init_graph = Init();
-    LOG_IF(FATAL, !init_graph) << "Init graph failed!";
+    LOG_IF(FATAL, !init_graph || graph_state_ == GraphState::NeedInit) << "Init graph failed!";
   }
 
   CHECK(graph_state_ >= GraphState::NeedBuild)
@@ -350,10 +350,10 @@ void RuntimeGraph::PropagateLayerOutputs(
     const auto& next_input_op_iter = next_input_operands.find(current_op->name);
     if (next_input_op_iter != next_input_operands.end()) {
       // Get input data spaces for those operands
-      std::vector<sftensor>& next_input_datas = next_input_op_iter->second->datas;
+      std::vector<stensor<T>>& next_input_datas = next_input_op_iter->second->datas;
       // Copy current op output data to next op input data
       for (uint32_t i = 0; i < next_input_datas.size(); ++i) {
-        const sftensor& layer_output_data = layer_output_datas.at(i);
+        const stensor<T>& layer_output_data = layer_output_datas.at(i);
         if (next_input_datas.at(i) != nullptr) {
           CHECK(next_input_datas.at(i)->shapes() == layer_output_data->shapes());
         }

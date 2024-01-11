@@ -333,6 +333,9 @@ class Tensor {
   arma::Cube<T> data_;
 };
 
+template <typename T = float>
+using stensor = std::shared_ptr<Tensor<T>>;
+
 using ftensor = Tensor<float>;
 using sftensor = std::shared_ptr<Tensor<float>>;
 
