@@ -90,13 +90,12 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
 
       const int32_t batch = operand_shapes.front();
       const auto& output_tensors = runtime_op->output_operands;
-      CHECK(batch > 0) << "Dynamic batch size is not supported!";
       CHECK(operand_shapes.size() == 2 || operand_shapes.size() == 4 || operand_shapes.size() == 3)
           << "Unsupported shape sizes: " << operand_shapes.size();
       CHECK_EQ(operand->type, 1) << "The type of pnnx operand is not float32";
 
       if (!output_tensors) {
-        std::vector<std::shared_ptr<Tensor<float>>> output_operand_datas;
+        std::vector<sftensor> output_operand_datas;
         if (runtime_op) {
           for (uint32_t j = 0; j < batch; ++j) {
             sftensor tensor;

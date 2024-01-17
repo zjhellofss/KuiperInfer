@@ -76,6 +76,8 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
                   "layer do not match";
     return StatusCode::kInferInOutShapeMismatch;
   }
+  uint32_t scale_w = static_cast<uint32_t>(scale_w_);
+  uint32_t scale_h = static_cast<uint32_t>(scale_h_);
 
   const uint32_t batch_size = inputs.size();
 #pragma omp parallel for num_threads(batch_size)
@@ -85,9 +87,8 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
         << "The input tensor array in the upsample layer has an empty tensor " << i << " th";
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
-      output = std::make_shared<Tensor<float>>(input_data.n_slices,
-                                               input_data.n_rows * static_cast<uint32_t>(scale_h_),
-                                               input_data.n_cols * static_cast<uint32_t>(scale_w_));
+      output = std::make_shared<Tensor<float>>(input_data.n_slices, input_data.n_rows * scale_h,
+                                               input_data.n_cols * scale_w);
       outputs.at(i) = output;
     }
     auto& output_data = output->data();
@@ -110,27 +111,27 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
       case UpSampleMode::kModeNearest: {
 #pragma omp parallel for
         for (uint32_t c = 0; c < channels; ++c) {
-          const arma::fmat& input_channel = input_data.slice(c);
           arma::fmat& output_channel = output_data.slice(c);
+          const arma::fmat& input_channel = input_data.slice(c);
 
           const uint32_t input_w = input_channel.n_cols;
           const uint32_t input_h = input_channel.n_rows;
           const uint32_t output_w = output_channel.n_cols;
           const uint32_t output_h = output_channel.n_rows;
           for (uint32_t w = 0; w < input_w; ++w) {
+            const uint32_t dest_w = w * scale_w;
             const float* input_col_ptr = input_channel.colptr(w);
-            const uint32_t scaled_w = w * static_cast<uint32_t>(scale_w_);
-            for (uint32_t sw = 0; sw < static_cast<uint32_t>(scale_w_); ++sw) {
-              if (scaled_w + sw >= output_w) {
+            for (uint32_t sw = 0; sw < scale_w; ++sw) {
+              if (dest_w + sw >= output_w) {
                 continue;
               }
-              float* output_col_ptr = output_channel.colptr(scaled_w + sw);
+              float* output_col_ptr = output_channel.colptr(dest_w + sw);
               for (uint32_t h = 0; h < input_h; ++h) {
-                const uint32_t scaled_h = h * static_cast<uint32_t>(scale_h_);
-                float* output_ptr = output_col_ptr + scaled_h;
-                float input_value = *(input_col_ptr + h);
-                for (uint32_t sh = 0; sh < static_cast<uint32_t>(scale_h_); ++sh) {
-                  if (scaled_h + sh < output_h) {
+                const uint32_t dest_h = h * scale_h;
+                float* output_ptr = output_col_ptr + dest_h;
+                const float input_value = *(input_col_ptr + h);
+                for (uint32_t sh = 0; sh < scale_h; ++sh) {
+                  if (dest_h + sh < output_h) {
                     *(output_ptr + sh) = input_value;
                   }
                 }
