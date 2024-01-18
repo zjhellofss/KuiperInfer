@@ -122,6 +122,20 @@ void RuntimeGraph::Build() {
   }
 }
 
+static StatusCode ExecuteLayer(const std::shared_ptr<Layer<float>>& layer,
+                               const std::string& op_name, const std::string& op_type,
+                               bool is_debug) {
+  CHECK(layer != nullptr);
+  StatusCode status;
+  if (is_debug) {
+    utils::LayerTimeLogging layer_time_logging(op_name, op_type);
+    status = layer->Forward();
+  } else {
+    status = layer->Forward();
+  }
+  return status;
+}
+
 void RuntimeGraph::Forward(bool debug) {
   // 检查当前的执行图是否已经初始化完毕
   if (graph_state_ < GraphState::Complete) {
@@ -132,20 +146,6 @@ void RuntimeGraph::Forward(bool debug) {
   if (debug) {
     utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
-
-  auto forward_layer = [&](const std::shared_ptr<Layer<float>>& layer, const std::string& op_name,
-                           const std::string& op_type) {
-    StatusCode status;
-    if (debug) {
-      {
-        utils::LayerTimeLogging layer_time_logging(op_name, op_type);
-        status = layer->Forward();
-      }
-    } else {
-      status = layer->Forward();
-    }
-    return status;
-  };
 
   for (const auto& current_op : operators_) {
     current_op->has_forward = false;
@@ -161,7 +161,8 @@ void RuntimeGraph::Forward(bool debug) {
         << " is empty, indicating that it may not have been created.";
 
     std::shared_ptr<Layer<float>> layer = current_op->layer;
-    StatusCode status = forward_layer(layer, current_op->name, current_op->type);
+    StatusCode status = ExecuteLayer(layer, current_op->name, current_op->type, debug);
+
     CHECK(status == StatusCode::kSuccess)
         << layer->layer_name() << " layer forward failed, error code: " << int32_t(status);
 
