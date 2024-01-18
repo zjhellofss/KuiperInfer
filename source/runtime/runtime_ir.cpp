@@ -86,6 +86,7 @@ bool RuntimeGraph::Init() {
     }
   }
 
+  utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   graph_state_ = GraphState::NeedBuild;
   return true;
 }
@@ -141,10 +142,6 @@ void RuntimeGraph::Forward(bool debug) {
   if (graph_state_ < GraphState::Complete) {
     LOG(FATAL) << "Graph need be build!"
                << ", current state is " << int32_t(graph_state_);
-  }
-
-  if (debug) {
-    utils::LayerTimeStatesSingleton::LayerTimeStatesCollectorInit();
   }
 
   for (const auto& current_op : operators_) {
