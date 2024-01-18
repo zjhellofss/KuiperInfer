@@ -117,16 +117,18 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
     if (operands.size() > 1) {
       LOG(FATAL) << "Only support one node one output yet!";
     }
+
     pnnx::Operand* operand = operands[0];
     CHECK(operand != nullptr && !operand->shape.empty()) << "Operand output is null or empty!";
     std::vector<int32_t> operand_shapes;
     std::copy_if(operand->shape.begin(), operand->shape.end(), std::back_inserter(operand_shapes),
                  [](int32_t dim) { return dim > 0; });
-    const int32_t batch = operand_shapes[0];
     const auto& runtime_op = operators[i];
     const auto& output_tensors = runtime_op->output_operands;
     CHECK((operand_shapes.size() == 2 || operand_shapes.size() == 4 || operand_shapes.size() == 3))
         << "Unsupported shape sizes: " << operand_shapes.size();
+
+    const int32_t batch = operand_shapes[0];
     CHECK_EQ(operand->type, 1) << "The type of pnnx operand is not float32";
     if (!output_tensors) {
       std::vector<sftensor> output_operand_datas;
