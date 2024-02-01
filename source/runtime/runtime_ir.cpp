@@ -122,9 +122,9 @@ void RuntimeGraph::Build() {
   }
 }
 
-static StatusCode ExecuteLayer(const std::shared_ptr<Layer<float>>& layer,
-                               const std::string& op_name, const std::string& op_type,
-                               bool is_debug) {
+template <typename T>
+StatusCode ExecuteLayer(const std::shared_ptr<Layer<T>>& layer, const std::string& op_name,
+                        const std::string& op_type, bool is_debug) {
   CHECK(layer != nullptr);
   StatusCode status;
   if (is_debug) {
@@ -160,11 +160,10 @@ void RuntimeGraph::Forward(bool debug) {
         << "The layer corresponding to the op " << current_op->name
         << " is empty, indicating that it may not have been created.";
 
-    std::shared_ptr<Layer<float>> layer = current_op->layer;
-    StatusCode status = ExecuteLayer(layer, current_op->name, current_op->type, debug);
-
+    StatusCode status = ExecuteLayer(current_op->layer, current_op->name, current_op->type, debug);
     CHECK(status == StatusCode::kSuccess)
-        << layer->layer_name() << " layer forward failed, error code: " << int32_t(status);
+        << current_op->layer->layer_name()
+        << " layer forward failed, error code: " << int32_t(status);
 
     current_op->has_forward = true;
     PropagateLayerOutputs(current_op, current_op->output_operands->datas);
@@ -429,7 +428,7 @@ void RuntimeGraph::CreateNodeRelation() {
     }
     // 除了输入和输出节点，都创建layer
     if (current_op->type != "pnnx.Input" && current_op->type != "pnnx.Output") {
-      std::shared_ptr<Layer<float>> layer = RuntimeGraph::CreateLayer(current_op);
+      auto layer = RuntimeGraph::CreateLayer(current_op);
       if (layer) {
         current_op->layer = layer;
         layer->set_runtime_operator(current_op);
