@@ -51,7 +51,7 @@ class RuntimeGraph {
    * @param param_path Path to the parameter file defining the graph structure
    * @param bin_path Path to the bin file containing the graph weights
    */
-  explicit RuntimeGraph(std::string param_path, std::string bin_path);
+  RuntimeGraph(std::string param_path, std::string bin_path);
 
   /**
    * @brief Sets the inputs to the graph
@@ -61,8 +61,7 @@ class RuntimeGraph {
    * @param input_name Name of the input
    * @param inputs Vector of input tensors
    */
-  template <typename T>
-  void set_inputs(const std::string& input_name, const std::vector<stensor<T>>& inputs);
+  void set_inputs(const std::string& input_name, const std::vector<sftensor>& inputs);
 
   /**
    * @brief Gets output tensors from the graph
@@ -72,9 +71,7 @@ class RuntimeGraph {
    * @param output_name Name of the graph output
    * @return Vector of output tensors
    */
-
-  template <typename T>
-  std::vector<stensor<T>> get_outputs(const std::string& output_name) const;
+  std::vector<sftensor> get_outputs(const std::string& output_name) const;
 
   /**
    * @brief Checks if an op is an input op
