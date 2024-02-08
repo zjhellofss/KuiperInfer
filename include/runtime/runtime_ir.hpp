@@ -51,7 +51,7 @@ class RuntimeGraph {
    * @param param_path Path to the parameter file defining the graph structure
    * @param bin_path Path to the bin file containing the graph weights
    */
-  RuntimeGraph(std::string param_path, std::string bin_path);
+  explicit RuntimeGraph(std::string param_path, std::string bin_path);
 
   /**
    * @brief Sets the inputs to the graph

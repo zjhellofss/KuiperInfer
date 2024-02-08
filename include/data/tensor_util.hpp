@@ -335,15 +335,17 @@ std::tuple<std::shared_ptr<Tensor<T>>, std::shared_ptr<Tensor<T>>> TensorBroadca
           TensorCreate<T>(tensor2->channels(), tensor1->rows(), tensor1->cols());
       CHECK(tensor2->size() == tensor2->channels());
       for (uint32_t c = 0; c < tensor2->channels(); ++c) {
-        new_tensor->slice(c).fill(tensor2->index(c));
+        T* new_tensor_ptr = new_tensor->matrix_raw_ptr(c);
+        std::fill(new_tensor_ptr, new_tensor_ptr + new_tensor->plane_size(), tensor2->index(c));
       }
       return {tensor1, new_tensor};
     } else if (tensor1->rows() == 1 && tensor1->cols() == 1) {
       std::shared_ptr<Tensor<T>> new_tensor =
           TensorCreate<T>(tensor1->channels(), tensor2->rows(), tensor2->cols());
       CHECK(tensor1->size() == tensor1->channels());
-      for (uint32_t c = 0; c < tensor1->channels(); ++c) {
-        new_tensor->slice(c).fill(tensor1->index(c));
+        for (uint32_t c = 0; c < tensor1->channels(); ++c) {
+        T* new_tensor_ptr = new_tensor->matrix_raw_ptr(c);
+        std::fill(new_tensor_ptr, new_tensor_ptr + new_tensor->plane_size(), tensor1->index(c));
       }
       return {new_tensor, tensor2};
     } else {
