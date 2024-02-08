@@ -114,6 +114,7 @@ void RuntimeGraph::Build() {
   // 初始化节点的输入和输出空间
   RuntimeOperatorUtils<float>::InitOperatorInput(operators_);
   RuntimeOperatorUtils<float>::InitOperatorOutput(graph_->ops, operators_);
+
   graph_state_ = GraphState::Complete;
   if (graph_ != nullptr) {
     graph_.reset();
@@ -122,8 +123,8 @@ void RuntimeGraph::Build() {
 }
 
 template <typename T>
-StatusCode ExecuteLayer(const T& layer, const std::string& op_name, const std::string& op_type,
-                        bool is_debug) {
+StatusCode ExecuteLayer(const std::shared_ptr<Layer<T>>& layer, const std::string& op_name,
+                        const std::string& op_type, bool is_debug) {
   CHECK(layer != nullptr);
   StatusCode status;
   if (is_debug) {
