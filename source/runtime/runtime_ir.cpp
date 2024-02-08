@@ -441,7 +441,9 @@ void RuntimeGraph::CreateNodeRelation() {
 
 RuntimeGraph::GraphState RuntimeGraph::graph_state() const { return this->graph_state_; }
 
-void RuntimeGraph::set_inputs(const std::string& input_name, const std::vector<sftensor>& inputs) {
+template <typename T>
+void RuntimeGraph::set_inputs(const std::string& input_name,
+                              const std::vector<stensor<T>>& inputs) {
   CHECK(this->graph_state_ == GraphState::Complete);
   std::shared_ptr<RuntimeOperator> input_op;
   for (auto op : this->input_ops_) {
@@ -454,7 +456,8 @@ void RuntimeGraph::set_inputs(const std::string& input_name, const std::vector<s
   PropagateLayerOutputs(input_op, inputs);
 }
 
-std::vector<sftensor> RuntimeGraph::get_outputs(const std::string& output_name) const {
+template <typename T>
+std::vector<stensor<T>> RuntimeGraph::get_outputs(const std::string& output_name) const {
   CHECK(this->graph_state_ == GraphState::Complete);
   std::shared_ptr<RuntimeOperator> output_op;
   for (auto op : this->output_ops_) {

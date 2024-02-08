@@ -61,7 +61,8 @@ class RuntimeGraph {
    * @param input_name Name of the input
    * @param inputs Vector of input tensors
    */
-  void set_inputs(const std::string& input_name, const std::vector<sftensor>& inputs);
+  template <typename T>
+  void set_inputs(const std::string& input_name, const std::vector<stensor<T>>& inputs);
 
   /**
    * @brief Gets output tensors from the graph
@@ -71,7 +72,9 @@ class RuntimeGraph {
    * @param output_name Name of the graph output
    * @return Vector of output tensors
    */
-  std::vector<sftensor> get_outputs(const std::string& output_name) const;
+
+  template <typename T>
+  std::vector<stensor<T>> get_outputs(const std::string& output_name) const;
 
   /**
    * @brief Checks if an op is an input op
