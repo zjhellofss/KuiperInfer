@@ -94,6 +94,11 @@ void ParamLayer::set_weights(const std::vector<float>& weights) {
   }
 }
 
+std::shared_ptr<Tensor<float>> ParamLayer::weight(int32_t index) const {
+  CHECK_LE(index, this->weights_.size());
+  return this->weights_.at(index);
+}
+
 void ParamLayer::set_bias(const std::vector<float>& bias) {
   size_t bias_size = 0;
   const size_t elem_size = bias.size();

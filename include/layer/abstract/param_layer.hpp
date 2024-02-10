@@ -122,6 +122,8 @@ class ParamLayer : public Layer<float> {
    */
   void set_bias(const std::vector<std::shared_ptr<Tensor<float>>>& bias) override;
 
+  std::shared_ptr<Tensor<float>> weight(int32_t index) const;
+
  protected:
   std::vector<std::shared_ptr<Tensor<float>>> weights_;
   std::vector<std::shared_ptr<Tensor<float>>> bias_;
