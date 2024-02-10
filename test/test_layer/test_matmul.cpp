@@ -65,3 +65,28 @@ TEST(test_layer, forward_matmul2) {
   ASSERT_EQ(output->at(0, 1, 0), 38);
   ASSERT_EQ(output->at(0, 2, 0), 62);
 }
+
+
+TEST(test_layer, forward_matmul3) {
+  using namespace kuiper_infer;
+  std::vector<float> weights;
+  for (int i = 0; i < 3 * 4; ++i) {
+    weights.push_back(float(i));
+  }
+  LLamaMatmulLayer llama_matmul(1, 4);
+  std::shared_ptr<Tensor<float>> weight = std::make_shared<Tensor<float>>(weights.data(), 1, 4);
+  llama_matmul.set_weights({weight});
+
+  std::vector<float> inputs;
+  for (int i = 0; i < 4; ++i) {
+    inputs.push_back(float(i));
+  }
+
+  std::shared_ptr<Tensor<float>> input = std::make_shared<Tensor<float>>(inputs.data(), 4, 1);
+  std::shared_ptr<Tensor<float>> output = std::make_shared<Tensor<float>>(1, 1);
+  std::vector<sftensor> outputs;
+  outputs.push_back(output);
+
+  llama_matmul.Forward({input}, outputs);
+  ASSERT_EQ(output->at(0, 0, 0), 14);
+}

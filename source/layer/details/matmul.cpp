@@ -114,8 +114,13 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
     } else {
       LOG(FATAL) << "The shape of output tensor need be equal to one or two";
     }
-    arma::fmat output_mat(output->raw_ptr(),  weight_dim0_,input_dim1, false, true);
-    output_mat = (input_vec * weight_data).t();
+    if (input_dim1 == 1 || weight_dim0_ == 1) {
+      arma::fmat output_mat(output->raw_ptr(), input_dim1, weight_dim0_, false, true);
+      output_mat = input_vec * weight_data;
+    } else {
+      arma::fmat output_mat(output->raw_ptr(), weight_dim0_, input_dim1, false, true);
+      output_mat = (input_vec * weight_data).t();
+    }
   }
   return StatusCode::kSuccess;
 }
