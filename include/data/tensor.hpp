@@ -33,6 +33,12 @@ namespace kuiper_infer {
 template <typename T>
 class Tensor {
  public:
+  explicit Tensor(T* raw_ptr, uint32_t size);
+
+  explicit Tensor(T* raw_ptr, uint32_t rows, uint32_t cols);
+
+  explicit Tensor(T* raw_ptr, uint32_t channels, uint32_t rows, uint32_t cols);
+
   /**
    * @brief Construct a new empty Tensor
    */

@@ -25,6 +25,37 @@
 namespace kuiper_infer {
 
 template <typename T>
+Tensor<T>::Tensor(T* raw_ptr, uint32_t size) {
+  CHECK_NE(raw_ptr, nullptr);
+  this->raw_shapes_ = {size};
+  this->data_ = arma::Cube<T>(raw_ptr, 1, size, 1, false, true);
+}
+
+template <typename T>
+Tensor<T>::Tensor(T* raw_ptr, uint32_t rows, uint32_t cols) {
+  CHECK_NE(raw_ptr, nullptr);
+  this->data_ = arma::Cube<T>(raw_ptr, rows, cols, 1, false, true);
+  if (rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  }
+}
+
+template <typename T>
+Tensor<T>::Tensor(T* raw_ptr, uint32_t channels, uint32_t rows, uint32_t cols) {
+  CHECK_NE(raw_ptr, nullptr);
+  this->data_ = arma::Cube<T>(raw_ptr, rows, cols, 1, false, true);
+  if (channels == 1 && rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else if (channels == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  }
+}
+
+template <typename T>
 Tensor<T>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::Cube<T>(rows, cols, channels);
   if (channels == 1 && rows == 1) {
