@@ -103,18 +103,22 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       outputs.at(i) = output;
     }
 
-    const auto& output_raw_shapes = output->raw_shapes();
-    if (output_raw_shapes.size() == 2) {
-      CHECK(output_raw_shapes.at(0) == weight_dim0_ && output_raw_shapes.at(1) == input_dim1)
+    const auto& output_raw_shapes = output->shapes();
+    if (output_raw_shapes.size() == 3) {
+      CHECK(output_raw_shapes.at(1) == weight_dim0_ && output_raw_shapes.at(2) == input_dim1)
           << "The row of output tensor should be same to input dim 1 and the "
              "col of output tensor should be same to weight dim 0.";
-    } else if (output_raw_shapes.size() == 1) {
-      CHECK(output_raw_shapes.at(0) == weight_dim0_)
-          << "The row of output tensor should be same to weight dim 0.";
     } else {
       LOG(FATAL) << "The shape of output tensor need be equal to one or two";
     }
-    if (input_dim1 == 1 || weight_dim0_ == 1) {
+    if (input_dim1 == 1) {
+      float* output_ptr = output->raw_ptr();
+#pragma omp parallel for
+      for (int j = 0; j < weight_dim0_; ++j) {
+        arma::fmat sub_weight(weight->raw_ptr() + j * weight_dim1_, weight_dim1_, 1, false, true);
+        *(output_ptr + j) = arma::as_scalar(input_vec * sub_weight);
+      }
+    } else if (weight_dim0_ == 1) {
       arma::fmat output_mat(output->raw_ptr(), input_dim1, weight_dim0_, false, true);
       output_mat = input_vec * weight_data;
     } else {
@@ -124,5 +128,4 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   }
   return StatusCode::kSuccess;
 }
-
 }  // namespace kuiper_infer
