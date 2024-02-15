@@ -162,6 +162,105 @@ TEST(test_layer, forward_softmax_dim2) {
   }
 }
 
+void softmax1(float* x, int size) {
+  float* y = new float[size];
+  for (int i = 0; i < size; ++i) {
+    y[i] = x[i];
+  }
+
+  float max_val = x[0];
+  for (int i = 1; i < size; i++) {
+    if (x[i] > max_val) {
+      max_val = x[i];
+    }
+  }
+  // exp and sum
+  float sum = 0.0f;
+  for (int i = 0; i < size; i++) {
+    x[i] = expf(x[i] - max_val);
+    sum += x[i];
+  }
+  // normalize
+  for (int i = 0; i < size; i++) {
+    x[i] /= sum;
+  }
+}
+
+TEST(test_layer, forward_softmax_dim01) {
+  using namespace kuiper_infer;
+  SoftmaxLayer softmax_layer(0);
+  uint32_t size = 23;
+  std::vector<float> values;
+  for (uint32_t i = 0; i < size; ++i) {
+    values.push_back(float(i));
+  }
+
+  const uint32_t batch_size = 1;
+  std::vector<sftensor> inputs;
+
+  sftensor input = std::make_shared<ftensor>(23);
+  input->Fill(values);
+
+  std::vector<sftensor> outputs(1);
+  inputs.push_back(input);
+  softmax_layer.Forward(inputs, outputs);
+  softmax1(values.data(), values.size());
+  for (int i = 0; i < size; ++i) {
+    ASSERT_EQ(input->index(i), float(i));
+    ASSERT_NEAR(values.at(i), outputs.front()->index(i), 1e-3f);
+  }
+}
+
+TEST(test_layer, forward_softmax_dim02) {
+  using namespace kuiper_infer;
+  SoftmaxLayer softmax_layer(0);
+  uint32_t size = 3;
+  std::vector<float> values;
+  for (uint32_t i = 0; i < size; ++i) {
+    values.push_back(float(i));
+  }
+
+  const uint32_t batch_size = 1;
+  std::vector<sftensor> inputs;
+
+  sftensor input = std::make_shared<ftensor>(3);
+  input->Fill(values);
+
+  std::vector<sftensor> outputs(1);
+  inputs.push_back(input);
+  softmax_layer.Forward(inputs, outputs);
+  softmax1(values.data(), values.size());
+  for (int i = 0; i < size; ++i) {
+    ASSERT_EQ(input->index(i), float(i));
+    ASSERT_NEAR(values.at(i), outputs.front()->index(i), 1e-3f);
+  }
+}
+
+TEST(test_layer, forward_softmax_dim023) {
+  using namespace kuiper_infer;
+  SoftmaxLayer softmax_layer(0);
+  uint32_t size = 1;
+  std::vector<float> values;
+  for (uint32_t i = 0; i < size; ++i) {
+    values.push_back(float(i + 3.1415f));
+  }
+
+  const uint32_t batch_size = 1;
+  std::vector<sftensor> inputs;
+
+  sftensor input = std::make_shared<ftensor>(1);
+  input->Fill(values);
+
+  std::vector<sftensor> outputs(1);
+  inputs.push_back(input);
+  softmax_layer.Forward(inputs, outputs);
+  softmax1(values.data(), values.size());
+  for (int i = 0; i < size; ++i) {
+    ASSERT_EQ(input->index(i), i + 3.1415f);
+    ASSERT_NEAR(values.at(i), outputs.front()->index(i), 1e-3f);
+  }
+}
+
 TEST(test_layer, forward_softmax_dim1_1) {
   using namespace kuiper_infer;
   SoftmaxLayer softmax_layer(0);

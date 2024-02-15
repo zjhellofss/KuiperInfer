@@ -7,10 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "llama_chat.hpp"
 #include "../../source/layer/details/linear.hpp"
 #include "../../source/layer/details/matmul.hpp"
 #include "../../source/layer/details/rms_norm.hpp"
 #include "../../source/layer/details/softmax.hpp"
+#include "tick.hpp"
 #if defined _WIN32
 #include "win.h"
 #else
@@ -19,64 +21,6 @@
 #endif
 // ----------------------------------------------------------------------------
 // Transformer model
-
-typedef struct {
-  int dim;         // transformer dimension
-  int hidden_dim;  // for ffn layers
-  int n_layers;    // number of layers
-  int n_heads;     // number of query heads
-  int n_kv_heads;  // number of key/value heads (can be < query heads because of multiquery)
-  int vocab_size;  // vocabulary size, usually 256 (byte-level)
-  int seq_len;     // max sequence length
-} Config;
-
-typedef struct {
-  // token embedding table
-  float* token_embedding_table;  // (vocab_size, dim)
-  // weights for rmsnorms
-  float* rms_att_weight;  // (layer, dim) rmsnorm weights
-  float* rms_ffn_weight;  // (layer, dim)
-  // weights for matmuls. note dim == n_heads * head_size
-  float* wq;  // (layer, dim, n_heads * head_size)
-  float* wk;  // (layer, dim, n_kv_heads * head_size)
-  float* wv;  // (layer, dim, n_kv_heads * head_size)
-  float* wo;  // (layer, n_heads * head_size, dim)
-  // weights for ffn
-  float* w1;  // (layer, hidden_dim, dim)
-  float* w2;  // (layer, dim, hidden_dim)
-  float* w3;  // (layer, hidden_dim, dim)
-  // final rmsnorm
-  float* rms_final_weight;  // (dim,)
-  // (optional) classifier weights for the logits, on the last layer
-  float* wcls;
-} TransformerWeights;
-
-typedef struct {
-  // current wave of activations
-  float* x;       // activation at current time stamp (dim,)
-  float* xb;      // same, but inside a residual branch (dim,)
-  float* xb2;     // an additional buffer just for convenience (dim,)
-  float* hb;      // buffer for hidden dimension in the ffn (hidden_dim,)
-  float* hb2;     // buffer for hidden dimension in the ffn (hidden_dim,)
-  float* q;       // query (dim,)
-  float* k;       // key (dim,)
-  float* v;       // value (dim,)
-  float* att;     // buffer for scores/attention values (n_heads, seq_len)
-  float* logits;  // output logits
-  // kv cache
-  float* key_cache;    // (layer, seq_len, dim)
-  float* value_cache;  // (layer, seq_len, dim)
-} RunState;
-
-typedef struct {
-  Config config;               // the hyperparameters of the architecture (the blueprint)
-  TransformerWeights weights;  // the weights of the model
-  RunState state;              // buffers for the "wave" of activations in the forward pass
-  // some more state needed to properly clean up the memory mapping (sigh)
-  int fd;             // file descriptor for memory mapping
-  float* data;        // memory mapped data pointer
-  ssize_t file_size;  // size of the checkpoint file in bytes
-} Transformer;
 
 void malloc_run_state(RunState* s, Config* p) {
   // we calloc instead of malloc to keep valgrind happy
@@ -201,17 +145,6 @@ void free_transformer(Transformer* t) {
 
 void rmsnorm(float* o, float* x, float* weight, int size) {
   // calculate sum of squares
-  //  float ss = 0.0f;
-  //  for (int j = 0; j < size; j++) {
-  //    ss += x[j] * x[j];
-  //  }
-  //  ss /= size;
-  //  ss += 1e-5f;
-  //  ss = 1.0f / sqrtf(ss);
-  //  // normalize and scale
-  //  for (int j = 0; j < size; j++) {
-  //    o[j] = weight[j] * (ss * x[j]);
-  //  }
   using namespace kuiper_infer;
   std::shared_ptr<Tensor<float>> weight_tensor = std::make_shared<Tensor<float>>(weight, size);
 
@@ -227,25 +160,8 @@ void rmsnorm(float* o, float* x, float* weight, int size) {
 
 void softmax(float* x, int size) {
   // find max value (for numerical stability)
-
-  //  float max_val = x[0];
-  //  for (int i = 1; i < size; i++) {
-  //    if (x[i] > max_val) {
-  //      max_val = x[i];
-  //    }
-  //  }
-  //  // exp and sum
-  //  float sum = 0.0f;
-  //  for (int i = 0; i < size; i++) {
-  //    x[i] = expf(x[i] - max_val);
-  //    sum += x[i];
-  //  }
-  //  // normalize
-  //  for (int i = 0; i < size; i++) {
-  //    x[i] /= sum;
-  //  }
-
   using namespace kuiper_infer;
+
   std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(x, size);
   std::vector<std::shared_ptr<Tensor<float>>> tensors;
   tensors.push_back(input_tensor);
@@ -256,27 +172,18 @@ void softmax(float* x, int size) {
 void matmul(float* xout, float* x, float* w, int n, int d) {
   // W (d,n) @ x (n,) -> xout (d,)
   // by far the most amount of time is spent inside this little function
-  //  arma::fmat x_mat(x, 1, n, false, true);
-  //  arma::fmat w_mat(w, n, d, false, true);
-  //
-  // #pragma omp parallel for
-  //  for (int i = 0; i < d; i++) {
-  //    arma::fmat w_vec = w_mat.col(i);
-  //    const arma::fmat& b = x_mat * w_vec;
-  //    *(xout + i) = b.at(0);
-  //  }
+    using namespace kuiper_infer;
+    LLamaMatmulLayer matmul_layer(d, n);
+    std::shared_ptr<Tensor<float>> weight_tensor = std::make_shared<Tensor<float>>(w, d, n);
+    matmul_layer.set_weights({weight_tensor});
 
-  using namespace kuiper_infer;
-  LLamaMatmulLayer matmul_layer(d, n);
-  std::shared_ptr<Tensor<float>> weight_tensor = std::make_shared<Tensor<float>>(w, d, n);
-  matmul_layer.set_weights({weight_tensor});
-
-  std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(x, n, 1);
-  std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(xout, d, 1);
-  std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
-  output_tensors.push_back(output_tensor);
-  matmul_layer.Forward({input_tensor}, output_tensors);
+    std::shared_ptr<Tensor<float>> input_tensor = std::make_shared<Tensor<float>>(x, n, 1);
+    std::shared_ptr<Tensor<float>> output_tensor = std::make_shared<Tensor<float>>(xout, d, 1);
+    std::vector<std::shared_ptr<Tensor<float>>> output_tensors;
+    output_tensors.push_back(output_tensor);
+    matmul_layer.Forward({input_tensor}, output_tensors);
 }
+
 
 float* forward(Transformer* transformer, int token, int pos) {
   // a few convenience variables
@@ -332,7 +239,7 @@ float* forward(Transformer* transformer, int token, int pos) {
     for (h = 0; h < p->n_heads; h++) {
       // get the query vector for this head
       float* q = s->q + h * head_size;
-      // attention scores for this head
+      // attention scores for this headf
       float* att = s->att + h * p->seq_len;
       // iterate over all timesteps, including the current one
       for (int t = 0; t <= pos; t++) {
@@ -412,19 +319,6 @@ float* forward(Transformer* transformer, int token, int pos) {
 // ----------------------------------------------------------------------------
 // The Byte Pair Encoding (BPE) Tokenizer that translates strings <-> tokens
 
-typedef struct {
-  char* str;
-  int id;
-} TokenIndex;
-
-typedef struct {
-  char** vocab;
-  float* vocab_scores;
-  TokenIndex* sorted_vocab;
-  int vocab_size;
-  unsigned int max_token_length;
-  unsigned char byte_pieces[512];  // stores all single-byte strings
-} Tokenizer;
 
 int compare_tokens(const void* a, const void* b) {
   return strcmp(((TokenIndex*)a)->str, ((TokenIndex*)b)->str);
@@ -648,19 +542,6 @@ void encode(Tokenizer* t, char* text, int8_t bos, int8_t eos, int* tokens, int* 
 // The Sampler, which takes logits and returns a sampled token
 // sampling can be done in a few ways: greedy argmax, sampling, top-p sampling
 
-typedef struct {
-  float prob;
-  int index;
-} ProbIndex;  // struct used when sorting probabilities during top-p sampling
-
-typedef struct {
-  int vocab_size;
-  ProbIndex* probindex;  // buffer used in top-p sampling
-  float temperature;
-  float topp;
-  unsigned long long rng_state;
-} Sampler;
-
 int sample_argmax(float* probabilities, int n) {
   // return the index that has the highest probability
   int max_i = 0;
@@ -802,7 +683,7 @@ long time_in_ms() {
 // generation loop
 
 void generate(Transformer* transformer, Tokenizer* tokenizer, Sampler* sampler, char* prompt,
-              int steps) {
+              int steps, bool is_benchmark) {
   char* empty_prompt = "hello";
   if (prompt == NULL) {
     prompt = empty_prompt;
@@ -823,9 +704,8 @@ void generate(Transformer* transformer, Tokenizer* tokenizer, Sampler* sampler, 
   int token = prompt_tokens[0];  // kick off with the first token in the prompt
   int pos = 0;                   // position in the sequence
   while (pos < steps) {
-    // forward the transformer to get logits for the next token
+    // forward the transformer to get logits for the next token4
     float* logits = forward(transformer, token, pos);
-
     // advance the state machine
     if (pos < num_prompt_tokens - 1) {
       // if we are still processing the input prompt, force the next prompt token
@@ -843,8 +723,10 @@ void generate(Transformer* transformer, Tokenizer* tokenizer, Sampler* sampler, 
 
     // print the token as string, decode it with the Tokenizer object
     char* piece = decode(tokenizer, token, next);
-    safe_printf(piece);  // same as printf("%s", piece), but skips "unsafe" bytes
-    fflush(stdout);
+    if (!is_benchmark) {
+      safe_printf(piece);  // same as printf("%s", piece), but skips "unsafe" bytes
+      fflush(stdout);
+    }
     token = next;
 
     // init the timer here because the first iteration can be slower
@@ -852,12 +734,16 @@ void generate(Transformer* transformer, Tokenizer* tokenizer, Sampler* sampler, 
       start = time_in_ms();
     }
   }
-  printf("\n");
+  if (!is_benchmark) {
+    printf("\n");
+  }
 
   // report achieved tok/s (pos-1 because the timer starts after first iteration)
-  if (pos > 1) {
-    long end = time_in_ms();
-    fprintf(stderr, "achieved tok/s: %f\n", (pos - 1) / (double)(end - start) * 1000);
+  if (!is_benchmark) {
+    if (pos > 1) {
+      long end = time_in_ms();
+      fprintf(stderr, "achieved tok/s: %f\n", (pos - 1) / (double)(end - start) * 1000);
+    }
   }
 
   free(prompt_tokens);
@@ -874,102 +760,10 @@ void read_stdin(const char* guide, char* buffer, size_t bufsize) {
   }
 }
 
-// ----------------------------------------------------------------------------
-// chat loop
-// I manually inspected the tokens for a few chat conversations compared to
-// python reference and that seemed ok, but this was not thoroughly tested and
-// is not safely implemented, it's more a proof of concept atm.
-
-void chat(Transformer* transformer, Tokenizer* tokenizer, Sampler* sampler, char* cli_user_prompt,
-          char* cli_system_prompt, int steps) {
-  // buffers for reading the system prompt and user prompt from stdin
-  // you'll notice they are soomewhat haphazardly and unsafely set atm
-  char system_prompt[512];
-  char user_prompt[512];
-  char rendered_prompt[1152];
-  int num_prompt_tokens = 0;
-  int* prompt_tokens = (int*)malloc(1152 * sizeof(int));
-  int user_idx;
-
-  // start the main loop
-  int8_t user_turn = 1;  // user starts
-  int next;              // will store the next token in the sequence
-  int token;             // stores the current token to feed into the transformer
-  int prev_token;
-  int pos = 0;  // position in the sequence
-  while (pos < steps) {
-    // when it is the user's turn to contribute tokens to the dialog...
-    if (user_turn) {
-      // get the (optional) system prompt at position 0
-      if (pos == 0) {
-        // at position 0, the user can also contribute a system prompt
-        if (cli_system_prompt == NULL) {
-          // system prompt was not passed in, attempt to get it from stdin
-          read_stdin("Enter system prompt (optional): ", system_prompt, sizeof(system_prompt));
-        } else {
-          // system prompt was passed in, use it
-          strcpy(system_prompt, cli_system_prompt);
-        }
-      }
-      // get the user prompt
-      if (pos == 0 && cli_user_prompt != NULL) {
-        // user prompt for position 0 was passed in, use it
-        strcpy(user_prompt, cli_user_prompt);
-      } else {
-        // otherwise get user prompt from stdin
-        read_stdin("User: ", user_prompt, sizeof(user_prompt));
-      }
-      // render user/system prompts into the Llama 2 Chat schema
-      if (pos == 0 && system_prompt[0] != '\0') {
-        char system_template[] = "[INST] <<SYS>>\n%s\n<</SYS>>\n\n%s [/INST]";
-        sprintf(rendered_prompt, system_template, system_prompt, user_prompt);
-      } else {
-        char user_template[] = "[INST] %s [/INST]";
-        sprintf(rendered_prompt, user_template, user_prompt);
-      }
-      // encode the rendered prompt into tokens
-      encode(tokenizer, rendered_prompt, 1, 0, prompt_tokens, &num_prompt_tokens);
-      user_idx = 0;  // reset the user index
-      user_turn = 0;
-      printf("Assistant: ");
-    }
-
-    // determine the token to pass into the transformer next
-    if (user_idx < num_prompt_tokens) {
-      // if we are still processing the input prompt, force the next prompt token
-      token = prompt_tokens[user_idx++];
-    } else {
-      // otherwise use the next token sampled from previous turn
-      token = next;
-    }
-    // EOS (=2) token ends the Assistant turn
-    if (token == 2) {
-      user_turn = 1;
-    }
-
-    // forward the transformer to get logits for the next token
-    float* logits = forward(transformer, token, pos);
-    next = sample(sampler, logits);
-    pos++;
-
-    if (user_idx >= num_prompt_tokens && next != 2) {
-      // the Assistant is responding, so print its output
-      char* piece = decode(tokenizer, token, next);
-      safe_printf(piece);  // same as printf("%s", piece), but skips "unsafe" bytes
-      fflush(stdout);
-    }
-    if (next == 2) {
-      printf("\n");
-    }
-  }
-  printf("\n");
-  free(prompt_tokens);
-}
 
 // ----------------------------------------------------------------------------
 // CLI, include only if not testing
 #ifndef TESTING
-
 void error_usage() {
   fprintf(stderr, "Usage:   run <checkpoint> [options]\n");
   fprintf(stderr, "Example: run model.bin -n 256 -i \"Once upon a time\"\n");
@@ -985,54 +779,5 @@ void error_usage() {
   exit(EXIT_FAILURE);
 }
 
-int main(int argc, char* argv[]) {
-  // default parameters
-  char* checkpoint_path = "tmp/llama2/llama2_7b.bin";  // e.g. out/model.bin
-  char* tokenizer_path = "tmp/llama2/tokenizer.bin";
-  float temperature = 1.0f;  // 0.0 = greedy deterministic. 1.0 = original. don't set higher
-  float topp = 0.9f;         // top-p in nucleus sampling. 1.0 = off. 0.9 works well, but slower
-  int steps = 256;           // number of steps to run for
-  char* prompt = NULL;       // prompt string
-  unsigned long long rng_seed = 0;  // seed rng with time by default
-  char* mode = "generate";          // generate|chat
-  char* system_prompt = NULL;       // the (optional) system prompt to use in chat mode
 
-  // poor man's C argparse so we can override the defaults above from the command line
-
-  // parameter validation/overrides
-  if (rng_seed <= 0) rng_seed = (unsigned int)time(NULL);
-  if (temperature < 0.0) temperature = 0.0;
-  if (topp < 0.0 || 1.0 < topp) topp = 0.9;
-  if (steps < 0) steps = 0;
-
-  // build the Transformer via the model .bin file
-  Transformer transformer;
-  build_transformer(&transformer, checkpoint_path);
-  if (steps == 0 || steps > transformer.config.seq_len)
-    steps = transformer.config.seq_len;  // ovrerride to ~max length
-
-  // build the Tokenizer via the tokenizer .bin file
-  Tokenizer tokenizer;
-  build_tokenizer(&tokenizer, tokenizer_path, transformer.config.vocab_size);
-
-  // build the Sampler
-  Sampler sampler;
-  build_sampler(&sampler, transformer.config.vocab_size, temperature, topp, rng_seed);
-
-  // run!
-  if (strcmp(mode, "generate") == 0) {
-    generate(&transformer, &tokenizer, &sampler, prompt, steps);
-  } else if (strcmp(mode, "chat") == 0) {
-    chat(&transformer, &tokenizer, &sampler, prompt, system_prompt, steps);
-  } else {
-    fprintf(stderr, "unknown mode: %s\n", mode);
-    error_usage();
-  }
-
-  // memory and file handles cleanup
-  free_sampler(&sampler);
-  free_tokenizer(&tokenizer);
-  free_transformer(&transformer);
-  return 0;
-}
 #endif
