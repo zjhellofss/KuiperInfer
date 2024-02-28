@@ -94,6 +94,7 @@
 - [sanbuphy](https://github.com/sanbuphy)
 - [TypeFloat](https://github.com/TypeFloat)
 - [Jasmine-up](https://github.com/Jasmine-up)
+- [PerrySkywalker](https://github.com/PerrySkywalker)
 
 ### 如何参与项目贡献？
 1. 提交代码增加新功能或修改bug；
