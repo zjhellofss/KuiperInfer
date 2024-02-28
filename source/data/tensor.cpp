@@ -45,7 +45,7 @@ Tensor<T>::Tensor(T* raw_ptr, uint32_t rows, uint32_t cols) {
 template <typename T>
 Tensor<T>::Tensor(T* raw_ptr, uint32_t channels, uint32_t rows, uint32_t cols) {
   CHECK_NE(raw_ptr, nullptr);
-  this->data_ = arma::Cube<T>(raw_ptr, rows, cols, 1, false, true);
+  this->data_ = arma::Cube<T>(raw_ptr, rows, cols, channels, false, true);
   if (channels == 1 && rows == 1) {
     this->raw_shapes_ = std::vector<uint32_t>{cols};
   } else if (channels == 1) {
