@@ -19,9 +19,8 @@
 ## 对llama的支持
 > 我们将[llama.c](https://github.com/karpathy/llama2.c )中的算子替换为了KuiperInfer中的实现
 
-模型下载地址
+[模型下载链接](https://pan.baidu.com/s/1PF5KqvIvNFR8yDIY1HmTYA?pwd=ma8r )
 
-链接:https://pan.baidu.com/s/1PF5KqvIvNFR8yDIY1HmTYA?pwd=ma8r 
 
 ![a.gif](imgs/a.gif)
 
