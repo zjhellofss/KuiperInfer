@@ -16,6 +16,15 @@
 
 **视频课程链接：**[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
+## 对llama的支持
+> 我们将[llama.c](https://github.com/karpathy/llama2.c )中的算子替换为了KuiperInfer中的实现
+
+模型下载地址
+
+链接:https://pan.baidu.com/s/1PF5KqvIvNFR8yDIY1HmTYA?pwd=ma8r 
+
+![a.gif](imgs/a.gif)
+
 ## 第二次课程大纲
 
 第二次课程是第一次课程的重置版，内容更加充实和完善，第一次课程大纲见下方章节。

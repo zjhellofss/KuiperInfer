@@ -117,8 +117,7 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 #pragma omp parallel for
       for (int j = 0; j < weight_dim0_; ++j) {
         arma::fmat sub_weight(weight_ptr + j * weight_dim1_, weight_dim1_, 1, false, true);
-        arma::fmat output_mat(output_ptr + j, 1, 1, false, true);
-        output_mat = input_vec * sub_weight;
+        *(output_ptr + j) = as_scalar(input_vec * sub_weight);
       }
     } else if (weight_dim0_ == 1) {
       arma::fmat output_mat(output->raw_ptr(), input_dim1, weight_dim0_, false, true);
