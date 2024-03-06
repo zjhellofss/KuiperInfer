@@ -33,13 +33,6 @@ void RMSNormLayer::set_weights(const std::vector<float>& weights) {
 
 void RMSNormLayer::set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
   CHECK(weights.size() == weights_.size());
-  for (uint32_t i = 0; i < weights.size(); ++i) {
-    if (this->weights_.at(i) != nullptr) {
-      CHECK(this->weights_.at(i)->rows() == weights.at(i)->rows());
-      CHECK(this->weights_.at(i)->cols() == weights.at(i)->cols());
-      CHECK(this->weights_.at(i)->channels() == weights.at(i)->channels());
-    }
-  }
   this->weights_ = weights;
 }
 
@@ -89,8 +82,10 @@ StatusCode RMSNormLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
 
     const size_t size = input->size();
     arma::fvec input_vec(input->raw_ptr(), size, false, true);
-    float mean_value = arma::mean(input_vec % input_vec);
-    float norm_value = 1.f / std::sqrt(mean_value + eps_);
+
+    const arma::fvec& input_pow_vec = arma::pow(input_vec, 2.f);
+    const float mean_value = arma::mean(input_pow_vec);
+    const float norm_value = 1.f / std::sqrt(mean_value + eps_);
     arma::fvec output_vec(output->raw_ptr(), size, false, true);
     output_vec = weight_vec % (norm_value * input_vec);
   }
