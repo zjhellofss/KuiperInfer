@@ -60,7 +60,7 @@ StatusCode YoloDetectLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
   if (input_size / batch_size != stages_ || input_size % batch_size != 0) {
     LOG(ERROR) << "The input and output tensor array size of the yolo detect "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   CHECK(!this->conv_layers_.empty() && this->conv_layers_.size() == stages)

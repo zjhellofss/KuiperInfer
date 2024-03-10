@@ -55,7 +55,7 @@ StatusCode LinearLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the linear "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   if (this->weights_.empty()) {

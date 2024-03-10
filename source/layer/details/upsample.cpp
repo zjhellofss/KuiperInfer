@@ -74,7 +74,7 @@ StatusCode UpSampleLayer::Forward(const std::vector<std::shared_ptr<Tensor<float
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the upsample "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
   uint32_t scale_w = static_cast<uint32_t>(scale_w_);
   uint32_t scale_h = static_cast<uint32_t>(scale_h_);

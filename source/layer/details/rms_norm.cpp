@@ -51,7 +51,7 @@ StatusCode RMSNormLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the rmsnorm "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   if (weights_.empty() || weights_.front()->empty()) {

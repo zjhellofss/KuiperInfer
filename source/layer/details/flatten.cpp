@@ -44,7 +44,7 @@ StatusCode FlattenLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the flatten "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   int32_t start_dim = start_dim_;

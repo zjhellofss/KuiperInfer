@@ -106,7 +106,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the convolution "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   if (weights_.empty()) {

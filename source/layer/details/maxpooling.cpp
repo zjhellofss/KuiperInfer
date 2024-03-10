@@ -57,7 +57,7 @@ StatusCode MaxPoolingLayer::Forward(const std::vector<std::shared_ptr<Tensor<flo
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the maxpooling "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   if (!pooling_size_h_ || !pooling_size_w_) {

@@ -22,7 +22,7 @@ StatusCode ActivationForward(ActivationType type,
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the " + activation_type +
                       " layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   const uint32_t batch_size = inputs.size();

@@ -35,13 +35,6 @@ void LLamaMatmulLayer::set_weights(const std::vector<float>& weights) {
 
 void LLamaMatmulLayer::set_weights(const std::vector<std::shared_ptr<Tensor<float>>>& weights) {
   CHECK(weights.size() == weights_.size());
-  for (uint32_t i = 0; i < weights.size(); ++i) {
-    if (this->weights_.at(i) != nullptr) {
-      CHECK(this->weights_.at(i)->rows() == weights.at(i)->rows());
-      CHECK(this->weights_.at(i)->cols() == weights.at(i)->cols());
-      CHECK(this->weights_.at(i)->channels() == weights.at(i)->channels());
-    }
-  }
   this->weights_ = weights;
 }
 
@@ -60,7 +53,7 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the matmul "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   if (this->weights_.empty()) {
@@ -75,15 +68,13 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
   // w @ x
   uint32_t batch = inputs.size();
-  const std::shared_ptr<Tensor<float>>& weight = weights_.front();
-  arma::fmat weight_data(weight->raw_ptr(), weight_dim1_, weight_dim0_, false, true);  // wt
 #pragma omp parallel for if (batch > 1) num_threads(batch)
   for (uint32_t i = 0; i < batch; ++i) {
     std::shared_ptr<Tensor<float>> input = inputs.at(i);
     CHECK(input != nullptr && !input->empty())
         << "The input tensor array in the matmul layer has an empty tensor " << i << " th";
     const std::vector<uint32_t>& input_shapes = input->raw_shapes();
-    CHECK(input_shapes.size() <= 2);
+    CHECK(!input_shapes.empty() && input_shapes.size() <= 2);
 
     uint32_t input_dim0 = 1;
     uint32_t input_dim1 = 1;
@@ -97,6 +88,7 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
 
     // xt
     arma::fmat input_vec(input->raw_ptr(), input_dim1, input_dim0, false, true);
+    const std::shared_ptr<Tensor<float>>& weight = weights_.front();
     std::shared_ptr<Tensor<float>> output = outputs.at(i);
     if (output == nullptr || output->empty()) {
       output = std::make_shared<Tensor<float>>(1, input_dim1, weight_dim0_);
@@ -115,16 +107,19 @@ StatusCode LLamaMatmulLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
       float* output_ptr = output->raw_ptr();
       float* weight_ptr = weight->raw_ptr();
 #pragma omp parallel for
-      for (int j = 0; j < weight_dim0_; ++j) {
+      for (int32_t j = 0; j < weight_dim0_; ++j) {
         arma::fmat sub_weight(weight_ptr + j * weight_dim1_, weight_dim1_, 1, false, true);
-        *(output_ptr + j) = as_scalar(input_vec * sub_weight);
+        *(output_ptr + j) = arma::as_scalar(input_vec * sub_weight);
       }
-    } else if (weight_dim0_ == 1) {
-      arma::fmat output_mat(output->raw_ptr(), input_dim1, weight_dim0_, false, true);
-      output_mat = input_vec * weight_data;
     } else {
-      arma::fmat output_mat(output->raw_ptr(), weight_dim0_, input_dim1, false, true);
-      output_mat = (input_vec * weight_data).t();
+      arma::fmat weight_data(weight->raw_ptr(), weight_dim1_, weight_dim0_, false, true);  // wt
+      if (weight_dim0_ == 1) {
+        arma::fmat output_mat(output->raw_ptr(), input_dim1, weight_dim0_, false, true);
+        output_mat = input_vec * weight_data;
+      } else {
+        arma::fmat output_mat(output->raw_ptr(), weight_dim0_, input_dim1, false, true);
+        output_mat = (input_vec * weight_data).t();
+      }
     }
   }
   return StatusCode::kSuccess;

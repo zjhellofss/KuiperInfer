@@ -44,4 +44,4 @@ static void BM_Unet_Batch1_512x512(benchmark::State& state) {
   }
 }
 
-BENCHMARK(BM_Unet_Batch1_512x512)->Unit(benchmark::kMillisecond)->Iterations(kIterationNum);
+//BENCHMARK(BM_Unet_Batch1_512x512)->Unit(benchmark::kMillisecond)->Iterations(kIterationNum);

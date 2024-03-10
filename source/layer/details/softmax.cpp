@@ -46,7 +46,7 @@ StatusCode SoftmaxLayer::Forward(const std::vector<std::shared_ptr<Tensor<float>
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the softmax "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   const uint32_t batch_size = inputs.size();

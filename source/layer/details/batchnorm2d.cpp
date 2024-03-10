@@ -41,7 +41,7 @@ StatusCode BatchNorm2dLayer::Forward(const std::vector<std::shared_ptr<Tensor<fl
   if (inputs.size() != outputs.size()) {
     LOG(ERROR) << "The input and output tensor array size of the batchnorm2d "
                   "layer do not match";
-    return StatusCode::kInferInOutShapeMismatch;
+    return StatusCode::kInferDimMismatch;
   }
 
   const uint32_t mean_value_size = this->weights_.size();
