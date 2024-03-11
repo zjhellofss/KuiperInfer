@@ -24,20 +24,17 @@
 #include "convolution.hpp"
 #include <glog/logging.h>
 #include "layer/abstract/layer_factory.hpp"
-#include "runtime/runtime_ir.hpp"
-#include "tick.hpp"
 #include "utils/math/fmath.hpp"
 
 namespace kuiper_infer {
 
 bool ConvolutionLayer::Is1x1KernelNoPadding(uint32_t kernel_h, uint32_t kernel_w) const {
-  if (stride_h_ == 1 && stride_w_ == 1 && dilation_h_ == 1 && dilation_w_ == 1 && kernel_w == 1 &&
-      kernel_h == 1) {
-    if (padding_w_ == 0 && padding_h_ == 0) {
-      return true;
-    }
+  if ((stride_h_ == 1 && stride_w_ == 1) && (dilation_h_ == 1 && dilation_w_ == 1) &&
+      (kernel_w == 1 && kernel_h == 1) && (padding_w_ == 0 && padding_h_ == 0)) {
+    return true;
+  } else {
+    return false;
   }
-  return false;
 }
 
 void ConvolutionLayer::InitIm2ColWeight() {
@@ -150,7 +147,7 @@ void ConvolutionLayer::ConvGEMMBias(const arma::fmat& input_matrix, sftensor out
       << "The output tensor of the gemm function cannot be empty.";
 
   kernel_index = kernel_index + group * kernel_count_group;
-  const arma::fmat& kernel = this->kernel_matrix_arr_.at(kernel_index);
+  const arma::fmat& kernel = kernel_matrix_arr_.at(kernel_index);
 
   arma::fmat output(output_tensor->matrix_raw_ptr(kernel_index), output_h, output_w, false, true);
   if (is_1x1conv_nopadding) {
