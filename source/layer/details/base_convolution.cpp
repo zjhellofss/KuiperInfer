@@ -150,7 +150,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
 
   uint32_t kernel_h = this->weights_.at(0)->rows();
   uint32_t kernel_w = this->weights_.at(0)->cols();
-  CHECK(kernel_h > 0 && kernel_w > 0 && kernel_channel > 0)
+  CHECK(kernel_count > 0 && kernel_h > 0 && kernel_w > 0 && kernel_channel > 0)
       << "The size of kernel matrix in the convolution layer should be greater "
          "than zero";
 
@@ -161,7 +161,7 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
     CHECK(kernel->channels() == kernel_channel);
   }
 
-  if (this->kernel_matrix_arr_.empty()) {
+  if (kernel_matrix_arr_.size() != kernel_count) {
     InitIm2ColWeight();
   }
   const uint32_t batch_size = inputs.size();
