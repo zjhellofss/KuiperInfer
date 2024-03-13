@@ -123,7 +123,7 @@ StatusCode AdaptiveAveragePoolingLayer::CreateInstance(const std::shared_ptr<Run
                                                        std::shared_ptr<Layer<float>>& avg_layer) {
   if (!op) {
     LOG(ERROR) << "The adaptive pooling operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

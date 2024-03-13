@@ -110,7 +110,7 @@ StatusCode FlattenLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& 
                                         std::shared_ptr<Layer<float>>& flatten_layer) {
   if (!op) {
     LOG(ERROR) << "The flatten operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

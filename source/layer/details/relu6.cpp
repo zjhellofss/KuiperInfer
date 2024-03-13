@@ -34,7 +34,7 @@ StatusCode Relu6Layer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op
                                       std::shared_ptr<Layer<float>>& relu_layer) {
   if (!op) {
     LOG(ERROR) << "The relu6 operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   relu_layer = std::make_shared<Relu6Layer>();

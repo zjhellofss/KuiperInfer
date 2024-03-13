@@ -101,7 +101,7 @@ StatusCode BatchNorm2dLayer::CreateInstance(const std::shared_ptr<RuntimeOperato
                                             std::shared_ptr<Layer<float>>& batch_layer) {
   if (!op) {
     LOG(ERROR) << "The batchnorm operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

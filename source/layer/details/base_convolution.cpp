@@ -146,13 +146,21 @@ StatusCode BaseConvolutionLayer::Forward(const std::vector<std::shared_ptr<Tenso
   }
 
   const uint32_t kernel_count = this->weights_.size();
+  if (!kernel_count) {
+    LOG(ERROR) << "The size of kernel matrix in the convolution layer should be greater "
+                  "than zero";
+    return StatusCode::kInferParameterError;
+  }
+
+  const uint32_t kernel_h = this->weights_.at(0)->rows();
+  const uint32_t kernel_w = this->weights_.at(0)->cols();
   const uint32_t kernel_channel = this->weights_.at(0)->channels();
 
-  uint32_t kernel_h = this->weights_.at(0)->rows();
-  uint32_t kernel_w = this->weights_.at(0)->cols();
-  CHECK(kernel_count > 0 && kernel_h > 0 && kernel_w > 0 && kernel_channel > 0)
-      << "The size of kernel matrix in the convolution layer should be greater "
-         "than zero";
+  if (!kernel_h || !kernel_w || !kernel_channel) {
+    LOG(ERROR) << "The size of kernel matrix in the convolution layer should be greater "
+                  "than zero";
+    return StatusCode::kInferParameterError;
+  }
 
   for (uint32_t k = 0; k < kernel_count; ++k) {
     const std::shared_ptr<Tensor<float>>& kernel = this->weights_.at(k);
@@ -218,7 +226,7 @@ StatusCode BaseConvolutionLayer::CreateInstance(const std::shared_ptr<RuntimeOpe
                                                 std::shared_ptr<Layer<float>>& conv_layer) {
   if (!op) {
     LOG(ERROR) << "The convolution operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

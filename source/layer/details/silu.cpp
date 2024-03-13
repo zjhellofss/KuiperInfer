@@ -40,7 +40,7 @@ StatusCode SiLULayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                      std::shared_ptr<Layer<float>>& silu_layer) {
   if (!op) {
     LOG(ERROR) << "The SiLU operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
   silu_layer = std::make_shared<SiLULayer>();
   return StatusCode::kSuccess;

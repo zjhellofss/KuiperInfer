@@ -58,10 +58,11 @@ class ConvolutionLayer : public BaseConvolutionLayer {
                     uint32_t kernel_index, uint32_t kernel_count_group, uint32_t output_h,
                     uint32_t output_w, bool is_1x1conv_nopadding) const;
 
-  arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w, uint32_t input_h,
-                        uint32_t input_w, uint32_t channels_per_group, uint32_t output_h,
-                        uint32_t output_w, uint32_t group, uint32_t row_len,
-                        uint32_t col_len) const;
+  [[nodiscard]] arma::fmat ConvIm2Col(sftensor input, uint32_t kernel_h, uint32_t kernel_w,
+                                      uint32_t input_h, uint32_t input_w,
+                                      uint32_t channels_per_group, uint32_t output_h,
+                                      uint32_t output_w, uint32_t group, uint32_t row_len,
+                                      uint32_t col_len) const;
 };
 
 }  // namespace kuiper_infer

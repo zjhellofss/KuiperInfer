@@ -135,7 +135,7 @@ StatusCode LinearLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& o
                                        std::shared_ptr<Layer<float>>& linear_layer) {
   if (!op) {
     LOG(ERROR) << "The linear operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

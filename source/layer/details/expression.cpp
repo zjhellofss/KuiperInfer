@@ -123,7 +123,7 @@ StatusCode ExpressionLayer::CreateInstance(const std::shared_ptr<RuntimeOperator
                                            std::shared_ptr<Layer<float>>& expression_layer) {
   if (!op) {
     LOG(ERROR) << "The expression operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

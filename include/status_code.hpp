@@ -49,7 +49,7 @@ enum class StatusCode {
   kFunctionNotImplement = 5,
   kParseWeightError = 6,
   kParseParameterError = 7,
-  kParseOperatorNullParam = 8,
+  kParseNullOperator = 8,
 };
 
 }  // namespace kuiper_infer

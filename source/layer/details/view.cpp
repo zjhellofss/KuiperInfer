@@ -96,7 +96,7 @@ StatusCode ViewLayer::CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                      std::shared_ptr<Layer<float>>& view_layer) {
   if (!op) {
     LOG(ERROR) << "The view operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
 
   const auto& params = op->params;

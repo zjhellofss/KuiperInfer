@@ -37,7 +37,7 @@ StatusCode HardSigmoid::CreateInstance(const std::shared_ptr<RuntimeOperator>& o
                                        std::shared_ptr<Layer<float>>& hardsigmoid_layer) {
   if (!op) {
     LOG(ERROR) << "The hardsigmoid operator parameter in the layer is null pointer.";
-    return StatusCode::kParseOperatorNullParam;
+    return StatusCode::kParseNullOperator;
   }
   hardsigmoid_layer = std::make_shared<HardSigmoid>();
   return StatusCode::kSuccess;
