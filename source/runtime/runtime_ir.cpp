@@ -393,6 +393,22 @@ void RuntimeGraph::ReverseTopoSort() {
     op->forward_index = forward_index;
     forward_index += 1;
   }
+
+  for (const auto& op : operators_) {
+    const auto& next_ops = op->output_operators;
+    int32_t last_forward_index = -1;
+    for (const auto& [_, next_op] : next_ops) {
+      if (next_op->forward_index >= last_forward_index) {
+        last_forward_index = next_op->forward_index;
+      }
+    }
+
+    if (last_forward_index == -1) {
+      op->end_forward_index = op->forward_index + 1;
+    } else {
+      op->end_forward_index = last_forward_index;
+    }
+  }
 }
 
 template <typename T>

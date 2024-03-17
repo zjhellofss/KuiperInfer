@@ -123,21 +123,61 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
     std::vector<int32_t> operand_shapes;
     std::copy_if(operand->shape.begin(), operand->shape.end(), std::back_inserter(operand_shapes),
                  [](int32_t dim) { return dim > 0; });
+
     const auto& runtime_op = operators[i];
-    const auto& output_tensors = runtime_op->output_operands;
+    auto& output_tensors = runtime_op->output_operands;
     CHECK((operand_shapes.size() == 2 || operand_shapes.size() == 4 || operand_shapes.size() == 3))
         << "Unsupported shape sizes: " << operand_shapes.size();
+
+    size_t operand_size =
+        std::accumulate(operand_shapes.begin(), operand_shapes.end(), 1, std::multiplies());
 
     const int32_t batch = operand_shapes[0];
     CHECK_EQ(operand->type, 1) << "The type of pnnx operand is not float32";
     if (!output_tensors) {
-      std::vector<sftensor> output_operand_datas;
-      for (uint32_t j = 0; j < batch; ++j) {
-        output_operand_datas.push_back(CreateTensor(operand_shapes));
+      bool has_found = false;
+      for (uint32_t j = 0; j < i; ++j) {
+        if (has_found) {
+          break;
+        }
+
+        const auto& prev_runtime_op = operators.at(j);
+        if (runtime_op->forward_index > prev_runtime_op->swap_forward_index) {
+          prev_runtime_op->end_forward_index = prev_runtime_op->swap_forward_index;
+        }
+        if (!prev_runtime_op->output_operands || prev_runtime_op->end_forward_index == -1) {
+          continue;
+        }
+        if (runtime_op->forward_index > prev_runtime_op->end_forward_index) {
+          if (prev_runtime_op->output_operands->size() == operand_size) {
+            has_found = true;
+            runtime_op->output_operands = std::make_shared<RuntimeOperand>();
+            runtime_op->output_operands->datas.resize(batch);
+            runtime_op->output_operands->name = operand->name + "_output";
+            runtime_op->output_operands->shapes = operand_shapes;
+            runtime_op->output_operands->type = RuntimeDataType::kTypeFloat32;
+            const auto& prev_runtime_op_tensors = prev_runtime_op->output_operands->datas;
+            for (uint32_t b = 0; b < batch; ++b) {
+              sftensor output_tensor = prev_runtime_op_tensors.at(b);
+              output_tensors->datas[b] =
+                  std::make_shared<ftensor>(output_tensor->raw_ptr(), output_tensor->shapes());
+              CheckAndReshapeTensor(output_tensors->datas[b], operand_shapes);
+            }
+            prev_runtime_op->swap_forward_index = runtime_op->end_forward_index;
+            prev_runtime_op->end_forward_index = -1;
+          }
+        }
       }
-      runtime_op->output_operands =
-          std::make_shared<RuntimeOperand>(operand->name + "_output", operand_shapes,
-                                           output_operand_datas, RuntimeDataType::kTypeFloat32);
+
+      if (!has_found) {
+        std::vector<sftensor> output_operand_datas;
+        for (uint32_t j = 0; j < batch; ++j) {
+          output_operand_datas.push_back(CreateTensor(operand_shapes));
+        }
+        runtime_op->output_operands =
+            std::make_shared<RuntimeOperand>(operand->name + "_output", operand_shapes,
+                                             output_operand_datas, RuntimeDataType::kTypeFloat32);
+      }
     } else {
       CHECK(batch == output_tensors->datas.size());
       CHECK(output_tensors->type == RuntimeDataType::kTypeFloat32);

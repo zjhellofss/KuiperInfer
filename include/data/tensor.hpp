@@ -39,6 +39,8 @@ class Tensor {
 
   explicit Tensor(T* raw_ptr, uint32_t channels, uint32_t rows, uint32_t cols);
 
+  explicit Tensor(T* raw_ptr, const std::vector<uint32_t>& shapes);
+
   /**
    * @brief Construct a new empty Tensor
    */

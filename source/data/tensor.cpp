@@ -56,6 +56,24 @@ Tensor<T>::Tensor(T* raw_ptr, uint32_t channels, uint32_t rows, uint32_t cols) {
 }
 
 template <typename T>
+Tensor<T>::Tensor(T* raw_ptr, const std::vector<uint32_t>& shapes) {
+  CHECK_EQ(shapes.size(), 3);
+  uint32_t channels = shapes.at(0);
+  uint32_t rows = shapes.at(1);
+  uint32_t cols = shapes.at(2);
+
+  if (channels == 1 && rows == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{cols};
+  } else if (channels == 1) {
+    this->raw_shapes_ = std::vector<uint32_t>{rows, cols};
+  } else {
+    this->raw_shapes_ = std::vector<uint32_t>{channels, rows, cols};
+  }
+
+  this->data_ = arma::Cube<T>(raw_ptr, rows, cols, channels, false, true);
+}
+
+template <typename T>
 Tensor<T>::Tensor(uint32_t channels, uint32_t rows, uint32_t cols) {
   data_ = arma::Cube<T>(rows, cols, channels);
   if (channels == 1 && rows == 1) {
