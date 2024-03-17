@@ -142,9 +142,14 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
         }
 
         const auto& prev_runtime_op = operators.at(j);
-        if (!prev_runtime_op->output_operands || prev_runtime_op->end_forward_index == -1) {
+        if (!prev_runtime_op->output_operands || prev_runtime_op->occur_forward_index != -1) {
           continue;
         }
+
+        if (runtime_op->forward_index > prev_runtime_op->occur_forward_index) {
+          prev_runtime_op->occur_forward_index = -1;
+        }
+
         if (runtime_op->forward_index > prev_runtime_op->end_forward_index) {
           if (prev_runtime_op->output_operands->size() == operand_size) {
             has_found = true;
@@ -160,7 +165,7 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
                   std::make_shared<ftensor>(output_tensor->raw_ptr(), output_tensor->shapes());
               CheckAndReshapeTensor(output_tensors->datas[b], operand_shapes);
             }
-            prev_runtime_op->end_forward_index = -1;
+            prev_runtime_op->occur_forward_index = runtime_op->end_forward_index;
           }
         }
       }

@@ -86,7 +86,7 @@ void YoloDemo(const std::vector<std::string>& image_paths, const std::string& pa
 
   std::vector<std::shared_ptr<Tensor<float>>> outputs;
   graph.set_inputs("pnnx_input_0", inputs);
-  for (int i = 0; i < 1; ++i) {
+  for (int i = 0; i < 10000; ++i) {
     graph.Forward(true);
   }
   outputs = graph.get_outputs("pnnx_output_0");

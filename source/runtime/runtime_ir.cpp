@@ -408,6 +408,7 @@ void RuntimeGraph::ReverseTopoSort() {
     } else {
       op->end_forward_index = last_forward_index;
     }
+    op->occur_forward_index = -1;
   }
 }
 

@@ -53,6 +53,8 @@ struct RuntimeOperatorBase {
 
   int32_t end_forward_index = -1;
 
+  int32_t occur_forward_index = -1;
+
   /// Whether this operator has run in current execution
   bool has_forward = false;
 
