@@ -156,7 +156,7 @@ void RuntimeGraph::Forward(bool debug) {
 
   for (const auto& current_op : operators_) {
     current_op->has_forward = false;
-    CHECK_GT(current_op->forward_index, 0);
+    CHECK_GT(current_op->start_time, 0);
 
     if (is_input_op(current_op->name) || is_output_op(current_op->name)) {
       current_op->has_forward = true;
@@ -385,12 +385,12 @@ void RuntimeGraph::ReverseTopoSort() {
 
   // 根据拓扑顺序调整算子的执行顺序
   std::sort(operators_.begin(), operators_.end(), [](const auto& op1, const auto& op2) {
-    return op1->forward_index > op2->forward_index;
+    return op1->start_time > op2->start_time;
   });
 
   int32_t forward_index = 1;
   for (const auto& op : operators_) {
-    op->forward_index = forward_index;
+    op->start_time = forward_index;
     forward_index += 1;
   }
 
@@ -398,17 +398,17 @@ void RuntimeGraph::ReverseTopoSort() {
     const auto& next_ops = op->output_operators;
     int32_t last_forward_index = -1;
     for (const auto& [_, next_op] : next_ops) {
-      if (next_op->forward_index >= last_forward_index) {
-        last_forward_index = next_op->forward_index;
+      if (next_op->start_time >= last_forward_index) {
+        last_forward_index = next_op->start_time;
       }
     }
 
     if (last_forward_index == -1) {
-      op->end_forward_index = op->forward_index + 1;
+      op->end_time = op->start_time + 1;
     } else {
-      op->end_forward_index = last_forward_index;
+      op->end_time = last_forward_index;
     }
-    op->occur_forward_index = -1;
+    op->occur_end_time = -1;
   }
 }
 
@@ -437,7 +437,7 @@ void RuntimeGraph::ReverseTopoSortInternal(const std::shared_ptr<RuntimeOperator
   for (const auto& [_, op] : next_ops) {
     CHECK_EQ(op->has_forward, true);
   }
-  root_op->forward_index = current_forward_idx;
+  root_op->start_time = current_forward_idx;
   current_forward_idx += 1;
 }
 

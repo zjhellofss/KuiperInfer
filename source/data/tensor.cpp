@@ -368,7 +368,6 @@ void Tensor<T>::Reshape(const std::vector<uint32_t>& shapes, bool row_major) {
       std::accumulate(shapes.begin(), shapes.end(), 1, std::multiplies<size_t>());
   CHECK(shapes.size() <= 3);
   CHECK(current_size == origin_size);
-
   if (!row_major) {
     if (shapes.size() == 3) {
       this->data_.reshape(shapes.at(1), shapes.at(2), shapes.at(0));
