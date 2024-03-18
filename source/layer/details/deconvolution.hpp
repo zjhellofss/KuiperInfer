@@ -59,9 +59,9 @@ class DeconvolutionLayer : public BaseConvolutionLayer {
                         uint32_t kernel_count_group, uint32_t kernel_h, uint32_t kernel_w,
                         uint32_t output_h, uint32_t output_w) const;
 
-  arma::fmat DeconvGEMM(const sftensor& input, uint32_t input_h, uint32_t input_w,
-                        uint32_t channels_per_group, uint32_t group, uint32_t kernel_index,
-                        uint32_t kernel_count_group) const;
+  [[nodiscard]] arma::fmat DeconvGEMM(const sftensor& input, uint32_t input_h, uint32_t input_w,
+                                      uint32_t channels_per_group, uint32_t group,
+                                      uint32_t kernel_index, uint32_t kernel_count_group) const;
 };
 }  // namespace kuiper_infer
 #endif  // KUIPER_INFER_SOURCE_LAYER_DETAILS_DECONVOLUTION_H

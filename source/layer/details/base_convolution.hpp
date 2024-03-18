@@ -45,8 +45,8 @@ class BaseConvolutionLayer : public ParamLayer {
   static StatusCode CreateInstance(const std::shared_ptr<RuntimeOperator>& op,
                                    std::shared_ptr<Layer<float>>& conv_layer);
 
-  [[nodiscard]] StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
-                                   std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
+  StatusCode Forward(const std::vector<std::shared_ptr<Tensor<float>>>& inputs,
+                     std::vector<std::shared_ptr<Tensor<float>>>& outputs) override;
 
  private:
   virtual void ComputeOutput(sftensor input, sftensor output_tensor, uint32_t kernel_h,
