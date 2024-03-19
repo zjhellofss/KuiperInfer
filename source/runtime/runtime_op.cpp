@@ -109,7 +109,7 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
       LOG(FATAL) << "Only support one node one output yet!";
     }
 
-    pnnx::Operand* operand = operands[0];
+    pnnx::Operand* operand = operands.front();
     CHECK(operand != nullptr && !operand->shape.empty()) << "Operand output is null or empty!";
     std::vector<int32_t> operand_shapes;
     std::copy_if(operand->shape.begin(), operand->shape.end(), std::back_inserter(operand_shapes),
@@ -142,19 +142,21 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
         }
 
         if (runtime_op->start_time > prev_runtime_op->end_time) {
-          if (prev_runtime_op->output_operands->size() == operand_size) {
+          if (prev_runtime_op->output_operands->size() >= operand_size) {
             has_found = true;
+            const auto& prev_output_operand = prev_runtime_op->output_operands;
             runtime_op->output_operands = std::make_shared<RuntimeOperand>();
             runtime_op->output_operands->datas.resize(batch);
-            runtime_op->output_operands->name = operand->name + "_output";
+            runtime_op->output_operands->name = prev_output_operand->name + "_output";
             runtime_op->output_operands->shapes = operand_shapes;
             runtime_op->output_operands->type = RuntimeDataType::kTypeFloat32;
-            const auto& prev_runtime_op_tensors = prev_runtime_op->output_operands->datas;
+            const auto& prev_runtime_op_tensors = prev_output_operand->datas;
             for (uint32_t b = 0; b < batch; ++b) {
               sftensor prev_output_tensor = prev_runtime_op_tensors.at(b);
-              output_tensors->datas[b] = std::make_shared<ftensor>(prev_output_tensor->raw_ptr(),
-                                                                   prev_output_tensor->shapes());
-              CheckAndReshapeTensor(output_tensors->datas[b], operand_shapes);
+              sftensor output_tensor = std::make_shared<ftensor>(prev_output_tensor->raw_ptr(),
+                                                                 prev_output_tensor->shapes());
+              CheckAndReshapeTensor(output_tensor, operand_shapes);
+              output_tensors->datas[b] = output_tensor;
             }
             prev_runtime_op->occur_end_time = runtime_op->end_time;
           }
