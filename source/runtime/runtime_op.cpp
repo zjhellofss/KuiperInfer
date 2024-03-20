@@ -142,7 +142,7 @@ void RuntimeOperatorUtils<float>::InitOperatorOutput(
         }
 
         if (runtime_op->start_time > prev_runtime_op->end_time) {
-          if (prev_runtime_op->output_operands->size() >= operand_size) {
+          if (prev_runtime_op->output_operands->size() == operand_size) {
             has_found = true;
             const auto& prev_output_operand = prev_runtime_op->output_operands;
             runtime_op->output_operands = std::make_shared<RuntimeOperand>();
