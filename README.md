@@ -1,15 +1,29 @@
-#  News：新课发布，《动手自制大模型推理框架》，全手写cuda算子，课程框架支持LLama2和3.x
-Hi，各位朋友们好！我是 KuiperInfer 的作者。KuiperInfer 作为一门开源课程，迄今已经在 GitHub 上已斩获 2.4k star。
-如今在原课程的基础上，**我们全新推出了《动手自制大模型推理框架》， 新课程支持Llama系列大模型（包括最新的LLama3.2），同时支持 Cuda 加速和 Int8 量化**，自推出以来便广受好评。
+# News：新课发布，《动手自制大模型推理框架》，全手写cuda算子，课程框架支持LLama2和3.x以及Qwen2.5模型
+
+Hi，各位朋友们好！我是 KuiperInfer 的作者。KuiperInfer 作为一门开源课程，迄今已经在 GitHub 上已斩获 2.5k star。
+如今在原课程的基础上，**我们全新推出了《动手自制大模型推理框架》， 新课程支持Llama系列大模型（包括最新的LLama3.2）以及Qwen2.5系列大模型，同时支持 Cuda 加速和 Int8 量化**，自推出以来便广受好评。
 
 ## 《动手自制大模型推理框架》课程目录：
-
 https://l0kzvikuq0w.feishu.cn/docx/ZF2hd0xfAoaXqaxcpn2c5oHAnBc
+## 《动手自制大模型推理框架》课程优势
 
-**如果你对大模型推理感兴趣，想要深入了解并掌握相关技术，那么这门课程绝对不容错过。快来加入我们，一起开启学习之旅吧！
+1. 采用最新的C++ 20标准去写代码，统一、美观的代码风格，良好的错误处理；
+2. 优秀的项目管理形式，我们采用CMake+Git的方式管理项目，接轨大厂；
+3. 授人以渔，教大家怎么设计一个现代C++项目，同时教大家怎么用单元测试和Benchmark去测试验证自己的项目； 
+4. CPU算子和CUDA双后端实现，对时新的大模型（LLama3和Qwen系列）有非常好的支持。
+
+
+**如果你对大模型推理感兴趣，想要深入了解并掌握相关技术，想在校招、秋招面试当中脱颖而出，那么这门《动手自制大模型推理框架》课程绝对不容错过。快来加入我们，一起开启学习之旅吧！
     感兴趣的同学欢迎扫一扫课程下方二维码或者添加微信 lyrry1997 参加课程**
 
 <img src="imgs/me.jpg"  />
+
+
+
+## 《动手自制大模型推理框架》课程项目运行效果
+> LLama1.1b fp32模型，视频无加速，运行平台为Nvidia 3060 laptop，速度为60.34 token/s
+
+![](./imgs/do.gif)
 
 
 
@@ -29,15 +43,8 @@ https://l0kzvikuq0w.feishu.cn/docx/ZF2hd0xfAoaXqaxcpn2c5oHAnBc
 
 **视频课程链接：**[https://space.bilibili.com/1822828582](https://space.bilibili.com/1822828582)
 
-## 对llama的支持
-> 我们将[llama.c](https://github.com/karpathy/llama2.c )中的算子替换为了KuiperInfer中的实现
 
-[模型下载链接](https://pan.baidu.com/s/1PF5KqvIvNFR8yDIY1HmTYA?pwd=ma8r ) 下载后替换到demos/llama2/main.cpp中
-
-
-![a.gif](imgs/a.gif)
-
-## 第二次课程大纲
+## 课程大纲
 
 第二次课程是第一次课程的重置版，内容更加充实和完善，第一次课程大纲见下方章节。
 
@@ -114,6 +121,7 @@ https://l0kzvikuq0w.feishu.cn/docx/ZF2hd0xfAoaXqaxcpn2c5oHAnBc
 - [PerrySkywalker](https://github.com/PerrySkywalker)
 - [delve-wang](https://github.com/delve-wang)
 - [z-learner](https://github.com/z-learner)
+- [Meihongtao](https://github.com/Meihongtao)
 
 ### 如何参与项目贡献？
 1. 提交代码增加新功能或修改bug；
